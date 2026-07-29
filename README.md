@@ -1,0 +1,190 @@
+<h1 align="center">dira</h1>
+
+<p align="center">
+  <b>kazi proves it's done. dira remembers why you wanted it.</b>
+</p>
+
+<p align="center">
+  <a href="docs/design.md">Design</a> &nbsp;&middot;&nbsp;
+  <a href="schema/entry.schema.json">Entry schema</a> &nbsp;&middot;&nbsp;
+  <a href=".dira/entries">Our own ledger</a> &nbsp;&middot;&nbsp;
+  <a href="https://github.com/kazi-org/kazi">kazi</a>
+</p>
+
+<p align="center">
+  <i>dira</i> — Swahili for <i>compass</i>.
+</p>
+
+---
+
+> **Status: design phase.** There is no binary yet. What exists is the founding design
+> ([`docs/design.md`](docs/design.md)), the entry schema, and dira's own ledger under
+> [`.dira/`](.dira/entries) — the tool's first user is itself. Stars and issues
+> welcome; `brew install` is not a thing yet.
+
+## The problem
+
+You spend hundreds of hours brainstorming with a coding agent. You reach real
+agreement. Then you lose it.
+
+Not for lack of writing it down — there are 83 ADRs in the sibling repo. You lose it
+because **reading is pull-based and iteration outruns reading**. So week 12
+relitigates week 1, and the agent, who remembers nothing across sessions, helps you do
+it.
+
+Existing tools each miss a different half:
+
+- **Trackers** (Linear, Jira, Beads) know *what* and *when*. Not *why*, and never
+  *what you rejected*.
+- **ADRs and spec docs** capture rationale into files nobody reopens. They fix
+  capture. The broken thing is retrieval.
+- **Notes apps** (Obsidian) hold everything and therefore own nothing.
+- **kazi** proves a goal is objectively done — and deliberately refuses to decide what
+  to build.
+
+Unclaimed: a ledger where **the agent does the writing, you never open a file, and the
+system actively refuses to let decisions be quietly contradicted.**
+
+## What dira is
+
+A git-native ledger of **intents, decisions, rejected alternatives, open questions,
+and constraints**, sitting one layer above execution.
+
+```
+        dira  ─── intents · why · why-not · open questions        (upstream of a goal)
+          │
+          ▼  a declared goal
+        kazi  ─── predicates · convergence · evidence             (downstream of a goal)
+```
+
+Three inversions make it work, and each is where a predecessor failed:
+
+**1. Capture is the agent's job.** Hooks on `SessionStart`, `Stop`, and `PreCompact`
+pull decisions out of the transcript. Your whole clerical workload:
+
+```
+dira: staged dec-0060 "Checkpoint file for run resume (no daemon)"
+      — confirm or ignore
+```
+
+**2. Review is push, not pull.** You never open a file. One screen at session start,
+injected into the agent's context at the same moment — hard-capped at 1,500 tokens
+forever, because a brief that grows without bound is just the ADR pile again.
+
+**3. It's an enforcer, not a notebook.** Before work gets planned:
+
+```
+$ dira check "add a background daemon to track run state"
+✗ conflicts with dec-0060 (accepted 2026-07-03)
+    rejected alternative: "a daemon"
+    why_not: violates the single-binary intent (int-0002)
+    revisit_if: cold-start latency stops being the binding constraint
+→ supersede dec-0060, or revise the plan
+```
+
+That is the part ADRs never did.
+
+## What it answers
+
+**"What's planned, in progress, blocked?"** — without a single hand-entered status
+field. dira stores none of it; it joins its ledger against `kazi portfolio --json`
+across `realized_by` edges at read time. A derived view can't go stale.
+
+Two buckets matter most, and one of them no execution tracker can see:
+
+- **To be planned** — decided, but no goal exists yet. The gap list.
+- **Decision-blocked** — an open question gating the work. The work stalled *before*
+  any goal existed, because a human never answered something. That appears in no
+  tracker anywhere.
+
+**"Why did we do it this way?"**
+
+```
+$ dira why daemon
+qst-0007  can runs survive a reboot?                     answered 2026-07-03
+  ✗ a daemon              — violates single-binary intent (int-0002)
+  ✗ event sourcing        — rejected earlier as dec-0042
+  ✓ dec-0060  checkpoint file for run resume
+       └─ realized_by kazi:prop-resume-8a1f → converged ✓
+       └─ docs/adr/0084-checkpoint-resume.md
+```
+
+**"What are we actually doing across all my projects?"** — the model is fractal. One
+entry model, one join rule, one drift flag, at every level:
+
+```
+~/.dira/            you       — private, syncs across machines
+└─ sire/.dira/      venture   — bets
+   └─ kazi/.dira/   repo
+```
+
+Any active intent with no link to a parent gets flagged as **orphan work** — so
+unexplained work becomes structurally visible instead of a feeling you reconstruct.
+And `SessionStart` injects the whole chain, so the agent in one repo knows your
+current focus is elsewhere and can say so.
+
+## Design commitments
+
+These are constitutional. Each is a real entry in [`.dira/`](.dira/entries) with its
+rejected alternatives recorded, so overruling one is a one-line supersede rather than
+an argument.
+
+| | |
+|---|---|
+| **One binary, no server, no daemon** | Invoked from hooks in a human's latency path. Works with the network unplugged. |
+| **No model client in the binary** | No API key, no vendor lock-in. Semantic extraction is delegated to the session that's already running. |
+| **Status is derived, never stored** | Hand-entered status is exactly what went stale in Obsidian and Linear. |
+| **Five entry kinds, closed set** | A sixth kind is how a direction tool becomes a second brain. |
+| **The brief never exceeds 1,500 tokens** | Enforced by the binary, not by taste. |
+| **Private context never enters a public ledger** | Inheritance is downward-only and read-time-only. A violation is a security bug. |
+| **Never requires an account or a hosted tier** | Your data never touches our servers — literally, because there are no servers. |
+
+## Where the data lives
+
+One file per entry — YAML frontmatter for the machine, markdown body for the *because*:
+
+```
+.dira/
+├── config.toml          # the only hand-edited file
+├── entries/             # the ledger, committed to your repo
+│   ├── int-0001.md
+│   └── dec-0001.md
+└── cache/               # derived SQLite, gitignored, rebuildable
+```
+
+Per-entry files rather than an append-only log, because capture is automatic and
+unattended: two sessions logging at once create two files, which git merges without a
+conflict. It also means one write per mutation — and therefore one GitHub `PUT`, which
+is what lets a phone be a first-class client with **no dira server anywhere**. GitHub
+is already the sync layer; it was already paid for.
+
+Full rationale: [dec-0002](.dira/entries/dec-0002.md).
+
+## Status & roadmap
+
+| Stage | Contents |
+|---|---|
+| **M1** | entry schema · storage interface · `log` `why` `brief` `reindex` · `SessionStart` injection |
+| **M2** | `dira sniff` · Claude Code skill · `Stop` + `PreCompact` hooks |
+| **M3** | `dira check` · `supersede` · constraint inheritance |
+| **M4** | kazi join · `dira map` · decision-blocked detection |
+| **M5** | workspace + personal tiers · orphan drift · `init --interview` |
+| **M6** | `dira ui` · GitHub storage backend · apps |
+
+M1 alone is already more useful than any of the alternatives above. Detail and open
+questions: [`docs/design.md`](docs/design.md), [`docs/roadmap.md`](docs/roadmap.md).
+
+## Relationship to kazi
+
+Siblings, neither depending on the other. kazi's README draws the line itself: it will
+never *"decide what to build — that's your judgment."* That sentence is dira's
+charter — dira owns everything upstream of a declared goal.
+
+kazi runs fine with no dira installed. dira degrades to its ledger-side views with no
+kazi installed, and says so rather than guessing. Integration is only through kazi's
+public `--json` contract ([dec-0008](.dira/entries/dec-0008.md)) — never its
+internals.
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).

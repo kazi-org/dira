@@ -1,0 +1,16 @@
+# dira's derived read cache — rebuildable from .dira/entries/ at any time via
+# `dira reindex`. Never committed: if the cache and the entry files ever disagree,
+# the files win (dec-0002).
+.dira/cache/
+
+# Go build output
+/dira
+/dist/
+*.test
+*.out
+
+# Editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/

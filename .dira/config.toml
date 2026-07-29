@@ -1,0 +1,44 @@
+# dira ledger configuration
+#
+# This file is the only hand-edited file in .dira/. Everything under entries/
+# is written by dira itself (via hooks, the skill, or `dira log`), and
+# everything under cache/ is derived and gitignored.
+
+[ledger]
+# Short name this ledger is known by when other ledgers reference it.
+# Namespaced refs elsewhere resolve as "<name>:<entry-id>", e.g. dira:dec-0001.
+name = "dira"
+
+# Which tier this ledger sits at: person | workspace | repo.
+# The tier does not change the entry model (dec-0006) — it only changes which
+# mix of entries is idiomatic, and which drift checks apply.
+tier = "repo"
+
+[parents]
+# Upward links. An active intent in this ledger with no derives_from edge into
+# a parent is flagged as orphan work — the drift signal that answers
+# "why does this work exist?" Resolution is read-only: dira never writes to a
+# parent ledger.
+#
+# Paths may be local, or a git remote for ledgers that live elsewhere.
+# Commented out until the sire workspace ledger exists (see qst-0001).
+# sire = { path = "../../sire-run/sire", ref = "main" }
+
+[mirror]
+# When true, every accepted decision also emits a conventional ADR file, so the
+# docs/adr/ corpus stays intact for humans and audits. The ADR is exhaust; the
+# entry is truth (dec-0009). Deleting an ADR must never lose information.
+adr = true
+adr_dir = "docs/adr"
+
+[brief]
+# Hard token ceiling on the session brief, enforced by the binary, not by taste.
+# The moment the brief stops fitting on one screen, dira has become the ADR pile
+# it exists to replace. Raising this number requires superseding cst-0001.
+max_tokens = 1500
+
+[kazi]
+# Execution truth is read from kazi, never recomputed and never hand-entered
+# (dec-0004). If the kazi binary is absent, dira degrades to ledger-side buckets
+# rather than guessing.
+enabled = true
