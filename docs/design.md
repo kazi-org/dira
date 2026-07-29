@@ -457,8 +457,15 @@ kazi plan "runs resume after restart from a checkpoint file" --workspace . --adr
 ```
 
 dira links `dec-0060 → realized_by: kazi:prop-resume-8a1f`, and the goal-file carries
-`why = "dira:dec-0060"`. **This is the seam**: rationale points down at the goal, the
-goal points up at the rationale.
+the return pointer in the `metadata` table kazi already stores verbatim:
+
+```toml
+[metadata]
+why = "dira:dec-0060"
+```
+
+**This is the seam**: rationale points down at the goal, the goal points up at the
+rationale — and it needs no change to kazi (dec-0008).
 
 **6. You approve — and the approval is itself a decision event.**
 `kazi approve prop-resume-8a1f` flips the linkage from proposal to runnable goal, and
@@ -544,9 +551,10 @@ above.**
 | **M5 — tiers** | workspace + personal ledgers · namespaced refs · orphan drift · `init --interview` | "what are we doing on Sire?" is answered by a report |
 | **M6 — surfaces** | `dira ui` embedded SPA · `github` storage backend · PWA · paid apps | — |
 
-Upstream kazi asks, all additive, none breaking (qst-0005): register `portfolio` in
-`Kazi.CLI.Schema`; a post-disposition hook on `approve`/`reject`; an optional `why`
-field on goal-files.
+Upstream kazi asks — only **two**, both additive, neither breaking (qst-0005):
+register `portfolio` in `Kazi.CLI.Schema`, and a post-disposition hook on
+`approve`/`reject`. Downward traceability needs nothing: goal-files already carry a
+verbatim `metadata` table (`loader.ex:24`), so `metadata.why` works today.
 
 ---
 
@@ -559,7 +567,7 @@ Tracked as real entries, not a list that rots:
 | [qst-0001](../.dira/entries/qst-0001.md) | How does a public repo ledger resolve a parent ref in a **private** ledger? | dec-0006 — the workspace tier cannot ship until settled |
 | [qst-0002](../.dira/entries/qst-0002.md) | Attention drift from ledger writes only, or session metadata? *(or don't build it — it is the one proposed feature closer to self-surveillance than navigation)* | nothing |
 | [qst-0003](../.dira/entries/qst-0003.md) | Does bulk-importing 83 ADRs produce a useful ledger or a second pile? | int-0003 |
-| [qst-0005](../.dira/entries/qst-0005.md) | Will kazi accept the three upstream additions? | dec-0008 (fallbacks exist for each) |
+| [qst-0005](../.dira/entries/qst-0005.md) | Will kazi accept the two upstream additions? | dec-0008 (fallbacks exist for both) |
 
 ---
 
@@ -587,7 +595,7 @@ Tracked as real entries, not a list that rots:
 | [qst-0002](../.dira/entries/qst-0002.md) | Attention drift — ledger writes or session metadata? *(open)* |
 | [qst-0003](../.dira/entries/qst-0003.md) | Does importing an ADR corpus help or make a second pile? *(open)* |
 | [qst-0004](../.dira/entries/qst-0004.md) | Is the name clear of collisions? *(answered — yes)* |
-| [qst-0005](../.dira/entries/qst-0005.md) | Will kazi accept the three upstream additions? *(open)* |
+| [qst-0005](../.dira/entries/qst-0005.md) | Will kazi accept the two upstream additions? *(open)* |
 
 21 entries: 3 intents, 9 decisions, 4 constraints, 5 questions. All validate against
 [`schema/entry.schema.json`](../schema/entry.schema.json); no dangling edges.

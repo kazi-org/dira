@@ -95,11 +95,19 @@ issues not yet filed.
 |---|---|---|
 | 1 | Register `portfolio` in `Kazi.CLI.Schema` | It already emits `schema_version` and a stable shape, but is absent from the documented `--json` registry (which covers only `apply`, `plan`, `bus`, `status`). Registering it makes dira's join surface a real contract instead of an implementation detail dira happens to read. |
 | 2 | Post-disposition hook on `approve` / `reject` | The highest-leverage capture point in the design — an approval *is* a decision event. May be a `bus post` on the existing session bus (ADR-0067) rather than new infrastructure. |
-| 3 | Optional `why` field on goal-files | Free text, ignored by kazi, carrying `dira:dec-NNNN`. Closes traceability downward. |
 
-Risk worth stating: asks 2 and 3 could read as dira colonising kazi's surface with its
-own concerns, and ask 3 puts a dira-shaped string into kazi's file format. kazi may
-reasonably refuse; fallbacks for all three are recorded in qst-0005.
+**Was three asks; now two.** The third — an optional `why` field on goal-files — was
+dropped on verification: goal-files already carry a free-form `metadata` table,
+documented at `lib/kazi/goal/loader.ex:24` as a "string-keyed map, verbatim" and read
+with no validation (`loader.ex:640`). dira writes `metadata.why = "dira:dec-NNNN"`
+today. This also removes the only ask that would have put a dira-shaped string into
+kazi's file format.
+
+Risk worth stating: ask 2 could read as dira colonising kazi's surface with its own
+concerns, and kazi may reasonably refuse — the fallback (the skill wraps the commands)
+is recorded in qst-0005. Ask 1 is defensible on kazi's own terms regardless of dira:
+an emitted-but-undocumented `--json` shape is a gap in kazi's public contract whether
+or not anything consumes it.
 
 ---
 
