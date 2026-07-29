@@ -94,7 +94,7 @@ issues not yet filed.
 | # | Ask | Why |
 |---|---|---|
 | 1 | Register `portfolio` in `Kazi.CLI.Schema` | It already emits `schema_version` and a stable shape, but is absent from the documented `--json` registry (which covers only `apply`, `plan`, `bus`, `status`). Registering it makes dira's join surface a real contract instead of an implementation detail dira happens to read. |
-| 2 | Post-disposition hook on `approve` / `reject` | The highest-leverage capture point in the design — an approval *is* a decision event. May be a `bus post` on the existing session bus (ADR-0067) rather than new infrastructure. |
+| 2 | Post-disposition hook on `approve` / `reject` | The highest-leverage capture point in the design — an approval *is* a decision event. Must be a **direct synchronous hook, not** a `bus post`: ADR-0067's bus needs `kazi daemon` and no-ops when it is down, so dispositions would be silently lost, and its event stream is age-bounded to ~24h with a ~1 KB cap. Wrong shape and wrong durability for capture. |
 
 **Was three asks; now two.** The third — an optional `why` field on goal-files — was
 dropped on verification: goal-files already carry a free-form `metadata` table,

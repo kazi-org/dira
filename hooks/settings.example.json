@@ -7,6 +7,13 @@
     "`dira install-hooks` will do this merge for you once the binary exists; this",
     "file documents what it writes, so the wiring is reviewable rather than magic.",
     "",
+    "It must match the contract kazi's `install-hooks` already proved (cli.ex:440,",
+    "ADR-0071/ADR-0076): merge-never-clobber, idempotent, the operator's own hooks",
+    "and keys survive byte-identically, `--uninstall` removes exactly what was added,",
+    "and `--local` targets the repo's uncommitted .claude/settings.local.json rather",
+    "than the user-level file. Clobbering a hand-tuned settings file is a failure",
+    "mode kazi already solved; do not rediscover it.",
+    "",
     "The three hook points are chosen deliberately — see docs/design.md §5.1.",
     "Every command must be fast and must fail open: a dira error must never block",
     "a session. Hence `|| true` on the capture hooks and a hard timeout on all three."
