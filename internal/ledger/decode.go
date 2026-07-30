@@ -30,6 +30,21 @@ import (
 // The returned entry is validated. A file that parses but violates the contract
 // is ledger rot, and returning it would push the problem to every caller.
 func Decode(data []byte) (*Entry, error) {
+	e, err := decodeEntry(data)
+	if err != nil {
+		return nil, err
+	}
+	if err := e.Validate(); err != nil {
+		return nil, fmt.Errorf("entry %s: %w", e.ID, err)
+	}
+	return e, nil
+}
+
+// decodeEntry is Decode without the validation step. It exists so DecodeDraft
+// can apply the draft rules to the same parse rather than to a second one, and
+// nothing else may call it: an unvalidated entry is the ledger rot Decode exists
+// to keep out, and handing one to a caller pushes the problem downstream.
+func decodeEntry(data []byte) (*Entry, error) {
 	front, body, err := schema.SplitFrontmatter(data)
 	if err != nil {
 		return nil, err
@@ -67,10 +82,6 @@ func Decode(data []byte) (*Entry, error) {
 		"source":       func(n *yaml.Node) error { return d.source(n, &e.Source) },
 	}); err != nil {
 		return nil, err
-	}
-
-	if err := e.Validate(); err != nil {
-		return nil, fmt.Errorf("entry %s: %w", e.ID, err)
 	}
 	return e, nil
 }

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"github.com/kazi-org/dira/internal/index"
@@ -38,20 +37,7 @@ func runReindex(a *app, args []string) error {
 		return usagef("reindex takes no arguments, got %q", fs.Arg(0))
 	}
 
-	start := *dir
-	if start == "" {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return fmt.Errorf("finding the working directory: %w", err)
-		}
-		start = cwd
-	}
-
-	diraDir, err := local.Find(start)
-	if err != nil {
-		return err
-	}
-	store, err := local.Open(diraDir)
+	store, diraDir, err := openLedger(*dir)
 	if err != nil {
 		return err
 	}

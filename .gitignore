@@ -3,6 +3,12 @@
 # the files win (dec-0002).
 .dira/cache/
 
+# The scratch file `dira log` writes an entry to before committing it into place
+# with a link. A process killed between those two steps cannot remove it, so the
+# one thing a crash can leave behind is this — never an entry, and never
+# something that should reach a commit.
+.dira/entries/.dira-*.tmp
+
 # Go build output
 /dira
 /dist/

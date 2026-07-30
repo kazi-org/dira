@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 )
 
 // Exit codes. Documented in the package comment because hooks depend on them.
@@ -47,15 +48,29 @@ type command struct {
 	name    string
 	summary string
 	run     func(a *app, args []string) error
+
+	// usage renders the command's own flag surface, for commands that have
+	// one worth reading. `dira help <name>` and `dira <name> -h` must show
+	// the same text: a flag documented in one place and not the other is a
+	// flag nobody finds.
+	usage func(w io.Writer)
 }
 
 // app is the command's runtime state. Everything the commands touch arrives
 // through it so the whole CLI surface is testable without a subprocess.
 type app struct {
-	name     string
-	version  string
-	stdout   io.Writer
-	stderr   io.Writer
+	name    string
+	version string
+	stdin   io.Reader
+	stdout  io.Writer
+	stderr  io.Writer
+
+	// now is the clock. It is a field rather than a call to time.Now
+	// because `dira log` stamps `created` into the permanent record, and a
+	// test that cannot say what time it is can only assert that the field
+	// looks vaguely like a timestamp.
+	now func() time.Time
+
 	commands []*command
 }
 
@@ -65,11 +80,14 @@ func newApp(stdout, stderr io.Writer) *app {
 	a := &app{
 		name:    "dira",
 		version: version,
+		stdin:   os.Stdin,
 		stdout:  stdout,
 		stderr:  stderr,
+		now:     time.Now,
 	}
 	a.commands = []*command{
 		{name: "help", summary: "show usage for dira or one of its commands", run: runHelp},
+		{name: "log", summary: "write an entry to the ledger, or add an edge to one", run: runLog, usage: writeLogUsage},
 		{name: "reindex", summary: "rebuild the derived read cache from the entry files", run: runReindex},
 		{name: "version", summary: "print the dira version", run: runVersion},
 	}
@@ -78,7 +96,15 @@ func newApp(stdout, stderr io.Writer) *app {
 
 // usageError marks a caller mistake rather than a failure while doing the
 // work. It is what selects exit code 2.
-type usageError struct{ err error }
+type usageError struct {
+	err error
+
+	// usage renders the help to print alongside the message. Nil means the
+	// top-level usage. A mistake inside a subcommand's flags is answered by
+	// that subcommand's help: printing the list of commands to someone who
+	// already found the right command tells them nothing.
+	usage func(w io.Writer)
+}
 
 func (e *usageError) Error() string { return e.err.Error() }
 func (e *usageError) Unwrap() error { return e.err }
@@ -100,7 +126,11 @@ func (a *app) main(args []string) int {
 	if errors.As(err, &ue) {
 		// stderr is unactionable on failure; discard explicitly (see writeUsage).
 		_, _ = fmt.Fprintf(a.stderr, "%s: %v\n\n", a.name, err)
-		a.writeUsage(a.stderr)
+		if ue.usage != nil {
+			ue.usage(a.stderr)
+		} else {
+			a.writeUsage(a.stderr)
+		}
 		return exitUsage
 	}
 
@@ -161,6 +191,10 @@ func runHelp(a *app, args []string) error {
 		cmd := a.lookup(args[0])
 		if cmd == nil {
 			return usagef("unknown command %q", args[0])
+		}
+		if cmd.usage != nil {
+			cmd.usage(a.stdout)
+			return nil
 		}
 		_, _ = fmt.Fprintf(a.stdout, "%s %s - %s\n", a.name, cmd.name, cmd.summary)
 		return nil
