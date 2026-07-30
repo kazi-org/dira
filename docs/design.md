@@ -304,7 +304,12 @@ $ dira check "add a background daemon to track run state"
 This is the relitigation firewall. It reads `alternatives[].why_not` from rejected
 and accepted decisions plus every `constraint` inherited down the tier chain (§8).
 `revisit_if` is what keeps it from being merely obstructive — it tells you the
-condition under which the door legitimately opens.
+condition under which the door legitimately opens. **Note the asymmetry:** `revisit_if`
+lives on an *alternative*, so a conflict with a rejected alternative can offer one,
+while a conflict with a **constraint** can only ever offer "supersede it, in writing,
+with a reason". That is deliberate — cst-0001 to cst-0004 are constitutional and the
+heavy path is the correct one — but the check's message must not imply a revisit
+condition exists where none can.
 
 Where a check must cite a **private** constraint in a public context, it cites the
 **ref only** (`me:cst-0002`), never the text (cst-0003).
@@ -396,12 +401,19 @@ The insight that makes UI tractable: dira's UI is **not an editor**. It is a
 *review-and-dispose surface*. Agents propose; you dispose. That is taps, not typing —
 which is why it maps to mobile unusually well.
 
-**Tier 1 — `dira ui`, embedded in the binary.** A static SPA served on localhost over
-the same query engine the CLI uses. No install, no server, works offline. This is
+**Tier 1 — `dira ui`, embedded in the binary.** Server-rendered Go `html/template`
+pages served on localhost over the same query engine the CLI uses — **not an SPA**
+(`dec-0012`): the built screens contain zero JavaScript, and client-side rendering
+would make the decision pages uncrawlable, defeating the long-tail channel the growth
+loop depends on. No install, no server, works offline. This is
 where "beautiful" lives first, and the data deserves it: the brief as a composed daily
 artifact rather than terminal text; the intent tree as a zoomable map (you → sire →
 kazi) with orphan work glowing at the edges; decisions as a why/alternatives/
 supersession timeline; the edge graph as an actual navigable graph.
+
+**Tier 1b — the public renderer.** `dira render` emits static HTML the user deploys
+wherever they already publish (`dec-0012`). No dira-operated host exists, which is what
+makes cst-0004 structural rather than a promise.
 
 **Tier 2 — mobile, with GitHub as the backend.** The ledger is files in git, so GitHub
 is *already* dira's sync server. A PWA (or thin native shell) reads ledgers through
@@ -558,7 +570,8 @@ above.**
 | **M3 — the enforcer** | `dira check` · `supersede` · constraint inheritance | one genuine relitigation attempt is caught |
 | **M4 — derived status** | `kazi portfolio --json` join · `dira map` · decision-blocked detection | `dira map` matches reality with no hand-entry |
 | **M5 — tiers** | workspace + personal ledgers · namespaced refs · orphan drift · `init --interview` | "what are we doing on Sire?" is answered by a report |
-| **M6 — surfaces** | `dira ui` embedded SPA · `github` storage backend · PWA · paid apps | — |
+| **M6 — surfaces** | `dira ui` server-rendered templates · `dira render` static output (dec-0012) | — |
+| **M7 — apps** | `github` storage backend · PWA · paid apps | — |
 
 Upstream kazi asks — only **two**, both additive, neither breaking (qst-0005):
 register `portfolio` in `Kazi.CLI.Schema`, and a post-disposition hook on

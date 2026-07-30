@@ -130,3 +130,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `impl:dec-0011` | covered:E5/E6 | three-state resolution in the query layer (E5) + the withheld visual (E6). Config field documented in `.dira/config.toml` |
 | `trigger:dec-0011:1a59c4` | deferred:trigger | fires only if a ledger must publish where the namespace itself is sensitive; the `label`-omission escape hatch already exists |
 | `blocked:0a05aa` | blocked:E1/E5 | cst-0003 rule 2 needs a runtime assertion in the brief-injection path. privacy-lint cannot see it — it has no access to a private ledger by construction |
+| `impl:dec-0012` | covered:E6 | server-rendered templates + `dira render`; crawlability is an E6 acceptance criterion |
+| `trigger:dec-0012:78bb50` | deferred:trigger | fires if teams pull for zero-setup shared rendering (dec-0007 team tier) |
+| `trigger:dec-0012:cdf95c` | deferred:trigger | fires if a surface needs genuine client-side state — a live-filtering graph explorer, not a document view |

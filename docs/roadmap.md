@@ -76,7 +76,9 @@ Workspace and personal ledgers · namespaced ref resolution · orphan-work drift
 than reconstructed from memory. **Gated on qst-0001.**
 
 ### M6 — surfaces & distribution
-`dira ui` embedded SPA · **the public ledger renderer** (dec-0010).
+`dira ui` as server-rendered Go templates + `embed.FS`, and `dira render` emitting
+static HTML the user deploys — **not an SPA and no dira-operated host** (`dec-0012`).
+The public ledger renderer is the growth engine (`dec-0010`).
 
 Pulled ahead of the apps because it is the growth engine, not a nicety: dira is
 invisible by design, so without a rendered artifact there is nothing to screenshot,
