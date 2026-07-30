@@ -41,10 +41,13 @@
 
 .tagrow { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-bottom: var(--s3); }
 
+/* the ruling is the anchor. At >=52px against 16.5px grounds the type
+   contrast clears 3:1, so one element clearly wins the frame instead of
+   competing with the chain block (TASTE 6, 11). */
 h1.ruling {
   font-family: var(--serif); font-weight: 400;
-  font-size: var(--t-display); line-height: 1.13; letter-spacing: -.017em;
-  max-width: 26ch;
+  font-size: clamp(32px, 5.6vw, 52px); line-height: 1.1; letter-spacing: -.019em;
+  max-width: 24ch;
 }
 .arising { font-size: 12.5px; color: var(--ink-low); margin-bottom: var(--s3); }
 
@@ -177,13 +180,10 @@ h1.ruling {
         <div class="kv"><span class="k">realized_by</span><a href="#">kazi:prop-8a1f</a></div>
         <div class="kv"><span class="k">mirrored</span><a href="#">adr/0001</a></div>
       </div>
-      <div class="card">
-        <h3>This ledger</h3>
-        <div class="kv"><span class="k">entries</span><span>22</span></div>
-        <div class="kv"><span class="k">accepted</span><span style="color:var(--converged)">9</span></div>
-        <div class="kv"><span class="k">open</span><span>4</span></div>
-        <div class="kv"><span class="k">superseded</span><span>0</span></div>
-      </div>
+      <!-- the "This ledger" stats card was removed here: it duplicated
+           s2-index, and cutting it drops this screen out of the medium-density
+           slop zone into a committed CALM (TASTE 11). The count lives in the
+           footer instead, where it costs no block. -->
       <div class="drift">
         <h3>⚠ Drift</h3>
         <p>1 active intent has no parent. Why does that work exist?</p>
@@ -192,8 +192,9 @@ h1.ruling {
   </div>
 
   <footer class="made">
-    <span>Decision record kept with <a href="https://github.com/kazi-org/dira">dira</a></span>
-    <span class="sep">·</span><span>written by an agent, read by one</span>
+    <span>1 of 22 entries · <a href="s2-index.html">see the whole graph</a></span>
+    <span class="sep">·</span>
+    <span>kept with <a href="https://github.com/kazi-org/dira">dira</a>, written by an agent, read by one</span>
   </footer>
 </main>
 </body>

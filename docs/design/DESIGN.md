@@ -172,6 +172,51 @@ toolchain it does not otherwise need.
 **Empty-state copy** (one sentence, zero filled buttons, per TASTE 14):
 > When the queue is empty, nothing is waiting on you — and the ledger is current.
 
+### r3 → r4: the fresh-eyes revision
+
+A fresh-eyes pass returned `VERDICT: revise`. Acted on, with one rejection.
+
+**Contrast was a genuine token-level defect, and worse than first reported.**
+Computed WCAG ratios for all 42 fg/bg pairs across both schemes found seven
+failures, not the three flagged. The serious one was missed entirely:
+`--bearing-lift` scored 2.95 / 3.18 / 2.62 in light — and it is the *hover/focus*
+token, which WEB.md 2 requires to have **more** contrast than rest. It had less.
+The law was inverted.
+
+Root cause was structural, not a bad swatch: **a single "lift" direction cannot
+serve both schemes.** More contrast means *darker* in light and *lighter* in dark.
+`--bearing-lift` now inverts per scheme. New values clear 4.5:1 on every surface
+and hover exceeds rest on all six surface/scheme combinations — 0 failures.
+
+*Test:* the contrast matrix must report 0 failures and `hover > rest` everywhere.
+Re-run it whenever a colour token moves.
+
+**The jargon gate and the missing conversion path were real, and were defects
+against `dec-0010`.** If the index is the acquisition surface, then a stranger who
+cannot decode `int-`/`dec-`/`qst-` and has no way to obtain the tool means the
+growth loop never closes. Added: a permanently-visible legend (not a hover
+tooltip — hover is never the only affordance, WEB.md 5; and not an onboarding
+carousel, which TASTE 14 bans), and one restrained conversion block. A visitor is
+not a user already inside the app, so an affordance here is legitimate rather than
+the "Get started on a screen you're already in" slop tell.
+
+**The density diagnosis was right; its proposed fix was rejected.** s1-decision was
+correctly identified as sitting in the medium-density/medium-contrast slop zone
+(TASTE 11) with nothing anchoring the frame. But the suggested fix — collapse the
+alternatives into a scannable comparison list — would destroy the struck-through
+refusal with its grounds beneath, which is the strongest device in the system and
+the reason this direction was chosen over the terminal anchor. Resolved instead by
+*reducing element count and strengthening the anchor*: the display went to 52px
+(3.15:1 against the 16.5px grounds, clearing the 3:1 floor so one element clearly
+wins), and the duplicate "This ledger" stats card was removed from the rail — its
+count moved to the footer, where it costs no block.
+
+**Also noted and left as-is:** the upheld alternative carries a coloured left
+border while refusals carry a hairline. Flagged as adjacent to the "left-border
+accent stripe" slop tell. Kept because it is state-driven rather than decorative,
+and the state is *also* carried by a text tag and the strike-through, so it
+satisfies WEB.md 12. Recorded here so a future reviewer does not re-litigate it.
+
 ---
 
 ## Open design questions

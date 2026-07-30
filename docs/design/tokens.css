@@ -20,8 +20,10 @@
      caught    drift & contradiction ONLY. Never decoration, never a rejected
                alternative (a refusal is a record, not an alarm).
      A fourth hue requires a documented role. A hue with no role fails review. */
-  --bearing:      #9a6c1c;
-  --bearing-lift: #b8862f;   /* hover/focus — MORE contrast than rest */
+  --bearing:      #8a5f18;
+  --bearing-lift: #6d4a12;   /* hover/focus — MORE contrast than rest.
+                                In LIGHT that means DARKER; in dark, lighter.
+                                A single "lift" direction cannot serve both. */
   --converged:    #1f6d5b;
   --caught:       #a83828;
 
@@ -35,7 +37,7 @@
   /* ---- ink ---- */
   --ink:     #23211d;
   --ink-mid: #55514a;
-  --ink-low: #837d72;
+  --ink-low: #645f55;
 
   /* ---- type: 2 families + mono ----
      serif  display & prose — the record's voice
@@ -72,7 +74,7 @@
     --bearing:      #c99a3e;
     --bearing-lift: #e2b95f;
     --converged:    #45a189;
-    --caught:       #d4614d;
+    --caught:       #d97060;
 
     --ground:  #0f151c;
     --panel:   #161e27;
@@ -82,20 +84,20 @@
 
     --ink:     #e9e6df;
     --ink-mid: #a6aeb8;
-    --ink-low: #77808b;
+    --ink-low: #808a95;
   }
 }
 
 /* explicit overrides so a theme toggle wins in BOTH directions */
 :root[data-theme="dark"] {
-  --bearing:#c99a3e; --bearing-lift:#e2b95f; --converged:#45a189; --caught:#d4614d;
+  --bearing:#c99a3e; --bearing-lift:#e2b95f; --converged:#45a189; --caught:#d97060;
   --ground:#0f151c; --panel:#161e27; --sunk:#0b1118; --rule:#27313d; --rule-soft:#1d2530;
-  --ink:#e9e6df; --ink-mid:#a6aeb8; --ink-low:#77808b;
+  --ink:#e9e6df; --ink-mid:#a6aeb8; --ink-low:#808a95;
 }
 :root[data-theme="light"] {
-  --bearing:#9a6c1c; --bearing-lift:#b8862f; --converged:#1f6d5b; --caught:#a83828;
+  --bearing:#8a5f18; --bearing-lift:#6d4a12; --converged:#1f6d5b; --caught:#a83828;
   --ground:#f7f4ed; --panel:#fffdf8; --sunk:#ece7db; --rule:#ddd7c8; --rule-soft:#ebe6d9;
-  --ink:#23211d; --ink-mid:#55514a; --ink-low:#837d72;
+  --ink:#23211d; --ink-mid:#55514a; --ink-low:#645f55;
 }
 
 /* ============================ base ======================================== */
