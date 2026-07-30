@@ -110,9 +110,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `answer:qst-0002` | deferred:never | may never be built and that is acceptable. Closer to self-surveillance than navigation |
 | `answer:qst-0003` | blocked:E2 | **GAP** dec-0010 made import a LAUNCH BLOCKER but no epic explicitly owns it. Needs adding to E2 scope |
 | `answer:qst-0005` | covered:E9 | file the two issues; maintainer decides |
-| `design-q:1` | covered:E6 | chain-at-scale collapse rule |
-| `design-q:2` | covered:E6 | long-content verification |
-| `design-q:3` | covered:E6 | model settled by dec-0011; only the *visual* for the withheld state is open |
 | `blocked:4784fa` | covered:E9 | automatic disposition capture = upstream ask 2; skill-wrap fallback exists |
 | `blocked:2147c3` | blocked:E2 | ADR import — same GAP as answer:qst-0003 |
 | `upstream:1` | covered:E9 | portfolio schema registration |
@@ -145,3 +142,9 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0015:e334b1` | deferred:trigger | condition to watch; no watch mechanism exists yet |
 | `impl:dec-0016` | covered:E6 | Pagella subsets in assets/fonts/ + NOTICE; @font-face wiring lands with the E6 surface work |
 | `trigger:dec-0016:357dbd` | deferred:trigger | fires if a licence audit rules the GUST Font Licence unacceptable; Source Serif 4 is the recorded fallback |
+| `impl:dec-0017` | done | summary/detail split folded into s1-decision; s1-decision-long.html is the 20-alternative proof |
+| `trigger:dec-0017:24a043` | deferred:trigger | fires if a reader study shows people do scroll an untreated long decision |
+| `impl:dec-0018` | done | withheld state in tokens.css + the chain; s1-decision-withheld.html is the proof |
+| `trigger:dec-0018:bf198a` | deferred:trigger | fires if a hue-budget audit rejects --bearing carrying a second meaning |
+| `design-q:9dcfd1` | covered:E6 | chain-at-scale; the nested-node structure takes `<details>`/`<summary>` for depth with no JS, and the long-content lane proved the idiom |
+| `design-q:be981a` | blocked:E6 | **NEW, found while implementing** — s2-index has nowhere to put a cross-boundary entry. Surfaced by folding dec-0018; the index groups by intent and a withheld parent has no row to sit in |

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>The ref publishes. The reasoning behind it does not. — kazi-org/dira decision record</title>
+<meta name="description" content="How kazi-org/dira publishes a decision whose parent lives in a private ledger: the edge ships verbatim and resolves as withheld, which is a designed state and not drift.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The ref publishes. The reasoning behind it does not.">
+<meta property="og:description" content="dec-0011 - accepted. A parent this repo names and cannot show you, and why that is not a gap in the record.">
+<meta property="og:site_name" content="dira - decision memory for AI coding agents">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="decision.css">
+<!-- S1 WITH A WITHHELD PARENT — the decision page when the chain leaves the
+     repo. Open question 3 resolved 2026-07-30, option B: withheld is a declared
+     state with a mark, a name and a chip, in --bearing.
+
+     The two things this page is checked for, and they are visual, not textual:
+     (1) withheld must read as neither an error nor a warning — which can only
+     be judged against the orphan cell and the drift card, both of which are on
+     this page on purpose; (2) withheld must not become the heaviest thing in
+     the chain. It is the unremarkable state. If it wins the chain, it is wrong. -->
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb"><a href="s2-index.html">kazi-org/dira</a> · <a href="s2-index.html">ledger</a> · dec-0011</nav>
+  <span class="spacer"></span>
+  <span class="crumb">decision memory for AI coding agents</span>
+</header>
+
+<main class="wrap">
+
+  <div class="invoke"><span class="p">$</span><span class="c">dira why</span><span class="a">tiers</span></div>
+
+  <!-- The chain row says it ONCE. It read "private ledger — ref published, body
+       not … ⊙ withheld", which is the same statement twice: the mark already
+       says the body is not here. The sentence that explains the state lives in
+       the .arising line below and nowhere else. -->
+  <section class="chain" aria-label="Why-chain">
+    <div class="row"><span class="id-w">sire:int-0002</span><span class="dim">private ledger</span><span class="wh-tag">⊙ withheld</span></div>
+    <div class="node">
+      <div class="row"><span class="id">dec-0011</span><span class="txt">Cross-boundary parents publish opaquely</span><span class="lo">accepted 30 Jul</span></div>
+      <div class="node">
+        <div class="row"><span class="ok">✓ opaque refs</span><span class="dim">cst-0003 rule 3, applied consistently</span></div>
+        <div class="row"><span class="no">✗ strip on publish</span><span class="dim">makes every adopting ledger read as orphan work</span></div>
+        <div class="row"><span class="no">✗ redacted stubs</span><span class="dim">a private-to-public write path, judged per write</span></div>
+        <div class="row"><span class="id-q">cst-0003</span><span class="dim">cite the ref, never the text</span><span class="lo">informs</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chain-stack" aria-label="Why-chain">
+    <div class="row"><span class="k">sire:int-0002</span><span class="v">private ledger</span><span class="wh">⊙ withheld</span></div>
+    <div class="row sub"><span class="k">dec-0011</span><span class="v">Cross-boundary parents publish opaquely</span></div>
+    <div class="row sub2"><span class="m ok">✓</span><span class="v">opaque refs — cst-0003 applied consistently</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">strip on publish — everything reads orphan</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">redacted stubs — judged on every write</span></div>
+  </section>
+
+  <div class="body">
+    <article>
+      <div class="tagrow">
+        <span class="chip chip-id">dec-0011</span>
+        <span class="chip chip-accepted">◆ accepted</span>
+        <span class="chip chip-date">30 Jul 2026</span>
+      </div>
+      <p class="arising">Arising from <span class="whref">sire:int-0002</span> — a parent in a ledger this repo declares but cannot show you.</p>
+      <h1 class="ruling">The ref publishes. The reasoning behind it does not.</h1>
+      <p class="because">
+        This entry derives from a parent in a private ledger, and it ships that edge verbatim
+        rather than hiding it. You cannot open it, and that is not a fault in the record —
+        <em>it is the record being honest about a boundary it will not cross.</em>
+      </p>
+
+      <!-- the three states are this entry's SUBJECT, which is why the panel is
+           here and on no other decision page. Withheld sits between the two it
+           must not be mistaken for. -->
+      <section class="states">
+        <h2 class="seclabel">How this entry resolves</h2>
+        <div class="stgrid">
+
+          <div class="stcell st-oriented">
+            <div class="res res-oriented"><span class="mk">✓</span><span class="nm">oriented</span></div>
+            <div class="stref"><span class="k">informs</span> <span class="v">cst-0003</span></div>
+            <div class="stslot"><span class="sttitle"><a href="#">Cite the ref, never the text</a></span></div>
+            <div class="stnote">Edge present, target resolved and readable.</div>
+          </div>
+
+          <div class="stcell st-withheld">
+            <div class="res res-withheld"><span class="mk">⊙</span><span class="nm">withheld</span></div>
+            <div class="stref"><span class="k">derives_from</span> <span class="v">sire:int-0002</span></div>
+            <div class="stslot"><span class="chip chip-withheld">⊙ withheld</span></div>
+            <div class="stnote">Edge present, parent namespace declared private. Not drift.</div>
+          </div>
+
+          <div class="stcell st-orphan">
+            <div class="res res-orphan"><span class="mk">⚠</span><span class="nm">orphan</span></div>
+            <div class="stref"><span class="k">derives_from</span> <span class="v">— none —</span></div>
+            <div class="stslot"><span class="sttitle">no parent recorded at all</span></div>
+            <div class="stnote">This one is drift, and the only one of the three that is.</div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="args">
+        <h2 class="seclabel">Alternatives on record — 3</h2>
+
+        <details class="alt upheld" open>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✓</span><span class="name">Publish the ref opaquely, resolve to three states</span><span class="tag">upheld</span></span>
+            <span class="one">no new rule — the constraint that already governs quoting a private ledger governs this</span>
+          </summary>
+          <div class="detail">
+            <p class="grounds">The only candidate that does not require overruling an accepted constraint. <code>cst-0003</code> rule 3 already settles the adjacent case — cite the ref, never the text — and a namespaced <code>derives_from</code> in a public entry is that rule applied consistently.</p>
+          </div>
+        </details>
+
+        <details class="alt" open>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">Publish opaquely, but keep drift two-state</span><span class="tag">refused</span></span>
+            <span class="one">the same bytes on disk, with the distinction thrown away at the moment a stranger reads it</span>
+          </summary>
+          <div class="detail">
+            <p class="grounds">Identical publishing behaviour, and it collapses &ldquo;parent exists and is not readable here&rdquo; into &ldquo;no parent&rdquo;. That distinction is already in the data; discarding it destroys the orphan signal on exactly the surface where a stranger judges the tool.</p>
+          </div>
+        </details>
+
+        <details class="alt" open>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">Strip upward edges on publish</span><span class="tag">refused</span></span>
+            <span class="one">hides the boundary by denying the graph, and every adopting repo pays for it</span>
+          </summary>
+          <div class="detail">
+            <p class="grounds">Looks safest and is worst: the public artifact would deny an edge that exists, so every adopting repo&rsquo;s ledger reads as unexplained work. It also presumes a publish step, and <code>dec-0002</code> is built on there not being one.</p>
+            <p class="revisit"><b>revisit if</b>a ledger must be published somewhere the namespace itself is sensitive.</p>
+          </div>
+        </details>
+      </section>
+    </article>
+
+    <aside class="rail">
+      <div class="card">
+        <h3>What this is</h3>
+        <p class="what"><b>Nobody typed this page.</b> A coding agent recorded
+          it while the work happened, and reads it back at the start of the next session.</p>
+        <p class="key"><b>int-</b> an intent ·
+          <b>dec-</b> a decision ·
+          <b>sire:</b> another ledger</p>
+      </div>
+      <div class="card">
+        <h3>Edges</h3>
+        <div class="kv"><span class="k">derives_from</span><span class="whrail">sire:int-0002 <em>⊙</em></span></div>
+        <div class="kv"><span class="k">informs</span><a href="#">cst-0003</a></div>
+        <div class="kv"><span class="k">supersedes</span><a href="#">qst-0001</a></div>
+      </div>
+      <div class="drift">
+        <h3>⚠ dira flagged this</h3>
+        <p><b>int-0004</b> is active work with no recorded purpose. dira raises it
+          unprompted — nobody asked it to check.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="everydec">
+    <p>Every decision in this repo is recorded like this one.</p>
+    <a href="https://github.com/kazi-org/dira">Keep your own →</a>
+  </div>
+
+  <footer class="made">
+    <span>11 of 22 entries · <a href="s2-index.html">see the whole graph</a></span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span>kept with <a href="https://github.com/kazi-org/dira">dira</a>, written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

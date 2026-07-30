@@ -53,7 +53,10 @@ Beyond TASTE.md and WEB.md, these are dira-specific and mechanically checkable:
 1. **Red means the compass caught something. Nothing else.**
    `--caught` may only be used by drift, contradiction, and `dira check` failures.
    A rejected alternative is **a record, not an alarm**, and renders neutral
-   (`--ink-low`). *Grep test:* `--caught` appears only in `.drift` and check states.
+   (`--ink-low`). A **withheld** parent is likewise not an alarm — of the three
+   resolution states, only `orphan` is drift.
+   *Grep test:* `--caught` appears only in `.drift`, `.res-orphan`, `.st-orphan`
+   and check states.
 2. **The because outranks the title.**
    On any surface where a human disposes of an entry, the `because` is set larger
    than the title. What is being approved is the reasoning, not the label.
@@ -116,7 +119,7 @@ system cannot enforce itself.
 
 | Token | Meaning | Light | Dark |
 |---|---|---|---|
-| `--bearing` | the instrument: current focus, brand, links, active intents | `#8a5f18` | `#c99a3e` |
+| `--bearing` | the instrument: current focus, brand, links, active intents — **and the `withheld` resolution state** (one documented exception, below) | `#8a5f18` | `#c99a3e` |
 | `--bearing-lift` | hover/focus — deliberately *more* contrast than rest (WEB.md 2). **Inverts direction per scheme:** darker in light, lighter in dark | `#6d4a12` | `#e2b95f` |
 | `--converged` | runtime state only: accepted, converged, achieved | `#1f6d5b` | `#45a189` |
 | `--caught` | **drift and contradiction only** | `#a83828` | `#d97060` |
@@ -124,6 +127,19 @@ system cannot enforce itself.
 All 42 fg/bg pairs clear 4.5:1 in both schemes and hover exceeds rest on every
 surface — 0 failures. The values above are the post-fix ones, not the originals
 (see r3 → r4 below).
+
+**The one hue-budget exception, and it is a break rather than a widening.**
+`--bearing` carries a second meaning: `withheld`. The rule is one meaning per
+hue and this breaks it. Recorded here rather than quietly redefined.
+
+The defence is that withheld is the instrument pointing at something it can name
+and cannot open — the needle is still on it. The alternatives were all worse:
+`--caught` is forbidden (withheld is not drift, Law 1), `--converged` would claim
+a resolution that did not happen, and a fourth hue would have to earn a permanent
+slot for a state whose entire design brief is to be *unremarkable*. The cost,
+stated rather than buried: on `s1-decision-withheld.html` the page carries
+bearing in four roles at once — the invocation argument, the id chips, the links,
+and the withheld mark. A reviewer will notice that, and should.
 
 **Two matrices, because one was not enough.**
 `node docs/design/scripts/contrast.mjs` checks token against token. That is necessary
@@ -198,9 +214,15 @@ real content rather than a pre-animation `opacity: 0`.
 
 | File | Is | Density | Notes |
 |---|---|---|---|
-| `screens/s1-decision.html` | the page a stranger lands on from a link | CALM | invocation + chain, then the ruling and its grounds. Mobile swaps the tree for `.chain-stack`. |
+| `screens/s1-decision.html` | the page a stranger lands on from a link | CALM | invocation + chain, then the ruling and its grounds. Four alternatives, so every one is open. Mobile swaps the tree for `.chain-stack`. |
+| `screens/s1-decision-long.html` | the same page at 20 alternatives, one of them 405 words | CALM | the long-content case, and the reason it is a file rather than a note: WEB.md 9 requires it be *checked*, and a fixture in `screens/` is checked by all four gates automatically. |
+| `screens/s1-decision-withheld.html` | the same page when the chain leaves the repo | CALM | `dec-0011`. The withheld state, shown adjacent to oriented and orphan because it can only be judged against the alarm it must not resemble. |
 | `screens/s2-index.html` | the ledger index — **groups by why, not by goal** | DENSE | the dial lives here. Status is derived, never stored (`dec-0004`). The drift row is the only red. |
 | `screens/s3-distill.html` | the daily habit — agents propose, you dispose | CALM | the because is the hero. Desktop shows keyboard hints; mobile becomes the swipe deck with full-width thumb targets. |
+
+The three `s1-*` screens are one page with three payloads, so their layout lives
+in `screens/decision.css` rather than three times in three `<style>` blocks.
+That file consumes `tokens.css` and adds no colours of its own.
 
 Attribution appears on every rendered page as one quiet line, never a badge:
 *"Decision record kept with dira · written by an agent, read by one."* It is the
@@ -290,19 +312,92 @@ satisfies WEB.md 12. Recorded here so a future reviewer does not re-litigate it.
 
 ---
 
+## Long content, and the withheld state — both answered 2026-07-30
+
+Two of the three open questions below were answered from rendered comparisons
+(`openq/`, six options across two questions). The founder chose from the
+pictures; what follows is what shipped, not what was proposed.
+
+### Long content — the summary/detail split
+
+**Chosen: option C.** Every alternative is a `<details>`. The summary carries the
+mark, the name, the state tag and **one line of ground** — enough to decide
+whether to open it. The full reasoning is inside. Zero JavaScript, the same
+collapse mechanism the rebuilt chain uses.
+
+The device this was most at risk of destroying survives, and that was the
+condition of choosing it. `r3 → r4` had already rejected "collapse the
+alternatives into a scannable comparison list" precisely because it kills the
+struck-through refusal with its grounds beneath. The strike lives on the
+**summary** line, which is always visible: a refused alternative reads as refused
+whether the entry is open or closed, and its grounds are one keystroke away
+rather than gone.
+
+**The degradation rule — decided at render time, not in CSS:**
+
+| alternatives | emitted |
+|---|---|
+| ≤ 6 | every `<details open>`. Nothing is hidden; the page is the argument it always was, with a hinge added. |
+| > 6 | only the upheld one open. The page becomes an index that expands in place. |
+
+Six, because the long-content study measured the reading thread breaking at
+roughly the sixth refusal — before that the rhythm still reads as testimony;
+after it, as a transcript. CSS cannot count siblings honestly, so this belongs to
+the Go renderer, and it is one comparison.
+
+*Test:* `s1-decision.html` (4, all open) and `s1-decision-long.html` (20, one
+open) are both in `screens/`, so both pass through the render gate and the
+as-composited contrast gate on every run.
+
+### The withheld state — a declared state
+
+**Chosen: option B**, with two amendments applied at fold-in.
+
+Withheld is a first-class resolution state: the mark `⊙`, the name, and
+`.chip-withheld`, all in `--bearing`. Something that looks *designed* is hard to
+read as broken — which is the whole requirement, since withheld must read as
+neither an error nor a warning.
+
+The three states are now first-class in `tokens.css` as `.res-oriented`,
+`.res-withheld`, `.res-orphan`. **Only orphan is drift, and only orphan may use
+`--caught`.** Withheld is drawn at *chip* weight and never gets a tinted card
+surface; orphan is the only state that recolours the ground it sits on.
+
+**Amendment 1 — the mark stays `⊙` in `--bearing`.**
+
+**Amendment 2 — the duplicated prose is gone.** The chain row read
+
+```
+sire:int-0002  private ledger — ref published, body not      ⊙ withheld
+```
+
+which states the same fact twice: the mark already says the body is not here. It
+is now
+
+```
+sire:int-0002  private ledger                                ⊙ withheld
+```
+
+and the plain-language explanation lives **once**, in the `Arising from … — a
+parent in a ledger this repo declares but cannot show you.` line.
+
+---
+
 ## Open design questions
 
 1. **The chain at scale.** Eight lines is legible; a 40-entry intent with a deep
-   supersession chain is not. Needs a collapse rule before the renderer ships.
-2. **Long content.** Screens are verified against short, average, and the real
-   entry text — but not against a 400-word `why_not` or a 20-alternative decision.
-   WEB.md 9 requires that check.
-3. **The withheld state needs designing** — `qst-0001` is now answered by
-   `dec-0011`, so the model is settled and only the visual is open. Resolution reports
-   three states: **oriented**, **withheld** (parent declared private, not readable
-   here), **orphan** (no parent → drift). Only orphan is drift. Withheld is a
-   legitimate designed state and must read as neither an error nor a warning — it is
-   currently the only state with no token or treatment assigned.
+   supersession chain is not. Partly answered — `s1-decision-long.html` shows the
+   chain listing four refusals and counting the remaining sixteen — but the rule
+   for *depth* (a long supersession chain) is still unwritten.
+2. ~~**Long content.**~~ Answered above.
+3. ~~**The withheld state needs designing.**~~ Answered above.
+4. **s2-index has nowhere to put a cross-boundary entry.** Surfaced by folding
+   the withheld state in, not previously recorded. The index groups by intent,
+   and `dec-0011`'s parent is `sire:int-0002` — an intent in a private ledger,
+   which by construction cannot be a group heading in this repo. So
+   `s1-decision-withheld.html` is currently reachable only by direct link. Either
+   the index grows a "from another ledger" group, or cross-boundary entries are
+   accepted as index-invisible, which weakens the acquisition surface (`dec-0010`).
 
 ---
 

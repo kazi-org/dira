@@ -1,0 +1,249 @@
+/* ============================================================================
+   decision.css — the decision page, shared by every s1-* screen.
+
+   Extracted 2026-07-30. There are now three decision screens (the canonical
+   one, the 20-alternative long-content case, and the withheld-parent case) and
+   they are the SAME page with different data. Three copies of this block would
+   be three things to keep in sync and two of them would rot.
+
+   Consumes docs/design/tokens.css. A hardcoded hex or px here is a defect.
+   ============================================================================ */
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* --- the chain ------------------------------------------------------------
+   mobile: the pre-formatted tree is illegible when clipped, so at narrow
+   widths we render the same graph as a stacked list. Same data, same order,
+   same colours — a different typographic form. (WEB.md 9) */
+.chain .row > span:first-child { flex: 0 0 auto; min-width: 13ch; }
+.chain .row > .txt, .chain .row > .dim { flex: 1 1 auto; white-space: normal; }
+.chain .row > .lo:last-child,
+.chain .row > .wh-tag:last-child { margin-left: auto; padding-left: var(--s4); text-align: right; }
+.chain-stack { display: none; }
+@media (max-width: 767px) {
+  .chain { display: none; }
+  .chain-stack {
+    display: grid; gap: var(--s2);
+    background: var(--sunk); border: 1px solid var(--rule);
+    border-radius: var(--r-shell); padding: var(--s4);
+    font-family: var(--mono); font-size: var(--t-sub);
+  }
+  .chain-stack .row { display: flex; gap: var(--s2); align-items: baseline; }
+  .chain-stack .row.sub { padding-left: var(--s4); }
+  .chain-stack .row.sub2 { padding-left: var(--s5); }
+  .chain-stack .m { flex: none; width: 12px; }
+  .chain-stack .m.ok { color: var(--converged); }
+  .chain-stack .m.no { color: var(--ink-low); }
+  .chain-stack .k { color: var(--bearing); flex: none; }
+  .chain-stack .v { color: var(--ink-mid); }
+  .chain-stack .wh { color: var(--bearing); }
+}
+
+/* --- the ruling ----------------------------------------------------------- */
+.body { display: grid; grid-template-columns: minmax(0,1fr) 244px; gap: var(--s7); margin-top: var(--s6); }
+@media (max-width: 1023px) { .body { grid-template-columns: 1fr; gap: var(--s6); } }
+
+.tagrow { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-bottom: var(--s3); }
+
+/* the ruling is the anchor. At --t-display (52px ceiling) against 16.5px
+   grounds the type contrast clears 3:1, so one element clearly wins the frame
+   instead of competing with the chain block (TASTE 6, 11). */
+h1.ruling {
+  font-family: var(--serif); font-weight: 400;
+  font-size: var(--t-display); line-height: 1.1; letter-spacing: -.019em;
+  max-width: 24ch;
+}
+.arising { font-size: var(--t-sub); color: var(--ink-low); margin-bottom: var(--s3); max-width: var(--m-sub); }
+.arising .whref { font-family: var(--mono); font-size: var(--t-chip); color: var(--bearing); }
+
+.because {
+  font-family: var(--serif); font-size: var(--t-lede); line-height: 1.62;
+  color: var(--ink-mid); max-width: var(--m-lede); margin-top: var(--s4);
+}
+.because em { font-style: italic; color: var(--ink); }
+
+/* --- ALTERNATIVES: the summary / detail split -----------------------------
+   Open question 2 ("long content") resolved 2026-07-30, option C. Screens were
+   verified against short and average entries but never against a 400-word
+   why_not or a 20-alternative decision; at twenty, letting it run produces 6.9
+   screens of page with no map, and the reader loses the thread at about the
+   sixth refusal.
+
+   Each alternative is a <details>. The summary carries the mark, the name, the
+   state tag and ONE line of ground — enough to decide whether to open it. The
+   full reasoning is inside. Zero JavaScript: the same collapse mechanism the
+   rebuilt chain uses.
+
+   WHAT THIS TREATMENT WAS AT RISK OF DESTROYING, and does not. r3 → r4
+   explicitly rejected "collapse the alternatives into a scannable comparison
+   list" because it kills the struck-through refusal with its grounds beneath,
+   which is the strongest device in this system. The strike survives here
+   because it is on the SUMMARY line, which is always visible: a refused
+   alternative reads as refused whether the entry is open or closed, and the
+   grounds are one keystroke away rather than gone.
+
+   THE DEGRADATION RULE (decided at render time, not in CSS, because CSS cannot
+   count siblings without :has() gymnastics that would still not be honest):
+
+       <= 6 alternatives   every <details open>. The page is the argument it
+                           has always been — struck name, grounds beneath —
+                           with a hinge added and nothing hidden.
+       >  6 alternatives   only the upheld one is open. The page becomes an
+                           index that expands in place.
+
+   Six, because the long-content study measured the reading thread breaking at
+   roughly the sixth refusal — before that the rhythm still reads as testimony,
+   after it, as a transcript. */
+.args { margin-top: var(--s7); }
+.alt { padding-left: var(--s4); position: relative; border-bottom: 1px solid var(--rule-soft); }
+.alt:first-of-type { border-top: 1px solid var(--rule-soft); }
+.alt::before { content:""; position:absolute; left:0; top:5px; bottom:5px; width:2px; background: var(--rule); }
+/* the upheld rule is state-driven, not decorative, and the state is ALSO
+   carried by the mark, the tag and the absence of a strike (WEB.md 12). */
+.alt.upheld::before { background: var(--converged); width: 3px; }
+
+.alt > summary {
+  list-style: none; cursor: pointer; padding: var(--s3) 0 var(--s3) var(--s3);
+  transition: background var(--dur) var(--ease);
+}
+.alt > summary::-webkit-details-marker { display: none; }
+.alt > summary:hover, .alt > summary:focus-visible { background: var(--sunk); }
+.alt .line1 { display: flex; gap: var(--s2); align-items: baseline; flex-wrap: wrap; }
+.alt .caret {
+  display: inline-block; flex: none; font-family: var(--mono); font-size: var(--t-mono);
+  color: var(--ink-low); transition: transform var(--dur) var(--ease);
+}
+.alt[open] .caret { transform: rotate(90deg); }
+.alt .mark { flex: none; font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-low); }
+.alt.upheld .mark { color: var(--converged); }
+.alt .name { font-family: var(--serif); font-size: var(--t-body); }
+.alt.upheld .name { color: var(--ink); font-weight: 600; }
+.alt:not(.upheld) .name {
+  color: var(--ink-mid); text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--ink-low) 60%, transparent);
+  text-decoration-thickness: 1px;
+}
+.alt .tag {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .12em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-chip); flex: none; transform: translateY(-2px);
+  color: var(--ink-low); background: color-mix(in oklab, var(--ink-low) 6%, transparent);
+}
+.alt.upheld .tag { color: var(--converged); background: color-mix(in oklab, var(--converged) 6%, transparent); }
+/* the one-line ground: the scan surface. It is a claim, not a label — if it
+   could be replaced by the word "performance" it is not carrying its weight.
+   display:block is load-bearing, not tidying: as an inline span, padding-left
+   applies only to the FIRST line box, so the moment this wraps (which it does
+   at every mobile width) line one sits indented and the rest do not. */
+.alt .one {
+  display: block;
+  font-family: var(--serif); font-size: var(--t-small); color: var(--ink-low);
+  max-width: var(--m-prose); margin-top: var(--s1); padding-left: var(--s5);
+}
+.alt .detail { padding: var(--s2) 0 var(--s4) var(--s5); }
+.alt .grounds { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: var(--m-prose); }
+.alt .grounds + .grounds { margin-top: var(--s3); }
+.alt .revisit { font-size: var(--t-sub); color: var(--ink-low); margin-top: var(--s3); max-width: var(--m-sub); }
+.alt .revisit b {
+  color: var(--bearing); font-weight: 600; font-size: var(--t-label);
+  letter-spacing: .12em; text-transform: uppercase; margin-right: 6px;
+}
+
+/* Mobile is where this treatment is weakest and it has to be worked, not
+   assumed: the long-content study measured option C rendering LONGER at 390px
+   than the option it beat, entirely because every summary row wrapped to three
+   or four lines. Without the flex-grow below, a name that does not fit drops
+   off line one and leaves the caret and the mark stranded on a line of their
+   own — which reads as a broken row, not a heading.
+
+   flex-basis MUST be 0 here, not auto. With `flex-wrap: wrap` the browser
+   assigns items to lines using their hypothetical size (max-content for
+   basis:auto) BEFORE it shrinks anything, so an unbroken title is moved to a
+   new flex line rather than being allowed to wrap in place. Basis 0 makes the
+   name contribute nothing to that decision and then grow into whatever is
+   left, so it wraps inside its own column with the tag held at the end. */
+@media (max-width: 767px) {
+  .alt { padding-left: var(--s3); }
+  .alt .name { flex: 1 1 0; min-width: 0; }
+  .alt .one { padding-left: 0; }
+  .alt .detail { padding-left: var(--s3); }
+  .alt > summary { padding-left: var(--s2); }
+}
+
+/* --- how this entry resolves: the three-state panel -----------------------
+   Only on a page whose parent is withheld, where the three states ARE the
+   entry's subject. This is not a legend bolted to every decision page.
+   Withheld sits between the two it must not be confused with — that adjacency
+   is the whole check, and it is why the panel is a row and not a footnote. */
+.states { margin-top: var(--s7); }
+.stgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); }
+@media (max-width: 767px) { .stgrid { grid-template-columns: 1fr; } }
+
+.stcell {
+  border: 1px solid var(--rule); border-radius: var(--r-card);
+  background: var(--panel); padding: var(--s4);
+  display: grid; gap: var(--s2); align-content: start;
+}
+.stref { font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-mid); }
+.stref .k { color: var(--ink-low); }
+/* an id never breaks. "sire:int-0002" wrapping after the hyphen renders two
+   half-ids, which is a different-looking identifier, not a wrapped one. */
+.stref .v { white-space: nowrap; }
+.stslot { min-height: 22px; display: flex; align-items: center; }
+.sttitle { font-family: var(--serif); font-size: var(--t-small); color: var(--ink); }
+.sttitle a { color: var(--bearing); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.sttitle a:hover, .sttitle a:focus-visible { color: var(--bearing-lift); border-color: var(--bearing-lift); }
+.stnote {
+  font-family: var(--ui); font-size: var(--t-sub); color: var(--ink-low);
+  max-width: var(--m-sub); border-top: 1px solid var(--rule-soft); padding-top: var(--s2);
+}
+/* withheld gets NO surface change. It is the unremarkable state: a chip, a
+   mark, a name, on the same panel every other cell sits on. */
+.st-withheld .sttitle { color: var(--ink-mid); }
+/* orphan is drift, so it is drawn with the SAME construction as .drift — the
+   only red on the page, and the only cell that recolours its own ground.
+   42/3, not 42/7: at a 7% tint --ink-low on this surface measures 4.41:1 in
+   dark, under the floor. The study built it at 7% and the token matrix could
+   not see it; contrast-rendered.mjs failed it on the first run here. */
+.st-orphan {
+  border-color: color-mix(in oklab, var(--caught) 42%, var(--rule));
+  background: color-mix(in oklab, var(--caught) 3%, var(--panel));
+}
+.st-orphan .sttitle { color: var(--ink-mid); font-style: italic; }
+
+/* --- the rail ------------------------------------------------------------- */
+.rail { display: grid; gap: var(--s4); align-content: start; position: sticky; top: var(--s4); }
+@media (max-width: 1023px) { .rail { position: static; } }
+.rail .what { font-size: var(--t-ui); color: var(--ink-mid); margin-bottom: var(--s3); }
+.rail .what b { color: var(--ink); }
+.rail .key { font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low); }
+.rail .key b { color: var(--bearing); font-weight: 400; }
+.kv {
+  display: flex; justify-content: space-between; gap: var(--s3); flex-wrap: wrap;
+  font-family: var(--mono); font-size: var(--t-sub); padding: 5px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.kv:last-child { border-bottom: 0; }
+.kv .k { color: var(--ink-low); }
+.kv a { text-decoration: none; }
+.kv a:hover, .kv a:focus-visible { text-decoration: underline; }
+/* a withheld edge in the rail: the ref is there, the mark says it stops here.
+   nowrap + margin-left:auto so the mark never orphans onto its own line — a
+   244px rail is narrow enough that "sire:int-0002 ⊙" wraps if left alone, and
+   a lone ⊙ under a ref reads as a rendering fault rather than a state. */
+.kv .whrail { color: var(--ink-mid); white-space: nowrap; margin-left: auto; }
+.kv .whrail em { font-style: normal; color: var(--bearing); }
+
+/* --- the one restrained conversion line ----------------------------------- */
+.everydec {
+  margin-top: var(--s7); padding-top: var(--s4); border-top: 1px solid var(--rule);
+  display: flex; gap: var(--s3); align-items: baseline; flex-wrap: wrap;
+}
+.everydec p {
+  font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid);
+  flex: 1; min-width: 240px; max-width: var(--m-prose);
+}
+.everydec a {
+  font-size: var(--t-ui); color: var(--bearing); text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+.everydec a:hover, .everydec a:focus-visible { color: var(--bearing-lift); }

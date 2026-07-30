@@ -127,8 +127,11 @@ def extract():
     dm = read('docs/design/DESIGN.md')
     sec = re.search(r'## Open design questions\n(.*?)(?=\n## |\Z)', dm, re.S)
     if sec:
-        for i, item in enumerate(re.findall(r'^\d+\.\s+\*\*(.+?)\*\*', sec.group(1), re.M), 1):
-            obs.append((f'design-q:{i}', 'DESIGN.md', f'Close design question: {item}'))
+        # id from the question TEXT, not its position. Position-derived ids shift
+        # whenever an item is answered and struck through, silently orphaning every
+        # register row below it -- the same instability as a randomised hash.
+        for item in re.findall(r'^\d+\.\s+\*\*(.+?)\*\*', sec.group(1), re.M):
+            obs.append((f'design-q:{sid(item)}', 'DESIGN.md', f'Close design question: {item}'))
 
     # docs/roadmap.md — Blocked rows and upstream asks
     rm = read('docs/roadmap.md')

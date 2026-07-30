@@ -14,12 +14,25 @@
 :root {
   color-scheme: light dark;
 
-  /* ---- HUE BUDGET: three saturated hues, one meaning each -----------------
-     bearing   the instrument — current focus, brand, links, active intents
+  /* ---- HUE BUDGET: three saturated hues ----------------------------------
+     bearing   the instrument — current focus, brand, links, active intents,
+               AND the WITHHELD resolution state (see below).
      converged runtime state only — accepted, converged, achieved
      caught    drift & contradiction ONLY. Never decoration, never a rejected
                alternative (a refusal is a record, not an alarm).
-     A fourth hue requires a documented role. A hue with no role fails review. */
+     A fourth hue requires a documented role. A hue with no role fails review.
+
+     ONE DOCUMENTED EXCEPTION, approved 2026-07-30. --bearing carries a second
+     meaning: withheld. The rule was one meaning per hue and this breaks it,
+     recorded here rather than quietly widened. The defence is that withheld is
+     the instrument pointing at something it can name and cannot open — the
+     needle is still on it — and that the alternatives were worse: --caught is
+     forbidden (withheld is not drift, Law 1), --converged would claim a
+     resolution that did not happen, and a fourth hue would have to earn a slot
+     for a state whose whole design brief is to be unremarkable.
+     The cost, stated: a decision page with a withheld parent now carries
+     bearing in four roles at once — the invocation argument, the id chips, the
+     links, and this. It is an exception, not a precedent. */
   --bearing:      #8a5f18;
   --bearing-lift: #6d4a12;   /* hover/focus — MORE contrast than rest.
                                 In LIGHT that means DARKER; in dark, lighter.
@@ -227,6 +240,13 @@ code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
 .chain .tree { color: var(--ink-low); }
 .chain .id { color: var(--bearing); }
 .chain .id-q { color: var(--ink-mid); }
+/* a withheld parent inside the chain: the ref is real, so it is set in the
+   instrument hue exactly like any other id. The trailing mark says the body is
+   not here. NOTE the row carries no explanatory clause — "private ledger" and
+   "⊙ withheld" are one statement, not two; the sentence that explains it lives
+   once, in the .arising line, and is not repeated in the chain. */
+.chain .id-w { color: var(--bearing); }
+.chain .wh-tag { color: var(--bearing); }
 .chain .ok { color: var(--converged); }
 .chain .no { color: var(--ink-low); }        /* a refusal is a record, not an alarm */
 .chain .txt { color: var(--ink); }
@@ -248,6 +268,16 @@ code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
 .chip-open { color: var(--ink-mid); background: color-mix(in oklab, var(--ink-mid) 6%, transparent); }
 .chip-staged { color: var(--bearing); background: color-mix(in oklab, var(--bearing) 6%, transparent); }
 .chip-date { color: var(--ink-low); }
+/* withheld carries a hairline where the other state chips do not, because it is
+   the one state that names a thing you cannot open: the border is the edge of
+   what this repo will show. Tint stays at 7% — --bearing on a 13% --bearing
+   tint over --panel measures 4.11:1 in light, under the floor, and the token
+   matrix structurally cannot see that pair. contrast-rendered.mjs can. */
+.chip-withheld {
+  color: var(--bearing);
+  background: color-mix(in oklab, var(--bearing) 7%, transparent);
+  border: 1px solid color-mix(in oklab, var(--bearing) 30%, transparent);
+}
 
 /* --- section label --- */
 .seclabel {
@@ -269,6 +299,30 @@ code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
   text-transform: uppercase; color: var(--ink-low);
   font-weight: 600; margin-bottom: var(--s3);
 }
+
+/* --- RESOLUTION STATES: three, and exactly one of them is drift -----------
+   dec-0011 settles the model; this is its only visual. Every upward edge
+   resolves to one of:
+
+     oriented   parent present and readable here        ✓  --converged
+     withheld   parent declared, body not published     ⊙  --bearing
+     orphan     no parent recorded at all               ⚠  --caught   ← drift
+
+   Law 1 restated on this axis: --caught belongs to orphan and to nothing else
+   here. Withheld must read as neither an error nor a warning, which is why it
+   is drawn at CHIP weight and never gets a tinted card surface — orphan is the
+   only state that changes the colour of the ground it sits on. If withheld
+   ever becomes the heaviest thing in a chain, this rule has been broken.
+   Grep test: --caught appears only in .drift, .res-orphan and check states. */
+.res { display: flex; align-items: baseline; gap: var(--s2); }
+.res .mk { font-family: var(--mono); font-size: var(--t-mono); flex: none; color: var(--ink-low); }
+.res .nm {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 600; color: var(--ink-low);
+}
+.res-oriented .mk, .res-oriented .nm { color: var(--converged); }
+.res-withheld .mk, .res-withheld .nm { color: var(--bearing); }
+.res-orphan   .mk, .res-orphan   .nm { color: var(--caught); }
 
 /* --- the ONLY red on any screen --- */
 .drift {
