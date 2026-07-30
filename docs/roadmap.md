@@ -4,6 +4,13 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 **Last updated:** 2026-07-29 · **Owner:** maintainer
 
+> **Nothing is forgotten by construction.** `python3 scripts/coverage.py` extracts
+> every obligation mechanically from `.dira/entries/`, `DESIGN.md`, this file, and
+> `docs/plan.md`, then fails if any lacks a disposition in
+> [`docs/coverage.md`](coverage.md). Adding a Blocked row or an upstream ask here
+> creates an obligation the check will demand you account for. It becomes a CI gate
+> in E0.
+
 ---
 
 ## Shipped
