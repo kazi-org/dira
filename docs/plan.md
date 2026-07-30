@@ -76,6 +76,21 @@ read/write as one file per entry (`dec-0002`), the SQLite derived cache under
 `.dira/cache/`, `dira log`, `dira why`, `dira brief`, `dira reindex`, and
 `SessionStart` brief injection with the 1,500-token cap enforced in-binary
 (`cst-0001`).
+**Measured 2026-07-30 by E1-L3, and it constrains E1-L5/L6:** the SQLite cache makes a
+warm `brief` 15.1ms against a 30.1ms no-cache path — but a **cold** cache costs 55.5ms,
+*worse than no cache at all*, because it pays for building the database. `dira brief`
+runs on `SessionStart`, so the very first session after a clone or a `reindex` is the
+slowest one. E1-L5 must decide what the brief does on a cold cache (build it
+synchronously and eat 55ms, fall back to the uncached read path, or build in the
+background and serve uncached once), and E1-L6's budget must state which case it
+measures. A budget that only ever measures the warm path is not measuring the user's
+first experience.
+
+**Decision E1-L3 was handed and has now made (`dec-0015`): `EntryInfo.Version` is a
+content hash, not mtime+size** — the heuristic's hole was judged reachable rather than
+theoretical, and the acceptance line promised the files win, which a heuristic makes a
+near-certainty rather than a guarantee. Original framing kept below for the record.
+
 **Decision handed to E1-L3, do not inherit it silently:** `EntryInfo.Version` on the
 local backend is `mtime-nanos + size` — the standard heuristic (git, make, rsync), and
 what keeps `List` at 2.7ms rather than 13ms. It is a heuristic: an in-place edit

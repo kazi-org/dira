@@ -70,6 +70,7 @@ func newApp(stdout, stderr io.Writer) *app {
 	}
 	a.commands = []*command{
 		{name: "help", summary: "show usage for dira or one of its commands", run: runHelp},
+		{name: "reindex", summary: "rebuild the derived read cache from the entry files", run: runReindex},
 		{name: "version", summary: "print the dira version", run: runVersion},
 	}
 	return a

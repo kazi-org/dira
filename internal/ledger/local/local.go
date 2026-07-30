@@ -11,6 +11,8 @@ package local
 import (
 	"bytes"
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -22,9 +24,20 @@ import (
 	"github.com/kazi-org/dira/internal/ledger"
 )
 
+// diraDirName is the ledger directory's name, the thing Find walks up looking
+// for.
+const diraDirName = ".dira"
+
 // entriesDir is the subdirectory of .dira holding one file per entry
-// (dec-0002). Its siblings — cache/, config.toml — belong to other lanes.
+// (dec-0002).
 const entriesDir = "entries"
+
+// cacheDirName is the subdirectory holding the derived read cache. It is named
+// here rather than in the cache package because it is a path, and a path is the
+// backend's business (dec-0005). Nothing in it is authoritative: it is
+// gitignored and rebuildable from entries/ at any time, and if it and the files
+// disagree the files win (dec-0002).
+const cacheDirName = "cache"
 
 // A Store reads and writes a ledger as a directory of markdown files.
 //
@@ -74,26 +87,15 @@ func (s *Store) Get(ctx context.Context, id string) (*ledger.Entry, error) {
 	// be a second path resolution and a second syscall per entry, which over
 	// a 200-entry ledger is a measurable slice of int-0002's budget spent
 	// asking the kernel something the open file already knows.
-	f, err := os.Open(path)
+	data, err := read(path)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			return nil, fmt.Errorf("%s: %w", id, ledger.ErrNotFound)
 		}
 		return nil, fmt.Errorf("reading %s: %w", id, err)
 	}
-	defer func() { _ = f.Close() }()
 
-	info, err := f.Stat()
-	if err != nil {
-		return nil, fmt.Errorf("stating %s: %w", id, err)
-	}
-	data := make([]byte, 0, info.Size()+1)
-	buf := bytes.NewBuffer(data)
-	if _, err := buf.ReadFrom(f); err != nil {
-		return nil, fmt.Errorf("reading %s: %w", id, err)
-	}
-
-	entry, err := ledger.DecodeStored(buf.Bytes(), version(info))
+	entry, err := ledger.DecodeStored(data, version(data))
 	if err != nil {
 		return nil, fmt.Errorf("reading %s: %w", id, err)
 	}
@@ -105,11 +107,15 @@ func (s *Store) Get(ctx context.Context, id string) (*ledger.Entry, error) {
 
 // List returns every entry in the ledger, id and version only, sorted by id.
 //
-// It reads the directory and stats each file rather than opening any of them,
-// which is what keeps a reindex over 200 entries affordable inside int-0002's
-// budget. Files that are not named like an entry are skipped in silence: a
-// ledger is a directory in a repository people also keep notes in, and a stray
-// README.md is not ledger rot.
+// It reads each entry file but decodes none of them: the version is the file's
+// git blob id (see version), and hashing 200 files costs 6.9ms against 22ms to
+// also parse them. That ratio is the derived cache's entire reason to exist —
+// the cache saves the parse, and List is what proves the cache still matches the
+// files (dec-0002, dec-0015).
+//
+// Files that are not named like an entry are skipped in silence: a ledger is a
+// directory in a repository people also keep notes in, and a stray README.md is
+// not ledger rot.
 func (s *Store) List(ctx context.Context) ([]ledger.EntryInfo, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -134,15 +140,15 @@ func (s *Store) List(ctx context.Context) ([]ledger.EntryInfo, error) {
 		if !ok || !ledger.ValidID(id) {
 			continue
 		}
-		info, err := name.Info()
+		data, err := read(filepath.Join(dir, name.Name()))
 		if err != nil {
 			if errors.Is(err, fs.ErrNotExist) {
-				// Removed between the read and the stat.
+				// Removed between the directory read and this one.
 				continue
 			}
-			return nil, fmt.Errorf("stating %s: %w", name.Name(), err)
+			return nil, fmt.Errorf("reading %s: %w", name.Name(), err)
 		}
-		out = append(out, ledger.EntryInfo{ID: id, Version: version(info)})
+		out = append(out, ledger.EntryInfo{ID: id, Version: version(data)})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out, nil
@@ -242,6 +248,30 @@ func (s *Store) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+// read returns a file's whole contents.
+//
+// One open, one fstat, one read. os.ReadFile followed by os.Stat would be a
+// second path resolution and a second syscall per entry, which over a 200-entry
+// ledger is a measurable slice of int-0002's budget spent asking the kernel
+// something the open file already knows.
+func read(path string) ([]byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = f.Close() }()
+
+	info, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+	buf := bytes.NewBuffer(make([]byte, 0, info.Size()+1))
+	if _, err := buf.ReadFrom(f); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 // path maps an id to its file.
 //
 // The id is validated before it reaches the filesystem, which is what stops
@@ -255,13 +285,67 @@ func (s *Store) path(id string) (string, error) {
 	return filepath.Join(s.dir, entriesDir, id+".md"), nil
 }
 
-// version derives EntryInfo.Version from a file's metadata.
+// version derives EntryInfo.Version from an entry file's bytes: the git blob
+// object id, sha1 over "blob <len>\x00" followed by the content, which is
+// exactly what `git hash-object` prints for the same file.
 //
-// Modification time and size, not a content hash: a reindex over 200 entries
-// must cost one directory read, and hashing would cost 200 file reads — the
-// whole of int-0002's budget, spent to detect that nothing changed. The value is
-// opaque above the interface, so replacing it with a hash later is a change to
-// this function alone.
-func version(info fs.FileInfo) string {
-	return fmt.Sprintf("%d-%d", info.ModTime().UnixNano(), info.Size())
+// This replaces the modification-time-and-size heuristic this backend shipped
+// with, and the reasoning is recorded as dec-0015. In short: mtime+size is a
+// heuristic with a reachable hole — `state: accepted` and `state: rejected` are
+// the same length, so a restore that preserves modification times (rsync -a,
+// cp -p, tar -p) can flip a decision invisibly — and dec-0002 promises that the
+// files win, not that they usually win. Measured over the 200-entry fixture the
+// hash costs 6.9ms against 2.2ms for the metadata form; 4.7ms is a cheap price
+// for turning a near-certainty into a guarantee, and it is a sixth of what the
+// interface's author estimated.
+//
+// The git blob format rather than a bare hash is not decoration. E7's github
+// backend gets blob shas free from the Contents API, so the two backends produce
+// *equal* versions for equal content and a ledger can change backend without a
+// reindex — and a human debugging a cache can reproduce the value with
+// `git hash-object .dira/entries/dec-0002.md` and no dira at all.
+//
+// sha1's collision weakness is not in this threat model: this detects accidental
+// divergence, not forgery, and anyone able to write the entry file can simply
+// write whatever they want into it. It is the same tradeoff git makes for the
+// same job.
+func version(data []byte) string {
+	h := sha1.New()
+	// hash.Hash never returns an error, which is why these are discarded.
+	_, _ = fmt.Fprintf(h, "blob %d\x00", len(data))
+	_, _ = h.Write(data)
+	return hex.EncodeToString(h.Sum(nil))
 }
+
+// Find returns the .dira directory governing start, walking up from it until one
+// is found or the filesystem root is reached.
+//
+// Walking up is what makes dira usable from a subdirectory of a repository,
+// which is where a hook actually runs. It stops at the first .dira rather than
+// the outermost: a nested ledger is the more specific answer, and dec-0006's
+// tier design makes an outer ledger a parent to inherit from rather than a
+// ledger to write into.
+func Find(start string) (string, error) {
+	dir, err := filepath.Abs(start)
+	if err != nil {
+		return "", fmt.Errorf("resolving %s: %w", start, err)
+	}
+	for {
+		candidate := filepath.Join(dir, diraDirName)
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			return candidate, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("no %s directory in %s or any parent", diraDirName, start)
+		}
+		dir = parent
+	}
+}
+
+// CacheDir returns the derived cache's directory inside a .dira directory.
+//
+// It is a function on the backend rather than a constant in the cache package
+// because it is a path, and dec-0005 confines paths to a backend. The cache
+// package receives the string and never constructs one.
+func CacheDir(diraDir string) string { return filepath.Join(diraDir, cacheDirName) }

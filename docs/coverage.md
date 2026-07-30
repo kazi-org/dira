@@ -137,3 +137,9 @@ Registering every obligation forced three admissions no plan document had surfac
 | `impl:dec-0014` | covered:E3 | lexical matcher in the binary; E3-L1 froze the labeled corpus by sha256, E3-L2 implements against it |
 | `trigger:dec-0014:d477db` | deferred:trigger | fires if an additive agent-assist mode is layered over the lexical floor — the floor itself must stay model-free (dec-0003) |
 | `trigger:dec-0014:554303` | deferred:trigger | fires if lexical recall plateaus below an acceptable bar; the honest response is a precision/recall curve, never editing the corpus |
+| `impl:dec-0015` | covered:E1 | content-hash Version + the SQLite derived cache, landed by E1-L3 |
+| `trigger:dec-0015:089e15` | deferred:trigger | condition to watch; no watch mechanism exists yet |
+| `trigger:dec-0015:bee40d` | deferred:trigger | condition to watch; no watch mechanism exists yet |
+| `trigger:dec-0015:c4ac11` | deferred:trigger | condition to watch; no watch mechanism exists yet |
+| `trigger:dec-0015:3d524c` | deferred:trigger | condition to watch; no watch mechanism exists yet |
+| `trigger:dec-0015:e334b1` | deferred:trigger | condition to watch; no watch mechanism exists yet |

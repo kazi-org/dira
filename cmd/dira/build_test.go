@@ -36,16 +36,64 @@ func goTool(t *testing.T) string {
 // int-0002's cold-start budget, and a check removed the first time it is
 // inconvenient was never a check.
 //
-// It is empty today, which is not an oversight. E1-L1 lands the ledger codec and
-// the storage interface, and nothing in cmd/dira imports them yet — so the
-// command path really does still link nothing, and authorising a module before
-// anything needs it is a hole rather than a convenience. The lane that first
-// imports internal/ledger from a command adds "gopkg.in/yaml.v3" here, and
-// TestTheAllowlistIsNotStale below makes leaving a stale entry behind fail.
-//
 // Adding an entry is a design decision. It should read like one in the diff, and
 // it should arrive with a measurement of what it costs a cold start.
-var allowedModules = []string{}
+//
+// E1-L3 is the change that fills it, and here is that measurement. `dira` was a
+// 2.76MB stdlib-only binary; wiring `dira reindex` to the ledger and its derived
+// cache makes it 11.79MB. Attributed:
+//
+//	+2.51MB  the ledger codec: yaml.v3, and the JSON Schema validator that
+//	         internal/ledger reaches into for SplitFrontmatter, which drags
+//	         santhosh-tekuri/jsonschema and golang.org/x/text along with it
+//	+6.52MB  modernc.org/sqlite and its transpiled libc — the derived read
+//	         cache (dec-0002, dec-0015)
+//
+// None of it costs measurable *start-up* time, which is the thing int-0002 is
+// actually about. Measured two ways: from process entry to main is 3µs with
+// these linked and 3µs without, because Go initialises none of them eagerly;
+// and the median wall clock of `dira version` over twelve runs is 0.10s for the
+// 11.79MB binary against 0.11s for the 2.76MB one — indistinguishable, because
+// on this machine process spawn alone (`/usr/bin/true`) is 0.06s and swamps it.
+// The cost is download size and supply-chain surface, and the benefit is a read
+// path that answers in 15.1ms warm against 30.1ms with no cache at all, over a
+// 200-entry ledger. That trade is recorded in full, with its rejected
+// alternatives, in dec-0015.
+//
+// Two of these are worth a second look by whoever owns them, and neither is
+// E1-L3's to change:
+//
+//   - jsonschema and x/text are in the *binary* only because internal/ledger
+//     imports the schema package for two small helpers. Moving SplitFrontmatter
+//     out of a package that also embeds and compiles a JSON Schema document
+//     would take roughly 2MB out of the release for no behaviour change.
+//   - golang.org/x/exp and github.com/mattn/go-isatty arrive through
+//     modernc.org/sqlite, not through anything dira asked for.
+var allowedModules = []string{
+	// The ledger codec (E1-L1). Frontmatter is YAML; there is no stdlib YAML.
+	"gopkg.in/yaml.v3",
+
+	// The schema package's validator, reached because internal/ledger
+	// imports that package for SplitFrontmatter. See the note above.
+	"github.com/santhosh-tekuri/jsonschema/v6",
+	"golang.org/x/text",
+
+	// The derived read cache (E1-L3, dec-0015). modernc.org/sqlite is the
+	// pure-Go SQLite; the rest of this block is its dependency tree, not
+	// dira's choices. cgo (mattn/go-sqlite3) was rejected because goreleaser
+	// has to cross-compile darwin-arm64 and linux-amd64 from one runner.
+	"modernc.org/sqlite",
+	"modernc.org/libc",
+	"modernc.org/mathutil",
+	"modernc.org/memory",
+	"github.com/dustin/go-humanize",
+	"github.com/google/uuid",
+	"github.com/mattn/go-isatty",
+	"github.com/ncruces/go-strftime",
+	"github.com/remyoudompheng/bigfft",
+	"golang.org/x/exp",
+	"golang.org/x/sys",
+}
 
 // TestCommandPathLinksOnlyAllowedModules is the cobra-exclusion check from the
 // E0-L1 acceptance line, superseded by E1 into an allowlist and still a test

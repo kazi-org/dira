@@ -37,6 +37,23 @@ var allowed = map[string][]string{
 	// Not path/filepath: locating a ledger on disk is a filesystem concern
 	// and belongs in the backend, not in argument parsing.
 	"cmd/dira": {"os"},
+
+	// The derived read cache (E1-L3). It is not a second ledger backend and
+	// it never reads an entry: every entry it holds arrives through
+	// ledger.Store, and every entry it renders is fetched back through
+	// ledger.Store. What it does own is a SQLite database file under
+	// .dira/cache/, and a database has a path whatever the ledger is stored
+	// in — E7's github backend still caches locally, because the alternative
+	// is a network call on the read path, which int-0002 forbids outright.
+	// So this exemption covers the cache's own file and nothing else, and
+	// path/filepath is on it only to name that file inside a directory the
+	// caller supplied.
+	"internal/index": {"os", "path/filepath"},
+
+	// The differential harness for the cache, which has to be able to delete
+	// .dira/cache/ before a query to prove the answer does not change.
+	// Deleting the cache is the thing under test.
+	"internal/index/indextest": {"os", "path/filepath"},
 }
 
 // TestNoFilesystemImportsAboveTheBackend is E1-L1's acceptance line (c).
