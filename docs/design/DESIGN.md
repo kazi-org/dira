@@ -116,12 +116,31 @@ per scheme so browser chrome matches.
 for ids, the chain, and numerics. `font-variant-numeric: tabular-nums` is set on
 `body`, so every roll-up and count is monospaced-digit by default.
 
-**Why system fonts, deliberately, not a webfont.** dira embeds its SPA in a Go
-binary and must work with the network unplugged (`int-0002`, `cst-0004`). Embedding
-webfonts would bloat the binary for zero functional gain. This also removes a real
-failure mode: an earlier design pass rendered with its intended faces silently
-falling back, which makes every spacing and measure judgement wrong. The renders
-here use the same faces that ship.
+**Why system fonts — and where that reasoning currently FAILS.** dira embeds its UI in
+a Go binary that must work with the network unplugged (`int-0002`, `cst-0004`), so a
+*network* webfont is out. That much holds.
+
+**The serif stack does not deliver what this paragraph used to claim.**
+`"Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif` resolves on macOS and
+mostly on Windows, and on a stock Linux install resolves to **none of them** — it falls
+through to DejaVu Serif, whose metrics are nothing like Palatino's. A git-native
+developer tool has a large Linux audience. Every type ratio, measure and vertical rhythm
+in this system was tuned by rendering on macOS with Palatino loaded.
+
+That is the *same* failure this constraint was adopted to eliminate — an earlier pass
+rendered with its intended faces silently falling back, making every spacing judgement
+wrong — relocated to where the render harness structurally cannot catch it, because the
+harness runs on macOS. A gate that cannot see the failure is not evidence against it.
+
+No serif ships by default across macOS, Windows and Linux, so **no stack can fix this**;
+only self-hosting can. And self-hosting is compatible with the offline constraint —
+`embed.FS` puts a subsetted woff2 (~30-80KB) inside the binary with no network call. The
+original trade ("bloat for zero functional gain") was miscounted: the gain is
+cross-platform typographic determinism, which is the thing the constraint existed to buy.
+
+**Open, and it is a real decision, not a cleanup:** self-host one serif, or accept that
+a third of the audience sees a different design from the one that was reviewed. Recorded
+rather than quietly fixed because it changes a documented constraint.
 
 **Scale:** spacing `4 / 8 / 12 / 18 / 28 / 40 / 60 / 96`. Radii `14 / 7 / 4`,
 concentric — inner ≈ half outer, so curves align.

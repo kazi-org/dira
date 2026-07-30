@@ -164,7 +164,11 @@ kbd {
         <button class="btn" type="button">Reject</button>
         <button class="btn btn-quiet" type="button">Edit the because</button>
         <span class="grow"></span>
-        <span class="hint"><kbd>Y</kbd> confirm · <kbd>N</kbd> reject · <kbd>E</kbd> edit</span>
+        <!-- Keyboard hints removed 2026-07-30. The page advertised Y/N/E with zero
+             script tags — promising interaction it cannot deliver. Either the distill
+             surface gets JS (defensible: it is a localhost app view, NOT the crawlable
+             public renderer dec-0012's reasoning covers) or the hints stay gone. It
+             does not get to claim them meanwhile. -->
       </div>
       <p class="swipe-note">swipe right to confirm · left to reject</p>
     </article>
