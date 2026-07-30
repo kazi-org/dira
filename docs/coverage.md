@@ -143,3 +143,5 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0015:c4ac11` | deferred:trigger | condition to watch; no watch mechanism exists yet |
 | `trigger:dec-0015:3d524c` | deferred:trigger | condition to watch; no watch mechanism exists yet |
 | `trigger:dec-0015:e334b1` | deferred:trigger | condition to watch; no watch mechanism exists yet |
+| `impl:dec-0016` | covered:E6 | Pagella subsets in assets/fonts/ + NOTICE; @font-face wiring lands with the E6 surface work |
+| `trigger:dec-0016:357dbd` | deferred:trigger | fires if a licence audit rules the GUST Font Licence unacceptable; Source Serif 4 is the recorded fallback |
