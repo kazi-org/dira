@@ -96,8 +96,15 @@ system cannot enforce itself.
 | `--caught` | **drift and contradiction only** | `#a83828` | `#d97060` |
 
 All 42 fg/bg pairs clear 4.5:1 in both schemes and hover exceeds rest on every
-surface — 0 failures. Re-run the matrix whenever a colour token moves; the values
-above are the post-fix ones, not the originals (see r3 → r4 below).
+surface — 0 failures. The values above are the post-fix ones, not the originals
+(see r3 → r4 below).
+
+**The matrix is a runnable artifact, not a memory:**
+`node docs/design/scripts/contrast.mjs [-v]`. It parses `tokens.css` rather than
+carrying its own palette, so it cannot drift from the tokens it checks — and it is
+verified to catch the original defect: restoring the pre-r4 `--bearing-lift`
+(`#b8862f`) produces 6 failures including the hover-inversion. Until this script
+existed, this document required a test that did not exist.
 
 Surfaces are hued and never pure — light ground `#f7f4ed`, dark ground `#0f151c`.
 No `#000`, no `#fff`, in either scheme. `color-scheme: light dark` is declared so

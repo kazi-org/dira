@@ -248,7 +248,16 @@ fleet_remote, totals {base, empty, rows: [{bucket, count, pct}]},
 todo, blocked [{…, cause, blocker}], rate
 ```
 
-Bucket enum: `done | running | blocked | todo | planned` — a clean map onto §6.1.
+**Corrected 2026-07-30 — the mapping is not clean, and the join is a hybrid.**
+`portfolio.ex:38` carries a *second* enum, `:in_progress | :stuck | :complete`, which
+is what `by_repo` and `fleet_remote[].bucket` use; the five-value taxonomy governs only
+`totals.rows[]` and the top-level `todo`/`blocked` arrays. And `portfolio_json/1`
+emits **no `done` or `running` array** — those survive only as counts in
+`totals.rows[]`, so portfolio reports how many goals converged, never which.
+
+The per-goal read therefore comes from **`kazi status <ref> --json`** (registered at
+`schema.ex:345`, ~0.65s/call), while blocked attribution (`cause`, `blocker`) is
+available only from portfolio. dira needs both.
 
 One caveat to carry knowingly: `portfolio` is **not registered in `Kazi.CLI.Schema`**
 (which documents only `apply`, `plan`, `bus`, `status`). The shape is versioned but
