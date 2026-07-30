@@ -296,10 +296,23 @@ $ dira check "add a background daemon to track run state"
     rejected alternative: "a daemon"
     why_not: violates the single-binary intent (int-0002)
     revisit_if: cold-start latency stops being the binding constraint
-✗ conflicts with cst-0004 (active)
-    dira never requires a long-lived service
 → supersede dec-0060, or revise the plan
 ```
+
+*Reconciled 2026-07-30.* This block previously carried a second conflict line citing
+`cst-0004`, which neither `README.md` nor `.agents/product-marketing.md` §6 — the
+designated demo asset — showed. Three surfaces disagreeing about the single most
+important marketing asset is drift, and E3's corpus and fixtures were frozen against the
+one-conflict version, so this one moved. The citation was also doubtful: a daemon trips
+`int-0002` ("one binary, no server, no daemon"), while `cst-0004` concerns network
+services and hosted tiers.
+
+**But note what this version is.** No binary produces this output yet, so all three
+surfaces are a *specification* of what `dira check` should print, not a recording of
+what it does. If the real matcher (`dec-0014`) fires on more than one record for this
+input, **the demo asset gets updated to match the tool** — the tool is not trimmed to
+match the marketing. `.agents/product-marketing.md` §6 is the canonical copy; the
+coherence gate should be extended to cover this block, which it does not today.
 
 This is the relitigation firewall. It reads `alternatives[].why_not` from rejected
 and accepted decisions plus every `constraint` inherited down the tier chain (§8).
