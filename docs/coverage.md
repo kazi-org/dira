@@ -134,3 +134,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0012:78bb50` | deferred:trigger | fires if teams pull for zero-setup shared rendering (dec-0007 team tier) |
 | `trigger:dec-0012:cdf95c` | deferred:trigger | fires if a surface needs genuine client-side state — a live-filtering graph explorer, not a document view |
 | `impl:dec-0013` | covered:E4 | E4-L6 reduces /sitrep to a judgement layer over `dira map`; its four display invariants are in E4's acc line |
+| `impl:dec-0014` | covered:E3 | lexical matcher in the binary; E3-L1 froze the labeled corpus by sha256, E3-L2 implements against it |
+| `trigger:dec-0014:d477db` | deferred:trigger | fires if an additive agent-assist mode is layered over the lexical floor — the floor itself must stay model-free (dec-0003) |
+| `trigger:dec-0014:554303` | deferred:trigger | fires if lexical recall plateaus below an acceptable bar; the honest response is a precision/recall curve, never editing the corpus |
