@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
-<title>Go, not Elixir/OTP, despite kazi's stack — kazi-org/dira decision record</title>
+<title>TeX Gyre Pagella (Palatino metrics) — dira serif bake-off</title>
 <meta name="description" content="Why kazi-org/dira chose Go over Elixir/OTP, with the three alternatives it rejected and the reasoning for each. A decision record kept automatically by a coding agent.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Go, not Elixir/OTP, despite kazi's stack">
 <meta property="og:description" content="dec-0001 - accepted. Three alternatives rejected, each with its grounds. A decision record nobody typed.">
 <meta property="og:site_name" content="dira - decision memory for AI coding agents">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="_snapshot/tokens.css">
 <style>
 /* S1 — THE DECISION PAGE. The page a stranger lands on from a link.
    Composition: invocation + chain (what is this tool) -> the ruling and its
@@ -85,9 +85,9 @@ h1.ruling {
 .arg .tag {
   font-family: var(--ui); font-size: var(--t-label); letter-spacing: .12em; text-transform: uppercase;
   padding: 2px 6px; border-radius: var(--r-chip); flex: none; transform: translateY(-2px);
-  color: var(--ink-low); background: color-mix(in oklab, var(--ink-low) 6%, transparent);
+  color: var(--ink-low); background: color-mix(in oklab, var(--ink-low) 12%, transparent);
 }
-.arg.upheld .tag { color: var(--converged); background: color-mix(in oklab, var(--converged) 6%, transparent); }
+.arg.upheld .tag { color: var(--converged); background: color-mix(in oklab, var(--converged) 14%, transparent); }
 .arg .grounds { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: 64ch; }
 .arg .revisit { font-size: var(--t-sub); color: var(--ink-low); margin-top: var(--s3); max-width: var(--m-sub); }
 .arg .revisit b {
@@ -107,8 +107,30 @@ h1.ruling {
 .kv a { text-decoration: none; }
 .kv a:hover, .kv a:focus-visible { text-decoration: underline; }
 </style>
+<style>
+/* ---- BAKE-OFF: self-hosted serif under test --------------------------------
+   Subsetted to Latin-1 + the punctuation dira's prose actually uses. In the
+   product these bytes come out of embed.FS, not off a URL -- the offline
+   constraint (int-0002, cst-0004) is preserved either way. */
+@font-face {
+  font-family: "BakeoffSerif";
+  src: url("fonts/pagella-regular.core.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "BakeoffSerif";
+  src: url("fonts/pagella-italic.core.woff2") format("woff2");
+  font-weight: 400; font-style: italic; font-display: block;
+}
+@font-face {
+  font-family: "BakeoffSerif";
+  src: url("fonts/pagella-bold.core.woff2") format("woff2");
+  font-weight: 600 700; font-style: normal; font-display: block;
+}
+:root { --serif: "BakeoffSerif", serif; }
+</style>
 </head>
-<body>
+<body data-candidate="pagella">
 
 <header class="topbar">
   <a class="wordmark" href="#">di<b>ra</b></a>
@@ -233,7 +255,7 @@ h1.ruling {
 
   <footer class="made">
     <span>1 of 22 entries · <a href="s2-index.html">see the whole graph</a></span>
-    <span class="sep" aria-hidden="true">·</span>
+    <span class="sep">·</span>
     <span>kept with <a href="https://github.com/kazi-org/dira">dira</a>, written by an agent, read by one</span>
   </footer>
 </main>

@@ -241,12 +241,12 @@ code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
 }
 .chip-id {
   color: var(--bearing);
-  background: color-mix(in oklab, var(--bearing) 11%, transparent);
+  background: color-mix(in oklab, var(--bearing) 5%, transparent);
   border: 1px solid color-mix(in oklab, var(--bearing) 30%, transparent);
 }
-.chip-accepted { color: var(--converged); background: color-mix(in oklab, var(--converged) 13%, transparent); }
-.chip-open { color: var(--ink-mid); background: color-mix(in oklab, var(--ink-mid) 12%, transparent); }
-.chip-staged { color: var(--bearing); background: color-mix(in oklab, var(--bearing) 13%, transparent); }
+.chip-accepted { color: var(--converged); background: color-mix(in oklab, var(--converged) 6%, transparent); }
+.chip-open { color: var(--ink-mid); background: color-mix(in oklab, var(--ink-mid) 6%, transparent); }
+.chip-staged { color: var(--bearing); background: color-mix(in oklab, var(--bearing) 6%, transparent); }
 .chip-date { color: var(--ink-low); }
 
 /* --- section label --- */
@@ -273,11 +273,15 @@ code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
 /* --- the ONLY red on any screen --- */
 .drift {
   border: 1px solid color-mix(in oklab, var(--caught) 42%, var(--rule));
-  background: color-mix(in oklab, var(--caught) 7%, var(--panel));
+  background: color-mix(in oklab, var(--caught) 3%, var(--panel));
   border-radius: var(--r-card); padding: var(--s4);
 }
 .drift h3, .drift .label { color: var(--caught); }
-.drift p { font-size: var(--t-ui); color: var(--ink-mid); max-width: var(--m-ui); }
+/* body copy in the drift card is INK, not caught. The hue lives in the label
+   and the border; making the sentence red too both failed contrast (2.66:1 as
+   composited) and spent the one alarm hue on ordinary prose. */
+.drift p { font-size: var(--t-ui); color: var(--ink); max-width: var(--m-ui); }
+.drift p b { color: var(--caught); }
 .drift b { color: var(--caught); font-weight: 600; }
 
 /* --- buttons --- */

@@ -125,8 +125,23 @@ All 42 fg/bg pairs clear 4.5:1 in both schemes and hover exceeds rest on every
 surface — 0 failures. The values above are the post-fix ones, not the originals
 (see r3 → r4 below).
 
-**The matrix is a runnable artifact, not a memory:**
-`node docs/design/scripts/contrast.mjs [-v]`. It parses `tokens.css` rather than
+**Two matrices, because one was not enough.**
+`node docs/design/scripts/contrast.mjs` checks token against token. That is necessary
+and it is NOT sufficient, and the gap shipped: every chip sits on a `color-mix` tint of
+its own colour, so the pair that actually renders is fg-on-tint, never fg-on-surface.
+The token matrix reported "0 failures" while five chips rendered between 3.0:1 and
+4.3:1 in light.
+
+`node docs/design/scripts/contrast-rendered.mjs` measures every text node **as
+composited in a real browser**, walking transparency up the ancestor chain. It is the
+authority, for two reasons found the hard way: `color-mix(in oklab, ...)` cannot be
+approximated in sRGB (an sRGB estimate passed pairs the browser fails), and colour
+resolution must be done by painting rather than string-parsing, because computed
+`color-mix` values come back as `oklab(...)` and reading those floats as RGB reported a
+legible paragraph at 1.31:1.
+
+Content marked `aria-hidden="true"` is exempt: decorative text carries no information,
+so there is nothing to fail to read. It must be *marked* decorative, not assumed to be. It parses `tokens.css` rather than
 carrying its own palette, so it cannot drift from the tokens it checks — and it is
 verified to catch the original defect: restoring the pre-r4 `--bearing-lift`
 (`#b8862f`) produces 6 failures including the hover-inversion. Until this script

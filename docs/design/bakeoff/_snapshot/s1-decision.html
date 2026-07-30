@@ -33,7 +33,7 @@
     display: grid; gap: var(--s2);
     background: var(--sunk); border: 1px solid var(--rule);
     border-radius: var(--r-shell); padding: var(--s4);
-    font-family: var(--mono); font-size: 12.5px;
+    font-family: var(--mono); font-size: var(--t-sub);
   }
   .chain-stack .row { display: flex; gap: var(--s2); align-items: baseline; }
   .chain-stack .row.sub { padding-left: var(--s4); }
@@ -58,7 +58,7 @@ h1.ruling {
   font-size: clamp(32px, 5.6vw, 52px); line-height: 1.1; letter-spacing: -.019em;
   max-width: 24ch;
 }
-.arising { font-size: 12.5px; color: var(--ink-low); margin-bottom: var(--s3); }
+.arising { font-size: var(--t-sub); color: var(--ink-low); margin-bottom: var(--s3); max-width: var(--m-sub); }
 
 .because {
   font-family: var(--serif); font-size: var(--t-lede); line-height: 1.62;
@@ -73,9 +73,9 @@ h1.ruling {
 .arg.upheld::before { background: var(--converged); width: 3px; }
 
 .arg .opt { display: flex; gap: var(--s2); align-items: baseline; margin-bottom: var(--s2); }
-.arg .mark { flex: none; font-family: var(--mono); font-size: 12px; color: var(--ink-low); }
+.arg .mark { flex: none; font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-low); }
 .arg.upheld .mark { color: var(--converged); }
-.arg .name { font-family: var(--serif); font-size: 17.5px; }
+.arg .name { font-family: var(--serif); font-size: var(--t-body); }
 .arg.upheld .name { color: var(--ink); font-weight: 600; }
 .arg:not(.upheld) .name {
   color: var(--ink-mid); text-decoration: line-through;
@@ -83,15 +83,15 @@ h1.ruling {
   text-decoration-thickness: 1px;
 }
 .arg .tag {
-  font-family: var(--ui); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .12em; text-transform: uppercase;
   padding: 2px 6px; border-radius: var(--r-chip); flex: none; transform: translateY(-2px);
   color: var(--ink-low); background: color-mix(in oklab, var(--ink-low) 12%, transparent);
 }
 .arg.upheld .tag { color: var(--converged); background: color-mix(in oklab, var(--converged) 14%, transparent); }
 .arg .grounds { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: 64ch; }
-.arg .revisit { font-size: 12.5px; color: var(--ink-low); margin-top: var(--s3); }
+.arg .revisit { font-size: var(--t-sub); color: var(--ink-low); margin-top: var(--s3); max-width: var(--m-sub); }
 .arg .revisit b {
-  color: var(--bearing); font-weight: 600; font-size: 10px;
+  color: var(--bearing); font-weight: 600; font-size: var(--t-label);
   letter-spacing: .12em; text-transform: uppercase; margin-right: 6px;
 }
 
@@ -99,7 +99,7 @@ h1.ruling {
 @media (max-width: 1023px) { .rail { position: static; } }
 .kv {
   display: flex; justify-content: space-between; gap: var(--s3);
-  font-family: var(--mono); font-size: 12px; padding: 5px 0;
+  font-family: var(--mono); font-size: var(--t-sub); padding: 5px 0;
   border-bottom: 1px solid var(--rule-soft);
 }
 .kv:last-child { border-bottom: 0; }
@@ -196,7 +196,7 @@ h1.ruling {
         <p style="font-size:var(--t-ui);color:var(--ink-mid);margin-bottom:var(--s3)">
           <b style="color:var(--ink)">Nobody typed this page.</b> A coding agent recorded
           it while the work happened, and reads it back at the start of the next session.</p>
-        <p style="font-family:var(--mono);font-size:11.5px;color:var(--ink-low)">
+        <p style="font-family:var(--mono);font-size: var(--t-chip);color:var(--ink-low)">
           <b style="color:var(--bearing);font-weight:400">int-</b> an intent ·
           <b style="color:var(--bearing);font-weight:400">dec-</b> a decision ·
           <b style="color:var(--bearing);font-weight:400">converged</b> proven by tests</p>
@@ -226,7 +226,7 @@ h1.ruling {
 
   <div style="margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--rule);
               display:flex;gap:var(--s3);align-items:baseline;flex-wrap:wrap">
-    <p style="font-family:var(--serif);font-size:16.5px;color:var(--ink-mid);flex:1;min-width:240px;margin:0">
+    <p style="font-family:var(--serif);font-size: var(--t-body);color:var(--ink-mid);flex:1;min-width:240px;margin:0">
       Every decision in this repo is recorded like this one.</p>
     <a href="https://github.com/kazi-org/dira" style="font-size:var(--t-ui);color:var(--bearing);text-decoration:none;border-bottom:1px solid currentColor">Keep your own →</a>
   </div>
