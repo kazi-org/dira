@@ -1,0 +1,261 @@
+/* ============================================================================
+   dira — design tokens
+   Direction: "Bearing" — A3's instrument grammar for the graph, A2's
+   typographic calm for the reasoning. The chain tells you what the tool is;
+   the prose tells you what was decided.
+
+   Every color token carries an explicit light AND dark value. Dark is designed
+   at the same hue and lower lightness, never inverted. No #000, no #fff.
+
+   Consumed by every screen in docs/design/screens/. A hardcoded hex or px in a
+   screen is a defect — see DESIGN.md.
+   ============================================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- HUE BUDGET: three saturated hues, one meaning each -----------------
+     bearing   the instrument — current focus, brand, links, active intents
+     converged runtime state only — accepted, converged, achieved
+     caught    drift & contradiction ONLY. Never decoration, never a rejected
+               alternative (a refusal is a record, not an alarm).
+     A fourth hue requires a documented role. A hue with no role fails review. */
+  --bearing:      #9a6c1c;
+  --bearing-lift: #b8862f;   /* hover/focus — MORE contrast than rest */
+  --converged:    #1f6d5b;
+  --caught:       #a83828;
+
+  /* ---- surfaces: warm paper, hued, never pure ---- */
+  --ground:  #f7f4ed;
+  --panel:   #fffdf8;
+  --sunk:    #ece7db;   /* the chain block, inputs, wells */
+  --rule:    #ddd7c8;
+  --rule-soft: #ebe6d9;
+
+  /* ---- ink ---- */
+  --ink:     #23211d;
+  --ink-mid: #55514a;
+  --ink-low: #837d72;
+
+  /* ---- type: 2 families + mono ----
+     serif  display & prose — the record's voice
+     ui     chrome, labels, buttons (never display)
+     mono   ids, the chain, numerics */
+  --serif: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --ui: system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+
+  /* ---- type roles (6, capped) ---- */
+  --t-display: clamp(30px, 5vw, 44px);   /* the ruling */
+  --t-lede:    19px;                      /* the because */
+  --t-body:    16.5px;
+  --t-ui:      13.5px;
+  --t-mono:    13px;
+  --t-label:   11px;                      /* uppercase, tracked */
+
+  /* ---- spacing scale — nothing off-scale ---- */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 18px;
+  --s5: 28px; --s6: 40px; --s7: 60px; --s8: 96px;
+
+  /* ---- concentric radii: inner ~= half outer ---- */
+  --r-shell: 14px; --r-card: 7px; --r-chip: 4px;
+
+  /* ---- motion: two curves, one signature ---- */
+  --ease: cubic-bezier(.32, .72, 0, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur: .28s;
+}
+
+/* dark scheme — same hues, lower lightness, designed not inverted */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bearing:      #c99a3e;
+    --bearing-lift: #e2b95f;
+    --converged:    #45a189;
+    --caught:       #d4614d;
+
+    --ground:  #0f151c;
+    --panel:   #161e27;
+    --sunk:    #0b1118;
+    --rule:    #27313d;
+    --rule-soft: #1d2530;
+
+    --ink:     #e9e6df;
+    --ink-mid: #a6aeb8;
+    --ink-low: #77808b;
+  }
+}
+
+/* explicit overrides so a theme toggle wins in BOTH directions */
+:root[data-theme="dark"] {
+  --bearing:#c99a3e; --bearing-lift:#e2b95f; --converged:#45a189; --caught:#d4614d;
+  --ground:#0f151c; --panel:#161e27; --sunk:#0b1118; --rule:#27313d; --rule-soft:#1d2530;
+  --ink:#e9e6df; --ink-mid:#a6aeb8; --ink-low:#77808b;
+}
+:root[data-theme="light"] {
+  --bearing:#9a6c1c; --bearing-lift:#b8862f; --converged:#1f6d5b; --caught:#a83828;
+  --ground:#f7f4ed; --panel:#fffdf8; --sunk:#ece7db; --rule:#ddd7c8; --rule-soft:#ebe6d9;
+  --ink:#23211d; --ink-mid:#55514a; --ink-low:#837d72;
+}
+
+/* ============================ base ======================================== */
+
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: var(--t-ui);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+  font-variant-numeric: tabular-nums;
+}
+
+a { color: var(--bearing); }
+a:hover { color: var(--bearing-lift); }
+:focus-visible {
+  outline: 2px solid var(--bearing-lift);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
+
+/* reduced motion: the END state is the base style, so content is always
+   visible — print, no-JS and reduced-motion all show the real thing. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* ========================= shared components ============================== */
+
+/* --- chrome: one hairline, no blur, no shadow --- */
+.topbar {
+  display: flex; align-items: center; gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.wordmark {
+  font-family: var(--serif); font-size: 20px; letter-spacing: .01em;
+  color: var(--ink); text-decoration: none;
+}
+.wordmark b { color: var(--bearing); font-weight: 400; }
+.crumb { font-family: var(--mono); font-size: 12px; color: var(--ink-low); }
+.crumb a { color: var(--ink-mid); text-decoration: none; }
+.crumb a:hover, .crumb a:focus-visible { color: var(--bearing-lift); text-decoration: underline; }
+.topbar .spacer { flex: 1; }
+
+/* --- the invocation line: this IS the CLI --- */
+.invoke {
+  display: flex; gap: var(--s2); align-items: baseline;
+  font-family: var(--mono); font-size: 14px;
+  padding-bottom: var(--s4); margin-bottom: var(--s5);
+  border-bottom: 1px solid var(--rule);
+  overflow-x: auto;
+}
+.invoke .p { color: var(--converged); flex: none; }
+.invoke .c { color: var(--ink); white-space: nowrap; }
+.invoke .a { color: var(--bearing); white-space: nowrap; }
+
+/* --- THE CHAIN: the graph as real, selectable, copyable type ---
+   On mobile the pre-formatted tree is replaced by .chain-stack (see screens),
+   because a horizontally-clipped chain is illegible, not merely scrolled. */
+.chain {
+  background: var(--sunk);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-shell);
+  padding: var(--s5);
+  font-family: var(--mono); font-size: var(--t-mono); line-height: 1.9;
+  overflow-x: auto;
+}
+.chain .ln { display: block; white-space: pre; }
+.chain .tree { color: var(--ink-low); }
+.chain .id { color: var(--bearing); }
+.chain .id-q { color: var(--ink-mid); }
+.chain .ok { color: var(--converged); }
+.chain .no { color: var(--ink-low); }        /* a refusal is a record, not an alarm */
+.chain .txt { color: var(--ink); }
+.chain .dim { color: var(--ink-mid); }
+.chain .lo { color: var(--ink-low); }
+
+/* --- chips: label + hue, never hue alone --- */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .03em;
+  padding: 2px 7px; border-radius: var(--r-chip); white-space: nowrap;
+}
+.chip-id {
+  color: var(--bearing);
+  background: color-mix(in oklab, var(--bearing) 11%, transparent);
+  border: 1px solid color-mix(in oklab, var(--bearing) 30%, transparent);
+}
+.chip-accepted { color: var(--converged); background: color-mix(in oklab, var(--converged) 13%, transparent); }
+.chip-open { color: var(--ink-mid); background: color-mix(in oklab, var(--ink-mid) 12%, transparent); }
+.chip-staged { color: var(--bearing); background: color-mix(in oklab, var(--bearing) 13%, transparent); }
+.chip-date { color: var(--ink-low); }
+
+/* --- section label --- */
+.seclabel {
+  font-family: var(--ui); font-size: var(--t-label);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-low); font-weight: 600;
+  display: flex; align-items: center; gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+.seclabel::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+/* --- card --- */
+.card {
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: var(--r-card); padding: var(--s4);
+}
+.card > h3 {
+  font-family: var(--ui); font-size: 10.5px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-low);
+  font-weight: 600; margin-bottom: var(--s3);
+}
+
+/* --- the ONLY red on any screen --- */
+.drift {
+  border: 1px solid color-mix(in oklab, var(--caught) 42%, var(--rule));
+  background: color-mix(in oklab, var(--caught) 7%, var(--panel));
+  border-radius: var(--r-card); padding: var(--s4);
+}
+.drift h3, .drift .label { color: var(--caught); }
+.drift p { font-size: var(--t-ui); color: var(--ink-mid); }
+.drift b { color: var(--caught); font-weight: 600; }
+
+/* --- buttons --- */
+.btn {
+  font-family: var(--ui); font-size: var(--t-ui); font-weight: 500;
+  padding: 9px 16px; border-radius: var(--r-chip);
+  border: 1px solid var(--rule); background: var(--panel); color: var(--ink);
+  cursor: pointer; min-height: 40px;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.btn:hover { border-color: var(--ink-low); background: var(--sunk); }
+.btn-primary {
+  background: var(--converged); border-color: var(--converged);
+  color: var(--panel);
+}
+.btn-primary:hover { background: color-mix(in oklab, var(--converged) 84%, black); }
+.btn-quiet { background: transparent; color: var(--ink-mid); }
+.btn-quiet:hover { color: var(--ink); background: var(--sunk); }
+@media (max-width: 767px) { .btn { min-height: 44px; padding: 11px 18px; } }
+
+/* --- attribution: the loop, quietly --- */
+.made {
+  margin-top: var(--s8); padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+  font-family: var(--ui); font-size: 12.5px; color: var(--ink-low);
+  display: flex; gap: var(--s2); flex-wrap: wrap; align-items: baseline;
+}
+.made a { color: var(--ink-mid); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.made a:hover, .made a:focus-visible { color: var(--bearing-lift); border-color: var(--bearing-lift); }
+.made .sep { color: var(--rule); }

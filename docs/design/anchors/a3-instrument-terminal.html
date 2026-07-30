@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en" data-anchor="instrument-terminal">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)">
+<title>dec-0001 · dira — Instrument Terminal</title>
+<style>
+/* ============================================================
+   ANCHOR 3 — "INSTRUMENT TERMINAL"
+   POV: dira is a CLI. The web view is the CLI's own grammar
+   elevated, not a different product wearing a website. The
+   why-chain is drawn in real type — box-drawing characters that
+   are text, selectable and copyable, never graphics.
+   Canon lens: grug — total commitment; three colours; the bit
+   never breaks. Mono as the display face is the commitment.
+   Density: DENSE.
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* three hues, total */
+  --live:   #1d6f5c;   /* converged / accepted */
+  --bear:   #b0761b;   /* the bearing: focus, active, brand */
+  --caught: #b23b2c;   /* drift & contradiction. nothing else. */
+
+  --ground: #fbfaf8;
+  --panel:  #f2f0ec;
+  --rule:   #ddd9d1;
+
+  --ink:     #1f2226;
+  --ink-mid: #565b62;
+  --ink-low: #868b92;
+
+  /* mono IS the display face — the commitment */
+  --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+  --prose: system-ui, -apple-system, "Helvetica Neue", sans-serif;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 36px; --s7: 52px; --s8: 76px;
+
+  --r-shell: 10px; --r-card: 5px; --r-chip: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --live: #3fa588; --bear: #d9a13f; --caught: #e0604c;
+    --ground: #0d1117; --panel: #151b23; --rule: #262e39;
+    --ink: #e6e9ed; --ink-mid: #9aa3ae; --ink-low: #6b7480;
+  }
+}
+:root[data-theme="dark"] {
+  --live:#3fa588; --bear:#d9a13f; --caught:#e0604c;
+  --ground:#0d1117; --panel:#151b23; --rule:#262e39;
+  --ink:#e6e9ed; --ink-mid:#9aa3ae; --ink-low:#6b7480;
+}
+:root[data-theme="light"] {
+  --live:#1d6f5c; --bear:#b0761b; --caught:#b23b2c;
+  --ground:#fbfaf8; --panel:#f2f0ec; --rule:#ddd9d1;
+  --ink:#1f2226; --ink-mid:#565b62; --ink-low:#868b92;
+}
+
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--ground); color: var(--ink);
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-wrap: pretty;
+  font-variant-numeric: tabular-nums;
+}
+
+.topbar {
+  display: flex; align-items: center; gap: var(--s4);
+  padding: var(--s3) var(--s5); border-bottom: 1px solid var(--rule);
+  font-size: 12.5px;
+}
+.wordmark { color: var(--ink); letter-spacing: .06em; }
+.wordmark b { color: var(--bear); font-weight: 600; }
+.path { color: var(--ink-low); }
+.path a { color: var(--ink-mid); text-decoration: none; }
+.path a:hover, .path a:focus-visible { color: var(--bear); text-decoration: underline; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* the invocation line — establishes that this IS the CLI */
+.invoke {
+  display: flex; gap: var(--s2); align-items: baseline;
+  padding-bottom: var(--s4); margin-bottom: var(--s5);
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px; overflow-x: auto;
+}
+.invoke .p { color: var(--live); flex: none; }
+.invoke .c { color: var(--ink); white-space: nowrap; }
+.invoke .a { color: var(--bear); white-space: nowrap; }
+
+/* THE DRAMA SURFACE: the why-chain as real, selectable type */
+.chain {
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: var(--r-shell); padding: var(--s5);
+  overflow-x: auto; margin-bottom: var(--s6);
+  font-size: 13.5px; line-height: 1.85;
+}
+.chain .ln { display: flex; gap: 0; white-space: pre; }
+.chain .tree { color: var(--ink-low); flex: none; }
+.chain .id { color: var(--bear); }
+.chain .id.q { color: var(--ink-mid); }
+.chain .ok { color: var(--live); }
+.chain .no { color: var(--caught); }
+.chain .txt { color: var(--ink); }
+.chain .dim { color: var(--ink-mid); }
+.chain .lo { color: var(--ink-low); }
+
+/* the record body — prose set in a humanist sans, the one place
+   we leave mono, because a paragraph in mono is a wall */
+.rec { display: grid; grid-template-columns: 1fr 250px; gap: var(--s6); }
+@media (max-width: 1023px) { .rec { grid-template-columns: 1fr; } }
+
+.hdr { margin-bottom: var(--s5); }
+.tagrow { display: flex; gap: var(--s2); align-items: center; margin-bottom: var(--s3); flex-wrap: wrap; }
+.chip {
+  font-size: 11px; padding: 2px 7px; border-radius: var(--r-chip);
+  letter-spacing: .05em;
+}
+.chip.id { color: var(--bear); border: 1px solid color-mix(in oklab, var(--bear) 35%, transparent); background: color-mix(in oklab, var(--bear) 10%, transparent); }
+.chip.st { color: var(--live); background: color-mix(in oklab, var(--live) 13%, transparent); }
+.chip.dt { color: var(--ink-low); }
+
+h1 {
+  font-family: var(--mono); font-weight: 600;
+  font-size: clamp(22px, 3.4vw, 31px); line-height: 1.25;
+  letter-spacing: -.01em; max-width: 30ch;
+}
+.because {
+  font-family: var(--prose); font-size: 16.5px; line-height: 1.62;
+  color: var(--ink-mid); max-width: 64ch; margin-top: var(--s4);
+}
+.because strong { color: var(--ink); font-weight: 600; }
+
+.sec { margin-top: var(--s6); }
+.sec h2 {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-low); margin-bottom: var(--s4); font-weight: 600;
+}
+.alt {
+  border-left: 2px solid var(--rule); padding: 0 0 var(--s4) var(--s4);
+  margin-bottom: var(--s4);
+}
+.alt.no { border-left-color: color-mix(in oklab, var(--caught) 50%, transparent); }
+.alt.yes { border-left-color: var(--live); }
+.alt .head { display: flex; gap: var(--s2); align-items: baseline; margin-bottom: var(--s2); }
+.alt .mark { flex: none; font-size: 12px; }
+.alt.no .mark { color: var(--caught); }
+.alt.yes .mark { color: var(--live); }
+.alt .opt { font-size: 13.5px; color: var(--ink); }
+.alt.no .opt { color: var(--ink-mid); }
+.alt .why { font-family: var(--prose); font-size: 15px; color: var(--ink-mid); max-width: 66ch; }
+.alt .rv {
+  margin-top: var(--s2); font-size: 11.5px; color: var(--ink-low);
+}
+.alt .rv b { color: var(--bear); font-weight: 600; }
+
+.rail { display: grid; gap: var(--s4); align-content: start; }
+.box { border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--s4); }
+.box h3 { font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-low); margin-bottom: var(--s3); font-weight: 600; }
+.kv { display: flex; justify-content: space-between; gap: var(--s3); font-size: 12px; padding: 4px 0; border-bottom: 1px solid color-mix(in oklab, var(--rule) 50%, transparent); }
+.kv:last-child { border-bottom: 0; }
+.kv .k { color: var(--ink-low); }
+.kv a { color: var(--bear); text-decoration: none; }
+.kv a:hover, .kv a:focus-visible { text-decoration: underline; }
+
+.box.caught {
+  border-color: color-mix(in oklab, var(--caught) 45%, var(--rule));
+  background: color-mix(in oklab, var(--caught) 6%, transparent);
+}
+.box.caught h3 { color: var(--caught); }
+.box.caught p { font-family: var(--prose); font-size: 13px; color: var(--ink-mid); }
+
+.made {
+  margin-top: var(--s8); padding-top: var(--s4); border-top: 1px solid var(--rule);
+  font-size: 12px; color: var(--ink-low); display: flex; gap: var(--s2); flex-wrap: wrap;
+}
+.made a { color: var(--ink-mid); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.made a:hover, .made a:focus-visible { color: var(--bear); border-color: var(--bear); }
+.made .sep { color: var(--rule); }
+
+a:focus-visible { outline: 2px solid var(--bear); outline-offset: 2px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="wordmark">di<b>ra</b></span>
+  <span class="path"><a href="#">kazi-org/dira</a> · <a href="#">ledger</a> · dec-0001</span>
+</header>
+
+<main class="wrap">
+
+  <div class="invoke">
+    <span class="p">$</span><span class="c">dira why</span> <span class="a">elixir</span>
+  </div>
+
+  <!-- the why-chain: real type, selectable, copyable -->
+  <section class="chain" aria-label="Why-chain for dec-0001">
+    <div class="ln"><span class="id q">int-0002</span><span class="txt">  Zero-ceremony operation — one binary, no daemon</span><span class="lo">        active</span></div>
+    <div class="ln"><span class="tree">└─ </span><span class="id">dec-0001</span><span class="txt">  Go, not Elixir/OTP</span><span class="lo">                   accepted 29 Jul</span></div>
+    <div class="ln"><span class="tree">   ├─ </span><span class="no">✗ elixir/otp</span><span class="dim">   BEAM start-up in a hook latency path</span></div>
+    <div class="ln"><span class="tree">   │  </span><span class="lo">             revisit if a long-lived component appears</span></div>
+    <div class="ln"><span class="tree">   ├─ </span><span class="no">✗ rust</span><span class="dim">         slower to write, smaller contributor pool</span></div>
+    <div class="ln"><span class="tree">   ├─ </span><span class="no">✗ node/bun</span><span class="dim">     Node start-up matches BEAM; Bun is young</span></div>
+    <div class="ln"><span class="tree">   └─ </span><span class="ok">✓ go</span><span class="dim">           one static binary, sub-100 ms cold start</span></div>
+    <div class="ln"><span class="tree">      └─ </span><span class="id">kazi:prop-8a1f</span><span class="ok">  converged</span><span class="lo">  3/3 predicates green</span></div>
+  </section>
+
+  <div class="rec">
+    <article>
+      <header class="hdr">
+        <div class="tagrow">
+          <span class="chip id">dec-0001</span>
+          <span class="chip st">◆ accepted</span>
+          <span class="chip dt">2026-07-29</span>
+        </div>
+        <h1>Go, not Elixir/OTP, despite kazi&rsquo;s stack</h1>
+        <p class="because">
+          dira is invoked from hooks several times a session, in the latency path of a
+          human waiting on a prompt. OTP&rsquo;s value is supervising long-lived concurrent
+          work — <strong>exactly what kazi needs, and exactly what dira has none of.</strong>
+        </p>
+      </header>
+
+      <section class="sec">
+        <h2>Alternatives on record</h2>
+
+        <div class="alt yes">
+          <div class="head"><span class="mark">✓</span><span class="opt">go</span></div>
+          <p class="why">Stdlib covers files, JSON/YAML, an embedded HTTP server for <code>dira ui</code>, and SQLite via one dependency. Wide contributor pool for drive-by PRs.</p>
+        </div>
+
+        <div class="alt no">
+          <div class="head"><span class="mark">✗</span><span class="opt">elixir/otp + burrito</span></div>
+          <p class="why">BEAM start-up is tens to hundreds of milliseconds before any work happens, and a Burrito binary also pays a first-run unpacking cost. Free CI and distribution is a real saving — and it loses anyway, because paying BEAM&rsquo;s start-up for a process with no concurrency and no uptime buys the one thing that does not apply.</p>
+          <p class="rv"><b>revisit if</b> dira grows a long-lived component — a watch daemon or hosted service</p>
+        </div>
+
+        <div class="alt no">
+          <div class="head"><span class="mark">✗</span><span class="opt">rust</span></div>
+          <p class="why">Equivalent start-up and single-binary story with better guarantees, but slower to write and a smaller contributor pool for a tool that wants drive-by PRs.</p>
+          <p class="rv"><b>revisit if</b> never on performance grounds; only if team expertise shifts</p>
+        </div>
+
+        <div class="alt no">
+          <div class="head"><span class="mark">✗</span><span class="opt">typescript on node/bun</span></div>
+          <p class="why">Node start-up sits in the same range as BEAM. Bun fixes that but ships a large binary and a young ecosystem, for a tool meant to be boring infrastructure.</p>
+        </div>
+      </section>
+    </article>
+
+    <aside class="rail">
+      <div class="box">
+        <h3>Edges</h3>
+        <div class="kv"><span class="k">derives_from</span><a href="#">int-0002</a></div>
+        <div class="kv"><span class="k">realized_by</span><a href="#">kazi:prop-8a1f</a></div>
+        <div class="kv"><span class="k">mirrored</span><a href="#">adr/0001</a></div>
+      </div>
+      <div class="box">
+        <h3>Ledger</h3>
+        <div class="kv"><span class="k">entries</span><span>22</span></div>
+        <div class="kv"><span class="k">accepted</span><span class="ok" style="color:var(--live)">9</span></div>
+        <div class="kv"><span class="k">open</span><span>4</span></div>
+        <div class="kv"><span class="k">superseded</span><span>0</span></div>
+      </div>
+      <div class="box caught">
+        <h3>⚠ drift</h3>
+        <p>1 active intent has no parent. Why does that work exist?</p>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="made">
+    <span>kept with <a href="https://github.com/kazi-org/dira">dira</a></span>
+    <span class="sep">·</span>
+    <span>written by an agent, read by one</span>
+  </footer>
+</main>
+
+</body>
+</html>

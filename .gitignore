@@ -14,3 +14,11 @@
 *.swp
 .idea/
 .vscode/
+
+# Mockup render harness: playwright lives in the session scratchpad, symlinked in.
+node_modules
+
+# Mockup renders: derived artifacts, reproducible in one command
+# (`node docs/design/scripts/render.mjs r1`). Same logic as .dira/cache/ —
+# the source is the record, the render is exhaust.
+docs/design/renders/
