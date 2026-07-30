@@ -133,3 +133,4 @@ Registering every obligation forced three admissions no plan document had surfac
 | `impl:dec-0012` | covered:E6 | server-rendered templates + `dira render`; crawlability is an E6 acceptance criterion |
 | `trigger:dec-0012:78bb50` | deferred:trigger | fires if teams pull for zero-setup shared rendering (dec-0007 team tier) |
 | `trigger:dec-0012:cdf95c` | deferred:trigger | fires if a surface needs genuine client-side state — a live-filtering graph explorer, not a document view |
+| `impl:dec-0013` | covered:E4 | E4-L6 reduces /sitrep to a judgement layer over `dira map`; its four display invariants are in E4's acc line |
