@@ -53,6 +53,12 @@ try {
     TARGETS.push([f.replace(/\.html$/, ''), `/docs/design/screens/${f}`]);
   }
 } catch {}
+const landingDir = resolve(import.meta.dirname, '../landing');
+try {
+  for (const f of (await readdir(landingDir)).filter(f => f.endsWith('.html')).sort()) {
+    TARGETS.push([f.replace(/\.html$/, '') === 'index' ? 'landing' : f.replace(/\.html$/, ''), `/docs/design/landing/${f}`]);
+  }
+} catch {}
 if (FILTER) TARGETS = TARGETS.filter(([n]) => n.includes(FILTER));
 
 if (!TARGETS.length) { console.error('no targets found'); process.exit(1); }

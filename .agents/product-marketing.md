@@ -143,6 +143,12 @@ change from the current README.
    discipline, you'd have kept using ADRs.
 2. **It reads what you already have** — point it at an existing repo and it builds the
    graph from your ADRs, commits, and plan files. Value before you've written anything.
+   **[UNVALIDATED — DO NOT SHIP THIS CLAIM YET.]** `qst-0003` is open: nobody has
+   established whether importing an ADR corpus yields a useful ledger or a second pile.
+   If import produces entries with empty `alternatives` arrays, this pillar is false and
+   the enforcer cannot enforce. `dec-0010` promotes it to a launch blocker precisely
+   because this is the day-one acquisition moment. **Until qst-0003 is answered, ship
+   two pillars, not three** — which is what the landing page does.
 3. **It argues back** — the only tool that stops a bad plan by citing your own past
    reasoning.
 
@@ -218,6 +224,12 @@ that checks.
    single sharp artifact. The pain statement *is* the headline.
 4. **Public ledgers as long-tail SEO** — every rendered decision page is a page
    answering "why did project X choose Y." This compounds and costs nothing per unit.
+   **Demoted out of the tested inner ring, 2026-07-30**, on the E8-L1 planner's argument
+   and I agree with it: this channel's mechanism is `dira render`, which does not exist
+   (E6). Spending one of three concurrent test slots on a channel that cannot start
+   wastes the slot. It stays a named candidate with an explicit promotion trigger — the
+   day E6 ships. Build-in-public ship-notes took the slot instead (ICE 210 vs 180), being
+   the only inner-ring experiment runnable before the binary exists.
 5. **OSS credibility** — the repo's own `.dira/` ledger is a live demo of the product
    working on itself. Nobody else can show this.
 
@@ -257,7 +269,7 @@ These are the entire adoption engine.
 
 | Objection | Answer |
 |---|---|
-| "I already have ADRs." | So does the author — 83 of them, unread. dira indexes them and pushes them to you instead. The problem was never capture. |
+| "I already have ADRs." | So does the author — 83 of them, unread. The problem was never capture, it was that nobody re-reads them. Whether dira can usefully *import* that back-catalogue is an open question (`qst-0003`) the project is working through in the open — do not answer this objection as though import ships today. |
 | "Another tool to maintain." | It replaces tools rather than adding one. And you don't maintain it — the agent writes it. |
 | "My agent will write garbage rationale." | Regex-tier capture is always *staged*, never accepted; you confirm. Quality does depend on the agent driving it — stated plainly, not hidden (`dec-0003`). |
 | "Why not just a bigger CLAUDE.md?" | A context file has no lifecycle, no supersession, no rejected alternatives, and cannot enforce anything. It also grows until it stops being read — which is the original failure. |

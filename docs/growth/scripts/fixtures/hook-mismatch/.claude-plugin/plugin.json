@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "dira",
+  "displayName": "dira",
+  "version": "0.0.0-unreleased",
+  "description": "Bad fixture: proves check-drafts.mjs catches a hook renamed on only one side. Do not use.",
+  "author": { "name": "kazi-org", "url": "https://github.com/kazi-org/dira" },
+  "homepage": "https://github.com/kazi-org/dira",
+  "repository": "https://github.com/kazi-org/dira",
+  "license": "Apache-2.0",
+  "keywords": ["dira"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira brief --context --chain 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira sniff --stage --loud 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira sniff --deep --stage 2>/dev/null || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
