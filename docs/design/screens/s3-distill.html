@@ -19,7 +19,7 @@
   font-family: var(--serif); font-weight: 400; font-size: clamp(25px, 4vw, 33px);
   line-height: 1.16; letter-spacing: -.014em;
 }
-.head .sub { font-size: var(--t-ui); color: var(--ink-mid); margin-top: var(--s2); }
+.head .sub { font-size: var(--t-ui); color: var(--ink-mid); margin-top: var(--s2); max-width: var(--m-ui); }
 .progress {
   display: flex; gap: 5px; margin-top: var(--s4);
 }
@@ -41,16 +41,16 @@
 
 .stage .meta { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-bottom: var(--s4); }
 .stage .src {
-  font-family: var(--mono); font-size: 11px; color: var(--ink-low);
+  font-family: var(--mono); font-size: var(--t-label); color: var(--ink-low);
   margin-left: auto;
 }
 
 /* THE BECAUSE — top billing, serif, the largest thing on the card */
 .stage .because {
-  font-family: var(--serif); font-size: 21px; line-height: 1.5;
+  font-family: var(--serif); font-size: var(--t-lede); line-height: 1.5;
   color: var(--ink); margin-bottom: var(--s4);
 }
-.stage.next .because { font-size: 17px; margin-bottom: var(--s2); }
+.stage.next .because { font-size: var(--t-body); margin-bottom: var(--s2); }
 
 /* the title is secondary — it is the label, not the substance */
 .stage .titleline {
@@ -59,13 +59,13 @@
   font-size: var(--t-ui); color: var(--ink-mid);
 }
 .stage .titleline .k {
-  font-family: var(--ui); font-size: 9.5px; letter-spacing: .13em;
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .13em;
   text-transform: uppercase; color: var(--ink-low); flex: none; padding-top: 3px;
 }
 
 /* the rejected alternative the agent extracted — shown, because approving a
    decision means approving what it rules out */
-.stage .against {
+.stage .against { max-width: var(--m-ui);
   margin-top: var(--s3); padding: var(--s3) var(--s4);
   background: var(--sunk); border-radius: var(--r-card);
   font-size: var(--t-ui); color: var(--ink-mid);
@@ -75,7 +75,7 @@
 .stage .against s { text-decoration-color: color-mix(in oklab, var(--ink-low) 55%, transparent); }
 
 .stage .edge {
-  margin-top: var(--s3); font-family: var(--mono); font-size: 11.5px; color: var(--ink-low);
+  margin-top: var(--s3); font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low);
 }
 .stage .edge a { text-decoration: none; }
 
@@ -87,9 +87,9 @@
   flex-wrap: wrap;
 }
 .actions .grow { flex: 1; }
-.hint { font-family: var(--mono); font-size: 11px; color: var(--ink-low); }
+.hint { font-family: var(--mono); font-size: var(--t-label); color: var(--ink-low); }
 kbd {
-  font-family: var(--mono); font-size: 10.5px; padding: 1px 5px;
+  font-family: var(--mono); font-size: var(--t-label); padding: 1px 5px;
   border: 1px solid var(--rule); border-radius: 3px; color: var(--ink-mid);
   background: var(--sunk);
 }
@@ -99,14 +99,14 @@ kbd {
    actually wins — source order decides between equal-specificity rules. */
 .swipe-note {
   display: none; text-align: center; font-family: var(--mono);
-  font-size: 11px; color: var(--ink-low); margin-top: var(--s3);
+  font-size: var(--t-label); color: var(--ink-low); margin-top: var(--s3);
 }
 
 /* mobile: the swipe deck. Actions become thumb-reachable and full-width. */
 @media (max-width: 767px) {
   .wrap { padding: var(--s5) var(--s4) var(--s8); }
   .stage { padding: var(--s4); }
-  .stage .because { font-size: 19px; }
+  .stage .because { font-size: var(--t-lede); }
   .actions { flex-direction: column; align-items: stretch; gap: var(--s2); }
   .actions .btn { width: 100%; }
   .actions .grow, .actions .hint { display: none; }

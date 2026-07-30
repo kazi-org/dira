@@ -64,6 +64,32 @@ Beyond TASTE.md and WEB.md, these are dira-specific and mechanically checkable:
    become an image, a canvas, or an SVG of glyphs.
    *Test:* select-all on any chain yields the ids and reasons as text.
 
+   **Amended 2026-07-30, and the amendment narrows the claim.** The vertical rules
+   are now a CSS `border-left`, not box-drawing glyphs. Every id, reason, mark and
+   status remains selectable text; the *rule* does not, because a rule is not
+   content — it is punctuation for a fixed-width medium, and a border is the honest
+   way to draw it in one that is not.
+
+   Why it had to change: at `line-height: 1.9` a 13px box-drawing glyph sat in a
+   24.7px line box, leaving ~12px of dead space between every pair of rows. The
+   column rendered as a **dashed run of tick marks**. In a real terminal those rules
+   are unbroken, so the element was violating the byte-identity it claimed, visibly,
+   at 4x zoom and invisibly at 1x.
+
+   **The cost, stated rather than buried.** A reviewer argued that byte-identity is
+   the only thing keeping this element on the right side of the retro-terminal
+   cliché — that it is not a *reference to* a terminal but an *artifact of* one, and
+   the moment it stops being byte-identical it becomes styling with no terminal
+   behind it. That argument is real and this amendment weakens it. What survives is
+   narrower and still true: copy the chain and you get the ids and the reasoning,
+   which is the content. What is lost is that the copied text no longer reproduces
+   the tree drawing character-for-character.
+
+   The trade was taken because the alternative was shipping an element that renders
+   broken, and because a nested structure takes `<details>`/`<summary>` for
+   collapse-at-depth with no JavaScript — which answers the chain-at-scale question
+   that had no answer.
+
 ---
 
 ## Recorded law breaks

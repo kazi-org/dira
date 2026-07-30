@@ -25,9 +25,9 @@
 .dial { flex: none; width: 148px; height: 148px; position: relative; }
 .dial svg { display: block; width: 100%; height: 100%; }
 .dial .read { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-.dial .read .n { font-family: var(--mono); font-size: 30px; line-height: 1; color: var(--ink); }
+.dial .read .n { font-family: var(--mono); font-size: var(--t-lede); line-height: 1; color: var(--ink); }
 .dial .read .l {
-  font-family: var(--ui); font-size: 9.5px; letter-spacing: .14em;
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em;
   text-transform: uppercase; color: var(--ink-low); margin-top: 4px;
 }
 
@@ -36,11 +36,11 @@
   font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 4vw, 36px);
   line-height: 1.16; letter-spacing: -.014em; margin-bottom: var(--s3);
 }
-.claim .sub { font-family: var(--serif); font-size: 17px; color: var(--ink-mid); max-width: 52ch; }
+.claim .sub { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: var(--m-lede); }
 .legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-top: var(--s4); }
 .legend span {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--mono); font-size: 12px; color: var(--ink-mid);
+  font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-mid);
 }
 .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
 
@@ -51,7 +51,7 @@
   display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4);
   padding: var(--s3) var(--s4); margin-bottom: var(--s6);
   background: var(--sunk); border: 1px solid var(--rule); border-radius: var(--r-card);
-  font-family: var(--mono); font-size: 11.5px; color: var(--ink-mid);
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-mid);
 }
 .legend-key b { color: var(--bearing); font-weight: 400; }
 .legend-key .k { display: inline-flex; gap: 6px; align-items: baseline; }
@@ -66,7 +66,7 @@
   border: 1px solid var(--rule); border-radius: var(--r-card);
   background: var(--panel);
 }
-.take p { font-family: var(--serif); font-size: 16.5px; color: var(--ink-mid); flex: 1; min-width: 260px; }
+.take p { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); flex: 1; min-width: 260px; max-width: var(--m-prose); }
 .take p b { color: var(--ink); font-weight: 600; }
 .take a.cta {
   font-family: var(--ui); font-size: var(--t-ui); font-weight: 500;
@@ -84,10 +84,10 @@
 .tree { display: grid; gap: var(--s5); }
 .intent { }
 .intent > .head { display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s3); }
-.intent .iid { font-family: var(--mono); font-size: 12px; color: var(--bearing); flex: none; }
-.intent .ititle { font-family: var(--serif); font-size: 19px; color: var(--ink); }
+.intent .iid { font-family: var(--mono); font-size: var(--t-sub); color: var(--bearing); flex: none; }
+.intent .ititle { font-family: var(--serif); font-size: var(--t-lede); color: var(--ink); }
 .intent .roll {
-  font-family: var(--mono); font-size: 11.5px; color: var(--ink-low);
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low);
   margin-left: auto; display: flex; gap: var(--s3); flex: none;
 }
 .intent .roll b { font-weight: 400; }
@@ -104,9 +104,9 @@
   transition: background var(--dur) var(--ease);
 }
 .kid:hover, .kid:focus-visible { background: var(--sunk); }
-.kid .k-id { font-family: var(--mono); font-size: 12px; color: var(--bearing); }
+.kid .k-id { font-family: var(--mono); font-size: var(--t-sub); color: var(--bearing); }
 .kid .k-t { color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kid .k-s { font-family: var(--mono); font-size: 11.5px; color: var(--ink-low); text-align: right; }
+.kid .k-s { font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low); text-align: right; }
 .kid .k-s.done { color: var(--converged); }
 .kid .k-s.gap { color: var(--ink-mid); }
 @media (max-width: 767px) {
