@@ -62,6 +62,11 @@ test so `.dira/` cannot drift from `schema/entry.schema.json`.
 test that fails when a fixture entry violates `entry.schema.json`; **CI runs
 `python3 scripts/coverage.py` and the build fails on a non-zero exit**; a tagged push
 produces a downloadable darwin-arm64 + linux-amd64 binary; `brew install kazi-org/tap/dira` installs it.
+**Scope note (2026-07-30):** E0-L2 ("make the ledger self-validating in Go") is
+**partly landed already**. E0-L1 shipped `schema/entry_test.go` with 17 invalid
+fixtures, and E1-L1 exported the validator (`schema/schema.go`: `NewValidator`,
+`Validator.Validate`, `SplitFrontmatter`) because it was test-only and unreachable from
+another package. What remains for E0-L2 is CI wiring, not the validator itself.
 **Prompt:** `docs/plan/prompts/L1-E0.md`
 
 ### E1 — The ledger
@@ -71,6 +76,14 @@ read/write as one file per entry (`dec-0002`), the SQLite derived cache under
 `.dira/cache/`, `dira log`, `dira why`, `dira brief`, `dira reindex`, and
 `SessionStart` brief injection with the 1,500-token cap enforced in-binary
 (`cst-0001`).
+**Decision handed to E1-L3, do not inherit it silently:** `EntryInfo.Version` on the
+local backend is `mtime-nanos + size` — the standard heuristic (git, make, rsync), and
+what keeps `List` at 2.7ms rather than 13ms. It is a heuristic: an in-place edit
+preserving both size and mtime is invisible to it. E1-L3's own acceptance says a
+cache/file disagreement **must** resolve to the file. If that is a guarantee rather than
+a near-certainty, `Version` becomes a content hash at ~13ms per full scan. The interface
+supports either with no signature change — E1-L3 chooses and records which.
+
 **acc:** `dira brief` completes its own work in **<40ms** on a cold cache over a
 200-entry ledger, measured **excluding process spawn**.
 *Clarified 2026-07-30 after measuring the E0-L1 skeleton:* the original "<100ms" was

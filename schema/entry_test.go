@@ -1,23 +1,11 @@
-// Package schema holds the dira entry contract, entry.schema.json, and the
-// test that keeps the ledger from drifting away from it.
-//
-// The package currently has no non-test source. That is deliberate: E0-L1 owes
-// the repo a gate, not an API. E0-L2 adds the go:embed of entry.schema.json
-// here (go:embed cannot reach above its own directory, which is why the
-// package lives beside the file rather than under internal/) and moves the
-// parsing and validation below into exported functions the binary can call.
 package schema
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"gopkg.in/yaml.v3"
@@ -28,137 +16,18 @@ const (
 	ledgerDir  = "../.dira/entries"
 )
 
-// errNoFrontmatter is returned for a file that is not an entry at all, as
-// opposed to an entry that is wrong. The distinction matters: the first is a
-// stray file, the second is ledger rot.
-var errNoFrontmatter = errors.New("no YAML frontmatter")
-
-// compileSchema loads entry.schema.json under its own $id, with format
-// assertion switched on. Format assertion is annotation-only by default in
-// draft 2020-12, so without this call `created: "yesterday"` validates.
+// compileSchema returns the compiled schema behind a Validator. The tests below
+// predate Validator and drive the compiled schema directly so they can separate
+// a parse failure from a validation failure, which Validate deliberately does
+// not do for its callers.
 func compileSchema(t *testing.T) *jsonschema.Schema {
 	t.Helper()
 
-	f, err := os.Open(schemaFile)
-	if err != nil {
-		t.Fatalf("opening %s: %v", schemaFile, err)
-	}
-	defer func() { _ = f.Close() }()
-
-	doc, err := jsonschema.UnmarshalJSON(f)
-	if err != nil {
-		t.Fatalf("parsing %s: %v", schemaFile, err)
-	}
-
-	// Register under the schema's own $id so the compiler never reaches the
-	// network to resolve it — cst-0004, and a test that needs DNS is a test
-	// that fails on a plane.
-	url := schemaFile
-	if obj, ok := doc.(map[string]any); ok {
-		if id, ok := obj["$id"].(string); ok && id != "" {
-			url = id
-		}
-	}
-
-	c := jsonschema.NewCompiler()
-	c.AssertFormat()
-	if err := c.AddResource(url, doc); err != nil {
-		t.Fatalf("adding %s as %s: %v", schemaFile, url, err)
-	}
-	sch, err := c.Compile(url)
+	v, err := NewValidator()
 	if err != nil {
 		t.Fatalf("compiling %s: %v", schemaFile, err)
 	}
-	return sch
-}
-
-// splitFrontmatter returns the YAML frontmatter of a dira entry file. An entry
-// opens with a `---` line and closes the block with another.
-func splitFrontmatter(content []byte) ([]byte, error) {
-	text := strings.ReplaceAll(string(content), "\r\n", "\n")
-	if !strings.HasPrefix(text, "---\n") {
-		return nil, errNoFrontmatter
-	}
-	rest := text[len("---\n"):]
-
-	// The closing delimiter is a line that is exactly "---".
-	for offset := 0; offset < len(rest); {
-		end := strings.IndexByte(rest[offset:], '\n')
-		line := rest[offset:]
-		next := len(rest)
-		if end >= 0 {
-			line = rest[offset : offset+end]
-			next = offset + end + 1
-		}
-		if strings.TrimRight(line, " \t") == "---" {
-			return []byte(rest[:offset]), nil
-		}
-		offset = next
-	}
-	return nil, fmt.Errorf("%w: frontmatter opened but never closed", errNoFrontmatter)
-}
-
-// jsonValue converts a yaml.v3-decoded value into the shape encoding/json
-// would have produced, which is the only shape a JSON Schema validator can
-// reason about.
-//
-// The load-bearing case is time.Time. yaml.v3 resolves an unquoted RFC3339
-// scalar to the !!timestamp tag and hands back a time.Time, which is not a
-// JSON type: a validator handed one reports `invalid jsonType time.Time` at
-// /created, which says nothing about the actual problem and points at a field
-// that is in fact correct. dira quotes timestamps on write and accepts both on
-// read, so this converts rather than complains.
-//
-// The JSON round-trip in parseEntry would also flatten a time.Time, since
-// time.Time implements json.Marshaler. Converting here anyway keeps the rule
-// stated where it is read, and keeps it true for callers that skip the
-// round-trip — which is what E0-L2's exported reader will do, for speed.
-func jsonValue(v any) (any, error) {
-	switch t := v.(type) {
-	case time.Time:
-		return t.UTC().Format(time.RFC3339), nil
-
-	case map[string]any:
-		out := make(map[string]any, len(t))
-		for k, val := range t {
-			converted, err := jsonValue(val)
-			if err != nil {
-				return nil, fmt.Errorf("field %q: %w", k, err)
-			}
-			out[k] = converted
-		}
-		return out, nil
-
-	case map[any]any:
-		// yaml.v3 falls back to this when a mapping has a non-string key.
-		out := make(map[string]any, len(t))
-		for k, val := range t {
-			key, ok := k.(string)
-			if !ok {
-				return nil, fmt.Errorf("non-string mapping key %v (%T)", k, k)
-			}
-			converted, err := jsonValue(val)
-			if err != nil {
-				return nil, fmt.Errorf("field %q: %w", key, err)
-			}
-			out[key] = converted
-		}
-		return out, nil
-
-	case []any:
-		out := make([]any, len(t))
-		for i, val := range t {
-			converted, err := jsonValue(val)
-			if err != nil {
-				return nil, fmt.Errorf("index %d: %w", i, err)
-			}
-			out[i] = converted
-		}
-		return out, nil
-
-	default:
-		return v, nil
-	}
+	return v.schema
 }
 
 // parseEntry reads an entry file and returns its frontmatter as a JSON value.
@@ -170,34 +39,9 @@ func parseEntry(path string) (any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("reading %s: %w", path, err)
 	}
-
-	front, err := splitFrontmatter(content)
+	value, err := parseEntryFile(content)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", filepath.Base(path), err)
-	}
-
-	var raw any
-	if err := yaml.Unmarshal(front, &raw); err != nil {
-		return nil, fmt.Errorf("%s: parsing frontmatter: %w", filepath.Base(path), err)
-	}
-	if raw == nil {
-		return nil, fmt.Errorf("%s: %w: frontmatter is empty", filepath.Base(path), errNoFrontmatter)
-	}
-
-	converted, err := jsonValue(raw)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", filepath.Base(path), err)
-	}
-
-	// Round-tripping through JSON normalises the remaining numeric and
-	// map types onto exactly what the validator expects.
-	encoded, err := json.Marshal(converted)
-	if err != nil {
-		return nil, fmt.Errorf("%s: re-encoding frontmatter: %w", filepath.Base(path), err)
-	}
-	value, err := jsonschema.UnmarshalJSON(bytes.NewReader(encoded))
-	if err != nil {
-		return nil, fmt.Errorf("%s: decoding frontmatter: %w", filepath.Base(path), err)
 	}
 	return value, nil
 }
@@ -400,7 +244,7 @@ func TestTimestampsAreQuotedOnDisk(t *testing.T) {
 			if err != nil {
 				t.Fatalf("reading %s: %v", path, err)
 			}
-			front, err := splitFrontmatter(content)
+			front, _, err := SplitFrontmatter(content)
 			if err != nil {
 				t.Fatalf("%s: %v", path, err)
 			}

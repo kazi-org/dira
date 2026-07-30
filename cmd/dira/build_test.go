@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -25,50 +26,108 @@ func goTool(t *testing.T) string {
 	return path
 }
 
-// TestCommandPathHasNoThirdPartyDependencies is the cobra-exclusion check from
-// the E0-L1 acceptance line, made a test rather than a habit.
+// allowedModules is every non-stdlib module the dira binary may link.
+//
+// E0-L1's acceptance line said "no non-stdlib module" outright. E1 supersedes
+// that clause here, deliberately and in writing, because E1 legitimately adds a
+// YAML parser to the command path and E1-L3 may add a SQLite driver. The
+// replacement is an allowlist rather than a deletion: the clause is the only
+// thing standing between this binary and a dependency tree that spends
+// int-0002's cold-start budget, and a check removed the first time it is
+// inconvenient was never a check.
+//
+// It is empty today, which is not an oversight. E1-L1 lands the ledger codec and
+// the storage interface, and nothing in cmd/dira imports them yet — so the
+// command path really does still link nothing, and authorising a module before
+// anything needs it is a hole rather than a convenience. The lane that first
+// imports internal/ledger from a command adds "gopkg.in/yaml.v3" here, and
+// TestTheAllowlistIsNotStale below makes leaving a stale entry behind fail.
+//
+// Adding an entry is a design decision. It should read like one in the diff, and
+// it should arrive with a measurement of what it costs a cold start.
+var allowedModules = []string{}
+
+// TestCommandPathLinksOnlyAllowedModules is the cobra-exclusion check from the
+// E0-L1 acceptance line, superseded by E1 into an allowlist and still a test
+// rather than a habit.
 //
 // dec-0001 chose Go over Elixir on cold-start latency and int-0002 budgets a
 // hook invocation at well under 100ms. A CLI framework linked into this binary
 // spends that budget, and nothing else in the repo would notice. Test-only
 // dependencies are invisible to `go list -deps` by construction, which is why
 // the schema validator's YAML and JSON Schema libraries do not trip this.
-//
-// This clause is an E0 predicate, not a constitutional one: E1 legitimately
-// adds a YAML parser and a SQLite driver to the command path. Superseding it
-// there is expected — deleting it silently is not.
-func TestCommandPathHasNoThirdPartyDependencies(t *testing.T) {
+func TestCommandPathLinksOnlyAllowedModules(t *testing.T) {
 	t.Parallel()
 
-	out, err := exec.Command(goTool(t), "list", "-deps",
-		"-f", "{{if not .Standard}}{{.ImportPath}}{{end}}", commandPackage).CombinedOutput()
-	if err != nil {
-		t.Fatalf("go list -deps %s: %v\n%s", commandPackage, err, out)
-	}
-
-	const ownPrefix = "github.com/kazi-org/dira/"
-	var foreign, own []string
-	for _, line := range strings.Split(string(out), "\n") {
-		pkg := strings.TrimSpace(line)
-		if pkg == "" {
-			continue
-		}
-		if strings.HasPrefix(pkg, ownPrefix) || pkg == strings.TrimSuffix(ownPrefix, "/") {
-			own = append(own, pkg)
-			continue
-		}
-		foreign = append(foreign, pkg)
-	}
+	own, foreign := commandDependencies(t)
 
 	// Without this the test passes just as happily on an empty or broken
 	// listing, which is the vacuous-green failure it exists to prevent.
 	if len(own) == 0 {
-		t.Fatalf("go list -deps reported no packages from this module; the check is not measuring anything\n%s", out)
+		t.Fatal("go list -deps reported no packages from this module; the check is not measuring anything")
 	}
-	if len(foreign) > 0 {
-		t.Errorf("the dira command path must be stdlib-only (dec-0001, int-0002); found %d non-stdlib dependencies:\n\t%s",
-			len(foreign), strings.Join(foreign, "\n\t"))
+
+	for module, packages := range foreign {
+		if slices.Contains(allowedModules, module) {
+			continue
+		}
+		t.Errorf("the dira command path links %s, which is not in allowedModules (dec-0001, int-0002).\n"+
+			"It arrives through:\n\t%s\n"+
+			"Either route the dependency out of the command path, or add the module to allowedModules "+
+			"in cmd/dira/build_test.go with the cold-start cost it adds.",
+			module, strings.Join(packages, "\n\t"))
 	}
+}
+
+// TestTheAllowlistIsNotStale is the other half. An allowlist that accumulates
+// entries nobody needs stops being a list of what is permitted and becomes a
+// list of what was once convenient, and the next dependency slips in under a
+// name that is already there.
+func TestTheAllowlistIsNotStale(t *testing.T) {
+	t.Parallel()
+
+	_, foreign := commandDependencies(t)
+	for _, module := range allowedModules {
+		if _, ok := foreign[module]; !ok {
+			t.Errorf("allowedModules permits %s, which the command path does not link. "+
+				"Remove it: an unused exemption is a hole waiting for something to walk through.", module)
+		}
+	}
+}
+
+// commandDependencies returns the packages the binary links, split into this
+// module's own and everything else. The foreign half is keyed by module path,
+// because "which modules does the binary link" is the question the budget cares
+// about — a package count says nothing about what it costs to start.
+func commandDependencies(t *testing.T) (own []string, foreign map[string][]string) {
+	t.Helper()
+
+	out, err := exec.Command(goTool(t), "list", "-deps",
+		"-f", `{{if not .Standard}}{{.ImportPath}}{{"\t"}}{{if .Module}}{{.Module.Path}}{{end}}{{end}}`,
+		commandPackage).CombinedOutput()
+	if err != nil {
+		t.Fatalf("go list -deps %s: %v\n%s", commandPackage, err, out)
+	}
+
+	const ownModule = "github.com/kazi-org/dira"
+	foreign = map[string][]string{}
+	for _, line := range strings.Split(string(out), "\n") {
+		pkg, module, ok := strings.Cut(strings.TrimSpace(line), "\t")
+		if !ok || pkg == "" {
+			continue
+		}
+		if module == ownModule {
+			own = append(own, pkg)
+			continue
+		}
+		if module == "" {
+			// No module of its own: nothing to allowlist by name, so
+			// it is attributed to its import path and reported.
+			module = pkg
+		}
+		foreign[module] = append(foreign[module], pkg)
+	}
+	return own, foreign
 }
 
 // TestVersionIsSetByLdflags builds the real binary twice and runs it, because
