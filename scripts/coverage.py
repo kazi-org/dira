@@ -179,6 +179,21 @@ def main():
     obs_ids = {o[0] for o in obs}
 
     uncovered = [o for o in obs if o[0] not in reg]
+
+    # ---- VERIFIED DISPOSITIONS ---------------------------------------------- #
+    # Where a disposition makes a claim that can be checked mechanically, check it.
+    # A register that accepts unverifiable claims is just prose again. Caught a real
+    # false "covered" on first run: a lane agent died before writing its file.
+    unverified = []
+    for oid, (disp, tgt, note) in reg.items():
+        if oid.startswith('lanes:') and disp == 'covered':
+            epic = oid.split(':')[1]
+            f = f'docs/plan/lanes/{epic}.md'
+            if not Path(f).exists():
+                unverified.append((oid, f'claims covered but {f} does not exist'))
+        if disp == 'covered' and tgt in ('privacy-lint',):
+            if not Path('scripts/privacy-lint.py').exists():
+                unverified.append((oid, 'claims covered:privacy-lint but the script is missing'))
     bad_disp  = [(k,v) for k,v in reg.items() if v[0] not in DISPOSITIONS]
     orphaned  = [k for k in reg if k not in obs_ids]
 
@@ -194,6 +209,7 @@ def main():
     print(f'uncovered             : {len(uncovered)}')
     print(f'invalid disposition   : {len(bad_disp)}')
     print(f'orphaned register rows: {len(orphaned)}')
+    print(f'unverified dispositions: {len(unverified)}')
 
     fail = False
     if uncovered:
@@ -204,6 +220,10 @@ def main():
         fail = True
         print(f'\nINVALID DISPOSITION (must be one of {", ".join(DISPOSITIONS)}):')
         for k,v in bad_disp: print(f'  {k} -> {v[0]}')
+    if unverified:
+        fail = True
+        print('\nUNVERIFIED DISPOSITION — the register claims something checkable that is not true:')
+        for oid, why in unverified: print(f'  {oid}\n      {why}')
     if orphaned:
         fail = True
         print('\nORPHANED — registered but the obligation no longer exists '

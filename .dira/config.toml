@@ -15,14 +15,29 @@ name = "dira"
 tier = "repo"
 
 [parents]
-# Upward links. An active intent in this ledger with no derives_from edge into
-# a parent is flagged as orphan work — the drift signal that answers
-# "why does this work exist?" Resolution is read-only: dira never writes to a
-# parent ledger.
+# Upward links. Resolution is read-only and one-way: dira never writes to a parent
+# ledger (cst-0003).
 #
-# Paths may be local, or a git remote for ledgers that live elsewhere.
-# Commented out until the sire workspace ledger exists (see qst-0001).
+# Resolution reports THREE states, not two (dec-0011):
+#   oriented  edge present, target resolved and readable   -> not drift
+#   withheld  edge present, namespace declared private     -> not drift
+#   orphan    no derives_from edge at all                  -> DRIFT
+# Only orphan is drift. "withheld" is a designed state and must never render as an
+# error — that distinction is what keeps the orphan-work signal meaningful in a
+# public ledger whose parent is private.
+#
+# A namespaced ref whose namespace is NOT declared here is an ERROR, not a withheld
+# state: an undeclared foreign ref is a typo or an invention, and treating it as
+# withheld would let real mistakes hide behind the privacy boundary.
+#
+# Cross-boundary refs publish verbatim and opaquely (dec-0011). What leaks is the
+# namespace and an integer id — never a title, body, alternative, or edge note. Set
+# visibility = "private" for a parent not readable from here, and omit `label` when
+# the namespace itself must not ship.
+#
+# Commented out until the sire workspace ledger exists.
 # sire = { path = "../../sire-run/sire", ref = "main" }
+# me   = { visibility = "private" }   # readable only on the maintainer's machine
 
 [mirror]
 # When true, every accepted decision also emits a conventional ADR file, so the

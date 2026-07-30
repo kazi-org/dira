@@ -45,17 +45,23 @@ ships, that mitigation is a plan, not a fact.
 
 ---
 
-## Gaps this check found on its first run
+## Gaps this check found, and their state
 
-Registering all 46 obligations forced three admissions that no plan document had
-surfaced. Each is `blocked` in the register rather than quietly `covered`.
+Registering every obligation forced three admissions no plan document had surfaced.
 
-1. **`cst-0003` has no enforcement point anywhere.** The privacy constraint —
-   inheritance is one-way and read-time only, and a violation is a *security* bug
-   rather than a UX bug — is currently a sentence in a markdown file with nothing
-   checking it. A private strategic note committed into public git history cannot be
-   un-published, so this is the highest-severity gap in the register. E3 covers the
-   "cite the ref, never the text" half; the tier-crossing half waits on `qst-0001`.
+1. ~~**`cst-0003` has no enforcement point anywhere.**~~ **CLOSED 2026-07-30** by
+   `scripts/privacy-lint.py`. The privacy constraint whose violation is a *security*
+   bug was a sentence in a markdown file with nothing checking it. It now has four
+   invariants — no `private: true` entry in a public ledger, no private-parent label
+   leaking into any committed surface, every namespaced ref resolving to a declared
+   parent, and no foreign prose in a mirrored ADR — each verified red→green except P4,
+   which is **vacuously green because no ADRs exist yet** and so remains untested
+   against real data.
+
+   **Rule 2 is still not covered.** The lint cannot verify that inherited context was
+   never *persisted* into a child ledger, because by construction it has no access to
+   the private parent. That needs a runtime assertion in the brief-injection path and
+   is tracked as `blocked:0a05aa` rather than quietly folded into "covered".
 
 2. **The ADR import has no owner.** `dec-0010` promoted `qst-0003` from a deferred
    question to a **launch blocker** — import is the day-one acquisition moment, so a
@@ -63,7 +69,7 @@ surfaced. Each is `blocked` in the register rather than quietly `covered`.
    impression. But no epic in `docs/plan.md` explicitly owns it. It needs adding to
    E2's scope, and the E2 lane plan should be re-read against it.
 
-3. **Nothing watches the revisit triggers.** Six `revisit_if` conditions are recorded
+3. **Nothing watches the revisit triggers.** Seven `revisit_if` conditions are recorded
    across the decisions — "if entry volume passes 10k", "if dira grows a long-lived
    component", "if it escapes the terminal audience". They are inert text. The whole
    point of recording a revisit condition is that someone notices when it fires, and
@@ -79,7 +85,7 @@ surfaced. Each is `blocked` in the register rather than quietly `covered`.
 |---|---|---|
 | `enforce:cst-0001` | covered:E1 | brief cap enforced in-binary; drop-by-priority test |
 | `enforce:cst-0002` | covered:E0 | schema validator test pins the five-kind enum in CI |
-| `enforce:cst-0003` | blocked:qst-0001 | **GAP** no enforcement exists. Privacy leak = security bug. E3 cites refs only; the tier-crossing case waits on qst-0001 |
+| `enforce:cst-0003` | covered:privacy-lint | `scripts/privacy-lint.py` — 4 invariants, CI-gating, verified red→green on P1/P2/P3. **P4 untested against real data** (no ADRs exist yet). Rule 2 (never persist inherited context) is NOT covered — see `blocked:0a05aa` |
 | `enforce:cst-0004` | covered:E6 | network-unplugged test on CLI + renderer |
 | `impl:dec-0001` | covered:E0 | Go module, goreleaser, tap formula |
 | `trigger:dec-0001:0af862` | deferred:trigger | not work — a condition to watch. **No watch mechanism exists yet** (see gap list) |
@@ -90,7 +96,7 @@ surfaced. Each is `blocked` in the register rather than quietly `covered`.
 | `impl:dec-0004` | covered:E4 | kazi join; test greps entries for status fields |
 | `impl:dec-0005` | covered:E1 | local backend now; github backend is E7 |
 | `trigger:dec-0005:d7ef58` | deferred:trigger | not work — a condition to watch. **No watch mechanism exists yet** (see gap list) |
-| `impl:dec-0006` | blocked:qst-0001 | fractal tiers are E5, blocked |
+| `impl:dec-0006` | covered:E5 | unblocked by dec-0011 |
 | `trigger:dec-0006:0d9a33` | deferred:trigger | not work — a condition to watch. **No watch mechanism exists yet** (see gap list) |
 | `impl:dec-0007` | deferred:E7/E8 | business model. Pricing needs no code until apps exist |
 | `trigger:dec-0007:439d04` | deferred:trigger | not work — a condition to watch. **No watch mechanism exists yet** (see gap list) |
@@ -101,14 +107,12 @@ surfaced. Each is `blocked` in the register rather than quietly `covered`.
 | `serve:int-0001` | covered:E1/E2/E3 | brief + capture + enforcer are the whole intent |
 | `serve:int-0002` | covered:E0/E1 | single binary, <100ms cold as an acc: line |
 | `serve:int-0003` | covered:E4/E8 | derived status replaces the tracker; GTM proves adoption |
-| `answer:qst-0001` | covered:E5 | E5-L1 is answering it; agent asked for an argued recommendation |
 | `answer:qst-0002` | deferred:never | may never be built and that is acceptable. Closer to self-surveillance than navigation |
 | `answer:qst-0003` | blocked:E2 | **GAP** dec-0010 made import a LAUNCH BLOCKER but no epic explicitly owns it. Needs adding to E2 scope |
 | `answer:qst-0005` | covered:E9 | file the two issues; maintainer decides |
 | `design-q:1` | covered:E6 | chain-at-scale collapse rule |
 | `design-q:2` | covered:E6 | long-content verification |
-| `design-q:3` | blocked:qst-0001 | private-parent state cannot be designed until the model is decided |
-| `blocked:eeabdf` | blocked:qst-0001 | M5 workspace tier |
+| `design-q:3` | covered:E6 | model settled by dec-0011; only the *visual* for the withheld state is open |
 | `blocked:4784fa` | covered:E9 | automatic disposition capture = upstream ask 2; skill-wrap fallback exists |
 | `blocked:2147c3` | blocked:E2 | ADR import — same GAP as answer:qst-0003 |
 | `upstream:1` | covered:E9 | portfolio schema registration |
@@ -123,3 +127,6 @@ surfaced. Each is `blocked` in the register rather than quietly `covered`.
 | `lanes:E7` | covered:E7 | lane-level only by design; no L2 (blocked / gated) |
 | `lanes:E8` | covered:E8 | L1 agent dispatched 2026-07-29 |
 | `lanes:E9` | covered:E9 | L1 agent dispatched 2026-07-29 |
+| `impl:dec-0011` | covered:E5/E6 | three-state resolution in the query layer (E5) + the withheld visual (E6). Config field documented in `.dira/config.toml` |
+| `trigger:dec-0011:1a59c4` | deferred:trigger | fires only if a ledger must publish where the namespace itself is sensitive; the `label`-omission escape hatch already exists |
+| `blocked:0a05aa` | blocked:E1/E5 | cst-0003 rule 2 needs a runtime assertion in the brief-injection path. privacy-lint cannot see it — it has no access to a private ledger by construction |

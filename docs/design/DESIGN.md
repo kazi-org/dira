@@ -90,10 +90,14 @@ system cannot enforce itself.
 
 | Token | Meaning | Light | Dark |
 |---|---|---|---|
-| `--bearing` | the instrument: current focus, brand, links, active intents | `#9a6c1c` | `#c99a3e` |
-| `--bearing-lift` | hover/focus — deliberately *more* contrast than rest (WEB.md 2) | `#b8862f` | `#e2b95f` |
+| `--bearing` | the instrument: current focus, brand, links, active intents | `#8a5f18` | `#c99a3e` |
+| `--bearing-lift` | hover/focus — deliberately *more* contrast than rest (WEB.md 2). **Inverts direction per scheme:** darker in light, lighter in dark | `#6d4a12` | `#e2b95f` |
 | `--converged` | runtime state only: accepted, converged, achieved | `#1f6d5b` | `#45a189` |
-| `--caught` | **drift and contradiction only** | `#a83828` | `#d4614d` |
+| `--caught` | **drift and contradiction only** | `#a83828` | `#d97060` |
+
+All 42 fg/bg pairs clear 4.5:1 in both schemes and hover exceeds rest on every
+surface — 0 failures. Re-run the matrix whenever a colour token moves; the values
+above are the post-fix ones, not the originals (see r3 → r4 below).
 
 Surfaces are hued and never pure — light ground `#f7f4ed`, dark ground `#0f151c`.
 No `#000`, no `#fff`, in either scheme. `color-scheme: light dark` is declared so
@@ -226,9 +230,12 @@ satisfies WEB.md 12. Recorded here so a future reviewer does not re-litigate it.
 2. **Long content.** Screens are verified against short, average, and the real
    entry text — but not against a 400-word `why_not` or a 20-alternative decision.
    WEB.md 9 requires that check.
-3. **The private-parent case.** `qst-0001` is unresolved: when a public ledger's
-   parent lives in a private one, the chain shows a dangling ref. It currently has
-   no designed state, and "unresolved" must not look like an error.
+3. **The withheld state needs designing** — `qst-0001` is now answered by
+   `dec-0011`, so the model is settled and only the visual is open. Resolution reports
+   three states: **oriented**, **withheld** (parent declared private, not readable
+   here), **orphan** (no parent → drift). Only orphan is drift. Withheld is a
+   legitimate designed state and must read as neither an error nor a warning — it is
+   currently the only state with no token or treatment assigned.
 
 ---
 

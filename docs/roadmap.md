@@ -23,6 +23,7 @@ Nothing. There is no binary yet — dira is at the end of its design phase.
 
 | Item | Owner | Notes |
 |---|---|---|
+| Privacy enforcement + coverage gate | maintainer | 2026-07-30. `scripts/coverage.py` (nothing-forgotten gate, 47 obligations) and `scripts/privacy-lint.py` (cst-0003 enforcement, 4 invariants). Both verified red→green. |
 | Founding design + repo scaffold | maintainer | 2026-07-29. Design doc v2, entry schema, founding ledger (21 entries — 3 intents, 9 decisions, 4 constraints, 5 questions; all validate against the schema, no dangling edges), hook config, license. |
 
 ---
@@ -98,8 +99,8 @@ laptop, with no dira server involved.
 
 | Item | Blocked on |
 |---|---|
-| **M5 — workspace tier** | [qst-0001](../.dira/entries/qst-0001.md) — how a public repo ledger resolves a parent ref living in a *private* ledger. Three candidate answers, none obviously right; needs a decision on who the public `.dira/` is for. |
 | **Automatic disposition capture** (part of M2/M4) | [qst-0005](../.dira/entries/qst-0005.md) issue 2 — kazi has no post-disposition hook on `approve`/`reject`. Fallback exists (the skill wraps the commands), so this degrades ergonomics rather than blocking the milestone. |
+| **cst-0003 rule 2 has no runtime check** | `scripts/privacy-lint.py` enforces the marker, label-leak, ref-declaration and ADR-prose invariants, but it cannot verify that *inherited context was never persisted* into a child ledger — that needs an assertion in the brief-injection path, which lands with E1/E5. Until then rule 2 rests on care, which is what cst-0003 forbids. |
 | **ADR back-catalogue import** | [qst-0003](../.dira/entries/qst-0003.md) — needs validating against kazi's real 83-ADR corpus before committing to an approach. Leaning index-everything, promote-on-first-citation. **Promoted to a launch blocker by [dec-0010](../.dira/entries/dec-0010.md):** import is the day-1 acquisition moment, so its quality is now a growth variable rather than a convenience. |
 
 ---
