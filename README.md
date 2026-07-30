@@ -22,10 +22,12 @@
 
 ---
 
-> **Status: design phase.** There is no binary yet. What exists is the founding design
-> ([`docs/design.md`](docs/design.md)), the entry schema, and dira's own ledger under
-> [`.dira/`](.dira/entries) — the tool's first user is itself. Stars and issues
-> welcome; `brew install` is not a thing yet.
+> **Status: design phase.** What exists is the founding design
+> ([`docs/design.md`](docs/design.md)), the entry schema, dira's own ledger under
+> [`.dira/`](.dira/entries) — the tool's first user is itself — and a Go module you
+> can [build from source](#build-from-source). The binary currently answers `--help`
+> and `--version` and nothing else: no `log`, no `why`, no `brief` yet. Stars and
+> issues welcome; `brew install` is not a thing yet.
 
 ## The problem
 
@@ -190,6 +192,38 @@ kazi runs fine with no dira installed. dira degrades to its ledger-side views wi
 kazi installed, and says so rather than guessing. Integration is only through kazi's
 public `--json` contract ([dec-0008](.dira/entries/dec-0008.md)) — never its
 internals.
+
+## Build from source
+
+Go only — the toolchain version is the one pinned in [`go.mod`](go.mod), and there is
+nothing else to install.
+
+```
+git clone https://github.com/kazi-org/dira
+cd dira
+go build ./cmd/dira
+./dira --help
+```
+
+`dira --version` prints `dev` from a plain build. Release builds stamp the tag in at
+link time:
+
+```
+go build -ldflags "-X main.version=1.2.3" ./cmd/dira
+```
+
+Run the tests, which include the gate that validates every entry in
+[`.dira/entries/`](.dira/entries) against
+[`schema/entry.schema.json`](schema/entry.schema.json):
+
+```
+go test ./...
+```
+
+The command path is stdlib-only and a test enforces it, because dira runs inside a
+hook while you wait for a prompt ([int-0002](.dira/entries/int-0002.md),
+[dec-0001](.dira/entries/dec-0001.md)). Exit codes are a contract: `0` success,
+`1` runtime error, `2` usage error.
 
 ## License
 

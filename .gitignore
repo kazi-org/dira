@@ -22,3 +22,10 @@ node_modules
 # (`node docs/design/scripts/render.mjs r1`). Same logic as .dira/cache/ —
 # the source is the record, the render is exhaust.
 docs/design/renders/
+
+# A global ~/.gitignore on this machine contains `plan.md`, which silently swallowed
+# docs/plan.md — the L0 program plan — for this repo's entire history. Repo-level
+# .gitignore takes precedence over core.excludesFile, so this negation restores it.
+# scripts/coverage.py reads docs/plan.md, so an untracked plan.md would make the
+# coverage gate fail on a fresh clone for the wrong reason.
+!docs/plan.md

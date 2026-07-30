@@ -169,6 +169,25 @@ def register():
             reg[m.group(1)] = (m.group(2), (m.group(3) or '').strip(), m.group(4).strip())
     return reg
 
+SOURCES = ['.dira/entries', 'docs/design/DESIGN.md', 'docs/roadmap.md', 'docs/plan.md']
+
+def untracked_sources():
+    """Every file this checker reads must be committed. A source that exists only on
+    one machine makes the guarantee hollow — the extractor finds obligations locally
+    that vanish on a fresh clone, and the register orphans en masse for a reason that
+    has nothing to do with the work. Found the hard way: a global ~/.gitignore
+    containing `plan.md` silently excluded docs/plan.md for this repo's whole history."""
+    import subprocess
+    bad = []
+    for src in SOURCES:
+        if not Path(src).exists():
+            bad.append((src, 'does not exist')); continue
+        r = subprocess.run(['git', 'ls-files', '--error-unmatch', src],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            bad.append((src, 'exists but is NOT tracked by git'))
+    return bad
+
 def main():
     obs = extract()
     if '--list' in sys.argv:
@@ -177,6 +196,7 @@ def main():
 
     reg = register()
     obs_ids = {o[0] for o in obs}
+    bad_sources = untracked_sources()
 
     uncovered = [o for o in obs if o[0] not in reg]
 
@@ -210,8 +230,14 @@ def main():
     print(f'invalid disposition   : {len(bad_disp)}')
     print(f'orphaned register rows: {len(orphaned)}')
     print(f'unverified dispositions: {len(unverified)}')
+    print(f'untracked sources      : {len(bad_sources)}')
 
     fail = False
+    if bad_sources:
+        fail = True
+        print('\nUNTRACKED SOURCE — this checker reads a file that is not in the repo,'
+              '\nso its obligations vanish on a fresh clone and the guarantee is hollow:')
+        for src, why in bad_sources: print(f'  {src}  ({why})')
     if uncovered:
         fail = True
         print('\nUNCOVERED — no disposition registered in docs/coverage.md:')
