@@ -1,7 +1,12 @@
 <h1 align="center">dira</h1>
 
 <p align="center">
-  <b>kazi proves it's done. dira remembers why you wanted it.</b>
+  <b>Never explain the same decision twice.</b>
+</p>
+
+<p align="center">
+  Your coding agent has amnesia. You keep re-explaining decisions you already made —<br>
+  and it keeps suggesting the thing you rejected in July. dira remembers why.
 </p>
 
 <p align="center">
@@ -169,7 +174,8 @@ Full rationale: [dec-0002](.dira/entries/dec-0002.md).
 | **M3** | `dira check` · `supersede` · constraint inheritance |
 | **M4** | kazi join · `dira map` · decision-blocked detection |
 | **M5** | workspace + personal tiers · orphan drift · `init --interview` |
-| **M6** | `dira ui` · GitHub storage backend · apps |
+| **M6** | `dira ui` · **the public ledger renderer** (the growth engine — [dec-0010](.dira/entries/dec-0010.md)) |
+| **M7** | GitHub storage backend · PWA · paid apps |
 
 M1 alone is already more useful than any of the alternatives above. Detail and open
 questions: [`docs/design.md`](docs/design.md), [`docs/roadmap.md`](docs/roadmap.md).

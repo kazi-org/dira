@@ -67,9 +67,20 @@ Workspace and personal ledgers · namespaced ref resolution · orphan-work drift
 **Exit:** "what are we actually doing on Sire?" is answered by a derived report rather
 than reconstructed from memory. **Gated on qst-0001.**
 
-### M6 — surfaces
-`dira ui` embedded SPA · `github` storage backend · PWA · paid iOS + desktop apps
-(dec-0007).
+### M6 — surfaces & distribution
+`dira ui` embedded SPA · **the public ledger renderer** (dec-0010).
+
+Pulled ahead of the apps because it is the growth engine, not a nicety: dira is
+invisible by design, so without a rendered artifact there is nothing to screenshot,
+link, or land on — and a solo maintainer has no distribution other than organic.
+Read-only and additive, so cst-0004 still holds: the CLI behaves identically whether
+the renderer exists or not.
+
+**Exit:** a stranger can read a public repo's why-graph in a browser, understand a
+decision they had no context for, and find dira from it.
+
+### M7 — apps
+`github` storage backend · PWA · paid iOS + desktop apps (dec-0007).
 
 **Exit:** a decision confirmed on a phone appears in the next session's brief on the
 laptop, with no dira server involved.
@@ -82,7 +93,7 @@ laptop, with no dira server involved.
 |---|---|
 | **M5 — workspace tier** | [qst-0001](../.dira/entries/qst-0001.md) — how a public repo ledger resolves a parent ref living in a *private* ledger. Three candidate answers, none obviously right; needs a decision on who the public `.dira/` is for. |
 | **Automatic disposition capture** (part of M2/M4) | [qst-0005](../.dira/entries/qst-0005.md) issue 2 — kazi has no post-disposition hook on `approve`/`reject`. Fallback exists (the skill wraps the commands), so this degrades ergonomics rather than blocking the milestone. |
-| **ADR back-catalogue import** | [qst-0003](../.dira/entries/qst-0003.md) — needs validating against kazi's real 83-ADR corpus before committing to an approach. Leaning index-everything, promote-on-first-citation. |
+| **ADR back-catalogue import** | [qst-0003](../.dira/entries/qst-0003.md) — needs validating against kazi's real 83-ADR corpus before committing to an approach. Leaning index-everything, promote-on-first-citation. **Promoted to a launch blocker by [dec-0010](../.dira/entries/dec-0010.md):** import is the day-1 acquisition moment, so its quality is now a growth variable rather than a convenience. |
 
 ---
 
