@@ -106,15 +106,30 @@ Two buckets matter most, and one of them no execution tracker can see:
 
 **"Why did we do it this way?"**
 
+Real output, from this repo's own ledger — abridged, because each rejected
+alternative carries its full grounds:
+
 ```
-$ dira why daemon
-qst-0007  can runs survive a reboot?                     answered 2026-07-03
-  ✗ a daemon              — violates single-binary intent (int-0002)
-  ✗ event sourcing        — rejected earlier as dec-0042
-  ✓ dec-0060  checkpoint file for run resume
-       └─ realized_by kazi:prop-resume-8a1f → converged ✓
-       └─ docs/adr/0084-checkpoint-resume.md
+$ dira why elixir
+int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-29
+          daemon
+            cold-start latency is the UX, and that is a runtime property
+└─ dec-0001  Go, not Elixir/OTP, despite kazi's stack        accepted 2026-07-29
+   ├─ ✗ Elixir/OTP, reusing kazi's Burrito + Homebrew tap + release-please
+   │    pipeline
+   │    dira is a short-lived, hook-invoked CLI that runs several times per
+   │    session in the latency path of a human waiting on a prompt. BEAM
+   │    start-up is tens to hundreds of milliseconds before any work happens...
+   │    revisit if  dira grows a genuinely long-lived component
+   ├─ ✗ Rust
+   ├─ ✗ A shell script or Python
+   └─ ✗ A TypeScript CLI on Node/Bun
 ```
+
+The spine reads top-down: the intent it serves, then the decision, then every
+alternative that was rejected *and why*. Only rejections are listed — what was
+chosen is the decision itself. `revisit if` is the condition that would reopen
+it, which is the thing a chat log never records.
 
 **"What are we actually doing across all my projects?"** — the model is fractal. One
 entry model, one join rule, one drift flag, at every level:

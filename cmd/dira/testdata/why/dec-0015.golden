@@ -1,0 +1,96 @@
+int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-29
+          daemon
+            files-in-git is what lets there be no server
+├─ dec-0002  One file per entry, not an append-only JSONL    accepted 2026-07-29
+             ledger
+               "if the cache and the files ever disagree, the files win" is a
+               guarantee, and this is what makes it one
+└─ dec-0005  A storage interface (local FS | GitHub API) is  accepted 2026-07-29
+             committed to before the first surface ships
+               a blob sha is what the github backend already returns, so the
+               same version works on both backends
+   └─ dec-0015  The derived cache stays honest by content    accepted 2026-07-30
+                hash, not by modification time
+      ├─ ✗ Keep EntryInfo.Version as modification-time-nanos plus size, the
+      │    heuristic git, make and rsync use
+      │    It is a heuristic, and its hole is reachable rather than theoretical.
+      │    `state: accepted` and `state: rejected` are the same eight
+      │    characters, so the edit that reverses a decision changes no file size
+      │    — and any restore that puts modification times back (rsync -a, cp -p,
+      │    tar -p, a backup unpacked over a checkout) changes no mtime either.
+      │    Under that scheme the cache then reports `accepted` for a file that
+      │    says `rejected`, forever, with no reindex able to notice, which is
+      │    exactly the one failure dec-0002 says the product cannot survive. The
+      │    saving is 4.7ms per invocation out of a 40ms budget, measured, and a
+      │    near-certainty bought at that price is still not a guarantee.
+      │    `TestAnEditBehindTheCacheResolvesToTheFile/an edit preserving both
+      │    size and modification time` is red under this option and green under
+      │    the one taken; that was verified by reverting, not assumed.
+      │    revisit if  a ledger grows past roughly 2,000 entries, where the hash
+      │                scan crosses 50ms and stops being affordable on every
+      │                invocation — at which point the answer is probably a scan
+      │                bounded by directory mtime rather than a return to
+      │                trusting per-file mtime
+      ├─ ✗ Add ctime and inode to the metadata version, which the kernel updates
+      │    on any inode change and utimes cannot forge
+      │    It closes the practical hole for free — the stat is already being
+      │    done — and it was measured working: after a size-preserving edit with
+      │    mtime restored, ctime had moved by a second. But it is still a claim
+      │    about when the inode was touched rather than about what the file
+      │    contains, it is absent on Windows and needs build-tagged access to
+      │    syscall.Stat_t on every other platform, and it buys a weaker
+      │    guarantee than the 4.7ms option for more code. Complexity for a
+      │    weaker property loses.
+      │    revisit if  the hash scan becomes the binding cost and a cheaper
+      │                pre-filter is wanted, in which case ctime is the right
+      │                pre-filter and the hash stays as the confirmation
+      ├─ ✗ A bare sha256 of the file rather than the git blob object id
+      │    Same cost, strictly less use. The git blob form — sha1 over "blob
+      │    <len>\x00" then the content — is what `git hash-object` prints, so a
+      │    human debugging a cache can reproduce dira's version with git and no
+      │    dira, and it is what E7's github backend gets free from the Contents
+      │    API, which means the two backends produce *equal* versions for equal
+      │    content and a ledger can change backend without a full reindex.
+      │    sha1's collision weakness is not in this threat model: this detects
+      │    accidental divergence, not forgery, and anyone who can write the
+      │    entry file can simply write whatever they like into it.
+      │    revisit if  dira ever needs the version to authenticate rather than
+      │                to detect change, at which point the requirement has
+      │                changed and so should the hash
+      ├─ ✗ Drop SQLite and answer every query straight from the files at 29.5ms
+      │    Tempting at 200 entries, and honestly close: the cache saves 15.1ms
+      │    of a 40ms budget for 6.5MB of binary and eleven modules on the
+      │    allowlist, and the first invocation after the cache is deleted costs
+      │    55.5ms, which is worse than having no cache at all. What decides it
+      │    is that the saving scales with the ledger and the 6.5MB does not —
+      │    the part the cache removes is the YAML parse of every entry, which is
+      │    15ms of the 29.5 at 200 entries and grows linearly, while the hash
+      │    scan it cannot remove is only 6.9ms. It also breaks even after two
+      │    invocations, and hooks fire several times a session. dec-0002 and the
+      │    L0 acceptance line both name SQLite, so dropping it needs a
+      │    superseding entry rather than an omission — this records the
+      │    measurement that would justify one.
+      │    revisit if  the binary size becomes a real complaint, or a ledger's
+      │                typical size settles low enough that the parse the cache
+      │                removes stops mattering
+      └─ ✗ mattn/go-sqlite3, the cgo binding, instead of the pure-Go
+           modernc.org/sqlite
+           cgo means a C toolchain per target, so E0's goreleaser matrix could
+           no longer cross-compile darwin-arm64 and linux-amd64 from one runner
+           without a cross-compiler per platform. That is a permanent tax on
+           every release for a derived cache over 200 rows, where SQLite's own
+           speed is not the binding constraint — the measured database work is
+           2.1ms of a 14.8ms warm read, and the file I/O around it is the rest.
+           revisit if  modernc.org/sqlite's translated libc becomes a
+                       correctness or performance problem in practice, which
+                       would be a reason to reconsider the driver and not the
+                       cache
+
+edges
+  informs  cst-0003  Inheritance is one-way and read-time only — private context
+                     never lands in a public ledger
+                       the cache holds the titles of private entries, so it
+                       stays gitignored and that is now a test
+           int-0002  Zero-ceremony operation — one binary, no server, no daemon
+                       spends 4.7ms of the read path per invocation, and adds
+                       6.5MB to the binary

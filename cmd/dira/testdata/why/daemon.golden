@@ -1,0 +1,39 @@
+int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-29
+          daemon
+└─ no alternatives recorded — an intent states a direction rather than choosing
+   between options
+
+edges
+  informs      int-0001  The why of a decision survives the session that made it
+                           retrieval can only be effort-free if invocation is
+                           effort-free
+  derived by   cst-0004  dira never requires a network service, an account, or a
+                         hosted tier to function
+               dec-0001  Go, not Elixir/OTP, despite kazi's stack
+                           cold-start latency is the UX, and that is a runtime
+                           property
+               dec-0002  One file per entry, not an append-only JSONL ledger
+                           files-in-git is what lets there be no server
+               dec-0003  No model client in the binary — semantic extraction is
+                         delegated to the live session
+                           no API key, no network, no per-call cost on the happy
+                           path
+               dec-0005  A storage interface (local FS | GitHub API) is
+                         committed to before the first surface ships
+                           GitHub as the sync layer is what keeps "no dira
+                           server" true on mobile
+               dec-0012  Surfaces are server-rendered Go templates and static
+                         output — no SPA, no dira-operated host
+                           no JSON API layer, no client runtime, no service to
+                           operate
+               dec-0014  Lexical matching in the binary drives conflict
+                         detection; no model, no agent, ever gates the exit code
+                           check must work standalone, in the same latency path
+                           as brief
+               dec-0016  Self-host TeX Gyre Pagella; the system-font stack was
+                         silently broken on Linux
+                           an embedded subset keeps the offline guarantee intact
+  informed by  dec-0015  The derived cache stays honest by content hash, not by
+                         modification time
+                           spends 4.7ms of the read path per invocation, and
+                           adds 6.5MB to the binary
