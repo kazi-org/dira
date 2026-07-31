@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -134,11 +135,26 @@ func TestCommandPathLinksOnlyAllowedModules(t *testing.T) {
 func TestTheAllowlistIsNotStale(t *testing.T) {
 	t.Parallel()
 
-	_, foreign := commandDependencies(t)
+	// Union across every platform dira ships, not just the host's. A module can
+	// be genuinely required on one GOOS and absent on another; removing it
+	// because the machine you happen to be on does not link it would break the
+	// other build.
+	linkedSomewhere := map[string]string{}
+	for _, goos := range buildPlatforms {
+		_, foreign := commandDependenciesFor(t, goos)
+		for module := range foreign {
+			linkedSomewhere[module] = goos
+		}
+	}
+	if len(linkedSomewhere) == 0 {
+		t.Fatal("no foreign modules found on any platform; the check is not measuring anything")
+	}
+
 	for _, module := range allowedModules {
-		if _, ok := foreign[module]; !ok {
-			t.Errorf("allowedModules permits %s, which the command path does not link. "+
-				"Remove it: an unused exemption is a hole waiting for something to walk through.", module)
+		if _, ok := linkedSomewhere[module]; !ok {
+			t.Errorf("allowedModules permits %s, which the command path links on NONE of %v. "+
+				"Remove it: an unused exemption is a hole waiting for something to walk through.",
+				module, buildPlatforms)
 		}
 	}
 }
@@ -149,12 +165,33 @@ func TestTheAllowlistIsNotStale(t *testing.T) {
 // about — a package count says nothing about what it costs to start.
 func commandDependencies(t *testing.T) (own []string, foreign map[string][]string) {
 	t.Helper()
+	return commandDependenciesFor(t, "")
+}
 
-	out, err := exec.Command(goTool(t), "list", "-deps",
+// buildPlatforms are the GOOS values dira actually ships (E0-L4 builds
+// darwin-arm64 and linux-amd64). The allowlist is a UNION across them.
+//
+// This is not hypothetical tidiness. The staleness half of this check passed on
+// macOS and failed on Linux in CI's first run: modernc.org/sqlite pulls
+// go-isatty and go-strftime into the command path on darwin and not on linux, so
+// an allowlist that is exactly right on one machine is stale on the other.
+// Asking only about the host's GOOS makes this test a report on whoever ran it.
+var buildPlatforms = []string{"darwin", "linux"}
+
+// commandDependenciesFor lists what the command path links for a given GOOS.
+// An empty goos means the host's.
+func commandDependenciesFor(t *testing.T, goos string) (own []string, foreign map[string][]string) {
+	t.Helper()
+
+	cmd := exec.Command(goTool(t), "list", "-deps",
 		"-f", `{{if not .Standard}}{{.ImportPath}}{{"\t"}}{{if .Module}}{{.Module.Path}}{{end}}{{end}}`,
-		commandPackage).CombinedOutput()
+		commandPackage)
+	if goos != "" {
+		cmd.Env = append(os.Environ(), "GOOS="+goos)
+	}
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go list -deps %s: %v\n%s", commandPackage, err, out)
+		t.Fatalf("go list -deps %s (GOOS=%s): %v\n%s", commandPackage, goos, err, out)
 	}
 
 	const ownModule = "github.com/kazi-org/dira"
