@@ -1,0 +1,232 @@
+# CI — the gate every push crosses.
+#
+# Every check here already exists in hooks/pre-commit. CI runs the SAME set, not a
+# different one: a contributor who runs `scripts/ci-local.sh` before pushing reaches
+# the same verdict this workflow reaches. That symmetry is the point (cst-0004 —
+# nothing in this repo may pass only in CI, or the gate is on nothing a contributor
+# can reproduce). If you add a gate here, add it to hooks/pre-commit and
+# scripts/ci-local.sh in the same change.
+#
+# Every `uses:` is pinned to a 40-character commit SHA. dira is a public repo; an
+# action referenced by a moving tag (`@v4`) is an unreviewed dependency that can
+# change under us between two pushes. The trailing comment records which release the
+# SHA was at pin time, so the pin can be audited without a network round trip.
+# Verify a pin with: gh api repos/<owner>/<repo>/commits/<tag> --jq .sha
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Nothing in this workflow writes anything — no releases, no comments, no pages.
+# Read scope at the top level, and no job widens it.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Superseded pushes on a topic branch are wasted minutes, but a cancelled run on
+  # main is a lost answer about whether main is broken. Never cancel on main.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  # Restated here only because the repo carries no package.json or lockfile to read
+  # it from. This must track the version the maintainer runs locally — the
+  # rendered-contrast gate measures a real browser, so a different Playwright is a
+  # different measurement. See docs/decisions-pending/E0-L3-report.md.
+  PLAYWRIGHT_VERSION: "1.62.0"
+  NODE_VERSION: "24"
+  # Matches the golangci-lint the pre-commit hook invokes. Pinned rather than
+  # floating: a new linter release turning an unrelated push red is a gate failing
+  # for a reason the author did not cause.
+  GOLANGCI_LINT_VERSION: "v2.11.3"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # The compile-and-run gate. Matrixed across both platforms because darwin-arm64
+  # is the primary user platform (int-0002) and internal/index does filesystem,
+  # timestamp and cache work where darwin and linux genuinely diverge — case
+  # sensitivity, stat granularity, and the pure-Go SQLite's file locking. dira is a
+  # public repo, so macOS runner minutes are free; the cost is queue time, and it is
+  # paid in parallel with the linux leg rather than added to it.
+  # ---------------------------------------------------------------------------
+  go:
+    name: build + vet + test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # A darwin-only failure must not hide the linux result, or vice versa. The
+      # whole value of the matrix is knowing WHICH platform broke.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      # go-version-file, never a literal. A version restated in YAML drifts from the
+      # one contributors build with, and then CI is testing a different toolchain
+      # than the one that ships. setup-go caches the module and build caches itself,
+      # keyed on go.sum — both are content-addressed, so a stale cache cannot
+      # produce a wrong answer, only a slower cold run.
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: go build ./...
+        run: go build ./...
+
+      - name: go vet ./...
+        run: go vet ./...
+
+      # -race because internal/index and internal/ledger/fixture carry race_on /
+      # race_off build-tagged tests that only mean anything under the detector.
+      # -count=1 because a cached PASS is not a run.
+      #
+      # The count assertion is the reason this step is a script and not one line:
+      # `go test ./...` over a module with no test files exits 0 and prints
+      # "no test files". That is a green run proving nothing, and it is the single
+      # easiest false victory available here. If zero tests execute, this is red.
+      - name: go test -race, and prove a non-zero count of tests executed
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="${RUNNER_TEMP}/gotest.log"
+          go test -race -count=1 -v ./... 2>&1 | tee "$log"
+          ran=$(awk '/^=== RUN/ { n++ } END { print n+0 }' "$log")
+          echo "top-level tests executed: $ran"
+          echo "- \`$RUNNER_OS\`: **$ran** top-level tests executed" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$ran" -eq 0 ]; then
+            echo "::error::go test executed 0 tests. A green run over an empty suite is not a gate."
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Formatting and lint. Its own job, so an unformatted file and a failing test are
+  # BOTH named in a single red run rather than the first one masking the second.
+  # Linux only: gofmt and golangci-lint are platform-independent, and running them
+  # twice would buy nothing.
+  # ---------------------------------------------------------------------------
+  lint:
+    name: gofmt + golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      # `gofmt -l` exits 0 whether or not it found anything — it reports on stdout.
+      # Checking the exit code alone would be a gate that can never fail.
+      - name: gofmt -l .
+        shell: bash
+        run: |
+          set -euo pipefail
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::gofmt would rewrite these files — run gofmt -w on them:"
+            printf '%s\n' "$unformatted"
+            exit 1
+          fi
+          echo "gofmt: clean"
+
+      - name: golangci-lint run ./...
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          args: ./...
+
+  # ---------------------------------------------------------------------------
+  # The repo's own gates: the two Python checkers and the token contrast matrix.
+  # No Go toolchain, no browser, so these return a verdict in seconds even when the
+  # Go legs are still queueing.
+  #
+  # No actions/setup-python: both scripts are stdlib-only by deliberate design
+  # (coverage.py: "deliberately dependency-free so this runs anywhere, including CI
+  # before any Go toolchain exists"), and ubuntu-latest ships python3. One fewer
+  # pinned third-party action in the supply chain.
+  # ---------------------------------------------------------------------------
+  gates:
+    name: coverage + privacy lint + token contrast
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth 1 is enough: coverage.py's untracked-source check shells out to
+      # `git ls-files --error-unmatch`, which reads the index, not history.
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # The nothing-is-forgotten gate. It also asserts its own sources are tracked
+      # by git — a file that exists on one machine and nowhere else is exactly the
+      # failure a laptop-only check cannot catch, which is why this runs here.
+      - name: Coverage register (python3 scripts/coverage.py)
+        run: python3 scripts/coverage.py
+
+      # cst-0003. A private note committed to public git history cannot be
+      # un-published, so a violation fails the build rather than warning.
+      - name: Privacy lint (python3 scripts/privacy-lint.py)
+        run: python3 scripts/privacy-lint.py
+
+      - name: Token contrast matrix (docs/design/scripts/contrast.mjs)
+        run: node docs/design/scripts/contrast.mjs
+
+  # ---------------------------------------------------------------------------
+  # Contrast AS DRAWN. This is the only gate that measures what actually ships:
+  # every chip sits on a `color-mix(in oklab, ...)` tint of its own colour, a pair
+  # the token matrix structurally cannot see. It reported five live failures
+  # (3.0:1-4.3:1 in the light scheme) that contrast.mjs called clean.
+  #
+  # It needs a browser, which makes it the most expensive and most fragile job here.
+  # It is still in the gate rather than left to the maintainer's laptop, because:
+  #   - all of its inputs are tracked (docs/design/screens/*.html,
+  #     docs/design/landing/*.html, docs/design/tokens.css), so it is reproducible
+  #     from a cold clone — it is not a CI-only check (cst-0004);
+  #   - the failures it catches are shipped-to-a-reader defects, not style opinions;
+  #   - `color-mix(in oklab, ...)` has no correct sRGB approximation, so there is no
+  #     cheaper headless substitute. An sRGB approximation of the same declarations
+  #     PASSED pairs the browser renders as failures.
+  # Separate job so a browser-infrastructure failure is legible as itself and does
+  # not sit in front of the Go signal. No continue-on-error: red here is red.
+  # ---------------------------------------------------------------------------
+  rendered-contrast:
+    name: rendered contrast (Chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Keyed on the exact Playwright version, so a cache entry can only ever serve
+      # the browser build that version would have downloaded. A cold miss just
+      # downloads it again — the cache changes the duration, never the verdict.
+      - name: Cache Chromium
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+      # --no-save --no-package-lock: the repo has no package.json and this workflow
+      # is not the place to invent one. Exact version, never a range.
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock --no-audit --no-fund "playwright@${PLAYWRIGHT_VERSION}"
+
+      - name: Install Chromium and its system libraries
+        run: ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Rendered contrast (docs/design/scripts/contrast-rendered.mjs)
+        run: node docs/design/scripts/contrast-rendered.mjs
