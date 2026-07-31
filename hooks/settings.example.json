@@ -97,7 +97,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "dira sniff --deep --stage 2>/dev/null || true",
+            "command": "dira sniff --deep --stage --all 2>/dev/null || true",
             "timeout": 60
           }
         ]

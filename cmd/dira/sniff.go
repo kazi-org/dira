@@ -58,6 +58,31 @@ func runSniff(a *app, args []string) error {
 		}
 	}
 
+	set := setFlags(fs)
+	if f.deep {
+		if !f.stage {
+			// A dry run allocates no ids, and the handoff block is a
+			// list of ids. `--deep` on its own could only print a
+			// block naming nothing, which is a flag that silently
+			// does nothing — the failure mode this repository keeps
+			// finding. Say so instead.
+			return &usageError{
+				err:   errors.New("--deep names the entries it staged, so it needs --stage: `dira sniff --deep --stage`"),
+				usage: writeSniffUsage,
+			}
+		}
+		if !set["hook"] {
+			// `--deep` exists for the PreCompact hook, and the
+			// command hooks/settings.example.json installs passes no
+			// --hook. Leaving the Stop default in place would stamp
+			// `source.hook: Stop` on entries captured at compaction —
+			// a provenance the record would then carry as fact, which
+			// dec-0025 names for what it is. An explicit --hook still
+			// wins; this only moves the default.
+			f.hook = string(ledger.HookPreCompact)
+		}
+	}
+
 	input, session, err := a.transcriptSource(f)
 	if err != nil {
 		return err
@@ -84,15 +109,32 @@ func runSniff(a *app, args []string) error {
 	if err != nil {
 		return err
 	}
-	result, err := sniff.Stage(context.Background(), store, sniff.StageOptions{
+	opts := sniff.StageOptions{
 		Hook:    ledger.Hook(f.hook),
 		Session: session,
 		Now:     a.now().UTC(),
-	}, candidates)
+	}
+
+	if !f.deep {
+		result, err := sniff.Stage(context.Background(), store, opts, candidates)
+		if err != nil {
+			return err
+		}
+		a.reportStaged(f, result)
+		return nil
+	}
+
+	result, handoff, err := sniff.Deep(context.Background(), store, sniff.DeepOptions{StageOptions: opts}, candidates)
 	if err != nil {
 		return err
 	}
 	a.reportStaged(f, result)
+	if handoff != "" {
+		// After the staged lines, and only when there is one. An empty
+		// block would still be a blank line on a channel that dec-0023
+		// established is a compaction summariser's prompt.
+		_, _ = fmt.Fprint(a.stdout, handoff)
+	}
 	return nil
 }
 
@@ -212,6 +254,7 @@ type sniffFlags struct {
 	stage      bool
 	quiet      bool
 	all        bool
+	deep       bool
 	hook       string
 	session    string
 	transcript string
@@ -226,6 +269,7 @@ func (f *sniffFlags) flagSet() *flag.FlagSet {
 	fs.BoolVar(&f.stage, "stage", false, "write the candidates to the ledger as staged entries")
 	fs.BoolVar(&f.quiet, "quiet", false, "print nothing unless something was staged")
 	fs.BoolVar(&f.all, "all", false, "read the whole transcript rather than the last turn")
+	fs.BoolVar(&f.deep, "deep", false, "stage as usual, then print the tier-2 handoff block; needs --stage")
 	fs.StringVar(&f.hook, "hook", string(ledger.HookStop), "capture point recorded on each entry: Stop, PreCompact or manual")
 	fs.StringVar(&f.session, "session", "", "opaque session id; taken from the hook payload when absent")
 	fs.StringVar(&f.transcript, "transcript", "", "read this file instead of stdin")
@@ -244,6 +288,9 @@ func writeSniffUsage(w io.Writer) {
 	b.WriteString("usage:\n\n")
 	b.WriteString("\tdira sniff                     show what the last turn would stage\n")
 	b.WriteString("\tdira sniff --stage --quiet     stage it; the Stop hook's invocation\n")
+	b.WriteString("\tdira sniff --deep --stage --all\n")
+	b.WriteString("\t                               stage the whole transcript and print the\n")
+	b.WriteString("\t                               tier-2 handoff; the PreCompact invocation\n")
 	b.WriteString("\tdira sniff --transcript FILE   read a transcript from disk\n\n")
 
 	b.WriteString("Everything it writes is `state: staged` with `source.tier: regex`, and\n")
@@ -256,6 +303,7 @@ func writeSniffUsage(w io.Writer) {
 		{"--stage", "write the candidates; without it nothing is written"},
 		{"--quiet", "print nothing unless something was staged"},
 		{"--all", "read the whole transcript, not just the last turn"},
+		{"--deep", "also print the tier-2 handoff block; requires --stage"},
 		{"--hook HOOK", "capture point recorded: Stop, PreCompact or manual"},
 		{"--session ID", "session id; taken from the hook payload when absent"},
 		{"--transcript FILE", "read this file instead of stdin"},
@@ -264,7 +312,17 @@ func writeSniffUsage(w io.Writer) {
 		fmt.Fprintf(&b, "\t%-20s  %s\n", line[0], line[1])
 	}
 
-	b.WriteString("\nWith no --transcript, stdin is read as a Claude Code hook payload if it\n")
+	b.WriteString("\n--deep stages exactly what --stage stages, through the same writer, and\n")
+	b.WriteString("then prints a handoff block naming the ids it wrote and the fields only\n")
+	b.WriteString("a reader of the conversation can supply. It upgrades nothing: every\n")
+	b.WriteString("entry is still staged and still `source.tier: regex`. It defaults --hook\n")
+	b.WriteString("to PreCompact, which is the capture point it exists for; pass --hook to\n")
+	b.WriteString("override. It does NOT imply --all, so a PreCompact hook that wants the\n")
+	b.WriteString("whole session — which is the point of capturing there — passes it.\n")
+	b.WriteString("The block is printed, never delivered: stdout from a PreCompact hook\n")
+	b.WriteString("reaches the compaction summariser and not the session (dec-0023).\n\n")
+
+	b.WriteString("With no --transcript, stdin is read as a Claude Code hook payload if it\n")
 	b.WriteString("looks like one, and as prose otherwise.\n")
 	b.WriteString("Exit status is 0 whenever the command ran, including when it found\n")
 	b.WriteString("nothing: a hook must be able to tell that from dira being broken.\n")

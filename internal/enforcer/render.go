@@ -47,6 +47,14 @@ const indent = "    "
 // never displace the call to action. A notice is context for a verdict, so it
 // is read before it; the line that says what to do about a conflict stays last,
 // where the frozen block puts it.
+//
+// A fifth governs the remedy for something this ledger does not own. A citation
+// whose id is namespaced came out of a parent, and `dira supersede` refuses a
+// namespaced ref on either side at exit 2 before it opens anything
+// (cmd/dira/supersede.go's checkRefs, cst-0003 rule 1). So "supersede
+// me:cst-0001" would be advice the binary itself rejects, and the line for an
+// inherited citation names the ledger that owns the entry instead. See
+// inheritedRemedy.
 func Render(w io.Writer, v *Verdict) error {
 	var b strings.Builder
 	for _, n := range v.Notices {
@@ -59,15 +67,71 @@ func Render(w io.Writer, v *Verdict) error {
 		return err
 	}
 
-	ids := make([]string, 0, len(v.Conflicts))
+	local := make([]string, 0, len(v.Conflicts))
+	inherited := map[string][]string{}
+	namespaces := make([]string, 0, len(v.Conflicts))
 	for _, c := range v.Conflicts {
 		b.WriteString(block(c))
-		ids = append(ids, c.Entry)
+
+		namespace := namespaceOf(c.Entry)
+		if namespace == "" {
+			local = append(local, c.Entry)
+			continue
+		}
+		if _, seen := inherited[namespace]; !seen {
+			namespaces = append(namespaces, namespace)
+		}
+		inherited[namespace] = append(inherited[namespace], c.Entry)
 	}
-	fmt.Fprintf(&b, "→ supersede %s, or revise the plan\n", joinIDs(ids))
+
+	// The local line first and unchanged, because it is the frozen block
+	// (.agents/product-marketing.md §6). Parents follow it in citation order,
+	// one line each, so a verdict citing both says what to do about each half
+	// rather than offering one remedy that is wrong for one of them.
+	if len(local) > 0 {
+		fmt.Fprintf(&b, "→ supersede %s, or revise the plan\n", joinIDs(local))
+	}
+	for _, namespace := range namespaces {
+		b.WriteString(inheritedRemedy(namespace, inherited[namespace]))
+	}
 
 	_, err := io.WriteString(w, b.String())
 	return err
+}
+
+// namespaceOf returns the parent ledger a citation was inherited from, and the
+// empty string for one this ledger owns.
+//
+// The namespace is the whole of what distinguishes the two here, and that is by
+// design rather than for want of a field: internal/enforcer/inherit.go builds an
+// inherited citation as `<declared key>:<id>`, and dec-0011 makes that declared
+// key the thing a ref resolves through. A renderer that needed a second flag to
+// tell them apart would be a renderer a caller could get wrong.
+func namespaceOf(entry string) string {
+	namespace, _, ok := strings.Cut(entry, ":")
+	if !ok {
+		return ""
+	}
+	return namespace
+}
+
+// inheritedRemedy is the call to action for citations that came out of a parent.
+//
+// It names the ledger that owns them, which is the only actionable thing this
+// binary can say about them: cst-0003 rule 1 makes inheritance one-way, so
+// retiring a parent's entry is done in the parent, and `dira supersede` run here
+// refuses a namespaced ref at exit 2 rather than trying. The shape deliberately
+// mirrors the local line — the same arrow, the same "or revise the plan" — so a
+// reader learns one grammar and the difference between the two is the fact being
+// reported rather than a change of voice.
+//
+// It carries no path, no label and no text from the parent. The namespace is the
+// child's own word for that ledger and is already published in the citation
+// above it; dec-0011 says a private parent's label must never ship, and a remedy
+// line is an output like any other.
+func inheritedRemedy(namespace string, ids []string) string {
+	return fmt.Sprintf("→ %s %s enforced by the parent ledger %s; supersede %s there, or revise the plan\n",
+		joinIDs(ids), plural(len(ids), "is", "are"), namespace, plural(len(ids), "it", "them"))
 }
 
 // noticeLine renders one redirect.

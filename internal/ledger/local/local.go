@@ -398,3 +398,19 @@ func ReadConfig(diraDir string) ([]byte, error) {
 	}
 	return data, nil
 }
+
+// ParentDira resolves a `[parents]` declaration's path — which is relative to
+// the child's own .dira directory — to the parent's .dira directory.
+//
+// This lives here for the same reason Name does: dec-0005 says only a storage
+// backend may name a path, and cmd/dira joining one directly is a change E7's
+// GitHub backend would have to make ABOVE the interface. internal/enforcer's
+// Inherit deliberately takes a Store rather than a path and says resolving the
+// declaration is the caller's job; this is where that job belongs, in the
+// backend for which "a directory" is a meaningful answer at all.
+//
+// A backend with no filesystem answers this differently or not at all, which is
+// exactly the point of routing it through the interface.
+func ParentDira(diraDir, declared string) string {
+	return filepath.Join(diraDir, declared, ".dira")
+}

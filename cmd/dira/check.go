@@ -6,8 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
+	"github.com/kazi-org/dira/internal/config"
 	"github.com/kazi-org/dira/internal/enforcer"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/ledger"
@@ -81,7 +83,24 @@ func runCheck(a *app, args []string) error {
 		_, _ = fmt.Fprintln(a.stderr, notice)
 	}
 
-	verdict, err := enforcer.Check(ctx, indexLedger{ix}, plan)
+	parents, cfgErr := declaredParents(diraDir)
+	if cfgErr != nil {
+		// A config dira could not make sense of is a report, not a
+		// failure — the same bargain `dira brief` makes with the same
+		// reader. It goes to stderr so stdout stays the parseable
+		// verdict, and it is safe to print because internal/config puts
+		// no part of a declaration's value into a report: a private
+		// parent's label reaching stderr would be the leak
+		// scripts/privacy-lint.py P2 exists to catch, arriving by
+		// another route.
+		_, _ = fmt.Fprintf(a.stderr, "%s check: %v\n", a.name, cfgErr)
+	}
+	inherited, err := enforcer.Inherit(ctx, parents)
+	if err != nil {
+		return err
+	}
+
+	verdict, err := enforcer.CheckInherited(ctx, indexLedger{ix}, plan, inherited)
 	if err != nil {
 		return err
 	}
@@ -103,6 +122,155 @@ func runCheck(a *app, args []string) error {
 	// not a word more.
 	return &codedError{code: verdict.ExitCode()}
 }
+
+// declaredParents resolves every [parents] declaration in the child's config
+// and opens each one for reading.
+//
+// # This function is where cst-0003 rule 1 is actually kept
+//
+// ledger.ReadOnly refuses Create, Put and Delete, and internal/enforcer re-wraps
+// whatever it is handed in one anyway. Neither of those stops the write that
+// really happens: index.Open creates a SQLite file at local.CacheDir(diraDir),
+// *beside* the store rather than through it, so opening a parent the way this
+// command opens its own ledger writes into that parent. No type can prevent that
+// from below the call — which is why the obligation lives here, in the one place
+// that decides which read path each ledger gets. `dira check` keeps the index for
+// its own ledger and gives a parent the read-only store and nothing else.
+//
+// The proof standard that goes with it is a sha256 over every file under the
+// parent's directory. A git-based check would be vacuously green: .gitignore
+// ignores .dira/cache/ precisely because a derived artifact holds a private
+// entry's title, so git reports a clean parent while the cache is being written
+// into it.
+//
+// # Relative to the child's .dira, and never walked up from
+//
+// A declaration's path is relative to the .dira directory of the ledger that
+// declared it, so it is joined onto diraDir — which openLedger has already made
+// absolute — and not onto the process working directory. A parent declared
+// `../../sire-run/sire` means the same ledger whether the human ran dira from
+// the repository root, from a subdirectory, or with -C from somewhere else
+// entirely.
+//
+// Nothing here calls local.Find. Find walks *up* until it meets a .dira, so
+// pointing it at a path that does not exist silently resolves to whatever ledger
+// happens to be above it — the shape of L-0014, arriving through the parent
+// path instead of through a fixture. A parent is at <path>/.dira or it is not
+// resolved.
+//
+// That this file joins a path at all is a departure from dec-0005's rule that
+// paths live in a storage backend, and it is the one internal/enforcer's
+// inherit.go names: "Resolving a declaration to a directory is the caller's job
+// … so what arrives here is a store somebody already opened." cmd/dira is the
+// binary's composition root — openLedger is already the single place that picks
+// an implementation — so the join lands beside it rather than inside a package
+// that must stay backend-agnostic. When E7 adds the github backend, this is the
+// function that grows a second case, exactly as openLedger does.
+//
+// # An unresolved parent is a value, not a skip
+//
+// A declaration that does not resolve still becomes a Parent, backed by a store
+// that reports it cannot be read. Inherit records it in Inherited.Parents,
+// evaluates zero of its constraints and changes no verdict. Dropping it here
+// instead would make a check with a missing parent indistinguishable from one
+// with no parents at all, which is a firewall with a hole in it in exactly the
+// configuration a public clone has.
+//
+// The error such a store reports carries no path. dec-0011 keeps a private
+// parent's label out of every output, and a filesystem path to that ledger
+// identifies it at least as well as its label does; ParentResult.Err is meant to
+// be printed by whoever reports it, so it is written here as something that is
+// always safe to print.
+func declaredParents(diraDir string) ([]enforcer.Parent, error) {
+	data, err := local.ReadConfig(diraDir)
+	if err != nil {
+		return nil, err
+	}
+	cfg, cfgErr := config.Parse(data)
+
+	parents := make([]enforcer.Parent, 0, len(cfg.ParentDecls))
+	for _, decl := range cfg.ParentDecls {
+		store, parentDira := openParent(diraDir, decl)
+		parents = append(parents, enforcer.Parent{
+			Decl: decl,
+			// The parent's own config, read for its [ledger].tier and
+			// nothing else. Unreadable is not an error: internal/
+			// enforcer treats an unknown tier as person, which is the
+			// direction that cannot leak.
+			Config: parentConfig(parentDira),
+			Store:  store,
+		})
+	}
+	return parents, cfgErr
+}
+
+// errNoParentLedger is what an unresolved parent's store reports.
+//
+// One sentence, no path, no label, no namespace: it is written to be printable
+// verbatim by any caller without that caller having to decide what may be shown.
+var errNoParentLedger = errors.New("no ledger at the declared path")
+
+// openParent opens one declared parent for reading, and returns the store to
+// read it through together with the .dira directory it resolved to.
+//
+// The store is a ledger.ReadOnly whatever happens. That is not redundant with
+// Inherit's own wrapping: this function is the boundary the parent's writable
+// backend must not cross, and holding *local.Store here — even briefly, even
+// only to hand onward — would put the one object that can write to a parent in
+// the same scope as the index that would cache it.
+func openParent(diraDir string, decl config.Parent) (ledger.Store, string) {
+	if decl.Path == "" {
+		// A declaration with no path is not locatable, which is exactly
+		// the shape a private parent takes in a public clone. It is
+		// reported, not guessed at.
+		return ledger.ReadOnly(unreadableParent{}), ""
+	}
+
+	parentDira := local.ParentDira(diraDir, decl.Path)
+	info, err := os.Stat(parentDira)
+	if err != nil || !info.IsDir() {
+		return ledger.ReadOnly(unreadableParent{}), ""
+	}
+	backend, err := local.Open(parentDira)
+	if err != nil {
+		return ledger.ReadOnly(unreadableParent{}), ""
+	}
+	return ledger.ReadOnly(backend), parentDira
+}
+
+// parentConfig reads a parent's .dira/config.toml, or nil where there is none
+// to read. The bytes go to internal/enforcer, which reads [ledger].tier out of
+// them and falls closed on anything it cannot make sense of.
+func parentConfig(parentDira string) []byte {
+	if parentDira == "" {
+		return nil
+	}
+	data, err := local.ReadConfig(parentDira)
+	if err != nil {
+		return nil
+	}
+	return data
+}
+
+// unreadableParent is a ledger that is declared and not there.
+//
+// It exists so that "this parent could not be read" is a value travelling the
+// same path as a parent that could, rather than a branch taken before the
+// journey starts. Its writes are refused by the ledger.ReadOnly it is always
+// wrapped in; they are implemented here only because a Store has five methods.
+type unreadableParent struct{}
+
+func (unreadableParent) Get(context.Context, string) (*ledger.Entry, error) {
+	return nil, errNoParentLedger
+}
+
+func (unreadableParent) List(context.Context) ([]ledger.EntryInfo, error) {
+	return nil, errNoParentLedger
+}
+
+func (unreadableParent) Create(context.Context, *ledger.Entry) error { return errNoParentLedger }
+func (unreadableParent) Put(context.Context, *ledger.Entry) error    { return errNoParentLedger }
+func (unreadableParent) Delete(context.Context, string) error        { return errNoParentLedger }
 
 // indexLedger wires the enforcer to dira's read path.
 //
