@@ -7,15 +7,15 @@
 node docs/design/scripts/measure-tolerance.mjs --write
 ```
 
-Raw data: `tolerance-evidence.json` (156 measurements). Enforced values:
+Raw data: `tolerance-evidence.json` (180 measurements). Enforced values:
 `tolerance.json`, which `pixeldiff.mjs` reads at run time — the number published
 here and the number the gate applies are the same number, by construction.
 
 | figure | value | what it means |
 |---|---|---|
-| channel threshold | `4/255` | a per-channel delta at or below this does not count as a differing pixel |
-| pixel tolerance | `0.00033%` | share of pixels over that threshold that may differ |
-| block tolerance | `1.6%` | share of any one 16×16 block that may differ |
+| channel threshold | `0/255` | **any** per-channel difference counts. Nothing is filtered. |
+| pixel tolerance | `0.00055%` | share of differing pixels allowed |
+| block tolerance | `2.5%` | share of any one 16×16 block allowed to differ |
 
 A comparison fails if **either** percentage is exceeded, or if the two images
 differ in size at all.
@@ -48,6 +48,12 @@ Two populations, captured under identical conditions across
 **3 screens × 2 viewports × 2 schemes**: `s1-decision`, `s2-index`, `s3-distill`
 at 390×844 and 1440×900, light and dark.
 
+Every input (`screens/*.html`, `*.css`) is SHA-256 fingerprinted before the run
+and again after it. If any of them moved, the run is **void** and no tolerance is
+emitted — captures taken before an edit are not comparable with captures taken
+after it. Not hypothetical: a concurrent edit to `s1-decision.html` landed during
+an earlier run of this script, in a tree with several agents working in it.
+
 ### Noise — differences that must NOT fail the gate
 
 Each arm is a difference E6-L2 will genuinely have between a mockup baseline and
@@ -61,8 +67,8 @@ a Go-served page.
 | `other-origin` | served from a second HTTP server on a different port | 0.000000% | 0.00% |
 | `reserialized` | markup round-tripped through the DOM serializer — normalized attribute quoting, entity encoding, boolean attributes, which is what `html/template` output differs from hand-written HTML by (`dec-0012`) | 0.000000% | 0.00% |
 
-**All 60 noise measurements are bit-identical.** Not "small" — zero, at a channel
-threshold of 0, where nothing is filtered.
+**All 60 noise measurements are bit-identical.** Not "small" — zero, with nothing
+filtered, since the channel threshold is 0.
 
 ### Signal — the smallest real defects the gate must catch
 
@@ -71,24 +77,26 @@ Nothing on disk is edited: `docs/design/tokens.css` and `docs/design/screens/`
 stay read-only throughout, so the reference is never adjusted to make the gate
 agree with it.
 
-| arm | the defect | min % px | worst block |
-|---|---|---|---|
-| `radius-2px` | `--r-card: 7px → 5px` — four corners, no reflow | **0.001345%** | **6.64%** |
-| `chip-hue` | `.chip-id` colour → `--ink-mid` — one component wrong, no reflow | 0.006328% | 28.13% |
-| `hairline` | the card hairline removed | 0.056339% | 16.02% |
-| `ink-swap` | `--ink` takes the value of `--ink-mid` in both schemes | 0.522857% | 55.86% |
-| `spacing-1px` | `--s4: 18px → 19px` | dimension change | — |
-| `type-0.5px` | `--t-body: 16.5px → 17px` | dimension change | — |
+| arm | the defect | min % px | peak Δ | worst block |
+|---|---|---|---|---|
+| `radius-2px` | `--r-card: 7px → 5px` — four corners, no reflow | **0.002214%** | 109 | **10.16%** |
+| `chip-hue` | `.chip-id` colour → `--ink-mid` — one component, no reflow | 0.007904% | 122 | 35.16% |
+| `hairline` | the card hairline removed | 0.064248% | 48 | 18.36% |
+| `ink-2` | `--ink` hex off by **2/255** in one channel, both schemes | 0.497667% | **2** | 53.13% |
+| `ink-swap` | `--ink` takes the value of `--ink-mid` | 0.569673% | 67 | 58.20% |
+| `opacity-1pct` | `.stage.next` opacity `.58 → .57` | 0.769956% | **3** | 55.08% |
+| `spacing-1px` | `--s4: 18px → 19px` | dimension change | 255 | — |
+| `type-0.5px` | `--t-body: 16.5px → 17px` | dimension change | 255 | — |
 
 The two reflow arms change the full-page capture *height*, which `pixeldiff.mjs`
 refuses to reconcile at all: a size change is the regression, not something to
 crop past.
 
-`hairline` is inert on `s2-index` and `s3-distill`, and `chip-hue` on `s2-index` —
-those screens do not use the thing the mutation changes. Inert rows are excluded
-from the signal floor. A screen a defect cannot reach is not evidence that the
-defect is invisible; counting its zero drags the floor to zero, which it did on
-the first run of the harness.
+`hairline` is inert on `s2-index` and `s3-distill`, `chip-hue` on `s2-index`, and
+`opacity-1pct` on everything but `s3-distill` — those screens do not use the thing
+the mutation changes. Inert rows are excluded from the signal floor. A screen a
+defect cannot reach is not evidence that the defect is invisible; counting its
+zero drags the floor to zero, which it did on the first run of the harness.
 
 ---
 
@@ -109,28 +117,66 @@ not swallow. The rule therefore reads from the signal side:
 Truncation matters: rounding up would silently eat part of the safety factor that
 is the entire content of the number.
 
-- pixel tolerance: `0.001345% ÷ 4 = 0.000336…` → **0.00033%** (4.1× below the floor)
-- block tolerance: `6.64% ÷ 4 = 1.66` → **1.6%** (4.2× below the floor)
+- pixel tolerance: `0.002214% ÷ 4 = 0.000553…` → **0.00055%** (4.0× below the floor)
+- block tolerance: `10.16% ÷ 4 = 2.54` → **2.5%** (4.1× below the floor)
 
-The channel threshold is **selected**, not chosen. Every pair was measured at
-0, 4, 8 and 16/255. A candidate is admissible only if, at that threshold, every
-noise row still measures zero, every signal row is still visible, and the weakest
-signal arm's peak delta is still ≥4× the threshold:
+### The channel threshold is 0, and that is the whole point
+
+Every pair is measured at 0, 4, 8 and 16/255. A candidate is admissible only if,
+at that threshold, every noise row still measures zero, every signal row is still
+visible, and the weakest signal arm's peak delta is still ≥4× the threshold:
 
 | threshold | noise all zero | every signal visible | weakest signal peak Δ | verdict |
 |---|---|---|---|---|
-| 0/255 | yes | yes | 16/255 = 16.0× | admissible |
-| **4/255** | yes | yes | 16/255 = 4.0× | **admissible — chosen** |
-| 8/255 | yes | yes | 16/255 = 2.0× | rejected |
-| 16/255 | yes | **no** | 16/255 = 1.0× | rejected |
+| **0/255** | yes | yes | 2/255 | **admissible — chosen** |
+| 4/255 | yes | **no** | 2/255 | rejected |
+| 8/255 | yes | **no** | 2/255 | rejected |
+| 16/255 | yes | **no** | 2/255 | rejected |
 
-The largest admissible value wins, so the gate is as robust as the evidence
-allows and no more.
+**The SMALLEST admissible value wins.** An earlier version of this file took the
+largest, and justified it as leaving the gate "as robust as the evidence allows".
+That was backwards, and backwards in a way that read as a safety argument: a
+larger channel threshold makes the gate **less sensitive**, not more robust. The
+only thing a threshold above zero buys is immunity to per-pixel noise, and
+per-pixel noise here is exactly zero — the same evidence used to reject
+*tolerance = noise × k*. Applying that evidence in one dimension while ignoring it
+in the other was incoherent.
 
-`measure-tolerance.mjs` refuses to emit a tolerance at all if the two populations
-fail to separate by the safety factor. It has done so: on its first run the
-signal floor collapsed to zero (the inert-row bug above) and no number was
-written.
+The correct principle: **the threshold is the smallest value that filters all
+measured noise.** Where noise is zero, that is zero. On a machine where it is not,
+this selects the least desensitisation that does the job, rather than the most the
+signal can survive.
+
+### What the wrong threshold was hiding
+
+4/255 looked defensible because every signal arm then in the set was *loud per
+pixel* (peak deltas 16–255). A signal set made only of loud defects cannot
+distinguish one channel threshold from another, because all of them survive any
+threshold.
+
+Two arms were added that are **quiet per pixel and large in area** — precisely the
+class a channel threshold swallows. Both are ordinary mistakes rather than
+synthetic ones: a hex off by two is a copy-paste error, a stepped opacity is a
+routine CSS edit.
+
+| arm | peak Δ | at threshold 0 | at threshold 4 | ratio to tolerance |
+|---|---|---|---|---|
+| `ink-2` | 2/255 | 0.497667% of pixels | **0.000000%** | 905× |
+| `opacity-1pct` | 3/255 | 0.769956% of pixels | **0.000000%** | 1400× |
+
+At 4/255 both are **completely invisible** — zero pixels counted — while each moves
+roughly a thousand times the pixel tolerance. That is not a marginal blind spot;
+it is a hole a whole wrong stylesheet fits through. And `opacity-1pct` is covered
+by **no other gate**: `contrast.mjs` and `tokens-doc-sync.mjs` read declared hex
+values, so a wrong opacity on a rule in a page's own stylesheet is visible to the
+pixel gate or to nothing.
+
+The direction of the trade, stated plainly: moving to threshold 0 made the *count*
+tolerance slightly more permissive (0.00033% → 0.00055%), because at threshold 0
+the reference defect `radius-2px` also counts its own faint antialiased edge
+pixels, which raises the floor the tolerance is derived from. The 4× safety factor
+is unchanged. The gate is net far stronger, because an entire defect class went
+from invisible to caught.
 
 ---
 
@@ -141,8 +187,8 @@ only — they gate nothing, and they quantify what the same-environment rule buy
 
 | arm | what varies | % px | worst block |
 |---|---|---|---|
-| `rasterization` | `-webkit-font-smoothing: auto` — glyph rasterization changes, layout does not | 1.07% – 4.64% | 46.88% |
-| `serif-fallback` | the Palatino stack falls through to the generic serif, which is what a stock Linux install actually renders | 1.46% – 100% | 100.00% |
+| `rasterization` | `-webkit-font-smoothing: auto` — glyph rasterization changes, layout does not | 1.23% – 4.64% | 44.92% |
+| `serif-fallback` | the Palatino stack falls through to the generic serif, which is what a stock Linux install actually renders | 1.50% – 100% | 92.97% |
 
 Either is **three to four orders of magnitude** above the tolerance. No tolerance
 that still catches a 2px radius change could ever absorb them, and one widened
@@ -161,13 +207,14 @@ what that blind spot costs when it lands.
 
 ## Stated blind spots
 
-1. **Sub-threshold colour.** A change where every channel moves by ≤4/255 is
-   invisible here **by design**. Token drift of that size is caught by
-   `contrast.mjs` and `tokens-doc-sync.mjs`, which read the hex values directly.
-   Do not widen the channel threshold to paper over a token gate.
-2. **The floor is only as low as the weakest arm we built.** A defect quieter than
-   `radius-2px` (0.001345% of pixels; 96 device pixels on `s3-distill` at 1440×900)
-   may pass. The remedy is another signal arm, not a smaller number.
-3. **Measured on one platform.** Every figure here is darwin x64. On a different
+1. **The floor is only as low as the weakest arm we built.** A defect quieter than
+   `radius-2px` (0.002214% of pixels; 158 device pixels on `s3-distill` at
+   1440×900) may pass. The remedy is another signal arm, not a smaller number —
+   which is exactly how the channel threshold got fixed.
+2. **Measured on one platform.** Every figure here is darwin x64. On a different
    OS the noise arms may not be zero, and the derivation must be re-run rather
    than assumed — which is what `--write` is for.
+
+**No longer a blind spot:** sub-threshold colour. At the previous 4/255 threshold,
+a change where every channel moved by ≤4/255 was invisible *by design*. At 0/255
+no such class exists — any difference of any magnitude is counted.

@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-07-31T04:33:37.629Z",
+  "measured_at": "2026-07-31T05:29:34.620Z",
   "platform": "darwin x64",
   "node": "v24.5.0",
   "device_scale_factor": 2,
@@ -33,28 +33,28 @@
       "c": 0,
       "noiseZero": true,
       "allVisible": true,
-      "deltaMargin": 16,
+      "deltaMargin": 2,
       "admissible": true
     },
     {
       "c": 4,
       "noiseZero": true,
-      "allVisible": true,
-      "deltaMargin": 4,
-      "admissible": true
+      "allVisible": false,
+      "deltaMargin": 0.5,
+      "admissible": false
     },
     {
       "c": 8,
       "noiseZero": true,
-      "allVisible": true,
-      "deltaMargin": 2,
+      "allVisible": false,
+      "deltaMargin": 0.25,
       "admissible": false
     },
     {
       "c": 16,
       "noiseZero": true,
       "allVisible": false,
-      "deltaMargin": 1,
+      "deltaMargin": 0.125,
       "admissible": false
     }
   ],
@@ -105,6 +105,14 @@
     {
       "arm": "radius-2px",
       "is": "card radius off by 2px (--r-card: 7px -> 5px) — four corners, no reflow"
+    },
+    {
+      "arm": "ink-2",
+      "is": "one token hex off by 2/255 in a single channel (--ink), both schemes — a copy-paste typo, quiet per pixel and everywhere at once"
+    },
+    {
+      "arm": "opacity-1pct",
+      "is": "a stepped opacity off by one hundredth (.stage.next: .58 -> .57) — quiet per pixel over a large area, and covered by no other gate"
     }
   ],
   "info_arms": [
@@ -289,12 +297,12 @@
       "effective": 4,
       "inert": 8,
       "errors": 0,
-      "maxPct": 0.15756988891775506,
-      "minPct": 0.05633929489156131,
+      "maxPct": 0.17647935739591006,
+      "minPct": 0.06424792139077853,
       "maxDelta": 48,
       "minMaxDelta": 22,
-      "maxBlockPct": 16.796875,
-      "minBlockPct": 16.015625,
+      "maxBlockPct": 19.140625,
+      "minBlockPct": 18.359375,
       "inertOn": [
         "s2-index mobile light",
         "s2-index mobile dark",
@@ -312,12 +320,12 @@
       "effective": 12,
       "inert": 0,
       "errors": 0,
-      "maxPct": 1.878680639379641,
-      "minPct": 0.5228569226025285,
+      "maxPct": 2.0047139617396392,
+      "minPct": 0.5696733821733821,
       "maxDelta": 67,
       "minMaxDelta": 50,
-      "maxBlockPct": 79.296875,
-      "minBlockPct": 55.859375,
+      "maxBlockPct": 74.609375,
+      "minBlockPct": 58.203125,
       "inertOn": []
     },
     {
@@ -326,12 +334,12 @@
       "effective": 8,
       "inert": 4,
       "errors": 0,
-      "maxPct": 0.09659565580618212,
-      "minPct": 0.006327731524308768,
+      "maxPct": 0.10286131996658313,
+      "minPct": 0.00790380254665969,
       "maxDelta": 122,
       "minMaxDelta": 53,
-      "maxBlockPct": 57.03125,
-      "minBlockPct": 28.125,
+      "maxBlockPct": 54.296875,
+      "minBlockPct": 35.15625,
       "inertOn": [
         "s2-index mobile light",
         "s2-index mobile dark",
@@ -345,13 +353,50 @@
       "effective": 12,
       "inert": 0,
       "errors": 0,
-      "maxPct": 0.032005559822963534,
-      "minPct": 0.0013451708366962606,
+      "maxPct": 0.03753794944950437,
+      "minPct": 0.002213927002062595,
       "maxDelta": 109,
       "minMaxDelta": 16,
-      "maxBlockPct": 19.53125,
-      "minBlockPct": 6.640625,
+      "maxBlockPct": 21.09375,
+      "minBlockPct": 10.15625,
       "inertOn": []
+    },
+    {
+      "arm": "ink-2",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 1.6518069424631479,
+      "minPct": 0.49766701552415843,
+      "maxDelta": 2,
+      "minMaxDelta": 2,
+      "maxBlockPct": 71.09375,
+      "minBlockPct": 53.125,
+      "inertOn": []
+    },
+    {
+      "arm": "opacity-1pct",
+      "n": 12,
+      "effective": 4,
+      "inert": 8,
+      "errors": 0,
+      "maxPct": 24.184780862412442,
+      "minPct": 0.7699561698502376,
+      "maxDelta": 3,
+      "minMaxDelta": 3,
+      "maxBlockPct": 100,
+      "minBlockPct": 55.078125,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark"
+      ]
     }
   ],
   "info_summary": [
@@ -361,12 +406,12 @@
       "effective": 12,
       "inert": 0,
       "errors": 0,
-      "maxPct": 4.642643458271337,
-      "minPct": 1.0669867052282307,
+      "maxPct": 4.814291101055807,
+      "minPct": 1.2310835351089588,
       "maxDelta": 203,
       "minMaxDelta": 158,
-      "maxBlockPct": 46.875,
-      "minBlockPct": 41.796875,
+      "maxBlockPct": 51.953125,
+      "minBlockPct": 44.921875,
       "inertOn": []
     },
     {
@@ -376,33 +421,33 @@
       "inert": 0,
       "errors": 0,
       "maxPct": 100,
-      "minPct": 1.4570849414313767,
+      "minPct": 1.5047142663687454,
       "maxDelta": 255,
       "minMaxDelta": 218,
       "maxBlockPct": 100,
-      "minBlockPct": 91.796875,
+      "minBlockPct": 92.96875,
       "inertOn": []
     }
   ],
-  "chosen_channel_threshold": 4,
+  "chosen_channel_threshold": 0,
   "noise_ceiling": {
     "pct": 0,
     "block_pct": 0,
     "channel_delta": 0
   },
   "signal_floor": {
-    "pct": 0.0013451708366962606,
-    "block_pct": 6.640625,
-    "weakest_peak_delta": 16
+    "pct": 0.002213927002062595,
+    "block_pct": 10.15625,
+    "weakest_peak_delta": 2
   },
   "derived": {
-    "channel_threshold": 4,
-    "pixel_tolerance_pct": 0.00033,
-    "block_tolerance_pct": 1.6
+    "channel_threshold": 0,
+    "pixel_tolerance_pct": 0.00055,
+    "block_tolerance_pct": 2.5
   },
   "separation": {
-    "pct_multiple": 4.076275262715941,
-    "block_multiple": 4.150390625,
+    "pct_multiple": 4.025321821931991,
+    "block_multiple": 4.0625,
     "separated": true
   },
   "rows": [
@@ -433,7 +478,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -463,7 +508,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -493,7 +538,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -523,7 +568,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -553,7 +598,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -562,7 +607,7 @@
       "tag": "s1-decision mobile light",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 780x6514 vs 780x6554 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 780x5848 vs 780x5886 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -593,7 +638,7 @@
       "tag": "s1-decision mobile light",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 780x6514 vs 780x6568 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 780x5848 vs 780x5888 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -624,28 +669,28 @@
       "tag": "s1-decision mobile light",
       "at": {
         "0": {
-          "pct": 0.15853428119316976,
+          "pct": 0.17647935739591006,
           "blockPct": 19.140625,
-          "px": 8055
+          "px": 8050
         },
         "4": {
-          "pct": 0.15756988891775506,
-          "blockPct": 16.796875,
-          "px": 8006
+          "pct": 0.1754709039250763,
+          "blockPct": 17.96875,
+          "px": 8004
         },
         "8": {
-          "pct": 0.15721562236760273,
-          "blockPct": 16.40625,
-          "px": 7988
+          "pct": 0.17516398330351818,
+          "blockPct": 17.578125,
+          "px": 7990
         },
         "16": {
-          "pct": 0.15577887469198493,
+          "pct": 0.17358553439264796,
           "blockPct": 14.84375,
-          "px": 7915
+          "px": 7918
         }
       },
       "maxDelta": 48,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -654,28 +699,28 @@
       "tag": "s1-decision mobile light",
       "at": {
         "0": {
-          "pct": 0.8217803075033656,
-          "blockPct": 62.890625,
-          "px": 41754
+          "pct": 0.780762215440738,
+          "blockPct": 66.796875,
+          "px": 35614
         },
         "4": {
-          "pct": 0.7665934515796352,
-          "blockPct": 59.765625,
-          "px": 38950
+          "pct": 0.7268099547511312,
+          "blockPct": 65.234375,
+          "px": 33153
         },
         "8": {
-          "pct": 0.7311077521393763,
-          "blockPct": 58.203125,
-          "px": 37147
+          "pct": 0.6924786909397032,
+          "blockPct": 63.28125,
+          "px": 31587
         },
         "16": {
-          "pct": 0.6597033608086724,
-          "blockPct": 57.03125,
-          "px": 33519
+          "pct": 0.6247588480830615,
+          "blockPct": 62.5,
+          "px": 28498
         }
       },
       "maxDelta": 50,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -684,28 +729,28 @@
       "tag": "s1-decision mobile light",
       "at": {
         "0": {
-          "pct": 0.017122883257362838,
-          "blockPct": 30.859375,
+          "pct": 0.019072924339682207,
+          "blockPct": 51.953125,
           "px": 870
         },
         "4": {
-          "pct": 0.01550900230666887,
-          "blockPct": 28.125,
+          "pct": 0.017275246413413308,
+          "blockPct": 46.875,
           "px": 788
         },
         "8": {
-          "pct": 0.014741424781338813,
-          "blockPct": 27.734375,
+          "pct": 0.01642025325335859,
+          "blockPct": 44.53125,
           "px": 749
         },
         "16": {
-          "pct": 0.013304677105721011,
-          "blockPct": 25.390625,
+          "pct": 0.014819881440948472,
+          "blockPct": 39.453125,
           "px": 676
         }
       },
       "maxDelta": 53,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -714,29 +759,89 @@
       "tag": "s1-decision mobile light",
       "at": {
         "0": {
-          "pct": 0.016001039181880446,
+          "pct": 0.017713704444210603,
           "blockPct": 21.09375,
-          "px": 813
+          "px": 808
         },
         "4": {
-          "pct": 0.01413129905607646,
-          "blockPct": 18.75,
-          "px": 718
+          "pct": 0.01567487460100319,
+          "blockPct": 19.53125,
+          "px": 715
         },
         "8": {
-          "pct": 0.0124583736803571,
-          "blockPct": 16.015625,
+          "pct": 0.013877196674734294,
+          "blockPct": 17.96875,
           "px": 633
         },
         "16": {
-          "pct": 0.010391818804468482,
-          "blockPct": 13.28125,
+          "pct": 0.011575292013048511,
+          "blockPct": 17.1875,
           "px": 528
         }
       },
       "maxDelta": 109,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0.6559770598758288,
+          "blockPct": 62.5,
+          "px": 29922
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
     },
     {
       "pop": "info",
@@ -744,28 +849,28 @@
       "tag": "s1-decision mobile light",
       "at": {
         "0": {
-          "pct": 5.000846303425364,
-          "blockPct": 50,
-          "px": 254089
+          "pct": 4.796117015679259,
+          "blockPct": 50.78125,
+          "px": 218772
         },
         "4": {
-          "pct": 4.496272328633397,
-          "blockPct": 46.09375,
-          "px": 228452
+          "pct": 4.3107001297835765,
+          "blockPct": 46.484375,
+          "px": 196630
         },
         "8": {
-          "pct": 4.089259425458382,
-          "blockPct": 43.359375,
-          "px": 207772
+          "pct": 3.920757480094005,
+          "blockPct": 44.140625,
+          "px": 178843
         },
         "16": {
-          "pct": 3.4044228210639016,
-          "blockPct": 34.375,
-          "px": 172976
+          "pct": 3.2645611912027777,
+          "blockPct": 35.546875,
+          "px": 148911
         }
       },
       "maxDelta": 158,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -774,7 +879,7 @@
       "tag": "s1-decision mobile light",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 780x6514 vs 780x6362 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 780x5848 vs 780x5746 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -826,7 +931,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -856,7 +961,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -886,7 +991,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -916,7 +1021,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -946,7 +1051,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 5080920,
+      "total": 4561440,
       "inert": true
     },
     {
@@ -955,7 +1060,7 @@
       "tag": "s1-decision mobile dark",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 780x6514 vs 780x6554 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 780x5848 vs 780x5886 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -986,7 +1091,7 @@
       "tag": "s1-decision mobile dark",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 780x6514 vs 780x6568 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 780x5848 vs 780x5888 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1017,28 +1122,28 @@
       "tag": "s1-decision mobile dark",
       "at": {
         "0": {
-          "pct": 0.15835714791809358,
-          "blockPct": 19.140625,
-          "px": 8046
+          "pct": 0.17626012838051142,
+          "blockPct": 18.75,
+          "px": 8040
         },
         "4": {
-          "pct": 0.1569597631924927,
-          "blockPct": 16.015625,
-          "px": 7975
+          "pct": 0.17485706268196008,
+          "blockPct": 16.796875,
+          "px": 7976
         },
         "8": {
-          "pct": 0.15570014879195107,
+          "pct": 0.17345399698340874,
           "blockPct": 14.84375,
-          "px": 7911
+          "px": 7912
         },
         "16": {
-          "pct": 0.1541453122662825,
+          "pct": 0.17170016486021958,
           "blockPct": 12.5,
           "px": 7832
         }
       },
       "maxDelta": 22,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -1047,28 +1152,28 @@
       "tag": "s1-decision mobile dark",
       "at": {
         "0": {
-          "pct": 0.8266809947804729,
-          "blockPct": 63.671875,
-          "px": 42003
+          "pct": 0.7856948682872076,
+          "blockPct": 67.578125,
+          "px": 35839
         },
         "4": {
-          "pct": 0.7788156475598907,
-          "blockPct": 60.15625,
-          "px": 39571
+          "pct": 0.7387140902872777,
+          "blockPct": 65.234375,
+          "px": 33696
         },
         "8": {
-          "pct": 0.7500610125725262,
-          "blockPct": 59.765625,
-          "px": 38110
+          "pct": 0.7108281595285699,
+          "blockPct": 64.0625,
+          "px": 32424
         },
         "16": {
-          "pct": 0.6977476520000315,
-          "blockPct": 57.421875,
-          "px": 35452
+          "pct": 0.6614797081623347,
+          "blockPct": 63.28125,
+          "px": 30173
         }
       },
       "maxDelta": 67,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -1077,28 +1182,28 @@
       "tag": "s1-decision mobile dark",
       "at": {
         "0": {
-          "pct": 0.017122883257362838,
-          "blockPct": 30.859375,
+          "pct": 0.019072924339682207,
+          "blockPct": 51.953125,
           "px": 870
         },
         "4": {
-          "pct": 0.01635530573203278,
-          "blockPct": 29.6875,
+          "pct": 0.018217931179627486,
+          "blockPct": 49.609375,
           "px": 831
         },
         "8": {
-          "pct": 0.015666454106736574,
-          "blockPct": 28.515625,
+          "pct": 0.017450629625732225,
+          "blockPct": 48.046875,
           "px": 796
         },
         "16": {
-          "pct": 0.014820150681372666,
-          "blockPct": 28.125,
+          "pct": 0.016507944859518047,
+          "blockPct": 44.53125,
           "px": 753
         }
       },
       "maxDelta": 122,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -1107,29 +1212,89 @@
       "tag": "s1-decision mobile dark",
       "at": {
         "0": {
-          "pct": 0.015863268856821204,
-          "blockPct": 21.09375,
-          "px": 806
+          "pct": 0.01756024413343155,
+          "blockPct": 20.703125,
+          "px": 801
         },
         "4": {
-          "pct": 0.013284995630712549,
-          "blockPct": 16.796875,
-          "px": 675
+          "pct": 0.014776035637868742,
+          "blockPct": 18.359375,
+          "px": 674
         },
         "8": {
-          "pct": 0.011789203530069358,
-          "blockPct": 14.84375,
+          "pct": 0.013131818022378897,
+          "blockPct": 17.578125,
           "px": 599
         },
         "16": {
-          "pct": 0.008344945403588327,
-          "blockPct": 12.890625,
+          "pct": 0.009295310252902592,
+          "blockPct": 16.796875,
           "px": 424
         }
       },
       "maxDelta": 97,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.6680565786242941,
+          "blockPct": 64.0625,
+          "px": 30473
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
     },
     {
       "pop": "info",
@@ -1137,28 +1302,28 @@
       "tag": "s1-decision mobile dark",
       "at": {
         "0": {
-          "pct": 5.01844154208293,
-          "blockPct": 50,
-          "px": 254983
+          "pct": 4.814291101055807,
+          "blockPct": 50.78125,
+          "px": 219601
         },
         "4": {
-          "pct": 4.642643458271337,
+          "pct": 4.447542881195412,
           "blockPct": 46.875,
-          "px": 235889
+          "px": 202872
         },
         "8": {
-          "pct": 4.266294293159507,
-          "blockPct": 43.359375,
-          "px": 216767
+          "pct": 4.085530008067628,
+          "blockPct": 45.3125,
+          "px": 186359
         },
         "16": {
-          "pct": 3.604937688450123,
-          "blockPct": 37.109375,
-          "px": 183164
+          "pct": 3.45686888351047,
+          "blockPct": 39.84375,
+          "px": 157683
         }
       },
       "maxDelta": 192,
-      "total": 5080920,
+      "total": 4561440,
       "inert": false
     },
     {
@@ -1167,7 +1332,7 @@
       "tag": "s1-decision mobile dark",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 780x6514 vs 780x6362 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 780x5848 vs 780x5746 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1219,7 +1384,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1249,7 +1414,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1279,7 +1444,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1309,7 +1474,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1339,7 +1504,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1348,7 +1513,7 @@
       "tag": "s1-decision wide light",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 2880x4324 vs 2880x4342 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 2880x3822 vs 2880x3838 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1379,7 +1544,7 @@
       "tag": "s1-decision wide light",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 2880x4324 vs 2880x4354 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 2880x3822 vs 2880x3846 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1410,28 +1575,28 @@
       "tag": "s1-decision wide light",
       "at": {
         "0": {
-          "pct": 0.056933523486483714,
+          "pct": 0.06433876969591255,
           "blockPct": 18.359375,
-          "px": 7090
+          "px": 7082
         },
         "4": {
-          "pct": 0.05656413814369411,
+          "pct": 0.06392086749229607,
           "blockPct": 16.796875,
-          "px": 7044
+          "px": 7036
         },
         "8": {
-          "pct": 0.05645171651762771,
+          "pct": 0.06379367986510844,
           "blockPct": 16.40625,
-          "px": 7030
+          "px": 7022
         },
         "16": {
-          "pct": 0.055873548155000514,
+          "pct": 0.0631395720681435,
           "blockPct": 14.84375,
-          "px": 6958
+          "px": 6950
         }
       },
       "maxDelta": 48,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1440,28 +1605,28 @@
       "tag": "s1-decision wide light",
       "at": {
         "0": {
-          "pct": 0.5527610751361908,
-          "blockPct": 81.640625,
-          "px": 68836
+          "pct": 0.5696733821733821,
+          "blockPct": 74.21875,
+          "px": 62706
         },
         "4": {
-          "pct": 0.5228569226025285,
-          "blockPct": 78.125,
-          "px": 65112
+          "pct": 0.5389394005465434,
+          "blockPct": 72.65625,
+          "px": 59323
         },
         "8": {
-          "pct": 0.5021954337547538,
-          "blockPct": 76.953125,
-          "px": 62539
+          "pct": 0.5177354061282633,
+          "blockPct": 71.875,
+          "px": 56989
         },
         "16": {
-          "pct": 0.4648152430876761,
-          "blockPct": 75,
-          "px": 57884
+          "pct": 0.48019688644688646,
+          "blockPct": 70.703125,
+          "px": 52857
         }
       },
       "maxDelta": 50,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1470,28 +1635,28 @@
       "tag": "s1-decision wide light",
       "at": {
         "0": {
-          "pct": 0.006986201048411964,
-          "blockPct": 58.984375,
+          "pct": 0.00790380254665969,
+          "blockPct": 35.15625,
           "px": 870
         },
         "4": {
-          "pct": 0.006327731524308768,
-          "blockPct": 54.296875,
+          "pct": 0.00715884644456073,
+          "blockPct": 32.8125,
           "px": 788
         },
         "8": {
-          "pct": 0.006014556994552369,
-          "blockPct": 52.734375,
+          "pct": 0.006804538054538054,
+          "blockPct": 31.25,
           "px": 749
         },
         "16": {
-          "pct": 0.005428358515777573,
-          "blockPct": 48.4375,
+          "pct": 0.006141345427059712,
+          "blockPct": 28.515625,
           "px": 676
         }
       },
       "maxDelta": 53,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1500,29 +1665,89 @@
       "tag": "s1-decision wide light",
       "at": {
         "0": {
-          "pct": 0.006488333847260767,
+          "pct": 0.007340543054828769,
           "blockPct": 14.0625,
           "px": 808
         },
         "4": {
-          "pct": 0.005669262000205571,
-          "blockPct": 12.109375,
+          "pct": 0.006413890342461771,
+          "blockPct": 13.28125,
           "px": 706
         },
         "8": {
-          "pct": 0.0050670032891355745,
-          "blockPct": 10.9375,
+          "pct": 0.005732528053956625,
+          "blockPct": 12.109375,
           "px": 631
         },
         "16": {
-          "pct": 0.004239901325932778,
-          "blockPct": 10.15625,
+          "pct": 0.004796790511076225,
+          "blockPct": 10.9375,
           "px": 528
         }
       },
       "maxDelta": 109,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0.49766701552415843,
+          "blockPct": 70.703125,
+          "px": 54780
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
     },
     {
       "pop": "info",
@@ -1530,28 +1755,28 @@
       "tag": "s1-decision wide light",
       "at": {
         "0": {
-          "pct": 2.1851150555041627,
-          "blockPct": 47.65625,
-          "px": 272115
+          "pct": 2.1405768503982787,
+          "blockPct": 51.953125,
+          "px": 235621
         },
         "4": {
-          "pct": 1.9684705519580636,
-          "blockPct": 44.921875,
-          "px": 245136
+          "pct": 1.927937307401593,
+          "blockPct": 47.265625,
+          "px": 212215
         },
         "8": {
-          "pct": 1.7855605663480316,
-          "blockPct": 41.015625,
-          "px": 222358
+          "pct": 1.7481485115413686,
+          "blockPct": 43.75,
+          "px": 192425
         },
         "16": {
-          "pct": 1.4872497815808408,
-          "blockPct": 35.9375,
-          "px": 185209
+          "pct": 1.4563165009593582,
+          "blockPct": 34.765625,
+          "px": 160302
         }
       },
       "maxDelta": 194,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1560,7 +1785,7 @@
       "tag": "s1-decision wide light",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 2880x4324 vs 2880x4226 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 2880x3822 vs 2880x3776 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1612,7 +1837,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1642,7 +1867,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1672,7 +1897,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1702,7 +1927,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1732,7 +1957,7 @@
         }
       },
       "maxDelta": 0,
-      "total": 12453120,
+      "total": 11007360,
       "inert": true
     },
     {
@@ -1741,7 +1966,7 @@
       "tag": "s1-decision wide dark",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 2880x4324 vs 2880x4342 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 2880x3822 vs 2880x3838 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1772,7 +1997,7 @@
       "tag": "s1-decision wide dark",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 2880x4324 vs 2880x4354 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 2880x3822 vs 2880x3846 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -1803,28 +2028,28 @@
       "tag": "s1-decision wide dark",
       "at": {
         "0": {
-          "pct": 0.05685322232500771,
+          "pct": 0.06424792139077853,
           "blockPct": 18.359375,
-          "px": 7080
+          "px": 7072
         },
         "4": {
-          "pct": 0.05633929489156131,
+          "pct": 0.06366649223792081,
           "blockPct": 16.015625,
-          "px": 7016
+          "px": 7008
         },
         "8": {
-          "pct": 0.055825367458114915,
+          "pct": 0.06308506308506308,
           "blockPct": 14.84375,
-          "px": 6952
+          "px": 6944
         },
         "16": {
-          "pct": 0.05518295816630692,
+          "pct": 0.06235827664399093,
           "blockPct": 12.5,
-          "px": 6872
+          "px": 6864
         }
       },
       "maxDelta": 22,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1833,28 +2058,28 @@
       "tag": "s1-decision wide dark",
       "at": {
         "0": {
-          "pct": 0.5554591941617844,
-          "blockPct": 81.640625,
-          "px": 69172
+          "pct": 0.5725351037851037,
+          "blockPct": 74.609375,
+          "px": 63021
         },
         "4": {
-          "pct": 0.5298993344639737,
-          "blockPct": 79.296875,
-          "px": 65989
+          "pct": 0.5461890952962382,
+          "blockPct": 72.65625,
+          "px": 60121
         },
         "8": {
-          "pct": 0.5132769940384417,
-          "blockPct": 77.34375,
-          "px": 63919
+          "pct": 0.5290732746089889,
+          "blockPct": 72.265625,
+          "px": 58237
         },
         "16": {
-          "pct": 0.4841196423065063,
-          "blockPct": 75.390625,
-          "px": 60288
+          "pct": 0.49979286586429444,
+          "blockPct": 71.09375,
+          "px": 55014
         }
       },
       "maxDelta": 67,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1863,28 +2088,28 @@
       "tag": "s1-decision wide dark",
       "at": {
         "0": {
-          "pct": 0.006986201048411964,
-          "blockPct": 58.984375,
+          "pct": 0.00790380254665969,
+          "blockPct": 35.15625,
           "px": 870
         },
         "4": {
-          "pct": 0.006673026518655567,
-          "blockPct": 57.03125,
+          "pct": 0.007549494156637014,
+          "blockPct": 33.59375,
           "px": 831
         },
         "8": {
-          "pct": 0.006391972453489567,
-          "blockPct": 54.6875,
+          "pct": 0.007231525088667946,
+          "blockPct": 32.8125,
           "px": 796
         },
         "16": {
-          "pct": 0.006046677459142769,
-          "blockPct": 53.125,
+          "pct": 0.006840877376591663,
+          "blockPct": 31.640625,
           "px": 753
         }
       },
       "maxDelta": 122,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1893,29 +2118,89 @@
       "tag": "s1-decision wide dark",
       "at": {
         "0": {
-          "pct": 0.0064321230342275675,
-          "blockPct": 13.671875,
+          "pct": 0.007276949241234955,
+          "blockPct": 14.0625,
           "px": 801
         },
         "4": {
-          "pct": 0.005420328399629972,
-          "blockPct": 11.71875,
+          "pct": 0.00613226059654631,
+          "blockPct": 12.890625,
           "px": 675
         },
         "8": {
-          "pct": 0.004810039572412376,
-          "blockPct": 10.9375,
+          "pct": 0.005441813477527763,
+          "blockPct": 12.109375,
           "px": 599
         },
         "16": {
-          "pct": 0.0034047692465823823,
-          "blockPct": 10.15625,
+          "pct": 0.0038519681376824235,
+          "blockPct": 10.546875,
           "px": 424
         }
       },
       "maxDelta": 97,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0.5031360834932264,
+          "blockPct": 71.09375,
+          "px": 55382
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
     },
     {
       "pop": "info",
@@ -1923,28 +2208,28 @@
       "tag": "s1-decision wide dark",
       "at": {
         "0": {
-          "pct": 2.1933700149038957,
-          "blockPct": 48.046875,
-          "px": 273143
+          "pct": 2.14909842141985,
+          "blockPct": 51.171875,
+          "px": 236559
         },
         "4": {
-          "pct": 2.0313383312776234,
-          "blockPct": 44.921875,
-          "px": 252965
+          "pct": 1.9881879033664749,
+          "blockPct": 48.4375,
+          "px": 218847
         },
         "8": {
-          "pct": 1.871105393668414,
-          "blockPct": 41.015625,
-          "px": 233011
+          "pct": 1.830520669806384,
+          "blockPct": 44.53125,
+          "px": 201492
         },
         "16": {
-          "pct": 1.587899257374859,
-          "blockPct": 37.5,
-          "px": 197743
+          "pct": 1.5554865108436537,
+          "blockPct": 36.71875,
+          "px": 171218
         }
       },
       "maxDelta": 201,
-      "total": 12453120,
+      "total": 11007360,
       "inert": false
     },
     {
@@ -1953,7 +2238,7 @@
       "tag": "s1-decision wide dark",
       "maxDelta": 255,
       "dimensionChange": true,
-      "note": "dimension mismatch: 2880x4324 vs 2880x4226 — refusing to crop or scale. A size change IS the regression.",
+      "note": "dimension mismatch: 2880x3822 vs 2880x3776 — refusing to crop or scale. A size change IS the regression.",
       "inert": false,
       "at": {
         "0": {
@@ -2309,6 +2594,66 @@
       "maxDelta": 109,
       "total": 4374240,
       "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 1.6186583269322214,
+          "blockPct": 54.6875,
+          "px": 70804
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
     },
     {
       "pop": "info",
@@ -2704,6 +3049,66 @@
       "inert": false
     },
     {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 1.6518069424631479,
+          "blockPct": 55.078125,
+          "px": 72254
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
       "pop": "info",
       "arm": "rasterization",
       "tag": "s2-index mobile dark",
@@ -3095,6 +3500,66 @@
       "maxDelta": 109,
       "total": 9452160,
       "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0.8149036833908864,
+          "blockPct": 64.0625,
+          "px": 77026
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
     },
     {
       "pop": "info",
@@ -3489,6 +3954,66 @@
       "inert": false
     },
     {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0.8308365495294198,
+          "blockPct": 67.1875,
+          "px": 78532
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
       "pop": "info",
       "arm": "rasterization",
       "tag": "s2-index wide dark",
@@ -3877,6 +4402,66 @@
         }
       },
       "maxDelta": 29,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 1.4420265407107513,
+          "blockPct": 55.859375,
+          "px": 35903
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 1.9021512113617376,
+          "blockPct": 55.078125,
+          "px": 47359
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
       "total": 2489760,
       "inert": false
     },
@@ -4274,6 +4859,66 @@
       "inert": false
     },
     {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 1.447288092024934,
+          "blockPct": 55.859375,
+          "px": 36034
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 24.184780862412442,
+          "blockPct": 100,
+          "px": 602143
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
+      "total": 2489760,
+      "inert": false
+    },
+    {
       "pop": "info",
       "arm": "rasterization",
       "tag": "s3-distill mobile dark",
@@ -4667,6 +5312,66 @@
       "inert": false
     },
     {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.5652099587480943,
+          "blockPct": 53.125,
+          "px": 40337
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.7699561698502376,
+          "blockPct": 55.859375,
+          "px": 54949
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
+      "total": 7136640,
+      "inert": false
+    },
+    {
       "pop": "info",
       "arm": "rasterization",
       "tag": "s3-distill wide light",
@@ -5056,6 +5761,66 @@
         }
       },
       "maxDelta": 16,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0.5677181418706843,
+          "blockPct": 53.515625,
+          "px": 40516
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 13.288732512779122,
+          "blockPct": 100,
+          "px": 948369
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
       "total": 7136640,
       "inert": false
     },

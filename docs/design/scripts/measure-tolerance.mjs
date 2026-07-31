@@ -30,8 +30,9 @@
 
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, readdir } from 'node:fs/promises';
 import { extname, join, resolve, dirname } from 'node:path';
+import { createHash } from 'node:crypto';
 import { decodePNG } from './lib/png.mjs';
 import { diff } from './pixeldiff.mjs';
 
@@ -126,14 +127,37 @@ const SIGNAL = [
                      const mid = css.slice(offset, offset + 400).match(/--ink-mid:\s*(#[0-9a-fA-F]{3,8})/);
                      return mid ? `--ink: ${mid[1]};` : m;
                    })],
-  // The two below reflow NOTHING. They are the genuine lower bound: a single
-  // component's hue wrong, and a 2px geometry change confined to four corners.
-  // If the tolerance cannot see these, that is a blind spot to publish, not to
-  // discover later.
+  // The two below reflow NOTHING. They are the genuine lower bound on AREA: a
+  // single component's hue wrong, and a 2px geometry change confined to four
+  // corners. If the tolerance cannot see these, that is a blind spot to publish,
+  // not to discover later.
   ['chip-hue',     'one component hue wrong with no reflow (.chip-id colour -> --ink-mid)',
                    css => css + '\n.chip-id{color:var(--ink-mid)}\n'],
   ['radius-2px',   'card radius off by 2px (--r-card: 7px -> 5px) — four corners, no reflow',
                    css => css.replace(/--r-card:\s*7px/g, '--r-card: 5px')],
+
+  // ---- the LOW-DELTA arms, and why they had to exist -------------------------
+  // Every arm above is loud per pixel (peak deltas 16-255). A signal set made
+  // only of loud defects cannot distinguish one channel threshold from another,
+  // because all of them survive any threshold — which is exactly how 4/255 came
+  // to look admissible on the first pass. These two are quiet per pixel and
+  // large in area: the class a channel threshold silently swallows.
+  //
+  // Both are realistic rather than synthetic. A hex off by two in one channel is
+  // an ordinary copy-paste error; a stepped opacity is an ordinary CSS edit. And
+  // critically, NO OTHER GATE COVERS THE SECOND: contrast.mjs and
+  // tokens-doc-sync.mjs read declared hex values, so a wrong opacity on a rule in
+  // the page's own stylesheet is visible to the pixel gate or to nothing.
+  ['ink-2',        'one token hex off by 2/255 in a single channel (--ink), both schemes — a copy-paste typo, quiet per pixel and everywhere at once',
+                   css => css.replace(/--ink:\s*#23211d/g, '--ink: #23211f')
+                             .replace(/--ink:\s*#e9e6df/g, '--ink: #e9e6e1')],
+  // !important because the real rule lives in s3-distill's inline <style>, which
+  // the browser applies AFTER tokens.css — without it the override loses on
+  // source order and the arm measured nothing at all. The defect being simulated
+  // is still "this element renders at .57 instead of .58"; the specificity is
+  // only how the mutation reaches it from the one file this harness overrides.
+  ['opacity-1pct', 'a stepped opacity off by one hundredth (.stage.next: .58 -> .57) — quiet per pixel over a large area, and covered by no other gate',
+                   css => css + '\n.stage.next{opacity:.57 !important}\n'],
 ];
 
 // INFO arms gate nothing. They quantify the thing the protocol forbids rather
@@ -162,6 +186,26 @@ const browserB = await chromium.launch();
 // every signal arm comfortably visible.
 const CHANNEL_PROBES = [0, 4, 8, 16];
 
+// ---- input fingerprint -------------------------------------------------------
+// This tree has several agents in it, and the screens ARE the reference. A run
+// that captures half its baselines before somebody edits a mockup and half after
+// produces evidence that looks clean and is not comparable. Hash every input at
+// the start and again at the end; if anything moved, the measurement is void.
+// (Not hypothetical: a concurrent edit to s1-decision.html landed during the
+// previous run of this script.)
+async function fingerprint() {
+  const files = [];
+  for (const d of ['docs/design/screens', 'docs/design']) {
+    for (const f of await readdir(join(ROOT, d))) {
+      if (/\.(html|css)$/.test(f)) files.push(join(d, f));
+    }
+  }
+  files.sort();
+  const h = createHash('sha256');
+  for (const f of files) h.update(f).update(await readFile(join(ROOT, f)));
+  return { hash: h.digest('hex'), count: files.length };
+}
+
 const probeAll = (a, b) => {
   const at = {};
   let maxDelta = 0, total = 0;
@@ -173,6 +217,8 @@ const probeAll = (a, b) => {
   return { at, maxDelta, total, inert: at[0].px === 0 };
 };
 
+const fpBefore = await fingerprint();
+console.log(`inputs fingerprinted: ${fpBefore.count} html/css files, sha256 ${fpBefore.hash.slice(0,16)}`);
 console.log(`measuring ${SCREENS.length} screens x ${Object.keys(VIEWPORTS).length} viewports x ${SCHEMES.length} schemes`);
 console.log(`  ${NOISE.length} noise arms, ${SIGNAL.length} signal arms, at deviceScaleFactor 2\n`);
 
@@ -238,6 +284,17 @@ for (const screen of SCREENS) {
 await browserA.close(); await browserB.close();
 primary.server.close(); secondary.server.close();
 
+const fpAfter = await fingerprint();
+if (fpAfter.hash !== fpBefore.hash) {
+  console.log('\nMEASUREMENT VOID — a design input changed while this run was in progress.');
+  console.log(`  before: ${fpBefore.hash.slice(0, 16)} (${fpBefore.count} files)`);
+  console.log(`  after:  ${fpAfter.hash.slice(0, 16)} (${fpAfter.count} files)`);
+  console.log('  Baselines captured before the edit are not comparable with captures made after it,');
+  console.log('  so no tolerance is emitted. Re-run once the tree is quiet.');
+  process.exit(1);
+}
+console.log(`\ninputs unchanged through the run (sha256 ${fpAfter.hash.slice(0, 16)})`);
+
 // ---- summarise ---------------------------------------------------------------
 const SAFETY = 4;   // the tolerance sits this factor below the smallest real defect
 
@@ -286,6 +343,20 @@ if (deadArms.length) {
 // measures zero, (b) no signal row has gone invisible, and (c) the weakest signal
 // arm's peak delta is still at least SAFETY times the threshold — so the
 // threshold is nowhere near swallowing the quietest real defect.
+//
+// THE SMALLEST admissible value wins, and the first version of this file took the
+// largest. That was wrong, and wrong in a way that read as a safety argument: a
+// LARGER channel threshold makes the gate less sensitive, not more robust. The
+// only thing a threshold above zero buys is immunity to per-pixel noise, and this
+// harness measured per-pixel noise at exactly zero on all 60 rows — the same
+// evidence used to reject `tolerance = noise x k`. Applying it in one dimension
+// and not the other was incoherent.
+//
+// So the rule is: the threshold is the smallest value that filters all MEASURED
+// noise. On a machine where noise is zero, that is zero, and the gate is as
+// sensitive as the evidence allows. On a machine where it is not, this selects
+// the least desensitisation that does the job, rather than the most the signal
+// can survive.
 const candidates = CHANNEL_PROBES.map(c => {
   const noiseZero = noiseRows.every(r => r.at[c].px === 0);
   const allVisible = signalRows.every(r => r.at[c].pct > 0);
@@ -298,8 +369,10 @@ for (const k of candidates) console.log(
   `   weakest signal peak delta ${signalMinMaxDelta}/255 = ${(signalMinMaxDelta / (k.c || 1)).toFixed(1)}x threshold   -> ${k.admissible ? 'admissible' : 'rejected'}`);
 
 const admissible = candidates.filter(k => k.admissible);
-const channel = admissible.length ? Math.max(...admissible.map(k => k.c)) : 0;
-console.log(`  chosen: ${channel}/255 — the largest admissible threshold, so the gate is as robust as the evidence allows and no more.`);
+const channel = admissible.length ? Math.min(...admissible.map(k => k.c)) : 0;
+console.log(`  chosen: ${channel}/255 — the SMALLEST threshold that filters all measured noise, so the gate is as`);
+console.log(`  sensitive as the evidence allows. A larger one would desensitise it to buy immunity to`);
+console.log(`  per-pixel variance that was measured at zero.`);
 
 // ---- the numbers, at the chosen threshold ------------------------------------
 const noiseArms = armStats('noise', channel, true);
@@ -373,6 +446,11 @@ const evidence = {
   channel_probes: CHANNEL_PROBES,
   channel_candidates: candidates,
   safety_factor: SAFETY,
+  // Recorded so a reader can confirm WHICH mockups produced these numbers, and
+  // re-check them later. Reaching this line is already proof the inputs did not
+  // move mid-run — the VOID branch exits before it — but that proof is only
+  // available to whoever watched the run. This makes it durable.
+  input_fingerprint: { sha256: fpAfter.hash, files: fpAfter.count },
   noise_arms: NOISE.map(([n, d]) => ({ arm: n, is: d })),
   signal_arms: SIGNAL.map(([n, d]) => ({ arm: n, is: d })),
   info_arms: INFO.map(([n, d]) => ({ arm: n, is: d })),

@@ -214,8 +214,8 @@ real content rather than a pre-animation `opacity: 0`.
 
 | File | Is | Density | Notes |
 |---|---|---|---|
-| `screens/s1-decision.html` | the page a stranger lands on from a link | CALM | invocation + chain, then the ruling and its grounds. Four alternatives, so every one is open. Mobile swaps the tree for `.chain-stack`. |
-| `screens/s1-decision-long.html` | the same page at 20 alternatives, one of them 405 words | CALM | the long-content case, and the reason it is a file rather than a note: WEB.md 9 requires it be *checked*, and a fixture in `screens/` is checked by all four gates automatically. |
+| `screens/s1-decision.html` | the page a stranger lands on from a link | CALM | invocation + chain, then the ruling and its grounds. Three alternatives, so every one is open. Mobile swaps the tree for `.chain-stack`. |
+| `screens/s1-decision-long.html` | the same page at 19 alternatives, one of them 405 words | CALM | the long-content case, and the reason it is a file rather than a note: WEB.md 9 requires it be *checked*, and a fixture in `screens/` is checked by all four gates automatically. |
 | `screens/s1-decision-withheld.html` | the same page when the chain leaves the repo | CALM | `dec-0011`. The withheld state, shown adjacent to oriented and orphan because it can only be judged against the alarm it must not resemble. |
 | `screens/s2-index.html` | the ledger index — **groups by why, not by goal** | DENSE | the dial lives here. Status is derived, never stored (`dec-0004`). The drift row is the only red. |
 | `screens/s3-distill.html` | the daily habit — agents propose, you dispose | CALM | the because is the hero. Desktop shows keyboard hints; mobile becomes the swipe deck with full-width thumb targets. |
@@ -278,9 +278,13 @@ prints "ok".
 
 ### The pixel tolerance
 
-**`0.00033%` of pixels, at a channel threshold of `4/255`, with no 16×16 block
-more than `1.6%` changed.** A comparison fails if either percentage is exceeded,
+**`0.00055%` of pixels, at a channel threshold of `0/255`, with no 16×16 block
+more than `2.5%` changed.** A comparison fails if either percentage is exceeded,
 or if the two captures differ in size at all.
+
+The channel threshold is **zero**: any per-channel difference of any magnitude
+counts. There is no filtered band, so there is no class of change this gate is
+blind to by construction.
 
 Measured, not chosen. `docs/design/fidelity/TOLERANCE.md` carries the method and
 the evidence; `tolerance.json` carries the numbers and `pixeldiff.mjs` reads them
@@ -298,7 +302,7 @@ same page, a fresh browser context, a second Chromium process, a different
 origin, and markup round-tripped through the DOM serializer all produced zero
 differing pixels. The tolerance is therefore not absorbing observed variance;
 there is none. It sits a factor of four below the *smallest real defect that
-could be constructed* — a 2px card-radius change, which moves 0.001345% of pixels.
+could be constructed* — a 2px card-radius change, which moves 0.002214% of pixels.
 
 Two percentages rather than one because legitimate variance is **diffuse** (a
 scatter along glyph edges) and a real regression is **clustered** (one element,
@@ -306,8 +310,23 @@ gone wrong). A frame-wide percentage is area-weighted, so a tolerance loose
 enough for diffuse noise is loose enough to hide a missing card; the block figure
 is scale-free and catches that.
 
+**Why the channel threshold is 0 and not something comfortable.** An earlier
+version of this gate filtered differences of ≤4/255, on the reasoning that the
+largest threshold the signal could survive left the gate "as robust as the
+evidence allows". That was backwards: a larger threshold makes the gate *less*
+sensitive, and the only thing it buys is immunity to per-pixel noise that was
+measured at exactly zero. The rule is now the smallest threshold that filters all
+*measured* noise — zero here.
+
+The cost of the old one was not theoretical. Two defects that are quiet per pixel
+and large in area — a token hex off by 2/255, and a stepped opacity off by one
+hundredth — moved **0.50%** and **0.77%** of the page respectively, roughly a
+thousand times the tolerance, and at 4/255 both registered **0.000000%**. The
+opacity case is caught by no other gate in this repo, since `contrast.mjs` and
+`tokens-doc-sync.mjs` read declared hex values and never a rule's opacity.
+
 **This tolerance is not a cross-machine allowance.** Changing only glyph
-rasterization costs 1.07–4.64% of pixels, and letting the Palatino stack fall
+rasterization costs 1.23–4.64% of pixels, and letting the Palatino stack fall
 through to a generic serif — what a stock Linux install actually renders, the
 failure noted above — costs up to 100%. Both are three to four orders of
 magnitude above the tolerance, and no number that still catches a 2px radius
@@ -370,11 +389,14 @@ the reason this direction was chosen over the terminal anchor. Resolved instead 
 wins), and the duplicate "This ledger" stats card was removed from the rail — its
 count moved to the footer, where it costs no block.
 
-**Also noted and left as-is:** the upheld alternative carries a coloured left
-border while refusals carry a hairline. Flagged as adjacent to the "left-border
-accent stripe" slop tell. Kept because it is state-driven rather than decorative,
-and the state is *also* carried by a text tag and the strike-through, so it
-satisfies WEB.md 12. Recorded here so a future reviewer does not re-litigate it.
+**Also noted and left as-is at r4, and removed later:** the upheld alternative
+carried a coloured left border while refusals carry a hairline. It was flagged as
+adjacent to the "left-border accent stripe" slop tell and kept because it was
+state-driven rather than decorative, with the state *also* carried by a text tag
+and the strike-through (WEB.md 12). That defence needed a state to carry.
+`dec-0019` found there is none in the data — `alternatives` records only the roads
+not taken — so the card, its border and `.alt.upheld` are gone. Recorded here so a
+future reviewer does not re-litigate either direction.
 
 ---
 
@@ -404,16 +426,42 @@ rather than gone.
 | alternatives | emitted |
 |---|---|
 | ≤ 6 | every `<details open>`. Nothing is hidden; the page is the argument it always was, with a hinge added. |
-| > 6 | only the upheld one open. The page becomes an index that expands in place. |
+| > 6 | every `<details>` closed. The page becomes an index that expands in place. |
+
+**Amended 2026-07-30 by `dec-0019`, and the amendment removes an element rather
+than adding one.** The `> 6` row used to read *"only the upheld one open"*. There
+is no upheld one. `entry.schema.json` models `alternatives` as the roads **not**
+taken — `why_not` is required — so the chosen option has no field to live in, and
+the fourth card `s1-decision.html` carried ("Go — one static binary, sub-100 ms
+cold start") was unproducible from any ledger. It is gone from all three `s1-*`
+payloads, and the chain's matching `✓` row with it, because `dira why` prints `✗`
+lines and never a `✓` and one producer stands behind both renderers.
+
+*What survives, because it was the condition of the change:* the struck refusal
+with its grounds beneath. Every refusal keeps its strike and its one-line ground
+on the always-visible summary. The counterweight a strike needs is unstruck type,
+and the nearest unstruck type is now the `h1.ruling` at up to 52px — the anchor
+r3 → r4 chose *instead of* the comparison list, at a 3.15:1 ratio against the
+grounds. Removing a 16.5px card that restated that anchor is the same move r3 → r4
+made when it deleted the duplicate stats card: reduce element count, strengthen
+the anchor.
+
+*What has no field either, and is derived rather than stored:* the one-line ground
+`dec-0017` makes load-bearing. It is the **first sentence of `why_not`**, and the
+detail is the rest. The rule the renderer follows is *derive presentation from
+recorded prose; never invent a field; where nothing can be derived, render
+nothing.*
 
 Six, because the long-content study measured the reading thread breaking at
 roughly the sixth refusal — before that the rhythm still reads as testimony;
 after it, as a transcript. CSS cannot count siblings honestly, so this belongs to
 the Go renderer, and it is one comparison.
 
-*Test:* `s1-decision.html` (4, all open) and `s1-decision-long.html` (20, one
-open) are both in `screens/`, so both pass through the render gate and the
-as-composited contrast gate on every run.
+*Test:* `s1-decision.html` (3, all open) and `s1-decision-long.html` (19, all
+closed) are both in `screens/`, so both pass through the render gate and the
+as-composited contrast gate on every run. `fixture-check.mjs` additionally
+refuses any screen that reintroduces an `upheld` tag or a `✓` mark in an
+alternatives or chain block.
 
 ### The withheld state — a declared state
 

@@ -1,12 +1,12 @@
 {
   "$comment": "MEASURED, not chosen. Regenerate with: node docs/design/scripts/measure-tolerance.mjs --write. Evidence and method in tolerance-evidence.json and docs/design/fidelity/TOLERANCE.md.",
-  "channel_threshold": 4,
-  "pixel_tolerance_pct": 0.00033,
-  "block_tolerance_pct": 1.6,
+  "channel_threshold": 0,
+  "pixel_tolerance_pct": 0.00055,
+  "block_tolerance_pct": 2.5,
   "block_px": 16,
   "device_scale_factor": 2,
-  "measured_at": "2026-07-31T04:33:37.629Z",
+  "measured_at": "2026-07-31T05:29:34.620Z",
   "measured_on": "darwin x64",
   "noise_ceiling_pct": 0,
-  "signal_floor_pct": 0.001345
+  "signal_floor_pct": 0.002214
 }

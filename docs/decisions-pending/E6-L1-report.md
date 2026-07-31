@@ -3,17 +3,24 @@
 **Status:** delivered and green. `node docs/design/scripts/gates.mjs` → **9 gates run · 7 passed ·
 2 negative controls tripped · 0 failed · 0 blind.**
 
-Committed by the lead as `e82c77e` while this report was being written; nothing
-below was lost in that commit.
+Committed by the lead as `e82c77e`; nothing was lost in that commit.
+
+**Revision 2 (2026-07-31), after the lead's two challenges — both landed.** The
+channel threshold moved from `4/255` to **`0/255`** and the derivation rule was
+inverted. Numbers throughout this report are the post-challenge ones. See §1a for
+what the old threshold was hiding; it was worse than either of us argued.
 
 ---
 
 ## 1. The tolerance, and the evidence for it
 
-**`0.00033%` of pixels, at a channel threshold of `4/255`, with no 16×16 block more
-than `1.6%` changed.** A comparison also fails outright if the two captures differ
+**`0.00055%` of pixels, at a channel threshold of `0/255`, with no 16×16 block more
+than `2.5%` changed.** A comparison also fails outright if the two captures differ
 in size — `pixeldiff.mjs` refuses to crop or scale, because a size change *is* the
 regression.
+
+The channel threshold is **zero**: any per-channel difference of any magnitude counts.
+There is no filtered band, so no class of change this gate is blind to by construction.
 
 Recorded in three places that cannot drift apart: `docs/design/fidelity/tolerance.json`
 (which `pixeldiff.mjs` reads at run time), `docs/design/fidelity/TOLERANCE.md` (method
@@ -23,7 +30,7 @@ same figure.
 
 ### The headline finding: this harness is bit-deterministic
 
-156 measurements, 3 screens × 2 viewports × 2 schemes. Five noise arms, each a
+180 measurements, 3 screens × 2 viewports × 2 schemes. Five noise arms, each a
 difference E6-L2 will genuinely have between a mockup baseline and a Go-served page:
 
 | noise arm | what varies | max % px | worst block |
@@ -47,30 +54,95 @@ swallow. The rule therefore reads from the signal side:
 > tolerance = smallest measured real defect ÷ 4, truncated (never rounded up) to two
 > significant figures, and required to be at least the noise ceiling.
 
-Six signal arms, each one line of injected CSS (served from memory — `tokens.css` and
+Eight signal arms, each one line of injected CSS (served from memory — `tokens.css` and
 `screens/` stay read-only throughout, so the reference is never edited to make the gate
 agree with it):
 
-| signal arm | the defect | min % px | worst block |
-|---|---|---|---|
-| `radius-2px` | `--r-card: 7px → 5px`, four corners, no reflow | **0.001345%** | **6.64%** |
-| `chip-hue` | `.chip-id` colour → `--ink-mid`, no reflow | 0.006328% | 28.13% |
-| `hairline` | the card hairline removed | 0.056339% | 16.02% |
-| `ink-swap` | `--ink` takes `--ink-mid`'s value, both schemes | 0.522857% | 55.86% |
-| `spacing-1px` | `--s4: 18px → 19px` | dimension change | — |
-| `type-0.5px` | `--t-body: 16.5px → 17px` | dimension change | — |
+| signal arm | the defect | min % px | peak Δ | worst block |
+|---|---|---|---|---|
+| `radius-2px` | `--r-card: 7px → 5px`, four corners, no reflow | **0.002214%** | 109 | **10.16%** |
+| `chip-hue` | `.chip-id` colour → `--ink-mid`, no reflow | 0.007904% | 122 | 35.16% |
+| `hairline` | the card hairline removed | 0.064248% | 48 | 18.36% |
+| `ink-2` | `--ink` hex off by **2/255** in one channel | 0.497667% | **2** | 53.13% |
+| `ink-swap` | `--ink` takes `--ink-mid`'s value, both schemes | 0.569673% | 67 | 58.20% |
+| `opacity-1pct` | `.stage.next` opacity `.58 → .57` | 0.769956% | **3** | 55.08% |
+| `spacing-1px` | `--s4: 18px → 19px` | dimension change | 255 | — |
+| `type-0.5px` | `--t-body: 16.5px → 17px` | dimension change | 255 | — |
 
-`0.001345 ÷ 4 = 0.000336…` → **0.00033%** (4.1× below the floor).
-`6.64 ÷ 4 = 1.66` → **1.6%** (4.2× below the floor).
-
-The channel threshold is **selected**, not picked. Every pair was measured at 0, 4, 8
-and 16/255; a candidate is admissible only if noise still measures zero, every signal
-row is still visible, and the weakest signal's peak delta is still ≥4× the threshold.
-8 and 16 were rejected on those grounds; **4 is the largest admissible value**, so the
-gate is as robust as the evidence allows and no more.
+`0.002214 ÷ 4 = 0.000553…` → **0.00055%** (4.0× below the floor).
+`10.16 ÷ 4 = 2.54` → **2.5%** (4.1× below the floor).
 
 `measure-tolerance.mjs` **refuses to emit a number at all** if the populations fail to
-separate. It did exactly that on its first two runs (see §4).
+separate, or if any signal arm is inert everywhere, or if a design input changes mid-run.
+It has refused on all three grounds during this lane (see §4).
+
+### 1a. The channel threshold — the lead's challenge, and what it turned up
+
+**The challenge:** my own admissibility table showed `0/255` admissible, so what does
+`4/255` buy that the pixel-count safety factor does not? "Robustness against noise"
+cannot be the answer, because noise measured zero — the same evidence used to reject
+*tolerance = noise × k*.
+
+**It stands, and the reality was worse than either of us argued.** Not because the
+headroom was merely redundant, but because the signal set that made `4/255` look
+admissible was defective: **every arm in it was loud per pixel** (peak deltas 16–255).
+A signal set of only loud defects cannot distinguish one channel threshold from
+another, since all of them survive any threshold. The derivation was choosing between
+options it had no instrument to tell apart.
+
+So rather than concede by argument, I added the missing instrument — two arms that are
+**quiet per pixel and large in area**, both ordinary mistakes rather than synthetic
+ones:
+
+| arm | the defect | peak Δ | at `0/255` | at `4/255` | ratio to tolerance |
+|---|---|---|---|---|---|
+| `ink-2` | a token hex off by 2 in one channel — a copy-paste typo | 2/255 | 0.497667% of pixels | **0.000000%** | 905× |
+| `opacity-1pct` | `.stage.next` opacity `.58 → .57` — a routine CSS edit | 3/255 | 0.769956% of pixels | **0.000000%** | 1400× |
+
+At `4/255` both are **completely invisible** — zero pixels counted — while each moves
+roughly a thousand times the pixel tolerance. That is not a marginal blind spot; it is
+a hole a whole wrong stylesheet fits through. And `opacity-1pct` is covered by **no
+other gate in the repo**: `contrast.mjs` and `tokens-doc-sync.mjs` read declared hex
+values, so a wrong opacity on a rule in a page's own stylesheet is visible to the pixel
+gate or to nothing.
+
+With those arms present the admissibility table decides on its own — `4`, `8` and `16`
+all fail "every signal still visible":
+
+| threshold | noise all zero | every signal visible | verdict |
+|---|---|---|---|
+| **0/255** | yes | yes | **admissible — chosen** |
+| 4/255 | yes | **no** | rejected |
+| 8/255 | yes | **no** | rejected |
+| 16/255 | yes | **no** | rejected |
+
+**The trade, stated plainly rather than buried:** moving to `0/255` made the *count*
+tolerance slightly more permissive (`0.00033% → 0.00055%`), because at threshold 0 the
+reference defect `radius-2px` also counts its own faint antialiased edge pixels, which
+raises the floor the tolerance is derived from. So this is not strictly free in every
+dimension — a hypothetical defect producing only large deltas over a small area now
+needs marginally more pixels to trip the count. The 4× safety factor is unchanged, and
+the gate is net far stronger, because an entire defect class went from invisible to
+caught.
+
+### 1b. Challenge 2 — the sentence that argued against itself
+
+**Conceded without qualification**, and it went deeper than wording. The sentence read
+"the largest admissible value wins, so the gate is as robust as the evidence allows and
+no more" — but a larger channel threshold makes the gate *less* sensitive, so the
+sentence justified the opposite of what it concluded.
+
+Fixing only the wording would have left the defect, because **the rule itself was
+inverted**, not just its description. Taking the largest admissible value imports an
+unstated premise that sensitivity is costly and must be traded away as far as the
+signal will bear. Nothing in the measurement supports that premise.
+
+The rule is now: **the threshold is the smallest value that filters all measured
+noise.** Where noise is zero, that is zero. Where it is not, this selects the least
+desensitisation that does the job rather than the most the signal can survive. Changed
+in `measure-tolerance.mjs`, in `TOLERANCE.md`, and in `DESIGN.md` — the lead was right
+that the old sentence is what a future reader would have used to justify widening it
+again.
 
 ### Two percentages, not one — and why
 
@@ -89,8 +161,8 @@ Two arms measured for information only, gating nothing:
 
 | info arm | what varies | % px | worst block |
 |---|---|---|---|
-| `rasterization` | `-webkit-font-smoothing: auto` — glyphs rasterize differently, layout identical | 1.07 – 4.64% | 46.88% |
-| `serif-fallback` | the Palatino stack falls through to the generic serif — what a stock Linux install renders | 1.46 – 100% | 100.00% |
+| `rasterization` | `-webkit-font-smoothing: auto` — glyphs rasterize differently, layout identical | 1.23 – 4.64% | 44.92% |
+| `serif-fallback` | the Palatino stack falls through to the generic serif — what a stock Linux install renders | 1.50 – 100% | 92.97% |
 
 Three to four orders of magnitude above the tolerance. No number that still catches a
 2px radius change could absorb them, and one widened until it could would be measuring
@@ -102,15 +174,15 @@ describes in prose — the Linux serif fallback costs up to **100%** of pixels.
 
 ### Stated blind spots
 
-1. **Sub-threshold colour.** A change where every channel moves ≤4/255 is invisible here
-   by design. Token drift of that size is caught by `contrast.mjs` and
-   `tokens-doc-sync.mjs`, which read the hex values directly. Do not widen the channel
-   threshold to paper over a token gate.
-2. **The floor is only as low as the weakest arm built.** Something quieter than
-   `radius-2px` (96 device pixels on `s3-distill` at 1440×900) may pass. The remedy is
-   another signal arm, not a smaller number.
-3. **One platform.** Every figure is darwin x64. Elsewhere the noise arms may not be
+1. **The floor is only as low as the weakest arm built.** Something quieter than
+   `radius-2px` (158 device pixels on `s3-distill` at 1440×900) may pass. The remedy is
+   another signal arm, not a smaller number — which is exactly how the channel threshold
+   got fixed.
+2. **One platform.** Every figure is darwin x64. Elsewhere the noise arms may not be
    zero and the derivation must be re-run, not assumed.
+
+**No longer a blind spot:** sub-threshold colour. At `4/255` a change where every
+channel moved ≤4/255 was invisible by design. At `0/255` no such class exists.
 
 ---
 
@@ -181,16 +253,16 @@ GREEN  baseline.png vs rerun-clean.png   2880x4324
 
 RED    baseline.png vs deviated.png     (.chip-id colour -> --ink-mid)
   differing, any delta               870   0.0070%
-  differing, delta >   4/255         788   0.0063%   (tolerance 0.00033%)
+  differing, delta >   0/255         870   0.0070%   (tolerance 0.00055%)
   max per-channel delta               53
-  worst 16x16 block                 54.30%   (tolerance 1.6%)  at 480,880
+  worst 16x16 block                 54.30%   (tolerance 2.5%)  at 480,880
   changed region              113x19 at 413,880
-  PIXELDIFF FAIL — 0.0063% of pixels differ, over the 0.00033% tolerance; a 16x16
-  block at 480,880 is 54.3% changed, over the 1.6% block tolerance — that is
+  PIXELDIFF FAIL — 0.0070% of pixels differ, over the 0.00055% tolerance; a 16x16
+  block at 480,880 is 54.3% changed, over the 2.5% block tolerance — that is
   clustered, not antialiasing                                           exit=1
 ```
 
-788 pixels out of 12.4 million, caught and **localized to a 113×19 region**, with a
+870 pixels out of 12.4 million, caught and **localized to a 113×19 region**, with a
 diff PNG written. The lane's `acc:` cases also hold: identical file → `0.0000%` exit 0;
 light vs its dark pair → `99.9995%` exit 1; differing dimensions → `dimension mismatch
 … refusing to crop or scale` exit 2.
@@ -215,24 +287,24 @@ exit=0
 
 TOKEN/DOC SYNC FAIL:
   - DESIGN.md does not carry the canonical tolerance line from docs/design/fidelity/tolerance.json.
-      expected: **`0.00033%` of pixels, at a channel threshold of `4/255`, with no 16×16 block more than `1.6%` changed.**
+      expected: **`0.00055%` of pixels, at a channel threshold of `0/255`, with no 16×16 block more than `2.5%` changed.**
       found:    (no line of this shape anywhere in the file)
       -> the line was never written, or was deleted.
       docs/plan.md §E6 cites "the pixel tolerance recorded in DESIGN.md"; the enforced number
       lives in tolerance.json, so a document that disagrees with it makes that clause unfalsifiable again.
-  - DESIGN.md never states the measured pixel tolerance (0.00033%), block tolerance (1.6%), channel threshold (4/255) anywhere in the file.
+  - DESIGN.md never states the measured pixel tolerance (0.00055%), block tolerance (2.5%), channel threshold (0/255) anywhere in the file.
 exit=1
 
-########## 3. RED — line PRESENT, one number DRIFTED (0.00033% -> 0.0005%) ##########
+########## 3. RED — line PRESENT, one number DRIFTED (0/255 -> 4/255) ##########
 
 TOKEN/DOC SYNC FAIL:
   - DESIGN.md does not carry the canonical tolerance line from docs/design/fidelity/tolerance.json.
-      expected: **`0.00033%` of pixels, at a channel threshold of `4/255`, with no 16×16 block more than `1.6%` changed.**
-      found:    **`0.0005%` of pixels, at a channel threshold of `4/255`, with no 16×16 block more than `1.6%` changed.**
+      expected: **`0.00055%` of pixels, at a channel threshold of `0/255`, with no 16×16 block more than `2.5%` changed.**
+      found:    **`0.00055%` of pixels, at a channel threshold of `4/255`, with no 16×16 block more than `2.5%` changed.**
       -> the line is present but its numbers have drifted from the measured ones.
       docs/plan.md §E6 cites "the pixel tolerance recorded in DESIGN.md"; the enforced number
       lives in tolerance.json, so a document that disagrees with it makes that clause unfalsifiable again.
-  - DESIGN.md never states the measured pixel tolerance (0.00033%) anywhere in the file.
+  - DESIGN.md never states the measured channel threshold (0/255) anywhere in the file.
 exit=1
 
 ########## 4. GREEN — restored ##########
@@ -342,7 +414,7 @@ writing it too. Each of these was found by the harness, not by review:
    Now `same-page` re-shoots a genuinely live page.
 5. **The DESIGN.md tolerance check was trivially true.** `design.includes("4")` matches
    "r4", "4.5:1" and "42 pairs". Every figure is now searched *with its unit*
-   (`0.00033%`, `1.6%`, `4/255`).
+   (`0.00055%`, `2.5%`, `0/255`), and all three as one generated sentence (§2d).
 6. **`$` under the `/m` flag** made the fixture parser read one line of the alternatives
    block, so every `why_not` came back empty — and an empty string then "matches"
    nothing and was reported as missing. Caught only because the check was two-sided.
@@ -353,6 +425,19 @@ writing it too. Each of these was found by the harness, not by review:
    found only by watching the *baseline green* case, not the red ones (§2d).
 9. **The drift excerpt was clipped at a decimal point**, reporting `0005%` as if that
    were the line in the file.
+10. **The signal set could not distinguish the thing it was being used to choose.** Every
+    arm was loud per pixel, so the channel-threshold derivation was picking between
+    options it had no instrument to tell apart — found only because the lead challenged
+    the result and the fix was to add the missing arm rather than to argue (§1a).
+11. **A signal arm lost on CSS source order.** `opacity-1pct` was injected by appending
+    to `tokens.css`, but `.stage.next` is declared in `s3-distill`'s inline `<style>`,
+    which the browser applies later — so the arm measured nothing and the harness
+    correctly refused to emit a tolerance at all.
+12. **The harness could not tell that its own reference had moved.** A concurrent edit to
+    `s1-decision.html` landed mid-run, in a tree with several agents in it, silently
+    mixing baselines captured before the edit with captures made after. Every design
+    input is now SHA-256 fingerprinted before and after; a run whose inputs moved is
+    VOID and emits no tolerance.
 
 `gates.mjs` encodes the general lesson on its own exit code: **3 = a gate passed but its
 negative control did not trip.** That is reported as `BLIND`, not as a pass. §2d adds the
@@ -389,12 +474,15 @@ that is supposed to pass is watched passing too.
 
 ## 6. Left undone, explicitly
 
-1. **Schema validation of the fixtures is verified but not gated.** All 18 entries pass
-   the repo's own Go validator, and the same validator rejects all 17 of
-   `schema/testdata/invalid/` — the two-sided control. That run used a throwaway module
-   outside the repo so no `.go` file landed here. **Making it permanent is a Go test and
-   belongs to E6-L2**; the sketch is in `docs/design/fidelity/fixtures/README.md`. Until
-   it exists, a future edit could break schema validity silently.
+1. ~~**Schema validation of the fixtures is verified but not gated.**~~ **Closed by
+   E6-L2** while this revision was in progress, and verified rather than taken on
+   trust — `go test ./internal/ui/` runs `TestDesignFixturesValidate`,
+   `TestTheValidatorRejectsTheInvalidCorpus` (the two-sided control, now 18 known-bad
+   files), and `TestTheRealLedgerValidates`, all PASS. They also converted the upheld
+   finding into an assertion on both sides of the seam
+   (`TestNoUpheldCardIsEverRendered` plus a check in `fixture-check.mjs`), which is
+   the right disposition: a resolved finding that nothing re-checks is a finding that
+   comes back.
 2. **`web-interface-guidelines` (E6-L1-T1) not installed.** It writes to
    `~/.claude/skills/`, outside this repo entirely and outside anything you granted.
    Still genuinely uninstalled; `DESIGN.md`'s hand-off note remains accurate.
