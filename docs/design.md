@@ -516,6 +516,13 @@ prompt.
 checkpoint file, not a daemon."* The `Stop` hook's `dira sniff` catches the decision
 language and stages it. You say "confirm." **That is your entire clerical workload.**
 
+Confirming is not accepting. The regex tier cannot know *why* a road was refused, and
+`dec-0019` calls inventing it what it is — so `y` means *this is a real decision, go get
+its reasoning*, and hands the entry to step 3. It stays `staged`, visibly pending
+extraction, until something can supply the rejected alternative that makes it
+enforceable (`dec-0022`). The keystroke is the whole of your workload; it is not the
+whole of the record.
+
 **3. dira writes the record; the ADR is a side effect.** The skill fills in what the
 sniffer cannot — the because, the rejected alternative (*daemon: violates the
 single-binary intent*), the edge `derives_from: int-0002` — and because

@@ -159,3 +159,5 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0020:e6365a` | blocked:E1 | revisit trigger: the estimator's two halves agree so consistently that one is redundant |
 | `impl:dec-0021` | done:E2-L1 | built and measured: 3.7% FP on the frozen corpus, ~73% precision out of sample; `stagedOnly` wrapper makes accept structurally impossible |
 | `trigger:dec-0021:3d4141` | blocked:E2 | revisit trigger: out-of-sample precision on decisions holds above 90% across several unrelated sessions; only then consider widening the kinds |
+| `impl:dec-0022` | blocked:E2 | E2-L4 owns the keystroke, E2-L2 the extraction it hands to; the distill queue must show *pending extraction* as a visible state or entries pile up in staged looking rejected |
+| `trigger:dec-0022:576dc1` | blocked:E2 | revisit trigger: semantic extraction proves unreliable enough that a human writes the why_not anyway, at which point the editor option returns |
