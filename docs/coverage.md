@@ -157,3 +157,5 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0020:a3e81d` | blocked:E1 | revisit trigger: dira ever has to price a real API call, where the estimate is money rather than a budget |
 | `trigger:dec-0020:7f7d69` | blocked:E1 | revisit trigger: a measurement over real briefs shows the structural estimator is materially off |
 | `trigger:dec-0020:e6365a` | blocked:E1 | revisit trigger: the estimator's two halves agree so consistently that one is redundant |
+| `impl:dec-0021` | done:E2-L1 | built and measured: 3.7% FP on the frozen corpus, ~73% precision out of sample; `stagedOnly` wrapper makes accept structurally impossible |
+| `trigger:dec-0021:3d4141` | blocked:E2 | revisit trigger: out-of-sample precision on decisions holds above 90% across several unrelated sessions; only then consider widening the kinds |
