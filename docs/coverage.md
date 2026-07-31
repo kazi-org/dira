@@ -108,7 +108,7 @@ Registering every obligation forced three admissions no plan document had surfac
 | `serve:int-0002` | covered:E0/E1 | single binary, <100ms cold as an acc: line |
 | `serve:int-0003` | covered:E4/E8 | derived status replaces the tracker; GTM proves adoption |
 | `answer:qst-0002` | deferred:never | may never be built and that is acceptable. Closer to self-surveillance than navigation |
-| `answer:qst-0003` | blocked:E2 | **GAP** dec-0010 made import a LAUNCH BLOCKER but no epic explicitly owns it. Needs adding to E2 scope |
+| `answer:qst-0003` | blocked:E2 | **Measured 2026-07-31, premise falsified** — 63/80 kazi ADRs carry real `why_not`s, not the predicted empty arrays. Evidence supports option (2) semantic import. Still open on neutrality: n=1 and the corpus shares an author with dira. Needs 2-3 unrelated public corpora before the import pitch ships |
 | `answer:qst-0005` | covered:E9 | file the two issues; maintainer decides |
 | `blocked:4784fa` | covered:E9 | automatic disposition capture = upstream ask 2; skill-wrap fallback exists |
 | `blocked:2147c3` | blocked:E2 | ADR import — same GAP as answer:qst-0003 |
