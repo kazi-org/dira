@@ -220,6 +220,17 @@ go build ./cmd/dira
 ./dira --help
 ```
 
+If you intend to commit, point git at the repository's hooks once:
+
+```
+git config core.hooksPath .githooks
+```
+
+Git deliberately does not do this for you — a repository cannot be allowed to run
+code on your machine just because you cloned it. Without this step the coverage,
+privacy, lint and test gates simply do not run locally; CI still enforces them on
+push, so the failure is late rather than silent.
+
 `dira --version` prints `dev` from a plain build. Release builds stamp the tag in at
 link time:
 
