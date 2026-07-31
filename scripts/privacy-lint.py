@@ -63,10 +63,22 @@ def declared_parents():
     for line in sec.group(1).split('\n'):
         s = line.strip()
         if not s or s.startswith('#'): continue
-        m = re.match(r'^([a-z][a-z0-9_-]*)\s*=\s*\{(.*)\}\s*$', s)
+        # The `}` is NOT anchored to end-of-line. It used to be, and the shape
+        # shipped as the commented example in .dira/config.toml carries a
+        # trailing comment after the closing brace — so uncommenting the
+        # documented form produced a private parent this lint could not see at
+        # all, and P2 never checked its label. Found by E3-L3-T1 while writing
+        # the Go reader; reproduced before this was changed.
+        m = re.match(r'^([a-z][a-z0-9_-]*)\s*=\s*\{(.*?)\}\s*(?:#.*)?$', s)
         if not m: continue
         ns, body = m.group(1), m.group(2)
-        priv = 'visibility' in body and '"private"' in body
+        # Fall CLOSED. The old test was `'"private"' in body`, so a typo —
+        # visibility = "privat" — read as not-private and skipped the label
+        # check. A private/public boundary that a misspelling opens is not a
+        # boundary. Anything that is not explicitly "public" is treated as
+        # private, which matches internal/config's reader.
+        vis = re.search(r'visibility\s*=\s*"([^"]*)"', body)
+        priv = bool(vis) and vis.group(1) != 'public'
         lab = re.search(r'label\s*=\s*"([^"]+)"', body)
         out[ns] = {'private': priv, 'label': lab.group(1) if lab else None}
     return out

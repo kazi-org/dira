@@ -54,8 +54,39 @@ if [ -n "$STAGED_GO_FILES" ]; then
   # reads as a lint failure with nothing wrong, and hides the real findings.
   STAGED_GO_PKGS="$(printf "%s\n" "$STAGED_GO_FILES" | xargs -n1 dirname | sort -u | sed 's|^|./|')"
   echo "Running golangci-lint on: $(printf "%s" "$STAGED_GO_PKGS" | tr '\n' ' ')"
-  # shellcheck disable=SC2086
-  if ! printf "%s\n" "$STAGED_GO_PKGS" | xargs golangci-lint run --fix; then
+
+  # golangci-lint takes a MACHINE-GLOBAL lock, not a per-repo one: a run in an
+  # unrelated repository blocks this one. With several sessions on this machine
+  # that is common, and the old code reported "golangci-lint found issues" for
+  # it — a verdict the linter never reached. Same defect this repo keeps
+  # finding: the check reported a result it did not have. Retry, then fail
+  # DISTINCTLY so "did not run" is never mistaken for "found something".
+  LINT_OUT=""
+  LINT_RC=1
+  for attempt in 1 2 3 4 5 6; do
+    # shellcheck disable=SC2086
+    LINT_OUT="$(printf "%s\n" "$STAGED_GO_PKGS" | xargs golangci-lint run --fix 2>&1)"
+    LINT_RC=$?
+    case "$LINT_OUT" in
+      *"parallel golangci-lint is running"*)
+        echo "  golangci-lint is locked by another repo on this machine; waiting (${attempt}/6)..."
+        sleep 20
+        ;;
+      *) break ;;
+    esac
+  done
+
+  case "$LINT_OUT" in
+    *"parallel golangci-lint is running"*)
+      echo "Commit BLOCKED: golangci-lint could not run — another repo on this"
+      echo "machine holds its global lock. This is NOT a lint failure; nothing"
+      echo "was checked. Re-run the commit when the other run finishes."
+      exit 1
+      ;;
+  esac
+
+  if [ "$LINT_RC" -ne 0 ]; then
+    printf "%s\n" "$LINT_OUT"
     echo "Commit failed: golangci-lint found issues."
     exit 1
   fi
