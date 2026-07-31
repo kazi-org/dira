@@ -148,3 +148,5 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0018:bf198a` | deferred:trigger | fires if a hue-budget audit rejects --bearing carrying a second meaning |
 | `design-q:9dcfd1` | covered:E6 | chain-at-scale; the nested-node structure takes `<details>`/`<summary>` for depth with no JS, and the long-content lane proved the idiom |
 | `design-q:be981a` | blocked:E6 | **NEW, found while implementing** — s2-index has nowhere to put a cross-boundary entry. Surfaced by folding dec-0018; the index groups by intent and a withheld parent has no row to sit in |
+| `blocked:4d0b4b` | blocked:E1 | E1-L5 must choose the cold-cache behaviour and E1-L6 must state which case its budget measures; measured numbers are in the row |
+| `blocked:0841e6` | blocked:E6 | same finding as `design-q:be981a`, tracked from both the roadmap and DESIGN.md because it is both a blocker and an open design question |

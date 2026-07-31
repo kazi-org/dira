@@ -15,7 +15,17 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 ## Shipped
 
-Nothing. There is no binary yet — dira is at the end of its design phase.
+| What | Landed |
+|---|---|
+| **A binary that builds and installs from source.** Go module, command skeleton, correct exit codes (0 ok / 1 error / 2 usage), and a test that mechanically forbids third-party packages in the command path — `dec-0001` chose Go for cold-start latency, and that reasoning is now a build failure rather than prose. | E0-L1 |
+| **The ledger is self-validating.** 17 invalid fixtures covering the cases that actually bite, including the yaml timestamp coercion that broke this repo once. All 30 entries validate. | E0-L1 / E0-L2 |
+| **`dira log` writes decisions.** 32 concurrent invocations produce 32 distinct ids with zero overwrites; adding an edge alters 4 lines with zero deletions, so a PR touching a record shows a legible diff. | E1-L2 |
+| **`dira reindex` rebuilds a content-addressed cache.** A stale cache is impossible rather than improbable (`dec-0015`). | E1-L3 |
+| **The storage layer.** Interface with a portable contract suite for the future GitHub backend, and a codec that preserves the author's hand-wrapped prose. | E1-L1 |
+| **The design system, settled.** Direction validated by three independent critics, connectors reconnected, measure ceilings, type scale 16→9, a self-hosted serif chosen from rendered evidence (`dec-0016`), a compass mark, and both remaining open questions answered from pictures (`dec-0017`, `dec-0018`). | E6 pre-work |
+| **The enforcer's corpus**, 43 labelled rows frozen by sha256 before any matcher existed. | E3-L1 |
+| **Go-to-market groundwork.** 19 channels rated with pre-registered thresholds, a gated landing page, approval-gated ecosystem drafts. | E8-L1/L2/L5 |
+| **Four machine gates**, all enforced by the pre-commit hook rather than by memory: coverage, privacy lint, contrast, and contrast-as-rendered. | — |
 
 ---
 
@@ -23,6 +33,10 @@ Nothing. There is no binary yet — dira is at the end of its design phase.
 
 | Item | Owner | Notes |
 |---|---|---|
+| **`dira why`** — the chain, alternatives and why_nots (E1-L4) | agent | dispatched 2026-07-30. The command that answers the question the product exists to answer. |
+| **`dira check`** — the enforcer, end to end (E3-L2) | agent | dispatched 2026-07-30. Measured against E3-L1's frozen corpus; the corpus may not be edited to pass. |
+| **CI on every push** (E0-L3) | agent | dispatched 2026-07-30. Nobody but one laptop currently runs any gate. |
+| **The design fidelity gate** (E6-L1) | agent | dispatched 2026-07-30. Must measure pixels, not source, and must record a real tolerance — the previous acceptance clause cited one that existed nowhere. |
 | Privacy enforcement + coverage gate | maintainer | 2026-07-30. `scripts/coverage.py` (nothing-forgotten gate, 47 obligations) and `scripts/privacy-lint.py` (cst-0003 enforcement, 4 invariants). Both verified red→green. |
 | Founding design + repo scaffold | maintainer | 2026-07-29. Design doc v2, entry schema, founding ledger (21 entries — 3 intents, 9 decisions, 4 constraints, 5 questions; all validate against the schema, no dangling edges), hook config, license. |
 
@@ -99,10 +113,16 @@ laptop, with no dira server involved.
 
 ## Blocked
 
+*GROOMED 2026-07-30. Rows are added when implementation surfaces them, not only when
+planning predicts them — three of the entries below were found by building, not by
+thinking.*
+
 | Item | Blocked on |
 |---|---|
 | **Automatic disposition capture** (part of M2/M4) | [qst-0005](../.dira/entries/qst-0005.md) issue 2 — kazi has no post-disposition hook on `approve`/`reject`. Fallback exists (the skill wraps the commands), so this degrades ergonomics rather than blocking the milestone. |
 | **cst-0003 rule 2 has no runtime check** | `scripts/privacy-lint.py` enforces the marker, label-leak, ref-declaration and ADR-prose invariants, but it cannot verify that *inherited context was never persisted* into a child ledger — that needs an assertion in the brief-injection path, which lands with E1/E5. Until then rule 2 rests on care, which is what cst-0003 forbids. |
+| **`dira brief` has no cold-cache answer** | Measured by E1-L3: a warm cache renders in 15.1ms against a 30.1ms uncached path, but a COLD cache costs 55.5ms — worse than no cache. The brief runs at `SessionStart`, so a user's first session after a clone is their slowest, and first impressions are what `dec-0010` says the acquisition moment depends on. E1-L5 must choose: build synchronously and eat it, fall back to uncached, or build in the background and serve uncached once. Its budget must then state which case it measures. |
+| **The index screen has nowhere to put a cross-boundary entry** | Found while implementing `dec-0018`. `s2-index` groups by intent; a withheld parent has no row to sit in. Unowned. |
 | **ADR back-catalogue import** | [qst-0003](../.dira/entries/qst-0003.md) — needs validating against kazi's real 83-ADR corpus before committing to an approach. Leaning index-everything, promote-on-first-citation. **Promoted to a launch blocker by [dec-0010](../.dira/entries/dec-0010.md):** import is the day-1 acquisition moment, so its quality is now a growth variable rather than a convenience. |
 
 ---
