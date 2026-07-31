@@ -161,3 +161,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0021:3d4141` | blocked:E2 | revisit trigger: out-of-sample precision on decisions holds above 90% across several unrelated sessions; only then consider widening the kinds |
 | `impl:dec-0022` | blocked:E2 | E2-L4 owns the keystroke, E2-L2 the extraction it hands to; the distill queue must show *pending extraction* as a visible state or entries pile up in staged looking rejected |
 | `trigger:dec-0022:576dc1` | blocked:E2 | revisit trigger: semantic extraction proves unreliable enough that a human writes the why_not anyway, at which point the editor option returns |
+| `impl:dec-0024` | blocked:E2 | E2-L4-T4 owns the transition: `n` deletes the staged entry, and `u` (E2-L4-T5) is the single-level undo the destructiveness requires. The reject signal is accepted as lost, not solved |
+| `trigger:dec-0024:cc26e5` | blocked:E2 | revisit trigger: tuning `internal/sniff` needs a standing true-negative corpus that the transcripts cannot supply, at which point keeping rejects in the ledger returns |
+| `trigger:dec-0024:a25d31` | blocked:E2 | revisit trigger: the semantic tier needs the expected verdict as an input before it will extract a rejected decision, which would make the split keystroke a parameter rather than a key |
