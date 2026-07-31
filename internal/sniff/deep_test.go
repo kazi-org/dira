@@ -265,9 +265,9 @@ func TestTheInstalledPreCompactCommandIsAccepted(t *testing.T) {
 	err := cmd.Run()
 
 	if strings.Contains(stderr.String(), `unknown command "sniff"`) {
-		t.Skipf("BLOCKED, not passing: the built binary has no `sniff` command, so `dira sniff --deep --stage` "+
-			"exits 2 before --deep is ever parsed. One line is missing from newApp's registry in cmd/dira/main.go:\n\n"+
-			"\t{name: \"sniff\", summary: sniffSummary, run: runSniff, usage: writeSniffUsage},\n\n"+
+		t.Skipf("BLOCKED, not passing: the built binary has no `sniff` command, so `dira sniff --deep --stage` " +
+			"exits 2 before --deep is ever parsed. One line is missing from newApp's registry in cmd/dira/main.go:\n\n" +
+			"\t{name: \"sniff\", summary: sniffSummary, run: runSniff, usage: writeSniffUsage},\n\n" +
 			"E2-L2-T3 may not edit that file. This test asserts the clause the moment the line lands.")
 	}
 
