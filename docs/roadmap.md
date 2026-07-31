@@ -135,6 +135,15 @@ laptop, with no dira server involved.
 
 ## Blocked
 
+- **The Notion portfolio mirror cannot be written from this machine.** The house rule
+  requires every lane event to also update the Engineering Portfolio database, but the
+  `ntn` CLI is not installed and no Notion MCP server is connected to this session. Four
+  lane completions (2026-07-31) are recorded here and in git, and NOT mirrored. Unblocks
+  on installing `ntn` or connecting the MCP; the backlog of unmirrored rows is this
+  file's Shipped section since 2026-07-30.
+
+
+
 *GROOMED 2026-07-30. Rows are added when implementation surfaces them, not only when
 planning predicts them — three of the entries below were found by building, not by
 thinking.*
