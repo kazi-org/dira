@@ -194,6 +194,17 @@ fidelity. That expansion is the current blocker on the loop, not the work itself
 
 ## Blocked
 
+- **Wave 3 could not run: the account's weekly usage limit is exhausted, resetting
+  2026-08-02 04:00 America/Los_Angeles.** All three dispatched agents terminated on
+  their first action with `You've hit your weekly limit`; every worktree came back
+  with zero changed files. The six claims (`E1-L6-T4`, `E2-L2-T3`, `E2-L2-T4`,
+  `E2-L4-T4`, `E3-L3-T4`, `E3-L3-T5`) were **released**, not left held — a lock with
+  nothing executing behind it is worse than no lock, per `docs/lore.md` L-0022.
+  Worktrees removed, tree clean, nothing half-applied. **The pool is in a resumable
+  state: re-run `/apply --pool` after the reset and wave 3 claims cleanly.**
+
+
+
 - **The global gitignore is a project gitignore in the global slot — needs the owner's
   call.** `core.excludesfile` points at a file carrying other projects' artifacts
   (`zonnx-converter.log`, `gemma-plan.md`, arXiv PDFs) alongside bare unanchored
