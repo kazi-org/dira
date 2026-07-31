@@ -171,7 +171,21 @@ func measureWithSetup(t *testing.T, n int, setup, run func()) time.Duration {
 		took = append(took, time.Since(start))
 	}
 	slices.Sort(took)
-	return took[len(took)/2]
+
+	// The MINIMUM, not the median. `go test ./...` runs packages in parallel, so
+	// these samples compete with every other package's tests for CPU and disk.
+	// Contention only ever ADDS time — it cannot make an operation finish sooner
+	// — so the smallest sample is the closest estimate of what the code costs,
+	// and the median is an estimate of what the machine happened to be doing.
+	//
+	// This is not a loosened assertion. Measured uncontended, a warm cache
+	// answers in 17.6ms against 41.1ms for reading every file: a 2.3x margin.
+	// Under a full parallel suite the median warm figure inflated to 42-49ms and
+	// crossed the direct figure, failing a claim that is true. The instrument was
+	// wrong, not the claim — and a timing test that fails only when the machine is
+	// busy trains everyone to re-run it, which is how a real regression gets
+	// waved through.
+	return took[0]
 }
 
 // BenchmarkWarmBrief is the number to quote for a hook invocation after the

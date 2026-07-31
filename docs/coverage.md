@@ -153,7 +153,7 @@ Registering every obligation forced three admissions no plan document had surfac
 | `answer:qst-0006` | blocked:E3 | edge vocabulary gap found by `dira why`; becomes urgent when `dira check` must reason about constraint amendment |
 | `impl:dec-0019` | blocked:E6 | E6-L2 owns it; the entry is in flight as I register this. The renderer must derive the ruling from the decision title and never invent an upheld alternative the schema has no field for |
 | `trigger:dec-0019:ec6b0e` | blocked:E6 | revisit trigger: a decision whose chosen option genuinely cannot be stated in its title. None exists today; if one arrives, dec-0019 is what it falsifies |
-| `impl:dec-0020` | blocked:E1 | E1-L5 owns it; in flight as I register. `brief.max_tokens` counts dira's own conservative structural estimate, never a model tokenizer |
+| `impl:dec-0020` | done:E1-L5 | E1-L5 owns it; in flight as I register. `brief.max_tokens` counts dira's own conservative structural estimate, never a model tokenizer |
 | `trigger:dec-0020:a3e81d` | blocked:E1 | revisit trigger: dira ever has to price a real API call, where the estimate is money rather than a budget |
 | `trigger:dec-0020:7f7d69` | blocked:E1 | revisit trigger: a measurement over real briefs shows the structural estimator is materially off |
 | `trigger:dec-0020:e6365a` | blocked:E1 | revisit trigger: the estimator's two halves agree so consistently that one is redundant |
