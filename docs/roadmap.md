@@ -149,6 +149,21 @@ laptop, with no dira server involved.
 
 ## Blocked
 
+- **The global gitignore is a project gitignore in the global slot — needs the owner's
+  call.** `core.excludesfile` points at a file carrying other projects' artifacts
+  (`zonnx-converter.log`, `gemma-plan.md`, arXiv PDFs) alongside bare unanchored
+  patterns that match at any depth in **every repo on this machine**: `plan.md`,
+  `plan.done.md`, `todos.md`, `bugs.md`, `issues.md`, `30day.md`, `GEMINI.md`, and the
+  directory names `artifacts`, `tmp`, `vendor`, `bin`, `model_data`. This is how
+  `docs/plan.md` was written, referenced repeatedly, and never committed for this
+  repo's entire history — `git status` shows nothing, so the file does not exist to
+  anyone else. **In dira the current damage is limited to `.claude/`**, which matches
+  practice; the hazard is latent elsewhere, where a `bin/` source directory or a Go
+  `vendor/` would vanish silently. Proposed: move the project-specific lines back to
+  the project that owns them, and anchor what remains (`/plan.md`, not `plan.md`).
+  **Not done here** — editing a global config affects every repo and is the owner's
+  call, not a session's. Detail in `docs/lore.md` L-0005.
+
 - **The Notion portfolio mirror cannot be written from this machine.** The house rule
   requires every lane event to also update the Engineering Portfolio database, but the
   `ntn` CLI is not installed and no Notion MCP server is connected to this session. Four
