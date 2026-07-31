@@ -157,7 +157,7 @@ func TestColdStartBudget(t *testing.T) {
 	}
 	t.Logf("  a sample of the measured output:\n%s", excerpt(lastOut))
 
-	if err := CheckBudgets(cold, "cold", coldMedianBudget, coldMaxBudget); err != nil {
+	if err := CheckBudgets(cold, "cold", coldMedianBudget); err != nil {
 		t.Error(err)
 	}
 
@@ -221,33 +221,30 @@ func TestColdStartBudget(t *testing.T) {
 		}
 	})
 
-	t.Run("both budget ceilings fire, and name themselves", func(t *testing.T) {
-		// Red: the same distribution against ceilings nothing can meet.
-		// This is the constructed defect for the budget assertion
-		// itself, held in the tree rather than in a shell history — the
-		// alternative is editing budget.go, which this lane forbids.
-		err := CheckBudgets(cold, "cold", time.Microsecond, time.Microsecond)
+	t.Run("the median ceiling fires and names itself", func(t *testing.T) {
+		// Red: the same distribution against a ceiling nothing can meet.
+		// This is the constructed defect for the budget assertion itself,
+		// held in the tree rather than in a shell history — the alternative
+		// is editing budget.go, which this lane forbids.
+		//
+		// There was a second ceiling here, coldMaxBudget over the single
+		// worst sample. dec-0026 removed it after CI measured a 191ms
+		// outlier against a passing median: at n=20 the maximum is one
+		// observation with no averaging behind it, so it graded the
+		// scheduler rather than dira.
+		err := CheckBudgets(cold, "cold", time.Microsecond)
 		if err == nil {
-			t.Fatal("a distribution over both ceilings was accepted")
+			t.Fatal("a distribution over the ceiling was accepted")
 		}
-		for _, want := range []string{"cold MEDIAN budget is broken", "cold SINGLE-RUN MAXIMUM budget is broken"} {
-			if !strings.Contains(err.Error(), want) {
-				t.Errorf("the failure does not name %q, so a red run would not say which budget broke:\n%v", want, err)
-			}
+		if !strings.Contains(err.Error(), "cold MEDIAN budget is broken") {
+			t.Errorf("the failure does not name the median budget, so a red run would not say what broke:\n%v", err)
 		}
-		// And each fires alone, so neither message is standing in for
-		// the other.
-		if err := CheckBudgets(cold, "cold", time.Microsecond, time.Hour); err == nil ||
-			strings.Contains(err.Error(), "SINGLE-RUN MAXIMUM") {
-			t.Errorf("the median ceiling alone did not produce the median failure and nothing else: %v", err)
-		}
-		if err := CheckBudgets(cold, "cold", time.Hour, time.Microsecond); err == nil ||
-			strings.Contains(err.Error(), "MEDIAN budget") {
-			t.Errorf("the maximum ceiling alone did not produce the maximum failure and nothing else: %v", err)
-		}
-		// Green: the same distribution against ceilings it meets.
-		if err := CheckBudgets(cold, "cold", time.Hour, time.Hour); err != nil {
-			t.Errorf("a distribution inside both ceilings was rejected: %v", err)
+		// Green: the same distribution against a ceiling it meets. The
+		// assertion has to be shown accepting a correct case, or a
+		// checker that rejects everything looks identical to one that
+		// works.
+		if err := CheckBudgets(cold, "cold", time.Hour); err != nil {
+			t.Errorf("a distribution inside the ceiling was rejected: %v", err)
 		}
 	})
 

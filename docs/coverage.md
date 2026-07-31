@@ -168,3 +168,5 @@ Registering every obligation forced three admissions no plan document had surfac
 | `impl:dec-0025` | done:E2-L4-T2 | `y` writes `confirmed_by: human` and a bumped `updated`; state stays `staged`, every other byte unchanged. No schema change |
 | `trigger:dec-0025:6d5634` | blocked:E2 | revisit trigger: a surface needs to tell extraction-pending from human-pending in a way `confirmed_by`'s presence cannot express |
 | `trigger:dec-0025:c8b987` | blocked:E2 | revisit trigger: semantic extraction proves unreliable enough that a human writes the why_not by hand anyway |
+| `impl:dec-0026` | done | `coldMaxBudget` removed from `internal/perf`; the cold gate asserts the median alone. CI comments updated; the tail is still published to the step summary, asserted by nothing |
+| `trigger:dec-0026:a08865` | blocked:E1 | revisit trigger: a measured distribution over many CI runs exists, so a percentile ceiling can be DERIVED rather than chosen. E1-L6-T5's phase attribution is the natural place |

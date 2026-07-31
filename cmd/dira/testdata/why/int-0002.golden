@@ -33,6 +33,10 @@ edges
                dec-0016  Self-host TeX Gyre Pagella; the system-font stack was
                          silently broken on Linux
                            an embedded subset keeps the offline guarantee intact
+               dec-0026  The cold-start budget is a median, not a maximum; the
+                         single-run ceiling is dropped
+                           this narrows what "not perceptible" is measured as;
+                           it does not change the number
   informed by  dec-0015  The derived cache stays honest by content hash, not by
                          modification time
                            spends 4.7ms of the read path per invocation, and

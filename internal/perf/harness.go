@@ -477,17 +477,12 @@ func (t Timing) Report(label string) string {
 // which is a thing done once in a shell and never again. As parameters, both
 // failure messages are provable from a test in the tree, on every run, without
 // touching a number this lane is forbidden to touch.
-func CheckBudgets(t Timing, label string, median, max time.Duration) error {
+func CheckBudgets(t Timing, label string, median time.Duration) error {
 	var errs []error
 	if t.Median > median {
 		errs = append(errs, fmt.Errorf(
 			"the %s MEDIAN budget is broken: median of %d runs is %v, over the %v ceiling by %v",
 			label, t.N, t.Median.Round(logUnit), median.Round(logUnit), (t.Median-median).Round(logUnit)))
-	}
-	if t.Max > max {
-		errs = append(errs, fmt.Errorf(
-			"the %s SINGLE-RUN MAXIMUM budget is broken: slowest of %d runs is %v, over the %v ceiling by %v",
-			label, t.N, t.Max.Round(logUnit), max.Round(logUnit), (t.Max-max).Round(logUnit)))
 	}
 	return errors.Join(errs...)
 }

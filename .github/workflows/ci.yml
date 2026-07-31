@@ -156,8 +156,11 @@ jobs:
   #   - A stated higher percentile (assert p90, or p99, instead of the median).
   #     Rejected: it is a strict loosening of the statistic int-0002 was written
   #     against, and at N=20 the p90 is a SINGLE observation — the 18th sample —
-  #     which is noisier than the median, not less noisy. The tail is already
-  #     asserted anyway, by coldMaxBudget over every sample.
+  #     which is noisier than the median, not less noisy. dec-0026 removed the
+  #     single-run ceiling for that same reason after CI measured a 191ms outlier
+  #     against a passing median, so the tail is now REPORTED here and asserted by
+  #     nothing — a widening tail is visible in the sample list below, deliberately
+  #     without failing on one descheduled spawn.
   #   - A self-hosted runner. Rejected: dira is public, and a self-hosted runner on
   #     a public repository executes fork-PR code on somebody's own hardware. It
   #     would also make the gate unreproducible by any contributor, which is the
@@ -278,8 +281,8 @@ jobs:
             echo "comment in \`.github/workflows/ci.yml\`."
             echo
             echo '**Distribution.** The minimum is the uncontended estimate and is asserted'
-            echo 'against by nothing; the median carries every assertion here, and the single-run'
-            echo 'maximum carries `coldMaxBudget`. A median over its ceiling with the minimum far'
+            echo 'against by nothing; the median carries every assertion here, and the tail is'
+            echo 'reported but no longer asserted (dec-0026). A median over its ceiling with the minimum far'
             echo 'under it is a noisy runner; a median over its ceiling with the minimum beside it'
             echo 'is a regression, and re-running will not move it.'
             echo

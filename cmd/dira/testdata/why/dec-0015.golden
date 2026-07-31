@@ -87,10 +87,15 @@ int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-
                        cache
 
 edges
-  informs  cst-0003  Inheritance is one-way and read-time only — private context
-                     never lands in a public ledger
-                       the cache holds the titles of private entries, so it
-                       stays gitignored and that is now a test
-           int-0002  Zero-ceremony operation — one binary, no server, no daemon
-                       spends 4.7ms of the read path per invocation, and adds
-                       6.5MB to the binary
+  informs      cst-0003  Inheritance is one-way and read-time only — private
+                         context never lands in a public ledger
+                           the cache holds the titles of private entries, so it
+                           stays gitignored and that is now a test
+               int-0002  Zero-ceremony operation — one binary, no server, no
+                         daemon
+                           spends 4.7ms of the read path per invocation, and
+                           adds 6.5MB to the binary
+  informed by  dec-0026  The cold-start budget is a median, not a maximum; the
+                         single-run ceiling is dropped
+                           the cache exists to make the cold path fast, and this
+                           is how that claim is now graded

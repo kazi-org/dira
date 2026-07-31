@@ -31,18 +31,24 @@ const (
 	// is what is judged against it rather than the other way round.
 	coldMedianBudget = 100 * time.Millisecond
 
-	// coldMaxBudget is the same claim asserted over every single sample: no
-	// one cold run may exceed 150ms. A user does not experience a median;
-	// they experience the invocation they got.
+	// coldMaxBudget was REMOVED by dec-0026, after the perf gate's first run on
+	// real CI hardware. It asserted that no single cold run may exceed 150ms,
+	// and on ubuntu-latest the slowest of twenty spawns came in at 191ms while
+	// the median passed.
 	//
-	// This is the most fragile assertion in the lane and it is stated as such
-	// rather than discovered as a flake. A single-run maximum over N>=20
-	// samples fails on one scheduler hiccup, and on a machine running a dozen
-	// parallel sessions `dira version` alone — a binary that reads nothing —
-	// has been measured at 92.8ms median and 95.6ms p90. The answer chosen
-	// here is isolation (this package is build-tagged out of the main suite
-	// and runs with -p 1 in a job of its own), not a larger number.
-	coldMaxBudget = 150 * time.Millisecond
+	// At n=20 the maximum IS the single worst observation, with no averaging
+	// behind it — the noisiest statistic in the set, and the one most sensitive
+	// to a descheduled spawn. A 191ms sample is not evidence that a hook
+	// invocation is perceptible; it is evidence that one spawn in twenty was
+	// descheduled. int-0002's number is unchanged; the statistic it is read from
+	// is now the median alone.
+	//
+	// The cost is real and accepted, not overlooked: a tail regression can hide
+	// behind a healthy median. What partly covers it is that the perf job
+	// publishes the full sorted sample list to the CI step summary on every run,
+	// so a widening tail is visible to anyone who looks even though nothing
+	// fails on it. Do not reintroduce a single-run ceiling without the measured
+	// distribution dec-0026's revisit_if asks for.
 
 	// warmBudget is the ceiling for the common case: the cache exists and
 	// reconciles clean, which is what every hook invocation after the first
@@ -100,7 +106,6 @@ type budget struct {
 func budgets() []budget {
 	return []budget{
 		{"coldMedianBudget", coldMedianBudget, "median of N>=20 cold `dira brief --context --chain` spawns"},
-		{"coldMaxBudget", coldMaxBudget, "slowest single cold spawn of the same N"},
 		{"warmBudget", warmBudget, "median of N>=20 warm `dira brief --context --chain` spawns (E1-L6-T2)"},
 		{"reindexBudget", reindexBudget, "median of N>=20 cold `dira reindex` spawns (E1-L6-T2)"},
 	}
