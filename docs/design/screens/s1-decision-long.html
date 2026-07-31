@@ -6,26 +6,31 @@
 <meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
 <title>Entries are markdown files, not rows in a database — kazi-org/dira decision record</title>
-<meta name="description" content="Why kazi-org/dira stores its ledger as markdown files in git rather than in a database, with the twenty alternatives it ruled out and the grounds for each.">
+<meta name="description" content="Why kazi-org/dira stores its ledger as markdown files in git rather than in a database, with the nineteen alternatives it ruled out and the grounds for each.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Entries are markdown files, not rows in a database">
-<meta property="og:description" content="dec-0002 - accepted. Twenty alternatives on record, each with its grounds. A decision record nobody typed.">
+<meta property="og:description" content="dec-0002 - accepted. Nineteen alternatives on record, each with its grounds. A decision record nobody typed.">
 <meta property="og:site_name" content="dira - decision memory for AI coding agents">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../tokens.css">
 <link rel="stylesheet" href="decision.css">
 <!-- S1 AT LENGTH — the same decision page on the far side of the degradation
-     threshold. Twenty alternatives, one of them 405 words. This is not a
+     threshold. Nineteen alternatives, one of them 405 words. This is not a
      variant design: it is s1-decision.html with more rows, and it exists
      because WEB.md 9 requires long content to be CHECKED rather than assumed,
      and because "the alternatives" is the one block on this page whose length
      the author does not control.
 
-     Above six alternatives the renderer emits only the upheld one open. What a
-     reader gets is twenty struck names, each with one line of ground, each
+     Above six alternatives the renderer emits every <details> CLOSED. What a
+     reader gets is nineteen struck names, each with one line of ground, each
      opening in place — a map of the argument rather than 6.9 screens of it.
      The struck refusal with its grounds beneath is not lost; it is one
-     keystroke down instead of always underfoot. -->
+     keystroke down instead of always underfoot.
+
+     dec-0019: the rule used to say "only the upheld one open", and the upheld
+     card is gone — `alternatives` models the roads NOT taken, so no ledger could
+     ever produce it. The ruling above is the chosen road, at up to 52px. The
+     chain's ✓ row went with it: `dira why` prints ✗ and never ✓. -->
 </head>
 <body>
 
@@ -47,7 +52,6 @@
     <div class="node">
       <div class="row"><span class="id">dec-0002</span><span class="txt">Markdown + YAML front-matter, in git</span><span class="lo">accepted 29 Jul</span></div>
       <div class="node">
-        <div class="row"><span class="ok">✓ markdown</span><span class="dim">readable with cat, reviewable in the diff</span></div>
         <div class="row"><span class="no">✗ sqlite</span><span class="dim">the record becomes a file you need a tool to open</span></div>
         <div class="row"><span class="no">✗ jsonl</span><span class="dim">append-only; current state must be computed</span></div>
         <div class="row"><span class="no">✗ gh issues</span><span class="dim">a writing surface owned by someone else</span></div>
@@ -59,7 +63,6 @@
   <section class="chain-stack" aria-label="Why-chain">
     <div class="row"><span class="k">int-0001</span><span class="v">A record that outlives the tool</span></div>
     <div class="row sub"><span class="k">dec-0002</span><span class="v">Markdown + YAML front-matter, in git</span></div>
-    <div class="row sub2"><span class="m ok">✓</span><span class="v">markdown — readable with cat</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">sqlite — needs a tool to open</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">jsonl — state must be computed</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">gh issues — owned by someone else</span></div>
@@ -82,17 +85,7 @@
       </p>
 
       <section class="args">
-        <h2 class="seclabel">Alternatives on record — 20</h2>
-
-        <details class="alt upheld" open>
-          <summary>
-            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✓</span><span class="name">Markdown files with YAML front-matter, one per entry</span><span class="tag">upheld</span></span>
-            <span class="one">readable with cat, reviewable in the pull request, outlives the binary</span>
-          </summary>
-          <div class="detail">
-            <p class="grounds">Every entry is a file a human can read with no tool installed, and every change is a diff a reviewer already sees in the pull request that carries the work. The front-matter holds the structure — id, kind, state, edges — so one file is both the prose and the data without being two artifacts that can disagree.</p>
-          </div>
-        </details>
+        <h2 class="seclabel">Alternatives on record — 19</h2>
 
         <details class="alt">
           <summary>
@@ -308,8 +301,7 @@
       </div>
       <div class="card">
         <h3>On record</h3>
-        <div class="kv"><span class="k">alternatives</span><span>20</span></div>
-        <div class="kv"><span class="k">upheld</span><span style="color:var(--converged)">1</span></div>
+        <div class="kv"><span class="k">alternatives</span><span>19</span></div>
         <div class="kv"><span class="k">longest grounds</span><span>405 w</span></div>
       </div>
     </aside>

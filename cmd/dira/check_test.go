@@ -86,9 +86,19 @@ func (r *runner) run(args ...string) int { return exitCodeOf(runCheck(r.app, arg
 func fixtureLedger(t *testing.T) string {
 	t.Helper()
 
-	names, err := os.ReadDir(daemonFixture)
+	return fixtureLedgerFrom(t, daemonFixture)
+}
+
+// fixtureLedgerFrom is fixtureLedger over any of the frozen fixture ledgers.
+// E3-L4 needs the same materialisation for testdata/ledgers/supersede, and a
+// second copy of it would be a second place for the "no entry files" guard
+// below to be forgotten.
+func fixtureLedgerFrom(t *testing.T, fixture string) string {
+	t.Helper()
+
+	names, err := os.ReadDir(fixture)
 	if err != nil {
-		t.Fatalf("reading the fixture ledger %s: %v", daemonFixture, err)
+		t.Fatalf("reading the fixture ledger %s: %v", fixture, err)
 	}
 
 	root := t.TempDir()
@@ -102,7 +112,7 @@ func fixtureLedger(t *testing.T) string {
 		if name.IsDir() || filepath.Ext(name.Name()) != ".md" {
 			continue
 		}
-		data, err := os.ReadFile(filepath.Join(daemonFixture, name.Name()))
+		data, err := os.ReadFile(filepath.Join(fixture, name.Name()))
 		if err != nil {
 			t.Fatalf("reading %s: %v", name.Name(), err)
 		}
@@ -115,7 +125,7 @@ func fixtureLedger(t *testing.T) string {
 		// A fixture that materialised nothing would make every test over it
 		// pass by having nothing to contradict, which is the vacuous-green
 		// failure this lane exists to avoid.
-		t.Fatalf("no entry files in %s; the fixture ledger is empty", daemonFixture)
+		t.Fatalf("no entry files in %s; the fixture ledger is empty", fixture)
 	}
 	return root
 }

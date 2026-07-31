@@ -75,6 +75,48 @@ type Conflict struct {
 	Score float64
 }
 
+// A Notice is a match against something the ledger has stopped enforcing,
+// redirected to whatever replaced it.
+//
+// It is informational and never a verdict: a notice cannot make a check exit
+// non-zero, because the entry it came from is superseded and a superseded entry
+// enforces nothing. The row exists so that supersession *moves* enforcement
+// rather than silently dropping it — a plan that would have been refused last
+// month gets told where the thinking went, instead of getting a bare ✓ that
+// looks identical to never having been considered.
+//
+// What it deliberately does not carry is the id of the superseded entry. The
+// remedy and the record both live in the replacement: it is the entry that is
+// enforced now, it is the entry that carries the `supersedes` edge, and
+// `dira why <replacement>` walks back to what it replaced. Naming the retired
+// id here would put a dead reference in the one line a reader is meant to act
+// on.
+type Notice struct {
+	// SupersededBy is the entry that replaced the one the plan matched, or
+	// empty where the record names none — a state flipped by hand with no
+	// `supersedes` edge pointing at it, which is exactly the inconsistency
+	// qst-0006 found in this repository's own ledger.
+	SupersededBy string
+
+	// Enforced reports whether that replacement is itself enforcement
+	// substrate. It is false for a replacement that is staged, superseded in
+	// its turn, or of a kind the check never matches — and the message says
+	// so rather than promising an enforcement that is not there.
+	Enforced bool
+
+	// Basis is what inside the retired entry the plan matched.
+	Basis Basis
+
+	// Score is the overlap that produced the notice, on the same advisory
+	// footing as a Conflict's.
+	Score float64
+
+	// entry is the superseded entry's id. It is unexported because nothing
+	// may render it: it exists to hold one notice per retired entry rather
+	// than one per matched alternative.
+	entry string
+}
+
 // A Verdict is the whole result of a check.
 type Verdict struct {
 	// Plan is the candidate text, as typed.
@@ -84,10 +126,17 @@ type Verdict struct {
 	// runs over the same ledger produce the same bytes.
 	Conflicts []Conflict
 
+	// Notices are the matches against retired thinking, strongest first.
+	// They are reported alongside the verdict and are never part of it.
+	Notices []Notice
+
 	// Enforced is how many entries were eligible to be cited. It is
 	// reported on the compliant path because "no conflict" against a ledger
 	// the check failed to read is indistinguishable from "no conflict"
 	// against one it read in full, and only one of those is an answer.
+	//
+	// A superseded entry is not counted: it cannot be cited, and counting it
+	// would make the number a count of files rather than of what is enforced.
 	Enforced int
 }
 
@@ -160,7 +209,49 @@ func (m *matcher) verdict(plan string) *Verdict {
 		}
 		return v.Conflicts[i].Entry < v.Conflicts[j].Entry
 	})
+
+	v.Notices = m.notice(candidate)
 	return v
+}
+
+// notice matches the plan against what the ledger has retired.
+//
+// It is the same comparison the verdict uses, run over the units supersession
+// took out of the enforcement set. Sharing the comparison is the point: a
+// redirect that fired on a different rule from the citation it replaces would
+// mean supersession changed what the check *detects* rather than what it
+// enforces, and the entry that used to be cited could quietly stop being
+// noticed at all.
+func (m *matcher) notice(candidate Text) []Notice {
+	best := map[string]Notice{}
+	for _, u := range m.retired {
+		h := m.score(candidate, u)
+		if !m.matched(h) {
+			continue
+		}
+		if prior, ok := best[u.citation.Entry]; ok && prior.Score >= h.score {
+			continue
+		}
+		best[u.citation.Entry] = Notice{
+			SupersededBy: u.supersededBy,
+			Enforced:     u.supersederEnforced,
+			Basis:        u.citation.Basis,
+			Score:        h.score,
+			entry:        u.citation.Entry,
+		}
+	}
+
+	notices := make([]Notice, 0, len(best))
+	for _, n := range best {
+		notices = append(notices, n)
+	}
+	sort.Slice(notices, func(i, j int) bool {
+		if notices[i].Score != notices[j].Score {
+			return notices[i].Score > notices[j].Score
+		}
+		return notices[i].entry < notices[j].entry
+	})
+	return notices
 }
 
 // documentText is what an entry contributes to document frequency.

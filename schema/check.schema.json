@@ -5,7 +5,7 @@
   "description": "The machine-readable verdict of `dira check`. This is a published contract: a pre-commit hook, a CI step or a coding agent parses it to decide whether a plan contradicts something the ledger already settled. The exit code is the primary signal (0 compliant, 2 at least one cited conflict, 1 dira's own error) and is repeated here so a caller holding only stdout still knows what it is looking at. Two rules below are security rules rather than shape rules, and are expressed as schema constraints so that a leak fails validation rather than review: a private entry is cited by reference and never by text (cst-0003), and no basis other than an alternative may carry a revisit condition, because entry.schema.json gives `revisit_if` only to `$defs/alternative` (docs/design.md §7).",
   "type": "object",
   "additionalProperties": false,
-  "required": ["plan", "verdict", "exit_code", "enforced_entries", "conflicts"],
+  "required": ["plan", "verdict", "exit_code", "enforced_entries", "conflicts", "notices"],
   "properties": {
     "plan": {
       "type": "string",
@@ -28,6 +28,11 @@
       "type": "array",
       "description": "The citations, strongest first and then by entry id. The order is total, so two runs over the same ledger produce the same document.",
       "items": { "$ref": "#/$defs/conflict" }
+    },
+    "notices": {
+      "type": "array",
+      "description": "Matches against thinking this ledger has retired, redirected to whatever replaced it. Informational and never a verdict: a notice cannot change `verdict` or `exit_code`, because the entry it came from is superseded and a superseded entry enforces nothing. It exists so supersession moves enforcement rather than silently dropping it — a plan that would have been refused before gets told where the thinking went instead of a bare compliant verdict.",
+      "items": { "$ref": "#/$defs/notice" }
     }
   },
   "allOf": [
@@ -55,6 +60,38 @@
       "type": "string",
       "pattern": "^([a-z][a-z0-9_-]*:)?(int|dec|qst|cst|note)-[0-9]{4,}$",
       "description": "An entry reference, optionally namespaced by a ledger name. Matches the `$defs/ref` pattern in entry.schema.json."
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["superseded_by", "replacement_enforced", "basis", "score"],
+      "description": "One redirect. It names the entry that replaced the retired one and deliberately does not name the retired one itself: the replacement is what is enforced now, what carries the `supersedes` edge back, and what `dira why` should be pointed at, so it is the only id in the line worth acting on.",
+      "properties": {
+        "superseded_by": {
+          "oneOf": [{ "$ref": "#/$defs/ref" }, { "type": "null" }],
+          "description": "The entry recorded as having replaced the one the plan matched. Null where the record names none — a state flipped to `superseded` with no `supersedes` edge pointing at it, which is a broken record rather than a successor this document may invent."
+        },
+        "replacement_enforced": {
+          "type": "boolean",
+          "description": "Whether that replacement is itself enforcement substrate. False for a replacement that is staged, superseded in its turn, or of a kind the check never matches — and false always where there is none. A redirect that claimed otherwise would send a caller to an entry that will not stop them either."
+        },
+        "basis": {
+          "enum": ["alternative", "decision", "constraint"],
+          "description": "What inside the retired entry was matched, on the same vocabulary a citation uses."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The overlap that produced the notice, rounded to three decimals. Advisory, on the same footing as a conflict's score."
+        }
+      },
+      "allOf": [
+        {
+          "description": "A replacement that does not exist cannot be enforced.",
+          "if": { "properties": { "superseded_by": { "type": "null" } }, "required": ["superseded_by"] },
+          "then": { "properties": { "replacement_enforced": { "const": false } } }
+        }
+      ]
     },
     "conflict": {
       "type": "object",

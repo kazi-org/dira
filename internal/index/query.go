@@ -137,9 +137,40 @@ func (ix *Index) In(ctx context.Context, id string) ([]Backlink, error) {
 // Resolve turns what a human typed into entry ids.
 //
 // An exact id that exists resolves to itself and nothing else, so `dira why
-// dec-0002` is never ambiguous. Anything else is matched as a case-insensitive
-// substring of a title or as a whole tag, newest first — which is what makes
-// `dira why daemon` land on the same entry as `dira why int-0002`.
+// dec-0002` is never ambiguous. Anything else is matched lexically against
+// titles and tags: an entry matches when **every** word of the term is either a
+// case-insensitive substring of its title or one of its whole tags. That is what
+// makes `dira why daemon` land on the same entry as `dira why int-0002`, and
+// what makes `dira why "status derived"` find dec-0004, whose title carries both
+// words but not adjacently.
+//
+// # Why all-tokens rather than one substring
+//
+// dec-0014 chose lexical matching over embeddings for the enforcer, and a
+// contiguous-substring test is narrower than lexical: it can only find a phrase
+// somebody typed in the same order the title happens to use. Every word of the
+// term is still required, so this widens recall without turning a term into an
+// OR over common words — "the cache" must not return every entry whose title
+// contains "the".
+//
+// # Scattered matching is a fallback, not an addition
+//
+// Matches come in two tiers: the term found contiguously, and the term's words
+// all found somewhere. **When the better tier has any member, it is the whole
+// answer.** Scattered matching only runs the ledger when the phrase itself is
+// nowhere, which is the case it was added for.
+//
+// That tiering is not a refinement, it is the property that makes this change
+// safe. Merely *ordering* contiguous matches first would keep today's answer at
+// the top of a longer list — and `dira why` renders a list rather than a chain
+// the moment there is more than one match, so `dira why "read time"` would have
+// stopped printing dec-0004's chain and started printing a two-item menu with
+// dec-0004 at the top of it. Nothing a reader types today changes what they see;
+// terms that found nothing yesterday can now find something.
+//
+// A single-word term is contiguous with itself, so its result set and its order
+// are exactly what they were before any of this existed — which is what keeps
+// cmd/dira/testdata/why/*.golden where it is.
 //
 // A term matching nothing yields an empty slice and no error. Deciding that "no
 // such entry" is a failure is the caller's business: it is an error for `dira
@@ -162,26 +193,68 @@ func (ix *Index) Resolve(ctx context.Context, term string) ([]string, error) {
 		return []string{}, nil
 	}
 
-	lowered := strings.ToLower(term)
+	words := strings.Fields(strings.ToLower(term))
+	if len(words) == 0 {
+		return []string{}, nil
+	}
+	// The whole term, with its inner whitespace collapsed, is the phrase the
+	// ranking probe looks for. Collapsing it means a term typed with a double
+	// space still ranks as the phrase it obviously is.
+	phrase := strings.Join(words, " ")
+
+	// Placeholders bind in the order they appear in the statement, so the
+	// per-word arguments come first and the rank probe's pair last.
+	where := make([]string, 0, len(words))
+	args := make([]any, 0, 2+2*len(words))
+	for _, word := range words {
+		where = append(where, "("+matchesTerm+")")
+		args = append(args, word, " "+word+" ")
+	}
+	args = append(args, phrase, " "+phrase+" ")
+
 	rows, err := ix.db.QueryContext(ctx,
-		`SELECT id FROM entries WHERE instr(lower(title), ?) > 0 OR instr(lower(tags), ?) > 0
-		 ORDER BY created DESC, id ASC`,
-		lowered, " "+lowered+" ")
+		`SELECT id, (CASE WHEN `+matchesTerm+` THEN 0 ELSE 1 END) AS tier FROM entries WHERE `+
+			strings.Join(where, " AND ")+` ORDER BY tier, created DESC, id ASC`,
+		append([]any{args[len(args)-2], args[len(args)-1]}, args[:len(args)-2]...)...)
 	if err != nil {
 		return nil, fmt.Errorf("index: resolving %q: %w", term, err)
 	}
 	defer func() { _ = rows.Close() }()
 
 	out := []string{}
+	best := -1
 	for rows.Next() {
 		var id string
-		if err := rows.Scan(&id); err != nil {
+		var tier int
+		if err := rows.Scan(&id, &tier); err != nil {
 			return nil, fmt.Errorf("index: resolving %q: %w", term, err)
+		}
+		if best < 0 {
+			best = tier
+		}
+		if tier > best {
+			// Ordered by tier, so everything from here down is looser
+			// than what has already been found.
+			break
 		}
 		out = append(out, id)
 	}
 	return out, rows.Err()
 }
+
+// matchesTerm is the predicate one word of a term has to satisfy: a substring of
+// the title, or a whole tag.
+//
+// It takes two placeholders — the word, and the word surrounded by spaces — and
+// is used twice per query: once per word in the WHERE clause, and once over the
+// whole term to rank contiguous matches ahead of scattered ones. Writing it once
+// is what keeps those two uses from drifting into different notions of a match,
+// which is how a single-word term would quietly stop being contiguous with
+// itself and today's ordering would move.
+//
+// The space-surrounded form is why tags are stored as " a b c " (see
+// tagsColumn): it matches the tag `cache` and not the tag `cache-warm`.
+const matchesTerm = `instr(lower(title), ?) > 0 OR instr(lower(tags), ?) > 0`
 
 // Entry returns the whole entry, read from its file.
 //

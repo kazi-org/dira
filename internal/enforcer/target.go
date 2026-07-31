@@ -76,6 +76,12 @@ type unit struct {
 	// prose selects which multiword signal applies. A proposal can be
 	// restated whole; prose can only be quoted from. See matcher.score.
 	prose bool
+
+	// supersededBy and supersederEnforced are set only on a retired unit —
+	// one this ledger no longer enforces — and carry the redirect a match on
+	// it is reported through. See retiredSet.
+	supersededBy       string
+	supersederEnforced bool
 }
 
 // enforcementSet turns the entries of a ledger into the units a plan is checked
@@ -103,6 +109,87 @@ func enforcementSet(entries []*ledger.Entry) []unit {
 		units = append(units, unitsFor(e)...)
 	}
 	return units
+}
+
+// retiredSet turns the entries supersession took *out* of the enforcement set
+// into the units a match is reported through rather than cited against.
+//
+// The table in docs/plan/lanes/E3.md gives this exactly one row:
+// decision/superseded is matched against nothing, "but a match is reported and
+// redirected to its superseder". So this covers superseded *decisions* and
+// nothing else — a superseded constraint's row says plainly "nothing", and
+// widening the redirect to it would be this lane inventing a rule the table
+// closed. The asymmetry is reported in docs/decisions-pending/E3-L4-report.md
+// rather than quietly fixed here.
+//
+// The units are the ones the entry had while it was enforced — its
+// alternatives — so the redirect fires on exactly the plans that used to be
+// refused. Its title is not matched: a superseded decision's title describes
+// what it *chose*, and matching it would make the successor's own design
+// produce a notice about the design it replaced.
+func retiredSet(entries []*ledger.Entry) []unit {
+	replacement := superseders(entries)
+
+	var units []unit
+	for _, e := range entries {
+		if e.Kind != ledger.KindDecision || e.State != ledger.StateSuperseded {
+			continue
+		}
+		base := Citation{
+			Entry:   e.ID,
+			Kind:    e.Kind,
+			State:   e.State,
+			Date:    entryDate(e),
+			Private: e.Private,
+			Title:   e.Title,
+		}
+		by := replacement[e.ID]
+		for _, u := range alternativeUnits(e, base) {
+			u.supersededBy = by.id
+			u.supersederEnforced = by.enforced
+			units = append(units, u)
+		}
+	}
+	return units
+}
+
+// superseder is what the ledger records as having replaced an entry.
+type superseder struct {
+	id string
+
+	// enforced is whether that replacement is itself enforcement substrate,
+	// asked of the enforcement set rather than restated from the table. A
+	// replacement that is staged, or superseded in its turn, enforces
+	// nothing, and a redirect that claimed otherwise would send a reader to
+	// an entry that will not stop them either.
+	enforced bool
+}
+
+// superseders indexes the `supersedes` edges by the entry they retire.
+//
+// The edge lives on the *new* entry (dec-0002: edges are stored on the subject,
+// so a mutation is one file), which means the only way to ask "what replaced
+// this?" is to read the whole ledger and reverse the direction. The check has
+// every entry in hand already, so that costs a pass over a slice.
+//
+// Two entries claiming to have superseded the same one is a broken record, not
+// a case with a right answer, so the lowest id wins: the report is then the same
+// on every run and on every backend, rather than depending on the order the
+// ledger happened to be read in.
+func superseders(entries []*ledger.Entry) map[string]superseder {
+	out := make(map[string]superseder)
+	for _, e := range entries {
+		for _, edge := range e.Edges {
+			if edge.Type != ledger.EdgeSupersedes {
+				continue
+			}
+			if held, taken := out[edge.To]; taken && held.id <= e.ID {
+				continue
+			}
+			out[edge.To] = superseder{id: e.ID, enforced: len(unitsFor(e)) > 0}
+		}
+	}
+	return out
 }
 
 func unitsFor(e *ledger.Entry) []unit {

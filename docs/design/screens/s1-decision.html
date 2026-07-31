@@ -18,11 +18,18 @@
      Composition: invocation + chain (what is this tool) -> the ruling and its
      reasoning in serif (what was decided) -> alternatives with grounds.
 
-     FOUR alternatives, so every <details> is emitted OPEN: the degradation rule
+     THREE alternatives, so every <details> is emitted OPEN: the degradation rule
      in decision.css opens everything at six or fewer. Nothing is hidden on this
      page — the struck name still sits directly above its grounds, exactly as it
      did before the hinge existed. s1-decision-long.html is the same template on
-     the other side of that threshold. -->
+     the other side of that threshold.
+
+     dec-0019: THREE, not four. This page used to carry a fourth card for the
+     UPHELD option, and `alternatives` models the roads NOT taken, so no ledger
+     could produce it. The chosen road is the <h1 class="ruling"> — the largest
+     element on the page — and the case for it is recorded inside the refusals it
+     answers. The chain's matching ✓ row went with it: `dira why` prints ✗ lines
+     and never a ✓, and one producer stands behind both renderers. -->
 </head>
 <body>
 
@@ -46,7 +53,6 @@
         <div class="row"><span class="no" style="visibility:hidden">✗ elixir/otp</span><span class="lo">revisit if a long-lived component appears</span></div>
         <div class="row"><span class="no">✗ rust</span><span class="dim">slower to write, smaller contributor pool</span></div>
         <div class="row"><span class="no">✗ node/bun</span><span class="dim">Node start-up matches BEAM; Bun is young</span></div>
-        <div class="row"><span class="ok">✓ go</span><span class="dim">one static binary, sub-100 ms cold start</span></div>
         <div class="node">
           <div class="row"><span class="id">kazi:prop-8a1f</span><span class="ok">converged</span><span class="lo">3/3 predicates green</span></div>
         </div>
@@ -60,7 +66,6 @@
     <div class="row sub2"><span class="m no">✗</span><span class="v">elixir/otp — BEAM start-up in a hook path</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">rust — slower to write, smaller pool</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">node/bun — start-up matches BEAM</span></div>
-    <div class="row sub2"><span class="m ok">✓</span><span class="v">go — one binary, sub-100 ms</span></div>
     <div class="row sub2"><span class="k">kazi:prop-8a1f</span><span class="v" style="color:var(--converged)">converged 3/3</span></div>
   </section>
 
@@ -80,17 +85,7 @@
       </p>
 
       <section class="args">
-        <h2 class="seclabel">Alternatives on record — 4</h2>
-
-        <details class="alt upheld" open>
-          <summary>
-            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✓</span><span class="name">Go — one static binary, sub-100&nbsp;ms cold start</span><span class="tag">upheld</span></span>
-            <span class="one">one binary, nothing to install alongside it, and a language most contributors already read</span>
-          </summary>
-          <div class="detail">
-            <p class="grounds">The standard library already covers files, JSON and YAML, an embedded HTTP server for <code>dira ui</code>, and SQLite through a single dependency. A wide contributor pool matters for a tool that wants drive-by pull requests.</p>
-          </div>
-        </details>
+        <h2 class="seclabel">Alternatives on record — 3</h2>
 
         <details class="alt" open>
           <summary>

@@ -50,6 +50,12 @@ type matcher struct {
 	weights *idf
 	units   []unit
 
+	// retired are the units supersession took out of the enforcement set.
+	// They are held apart from units rather than flagged inside it so that
+	// nothing which walks the enforcement set — the citation loop, the count
+	// of enforced entries — can reach them by forgetting to check a field.
+	retired []unit
+
 	threshold   float64
 	phraseFloor float64
 }
@@ -59,6 +65,7 @@ func newMatcher(entries []*ledger.Entry) *matcher {
 	m := &matcher{
 		weights:   newIDF(),
 		units:     enforcementSet(entries),
+		retired:   retiredSet(entries),
 		threshold: matchThreshold,
 	}
 	for _, e := range entries {

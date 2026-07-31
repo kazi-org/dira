@@ -42,13 +42,23 @@ const indent = "    "
 //     their escape hatch is the supersede line every block already ends with.
 //  3. Where an alternative recorded no revisit_if, the line is printed saying
 //     so. Omitting it reads as "never", which is the opposite of the truth.
+//
+// A fourth rule governs the informational lines: they come first, and they
+// never displace the call to action. A notice is context for a verdict, so it
+// is read before it; the line that says what to do about a conflict stays last,
+// where the frozen block puts it.
 func Render(w io.Writer, v *Verdict) error {
+	var b strings.Builder
+	for _, n := range v.Notices {
+		b.WriteString(noticeLine(n))
+	}
+
 	if v.Compliant() {
-		_, err := fmt.Fprintf(w, "✓ no conflict with %d enforced %s\n", v.Enforced, plural(v.Enforced, "entry", "entries"))
+		fmt.Fprintf(&b, "✓ no conflict with %d enforced %s\n", v.Enforced, plural(v.Enforced, "entry", "entries"))
+		_, err := io.WriteString(w, b.String())
 		return err
 	}
 
-	var b strings.Builder
 	ids := make([]string, 0, len(v.Conflicts))
 	for _, c := range v.Conflicts {
 		b.WriteString(block(c))
@@ -58,6 +68,33 @@ func Render(w io.Writer, v *Verdict) error {
 
 	_, err := io.WriteString(w, b.String())
 	return err
+}
+
+// noticeLine renders one redirect.
+//
+// It names the replacement and never the entry that was replaced. That is not
+// squeamishness about a dead id: the replacement is the entry that is enforced
+// now, carries the `supersedes` edge back, and is what `dira why` should be
+// pointed at, so it is the only id in the line worth acting on.
+//
+// The three forms are three different truths, and collapsing them would make
+// the line a guess. A replacement that is itself staged or superseded enforces
+// nothing, and a state flipped to `superseded` with no `supersedes` edge
+// pointing at it names nothing at all — which is exactly the shape of the
+// inconsistency qst-0006 found in this repository's own ledger, so the message
+// reports it rather than inventing a successor.
+func noticeLine(n Notice) string {
+	switch {
+	case n.SupersededBy == "":
+		return "ⓘ this plan matches superseded thinking; the ledger records nothing that replaced it, " +
+			"so nothing here is enforced\n"
+	case !n.Enforced:
+		return fmt.Sprintf("ⓘ this plan matches thinking %s replaced; %s is not enforced either, "+
+			"so nothing here is\n", n.SupersededBy, n.SupersededBy)
+	default:
+		return fmt.Sprintf("ⓘ this plan matches thinking %s replaced; %s is enforced in its place\n",
+			n.SupersededBy, n.SupersededBy)
+	}
 }
 
 // block renders one conflict.
@@ -142,6 +179,23 @@ type jsonVerdict struct {
 	ExitCode  int            `json:"exit_code"`
 	Enforced  int            `json:"enforced_entries"`
 	Conflicts []jsonConflict `json:"conflicts"`
+	Notices   []jsonNotice   `json:"notices"`
+}
+
+// jsonNotice is the machine form of a redirect. It carries the same words the
+// human line does and the same omission: the replacement is named, the retired
+// entry is not, in both modes, so a hook and a human are looking at the same
+// fact rather than at two versions of it.
+type jsonNotice struct {
+	// SupersededBy is null where the record names no replacement.
+	SupersededBy *string `json:"superseded_by"`
+
+	// ReplacementEnforced is false where the replacement is not itself
+	// enforcement substrate — including, always, where there is none.
+	ReplacementEnforced bool `json:"replacement_enforced"`
+
+	Basis string  `json:"basis"`
+	Score float64 `json:"score"`
 }
 
 type jsonConflict struct {
@@ -181,6 +235,7 @@ func RenderJSON(w io.Writer, v *Verdict) error {
 		ExitCode:  ExitCompliant,
 		Enforced:  v.Enforced,
 		Conflicts: []jsonConflict{},
+		Notices:   []jsonNotice{},
 	}
 	if !v.Compliant() {
 		out.Verdict = "conflict"
@@ -210,6 +265,19 @@ func RenderJSON(w io.Writer, v *Verdict) error {
 			}
 		}
 		out.Conflicts = append(out.Conflicts, jc)
+	}
+
+	for _, n := range v.Notices {
+		jn := jsonNotice{
+			ReplacementEnforced: n.Enforced,
+			Basis:               string(n.Basis),
+			Score:               round(n.Score),
+		}
+		if n.SupersededBy != "" {
+			by := n.SupersededBy
+			jn.SupersededBy = &by
+		}
+		out.Notices = append(out.Notices, jn)
 	}
 
 	enc := json.NewEncoder(w)

@@ -46,7 +46,6 @@
     <div class="node">
       <div class="row"><span class="id">dec-0011</span><span class="txt">Cross-boundary parents publish opaquely</span><span class="lo">accepted 30 Jul</span></div>
       <div class="node">
-        <div class="row"><span class="ok">✓ opaque refs</span><span class="dim">cst-0003 rule 3, applied consistently</span></div>
         <div class="row"><span class="no">✗ strip on publish</span><span class="dim">makes every adopting ledger read as orphan work</span></div>
         <div class="row"><span class="no">✗ redacted stubs</span><span class="dim">a private-to-public write path, judged per write</span></div>
         <div class="row"><span class="id-q">cst-0003</span><span class="dim">cite the ref, never the text</span><span class="lo">informs</span></div>
@@ -57,7 +56,6 @@
   <section class="chain-stack" aria-label="Why-chain">
     <div class="row"><span class="k">sire:int-0002</span><span class="v">private ledger</span><span class="wh">⊙ withheld</span></div>
     <div class="row sub"><span class="k">dec-0011</span><span class="v">Cross-boundary parents publish opaquely</span></div>
-    <div class="row sub2"><span class="m ok">✓</span><span class="v">opaque refs — cst-0003 applied consistently</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">strip on publish — everything reads orphan</span></div>
     <div class="row sub2"><span class="m no">✗</span><span class="v">redacted stubs — judged on every write</span></div>
   </section>
@@ -109,18 +107,13 @@
       </section>
 
       <section class="args">
-        <h2 class="seclabel">Alternatives on record — 3</h2>
+        <h2 class="seclabel">Alternatives on record — 2</h2>
 
-        <details class="alt upheld" open>
-          <summary>
-            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✓</span><span class="name">Publish the ref opaquely, resolve to three states</span><span class="tag">upheld</span></span>
-            <span class="one">no new rule — the constraint that already governs quoting a private ledger governs this</span>
-          </summary>
-          <div class="detail">
-            <p class="grounds">The only candidate that does not require overruling an accepted constraint. <code>cst-0003</code> rule 3 already settles the adjacent case — cite the ref, never the text — and a namespaced <code>derives_from</code> in a public entry is that rule applied consistently.</p>
-          </div>
-        </details>
-
+        <!-- dec-0019: the upheld card is gone from all three s1-* payloads.
+             `alternatives` models the roads NOT taken, so the chosen one has no
+             field to live in and no ledger can produce that card. The ruling
+             carries it, and the chain's ✓ row went with it because `dira why`
+             prints ✗ and never ✓. -->
         <details class="alt" open>
           <summary>
             <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">Publish opaquely, but keep drift two-state</span><span class="tag">refused</span></span>

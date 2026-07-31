@@ -327,6 +327,50 @@ condition exists where none can.
 Where a check must cite a **private** constraint in a public context, it cites the
 **ref only** (`me:cst-0002`), never the text (cst-0003).
 
+### 7.1 Supersession moves enforcement
+
+Every conflict block ends with "→ supersede dec-0060, or revise the plan", and
+`dira supersede dec-0060 --with dec-0061` is that first option. It writes **both**
+sides in one command — `dec-0061` gains a `supersedes` edge, `dec-0060`'s state
+becomes `superseded` — because either one alone is the contradiction `qst-0006`
+found in this repository's own ledger: an entry recorded as replaced while still
+reading `accepted`, or an entry that stops being enforced with nothing recorded as
+having taken its place. §4.1 defines the edge as doing both, so one command does
+both.
+
+Afterwards the same input no longer conflicts. It is not silently ignored either:
+a match against a superseded decision is **reported and redirected**, which is the
+one row of E3's enforcement table that produces output without producing a verdict.
+
+```
+$ dira check "add a background daemon to track run state"
+ⓘ this plan matches thinking dec-0061 replaced; dec-0061 is enforced in its place
+✓ no conflict with 6 enforced entries
+```
+
+The line names the replacement and not the entry it replaced — the replacement is
+what is enforced now and what carries the edge back, so it is the only id worth
+acting on. `--json` carries the same redirect in a `notices` array, and a notice
+never changes `verdict` or `exit_code`.
+
+Two writes cannot be made atomic here: `ledger.Store` has no transaction, because
+none exists over the GitHub Contents API (dec-0005). The edge is therefore written
+**first**, so an interruption between the two leaves the retired entry still
+enforced — loud and safe — rather than unenforced with nothing recorded as
+replacing it. Re-running the identical command finishes the job.
+
+A question cannot be superseded (the schema gives it only `open` and `answered`),
+and an entry in a **parent** ledger cannot be superseded from a child: both
+directions of that command are an upward write, and dira has none (cst-0003 rule 1).
+
+Both of those exit **2**, and so does every other refusal that comes from a rule in
+the record — an entry already replaced, a `staged` replacement, a cross-kind
+supersession. A bad flag, a malformed id, an entry that is not there, an unreadable
+ledger and a failed write all exit **1**. That is the same split `dira check` makes,
+and it is deliberate in both: across E3's two verbs, **2 is the record's answer and
+1 is never a verdict**, so a hook can fail open on 1 and surface 2 without knowing
+which verb it called.
+
 ---
 
 ## 8. Fractal tiers

@@ -106,8 +106,20 @@
       "if": { "properties": { "kind": { "const": "decision" } }, "required": ["kind"] },
       "then": {
         "properties": { "state": { "enum": ["accepted", "rejected", "superseded", "staged"] } },
-        "required": ["alternatives"],
-        "description": "A decision MUST record at least the alternative of not doing it. Rejected decisions are first-class and permanent — they are the substrate `dira check` reads to stop relitigation."
+        "description": "A decision MUST record at least the alternative of not doing it — unless it is still staged, in which case nobody has decided anything yet. Rejected decisions are first-class and permanent: they are the substrate `dira check` reads to stop relitigation.",
+        "allOf": [
+          {
+            "if": { "properties": { "state": { "const": "staged" } }, "required": ["state"] },
+            "then": {
+              "description": "A staged decision is a regex-tier proposal awaiting a human (dec-0003). `alternatives` is not required and may be empty, because the tier that captured it cannot know what was rejected or why, and a why_not it invented would be quoted back at the user three weeks later as their own reasoning. Tier 2 and the disposition flow fill this in; until then its absence is the honest record."
+            },
+            "else": {
+              "required": ["alternatives"],
+              "properties": { "alternatives": { "minItems": 1 } },
+              "description": "Once a decision leaves `staged`, a human has stood behind it and the roads not taken are part of what they stood behind. `alternatives: []` satisfied the letter of the old rule while asserting that there were none — which is exactly the assertion this field exists to prevent."
+            }
+          }
+        ]
       }
     },
     {

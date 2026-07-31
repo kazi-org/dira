@@ -39,6 +39,11 @@ const entriesDir = "entries"
 // disagree the files win (dec-0002).
 const cacheDirName = "cache"
 
+// configFile is the ledger's only hand-edited file. Everything under entries/ is
+// written by dira and everything under cache/ is derived, which is why this one
+// is read leniently and never rewritten (see internal/config).
+const configFile = "config.toml"
+
 // A Store reads and writes a ledger as a directory of markdown files.
 //
 // It holds no open file handles, no lock and no cached state, so it costs
@@ -349,3 +354,47 @@ func Find(start string) (string, error) {
 // because it is a path, and dec-0005 confines paths to a backend. The cache
 // package receives the string and never constructs one.
 func CacheDir(diraDir string) string { return filepath.Join(diraDir, cacheDirName) }
+
+// Name is what this ledger is called on a rendered surface: the directory
+// holding `.dira`, which is the repository name in every real checkout.
+//
+// It lives here for the same reason CacheDir does. dec-0005 says only a storage
+// backend may name a path, and taking the last segment of a path is naming one —
+// so a caller that wanted a display name and reached for path/filepath itself
+// would be putting a filesystem concept above ledger.Store, which is exactly the
+// retrofit E7's github backend would then have to undo. That backend will answer
+// this question from the repository it talks to, not from a directory.
+//
+// A ledger with nothing above it to name yields a neutral label rather than an
+// empty crumb.
+func Name(diraDir string) string {
+	name := filepath.Base(filepath.Dir(diraDir))
+	switch name {
+	case "", ".", string(filepath.Separator):
+		return "this ledger"
+	}
+	return name
+}
+
+// ReadConfig returns the bytes of .dira/config.toml, and nil for a ledger that
+// has none.
+//
+// A ledger with no config file is a working ledger: every value in it has a
+// default, and `dira init` — which would write one — has no owner in this
+// release (docs/plan/lanes/E1.md, "deliberately not in these lanes"). So absence
+// is not an error here. A file that exists and cannot be read *is* one, because
+// that is a permissions or a hardware problem rather than a shape dira supports,
+// and the caller decides whether to degrade or to stop.
+//
+// It lives on the backend for the same reason CacheDir does: it is a path, and
+// dec-0005 confines paths to a backend. internal/config takes the bytes.
+func ReadConfig(diraDir string) ([]byte, error) {
+	data, err := os.ReadFile(filepath.Join(diraDir, configFile))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("reading %s: %w", configFile, err)
+	}
+	return data, nil
+}

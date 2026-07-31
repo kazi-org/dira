@@ -405,3 +405,28 @@ contain it -- figures are now matched with their units.
 from *drifted*: previously a document stating a tolerance the gate does not
 enforce was indistinguishable from one that omitted it, and drifted is the
 dangerous case -- it reads as authoritative and is wrong.
+
+## L-0020: Exit 2 means "the record refused you" in E3's verbs and "you mistyped" everywhere else
+
+**Tags:** #cli #exit-codes #enforcer #critical
+**Date:** 2026-07-30
+**Repo:** kazi-org/dira
+
+**Rule:** `dira check` and `dira supersede` both route their own argument mistakes
+to exit **1**, so exit **2** from either means only that the ledger said no.
+`dira log` does the opposite on purpose and must not be "fixed" to match.
+**Why:** L-0013 recorded half of this for `check`. `supersede` needed the same
+split for the same reason and the split is now the *pair's* contract, not one
+command's quirk: a hook wrapping both can fail open on 1 and surface 2 without
+knowing which verb it called. Concretely — a cross-ledger supersede (cst-0003), a
+kind with no `superseded` state, an entry already replaced and a staged
+replacement are 2; a bad flag, a malformed id, a missing entry, an unreadable
+ledger and a failed write are 1. Both cannot be made consistent with `log`, which
+maps its own flag errors to 2 via the shared `usagef`: `log` has no policy
+refusals, so it never needs 2 to mean anything else, and the verb that shares a
+caller with `check` is `supersede`. The command's `-h` states this so a script
+author does not have to read the source.
+**Trigger:** Adding a flag or a refusal to `supersede`, or routing either
+command's errors through `usagef` "for consistency with the rest of the binary".
+Ask first which of the two things the new refusal is: a rule in the record saying
+no (2), or dira never getting far enough to ask (1).

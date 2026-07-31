@@ -90,6 +90,8 @@ func newApp(stdout, stderr io.Writer) *app {
 		{name: "log", summary: "write an entry to the ledger, or add an edge to one", run: runLog, usage: writeLogUsage},
 		{name: "check", summary: "refuse a plan that contradicts a settled decision", run: runCheck, usage: writeCheckUsage},
 		{name: "why", summary: whySummary, run: runWhy, usage: writeWhyUsage},
+		{name: "supersede", summary: supersedeSummary, run: runSupersede, usage: writeSupersedeUsage},
+		{name: "ui", summary: uiSummary, run: runUI, usage: writeUIUsage},
 		{name: "reindex", summary: "rebuild the derived read cache from the entry files", run: runReindex},
 		{name: "version", summary: "print the dira version", run: runVersion},
 	}

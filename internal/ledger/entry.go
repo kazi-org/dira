@@ -283,8 +283,17 @@ func (e *Entry) Validate() error {
 			return err
 		}
 	}
-	if e.Kind == KindDecision && len(e.Alternatives) == 0 {
-		return fmt.Errorf("a decision must record at least the alternative of not doing it")
+	// A staged decision is exempt, and the exemption is the whole reason the
+	// state exists. `dira sniff` captures decision language with a regular
+	// expression (dec-0003); it can see that a choice was announced and has
+	// no way to know what was rejected or why. Requiring an alternative here
+	// would leave it two moves, both dishonest: write `alternatives: []`,
+	// which satisfies the rule while asserting that the roads not taken were
+	// considered and found to be none, or invent a why_not that gets quoted
+	// back at the user as their own reasoning. So the requirement attaches at
+	// the moment a human stands behind the entry, not before.
+	if e.Kind == KindDecision && e.State != StateStaged && len(e.Alternatives) == 0 {
+		return fmt.Errorf("a decision must record at least the alternative of not doing it (a staged one need not: nobody has decided yet)")
 	}
 
 	for i, edge := range e.Edges {

@@ -37,3 +37,7 @@ edges
                          modification time
                            spends 4.7ms of the read path per invocation, and
                            adds 6.5MB to the binary
+               dec-0020  A "token" in brief.max_tokens is dira's own
+                         conservative estimate, not a model's tokenizer
+                           counting costs about a microsecond per rendered brief
+                           and adds nothing to the binary

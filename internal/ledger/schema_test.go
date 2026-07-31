@@ -30,25 +30,37 @@ type schemaDoc struct {
 			Pattern string `json:"pattern"`
 		} `json:"items"`
 	} `json:"properties"`
-	AllOf []struct {
-		If struct {
-			Properties map[string]struct {
-				Const string `json:"const"`
-			} `json:"properties"`
-		} `json:"if"`
-		Then struct {
-			Properties map[string]struct {
-				Enum []string `json:"enum"`
-			} `json:"properties"`
-			Required []string `json:"required"`
-		} `json:"then"`
-	} `json:"allOf"`
-	Defs map[string]struct {
+	AllOf []conditional `json:"allOf"`
+	Defs  map[string]struct {
 		Pattern    string `json:"pattern"`
 		Properties map[string]struct {
 			Enum []string `json:"enum"`
 		} `json:"properties"`
 	} `json:"$defs"`
+}
+
+// A conditional is one if/then/else rule. The schema nests them one level: the
+// per-kind rules at the top, and inside the decision rule a second rule that
+// exempts a staged decision from carrying alternatives (dec-0003 — the regex
+// tier cannot know what was rejected). The nesting is modelled here rather than
+// flattened, because the exemption is the part most worth pinning.
+type conditional struct {
+	If struct {
+		Properties map[string]struct {
+			Const string `json:"const"`
+		} `json:"properties"`
+	} `json:"if"`
+	Then *branch `json:"then"`
+	Else *branch `json:"else"`
+}
+
+type branch struct {
+	Properties map[string]struct {
+		Enum     []string `json:"enum"`
+		MinItems *int     `json:"minItems"`
+	} `json:"properties"`
+	Required []string      `json:"required"`
+	AllOf    []conditional `json:"allOf"`
 }
 
 func loadSchema(t *testing.T) schemaDoc {
@@ -113,6 +125,9 @@ func TestKindStatesMatchTheSchema(t *testing.T) {
 		if !ok || kind.Const == "" {
 			continue
 		}
+		if rule.Then == nil {
+			continue
+		}
 		states, ok := rule.Then.Properties["state"]
 		if !ok {
 			continue
@@ -128,22 +143,65 @@ func TestKindStatesMatchTheSchema(t *testing.T) {
 				t.Errorf("states for %s\n  schema: %v\n  Go:     %v", kind.Const, want, got)
 			}
 
-			// The decision rule is the one that also requires
-			// alternatives; Entry.Validate must enforce that too.
-			if slices.Contains(rule.Then.Required, "alternatives") {
-				e := &ledger.Entry{
-					ID: "dec-0001", Kind: ledger.KindDecision, State: ledger.StateAccepted,
-					Title: "A decision with nothing rejected", Created: "2026-07-29T20:00:00Z",
-				}
-				if err := e.Validate(); err == nil {
-					t.Error("the schema requires a decision to carry alternatives; Entry.Validate accepts one without")
-				}
+			if kind.Const == string(ledger.KindDecision) {
+				assertAlternativesRule(t, rule.Then)
 			}
 		})
 	}
 
 	if checked != len(ledger.Kinds) {
 		t.Errorf("checked %d per-kind rules, but there are %d kinds", checked, len(ledger.Kinds))
+	}
+}
+
+// assertAlternativesRule pins the conditional that E2-L1 introduced, from both
+// sides: the schema must still carry it, and Entry.Validate must draw the line
+// in the same place.
+//
+// The rule it pins: a decision carries at least one alternative, unless it is
+// staged. Before E2-L1 the schema said `required: ["alternatives"]` with no
+// minItems, so `alternatives: []` validated — the letter of "a decision without
+// alternatives is an assertion" with none of its meaning — while Entry.Validate
+// rejected the same file. That disagreement was real and untested; both halves
+// are asserted here so it cannot return in either direction.
+func assertAlternativesRule(t *testing.T, decision *branch) {
+	t.Helper()
+
+	var staged, other *branch
+	for _, inner := range decision.AllOf {
+		if inner.If.Properties["state"].Const == string(ledger.StateStaged) {
+			staged, other = inner.Then, inner.Else
+		}
+	}
+	if staged == nil || other == nil {
+		t.Fatal("the decision rule no longer carries an if/then/else on state: staged. " +
+			"Either the exemption was removed — in which case `dira sniff` cannot write anything (dec-0003) — " +
+			"or it moved, and this test is no longer reading it.")
+	}
+
+	if !slices.Contains(other.Required, "alternatives") {
+		t.Error("a non-staged decision is no longer required to carry alternatives")
+	}
+	if min := other.Properties["alternatives"].MinItems; min == nil || *min < 1 {
+		t.Error("a non-staged decision's alternatives no longer carry minItems: 1, so `alternatives: []` validates again")
+	}
+	if slices.Contains(staged.Required, "alternatives") {
+		t.Error("a staged decision is required to carry alternatives, which the regex tier cannot supply")
+	}
+
+	// The behavioural half. Two entries differing in exactly one field, so
+	// a Validate that ignored state would fail one of them.
+	base := func(state ledger.State) *ledger.Entry {
+		return &ledger.Entry{
+			ID: "dec-0001", Kind: ledger.KindDecision, State: state,
+			Title: "A decision with nothing rejected", Created: "2026-07-29T20:00:00Z",
+		}
+	}
+	if err := base(ledger.StateAccepted).Validate(); err == nil {
+		t.Error("the schema requires an accepted decision to carry alternatives; Entry.Validate accepts one without")
+	}
+	if err := base(ledger.StateStaged).Validate(); err != nil {
+		t.Errorf("the schema exempts a staged decision from carrying alternatives; Entry.Validate rejects one: %v", err)
 	}
 }
 

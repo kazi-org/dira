@@ -44,6 +44,11 @@ edges
                          engine, and ships before the paid apps
                            supplies the serving mechanism dec-0010 left
                            unspecified
+  derived by   dec-0019  The upheld option is the ruling, not an alternative —
+                         the renderer derives, never invents
+                           dec-0012 settled that the surfaces are
+                           server-rendered templates; this settles what those
+                           templates are allowed to emit
   informed by  dec-0016  Self-host TeX Gyre Pagella; the system-font stack was
                          silently broken on Linux
                            narrows the no-webfont reading only. dec-0012 is not

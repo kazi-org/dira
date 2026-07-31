@@ -142,18 +142,46 @@ if (exempt.length) {
   for (const r of exempt) console.log(`  - ${r.id} ${r.field}: ${r.reason}`);
 }
 
-// A finding rather than a failure: the mockup renders something the schema has no
-// field for. Recorded here so E6-L2 meets it before it writes the template, not
-// after. See fidelity/fixtures/README.md.
-const UPHELD = 'Go — one static binary, sub-100 ms cold start';
-if (screens['s1-decision.html']?.includes(UPHELD) &&
-    !entries.some(e => e.alternatives.some(a => a.option === UPHELD))) {
-  console.log('\nFINDING (not a failure) — s1-decision.html renders an UPHELD option card');
-  console.log(`  ("${UPHELD}") with its own grounds. entry.schema.json models`);
-  console.log('  `alternatives` as the roads NOT taken, so the chosen option has no field to live in,');
-  console.log('  and the mockup\'s "Alternatives on record — 4" counts 3 refusals plus it.');
-  console.log('  E6-L2 must decide where the renderer gets that card from before writing the template.');
+// ---- the unproducible-card check (dec-0019) ----------------------------------
+// This was a FINDING printed on every run: s1-decision.html rendered a fourth
+// alternative card for the UPHELD option, and entry.schema.json models
+// `alternatives` as the roads NOT taken, so no ledger could ever produce it.
+// dec-0019 resolved it by removing the card — the ruling carries the chosen road
+// — and a resolved finding that nothing re-checks is a finding that comes back.
+//
+// So the finding is now an assertion, scoped to the two places the card lived:
+// an alternative's state tag/mark, and the chain's refusal column. It is NOT a
+// blanket ban on the character: `.res-oriented` on s1-decision-withheld.html
+// legitimately marks the ORIENTED resolution state with a ✓ (dec-0011,
+// dec-0018), which is a fact about an edge and not a claim about an alternative.
+//
+// Comments are stripped first, because the three screens explain in a comment
+// why the card is gone and a checker that reads its own explanation as a
+// violation would be unfixable.
+const stripComments = html => html.replace(/<!--[\s\S]*?-->/g, ' ');
+const UNPRODUCIBLE = [
+  [/class="alt[^"]*\bupheld\b/, 'an <details class="alt upheld"> card'],
+  [/<span class="tag">\s*upheld\s*<\/span>/, 'an "upheld" state tag on an alternative'],
+  [/<span class="mark">\s*✓/, 'a ✓ mark on an alternative summary'],
+  [/<span class="ok">\s*✓/, 'a ✓ row in the .chain block'],
+  [/<span class="m ok">\s*✓/, 'a ✓ row in the .chain-stack block'],
+];
+const unproducible = [];
+for (const f of readdirSync(SCREENS).filter(f => f.endsWith('.html'))) {
+  const raw = stripComments(readFileSync(join(SCREENS, f), 'utf8'));
+  for (const [re, what] of UNPRODUCIBLE) {
+    if (re.test(raw)) unproducible.push(`  - ${f}: ${what} — no ledger field produces this (dec-0019)`);
+  }
 }
+if (unproducible.length) {
+  console.log('\nUNPRODUCIBLE MARKUP FAIL — a screen renders a card the schema has no field for:');
+  for (const u of unproducible) console.log(u);
+  console.log('  `alternatives` records the roads NOT taken. The chosen road is the <h1 class="ruling">,');
+  console.log('  and `dira why` prints ✗ lines and never a ✓. See .dira/entries/dec-0019.md.');
+  process.exit(1);
+}
+console.log(`  ${UNPRODUCIBLE.length} unproducible-markup patterns absent from all ` +
+  `${Object.keys(screens).length} screens (dec-0019)`);
 
 if (bad.length) {
   console.log('\nFIXTURE CONTENT FAIL:');
