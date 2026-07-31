@@ -25,6 +25,8 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 | **The design system, settled.** Direction validated by three independent critics, connectors reconnected, measure ceilings, type scale 16→9, a self-hosted serif chosen from rendered evidence (`dec-0016`), a compass mark, and both remaining open questions answered from pictures (`dec-0017`, `dec-0018`). | E6 pre-work |
 | **The enforcer's corpus**, 43 labelled rows frozen by sha256 before any matcher existed. | E3-L1 |
 | **Go-to-market groundwork.** 19 channels rated with pre-registered thresholds, a gated landing page, approval-gated ecosystem drafts. | E8-L1/L2/L5 |
+| **`dira why` answers the question the product exists to answer.** The spine above an entry, every rejected alternative with its grounds, and the `revisit if` that would reopen it. Box-drawing tree on wide terminals, stacked form on narrow. It refuses to print kazi convergence — `dec-0003` gives it no client, so a test asserts the output contains no check mark and no predicate count. 16.4ms median, of which 15.9ms is opening the index. | E1-L4, 2026-07-31 |
+| **`dira check` refuses a plan that contradicts a settled decision.** Lexical, in-process, no model and no network — the property that makes it usable from a hook. Exit 2 is a verdict, 1 always means the check did not run, and `check` routes its own usage errors to 1 so the two can never collide. Verified through a real process: conflict → 2 citing the `why_not` and `revisit_if`, compliant → 0, decision superseded → 0 with nothing citing it. | E3-L2, 2026-07-31 |
 | **Four machine gates**, all enforced by the pre-commit hook rather than by memory: coverage, privacy lint, contrast, and contrast-as-rendered. | — |
 
 ---
@@ -33,8 +35,6 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 | Item | Owner | Notes |
 |---|---|---|
-| **`dira why`** — the chain, alternatives and why_nots (E1-L4) | agent | dispatched 2026-07-30. The command that answers the question the product exists to answer. |
-| **`dira check`** — the enforcer, end to end (E3-L2) | agent | dispatched 2026-07-30. Measured against E3-L1's frozen corpus; the corpus may not be edited to pass. |
 | **CI on every push** (E0-L3) | agent | dispatched 2026-07-30. Nobody but one laptop currently runs any gate. |
 | **The design fidelity gate** (E6-L1) | agent | dispatched 2026-07-30. Must measure pixels, not source, and must record a real tolerance — the previous acceptance clause cited one that existed nowhere. |
 | Privacy enforcement + coverage gate | maintainer | 2026-07-30. `scripts/coverage.py` (nothing-forgotten gate, 47 obligations) and `scripts/privacy-lint.py` (cst-0003 enforcement, 4 invariants). Both verified red→green. |
@@ -49,6 +49,24 @@ None.
 ---
 
 ## Planned
+
+**Found by building the readers, 2026-07-31 — both on the stranger path, which is the growth engine (`note-0001`):**
+
+- **Multi-word queries only match as a contiguous substring.** `dira why "read time"`
+  resolves; `dira why "status derived"` finds nothing, though both words are in the
+  title. A stranger types the question in their own word order, not the author's. Fix
+  stays inside `dec-0014`: require all tokens present, rank contiguous matches first so
+  today's top result never moves. No embeddings.
+- **The `s1-decision` mockup renders an upheld alternative the schema has no room for.**
+  It shows `✓ Go` as one of four; the real `dec-0001` records four *rejections* and no
+  upheld row, because in this schema the chosen option is the decision title. Either
+  the schema gains a way to mark it or the mockup drops the row — E6's call, and its
+  first concrete test case.
+- **The edge set cannot say "narrows without replacing"** (`qst-0006`), so authors reach
+  for `supersedes` and contradict the target's own state. Three instances existed in
+  this ledger. Becomes urgent when `dira check` must reason about constraint amendment.
+
+
 
 Milestones, ordered so that **M1 alone is already more useful than any alternative**
 surveyed in `docs/design.md` §1.1. Each milestone's exit criterion is behavioural, not
