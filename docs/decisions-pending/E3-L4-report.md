@@ -5,7 +5,7 @@ real process. Not registered — see the wiring line first.
 
 ---
 
-## 1. Wiring you own: one line
+## 1. Wiring — landed
 
 In `newApp`'s command slice in `cmd/dira/main.go`, in help order, immediately after the
 `why` row:
@@ -14,28 +14,18 @@ In `newApp`'s command slice in `cmd/dira/main.go`, in help order, immediately af
 		{name: "supersede", summary: supersedeSummary, run: runSupersede, usage: writeSupersedeUsage},
 ```
 
+**The coordinator wired this during review and it is in `main.go` at line 93.** It was
+verified before that, too: the line was built into a real binary with `go build -overlay`
+replacing `main.go` with a copy carrying exactly it, and every transcript in this report
+came out of a real process, not a test harness.
+
 `supersedeSummary` is a constant in `cmd/dira/supersede.go`, so the registry carries no
 prose of its own. Nothing else in `main.go` changes — the `ExitCode() int` branch this
 command needs is the one `dira check` already landed. See §4.1 for what the codes mean;
 they were revised after review and are not the binary's default mapping.
 
-**That line is verified, not asserted.** It was built into a real binary with
-`go build -overlay`, replacing `main.go` with a copy carrying exactly that line; the
-binary printed the command in `dira help` and every transcript in §3 came out of it:
-
-```
-	help       show usage for dira or one of its commands
-	log        write an entry to the ledger, or add an edge to one
-	check      refuse a plan that contradicts a settled decision
-	why        print the chain behind an entry: what it arises from, and what it refused
-	supersede  retire an entry in favour of the one that replaces it
-	reindex    rebuild the derived read cache from the entry files
-	version    print the dira version
-```
-
-In-process, the tests register the command the same way — appended to `a.commands` and
-dispatched through the real `(*app).main` — so the exit-code mapping under test is the
-real one and only the line's spelling was left to the overlay build.
+The lane's own tests register the command only if `main.go` has not (`a.lookup` guards the
+append), so they exercise the real registry now and would have worked before it landed.
 
 ---
 
@@ -522,45 +512,32 @@ refusals.
 
 ## 7. Gates
 
-Run against the working tree at the time of writing. **This tree is shared with several
-other in-flight lanes**, and three failures in the full suite come from their
-uncommitted work, not from this lane. They are named rather than glossed.
+Run against the working tree after the review round. **This tree is shared with several
+other in-flight lanes**, so it was re-run at the end rather than trusted from earlier in
+the session.
 
 | gate | result |
 |---|---|
-| `go vet ./...` | clean (with the other lane's `zz_dbg_test.go` overlaid out — see note 4 below; it does not compile in that package) |
-| `golangci-lint run ./...` | 2 issues, **both other lanes'**: `internal/sniff/zz_scratch_test.go` (errcheck), `internal/brief/render.go` (ineffassign). Nothing in `cmd/dira` or `internal/enforcer`. |
-| `gofmt -l` | clean for every file this lane touches |
-| `python3 scripts/coverage.py` | PASS — 70 registered, 0 uncovered, 0 orphaned |
-| `python3 scripts/privacy-lint.py` | PASS — all four checks |
-| `go test ./internal/enforcer/` | ok |
-| `go test ./cmd/dira/` | this lane's 11 tests pass; one **other-lane** failure — see below |
-| `go test ./...` | 3 failures, all other lanes' |
+| `go vet ./...` | clean |
+| `golangci-lint run ./...` | **0 issues**, whole repo |
+| `gofmt -l cmd internal schema` | clean |
+| `python3 scripts/coverage.py` | PASS — every obligation has a disposition |
+| `python3 scripts/privacy-lint.py` | PASS — all four cst-0003 checks |
+| `go test ./...` | **all 13 packages ok**, whole repo |
 
-The three failures, with the evidence that they are not this lane's:
+Earlier in this lane the full suite was red in four places, all of them other lanes'
+uncommitted work rather than this one's, and all four are now resolved by their owners:
+the `dira why` golden against a newly added `dec-0019`, `internal/ui` importing `io/fs`,
+a `schema/entry.schema.json` fixture with no matching case, and a `cmd/dira/zz_dbg_test.go`
+debug scratch that redeclared `readEntry` and stopped the package compiling. They are
+recorded here only because this lane's earlier evidence was captured around them: while
+that scratch file existed, `cmd/dira` was re-run with `go test -overlay` mapping it to an
+empty file rather than deleting another lane's work in progress.
 
-1. `cmd/dira TestWhyOnTheRealLedgerMatchesItsGoldenFile/dec-0012` — another lane added
-   `.dira/entries/dec-0019.md` (untracked), which carries an edge `to: dec-0012` and so
-   changes the rendered why-chain. `cmd/dira/testdata/why/dec-0012.golden` was last
-   touched by the `dira why` commit. Nothing in this lane touches `why`, `render` or the
-   real ledger.
-2. `internal/ledger TestNoFilesystemImportsAboveTheBackend` — `internal/ui` (untracked,
-   another lane) imports `io/fs`.
-3. `schema TestInvalidFixturesAreRejected` — another lane modified
-   `schema/entry.schema.json` and added `schema/testdata/invalid/decision-with-empty-alternatives.md`
-   without the matching case. This lane's only schema change is `check.schema.json`.
-4. Later in the session, `cmd/dira` stopped compiling at all: another lane dropped
-   `cmd/dira/zz_dbg_test.go` (a `briefLedger`/`exerciseBrief` debug scratch) into the
-   package, redeclaring `readEntry` from `log_test.go`. Their file was left untouched and
-   the suite re-run with `go test -overlay` mapping it to an empty file; `cmd/dira` then
-   builds and only failure (1) remains. Expect it to be gone by merge — but if `cmd/dira`
-   will not build for you, check for that file before suspecting this lane.
-
-No deliberate obligation was added to `docs/coverage.md` and no entry was written to
-`.dira/entries/`, so the coverage register is untouched. `docs/roadmap.md` and
-`docs/coverage.md` were not edited, and neither was `cmd/dira/main.go`.
-
----
+No obligation was added to `docs/coverage.md` and no entry was written to
+`.dira/entries/`, so the coverage register is untouched. `docs/roadmap.md`,
+`docs/coverage.md` and `cmd/dira/main.go` were not edited. `docs/lore.md` gained one
+entry, **L-0020**, which is the tripwire for §4.1's exit-code split.
 
 ## 8. Not done
 
