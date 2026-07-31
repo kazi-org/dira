@@ -134,6 +134,32 @@ laptop, with no dira server involved.
 
 ---
 
+## Wave 1 shipped (pool, 2026-07-31)
+
+Seven tasks, five agents in isolated worktrees, all merged and CI-green. The first
+run that actually dispatched from the pool — see `docs/lore.md` L-0021 for why no
+earlier one could.
+
+| task | what landed |
+|---|---|
+| cold-start harness (E1-L6-T1) | `internal/perf` spawns the built binary and measures it as a hook does. **Its budget clause is reported NOT MET, not fixed:** `dira version` — a binary that opens nothing — has a 155.4ms median through the same harness, already over the 150ms ceiling, so this machine cannot certify it either way. Routed to E1-L6-T4 and idle hardware. |
+| hook contract (E2-L2-T1) | `dec-0023`. `PreCompact` stdout is **not** discarded — it becomes custom instructions for the compaction summariser, a one-turn call structurally forbidden from calling tools. A seam that looks alive and is inert. `Stop` and `SessionStart(compact)` are the seams that work, both already used here. |
+| no-model invariant (E2-L2-T7) | `internal/nomodel`. Module-scoped by necessity — `cmd/dira` links `net/http` today, so a stdlib-scoped rule would be red on a correct binary, and a test pins that. |
+| `n` semantics (E2-L4-T1) | `dec-0024`. `n` disposes of the **capture**, not the option; "we decided against it" is a `y`. Found a real rejection loop: `sniff` dedupes by title, so deleting a rejected entry lets the next `Stop` re-stage the same sentence. |
+| staged queue (E2-L4-T3) | `internal/distill`. Reads through the Store, never the index, so a stale cache cannot hide a staged entry. Pending-extraction is derived, not a new field. |
+| `[parents]` parsing (E3-L3-T1) | `internal/config` declarations. Falls **closed** on an unreadable visibility, and no parent value ever reaches an error message. |
+| read-only parent (E3-L3-T2) | `ledger.ReadOnly`. States plainly it **cannot** stop `index.Open` writing to a parent — the cache is opened beside the store, not through it — rather than implying a guarantee it lacks. |
+
+**Three variants of one bug, all found in this wave:** a check reporting a verdict
+it never reached. `privacy-lint.py` could not see a private parent whose
+declaration carried a trailing comment — the exact shape shipped as the documented
+example — and read `visibility = "privat"` as public. The pre-commit hook reported
+"golangci-lint found issues" when the linter was blocked by a **machine-global**
+lock held by an unrelated repo. And `golangci-lint` exited non-zero reporting
+"0 issues" on `internal/perf`, a build-tagged package it could not typecheck at
+all — so nothing had ever linted it. All three fixed, each proved on the green
+side too.
+
 ## Ready to claim (unblocked, 2026-07-31)
 
 15 of 40 lanes shipped. These eight have every dependency satisfied. **None has an
