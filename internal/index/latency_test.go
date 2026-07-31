@@ -105,18 +105,23 @@ func TestTheCacheBeatsReadingTheFiles(t *testing.T) {
 		}
 	})
 
-	t.Logf("over %d entries, in process, spawn excluded:", fixture.Size)
-	t.Logf("  no cache (List + Get x %d) : %v", fixture.Size, direct.Round(time.Microsecond))
-	t.Logf("  cache cold (built this run): %v", cold.Round(time.Microsecond))
-	t.Logf("  cache warm                 : %v", warm.Round(time.Microsecond))
+	t.Logf("over %d entries, in process, spawn excluded (median, uncontended min):", fixture.Size)
+	t.Logf("  no cache (List + Get x %d) : %v  (min %v)", fixture.Size, direct.median.Round(time.Microsecond), direct.min.Round(time.Microsecond))
+	t.Logf("  cache cold (built this run): %v  (min %v)", cold.median.Round(time.Microsecond), cold.min.Round(time.Microsecond))
+	t.Logf("  cache warm                 : %v  (min %v)", warm.median.Round(time.Microsecond), warm.min.Round(time.Microsecond))
 
-	if warm > warmBudget {
-		t.Errorf("a warm cache answers in %v, over the %v budget", warm, warmBudget)
+	// The BUDGET is absolute, so it reads the median: a ceiling asserted against
+	// the minimum passes on one lucky sample.
+	if warm.median > warmBudget {
+		t.Errorf("a warm cache answers in %v, over the %v budget", warm.median, warmBudget)
 	}
-	if warm >= direct {
+	// The COMPARISON is relative, so it reads the uncontended minimum: under a
+	// full parallel suite the median warm figure inflates past the direct one and
+	// fails a claim that is true.
+	if warm.min >= direct.min {
 		t.Errorf("a warm cache (%v) is no faster than reading every file (%v).\n"+
 			"The cache costs 6.5MB of binary and eleven modules against int-0002; if it does not beat the "+
-			"files it should be removed by superseding dec-0002, not kept out of politeness.", warm, direct)
+			"files it should be removed by superseding dec-0002, not kept out of politeness.", warm.min, direct.min)
 	}
 }
 
@@ -150,12 +155,20 @@ func brief(t *testing.T, ctx context.Context, ix *index.Index) {
 	}
 }
 
-func measure(t *testing.T, n int, run func()) time.Duration {
+// timing carries both statistics because the two questions this file asks need
+// different ones, and conflating them silently weakens an assertion. See the
+// comment in measureWithSetup.
+type timing struct {
+	min    time.Duration // the uncontended estimate — for COMPARATIVE claims
+	median time.Duration // what a run actually costs — for ABSOLUTE budgets
+}
+
+func measure(t *testing.T, n int, run func()) timing {
 	t.Helper()
 	return measureWithSetup(t, n, func() {}, run)
 }
 
-func measureWithSetup(t *testing.T, n int, setup, run func()) time.Duration {
+func measureWithSetup(t *testing.T, n int, setup, run func()) timing {
 	t.Helper()
 
 	// One untimed run so the first one's page faults and lazily-initialised
@@ -172,20 +185,25 @@ func measureWithSetup(t *testing.T, n int, setup, run func()) time.Duration {
 	}
 	slices.Sort(took)
 
-	// The MINIMUM, not the median. `go test ./...` runs packages in parallel, so
-	// these samples compete with every other package's tests for CPU and disk.
-	// Contention only ever ADDS time — it cannot make an operation finish sooner
-	// — so the smallest sample is the closest estimate of what the code costs,
-	// and the median is an estimate of what the machine happened to be doing.
+	// Two statistics, because this file asks two different questions and one
+	// number cannot answer both honestly.
 	//
-	// This is not a loosened assertion. Measured uncontended, a warm cache
-	// answers in 17.6ms against 41.1ms for reading every file: a 2.3x margin.
-	// Under a full parallel suite the median warm figure inflated to 42-49ms and
-	// crossed the direct figure, failing a claim that is true. The instrument was
-	// wrong, not the claim — and a timing test that fails only when the machine is
-	// busy trains everyone to re-run it, which is how a real regression gets
-	// waved through.
-	return took[0]
+	// MIN is the uncontended estimate. `go test ./...` runs packages in
+	// parallel, so these samples compete for CPU and disk, and contention only
+	// ever ADDS time — it cannot make an operation finish sooner. The smallest
+	// sample is therefore the closest estimate of what the code costs, and it
+	// is the right input to a COMPARATIVE claim like "the cache beats reading
+	// the files", where contention would otherwise inflate both arms unequally
+	// and flip a true result.
+	//
+	// MEDIAN is what a run actually costs on this machine, and it is the only
+	// honest input to an ABSOLUTE budget. Since min <= median by construction,
+	// asserting a ceiling against the minimum fires strictly LESS often than
+	// against the median — a run whose median is 80ms passes a 60ms budget on
+	// the strength of one lucky sample. That is a weakened assertion wearing a
+	// robustness argument, and this comment exists because it was briefly
+	// exactly that.
+	return timing{min: took[0], median: took[len(took)/2]}
 }
 
 // BenchmarkWarmBrief is the number to quote for a hook invocation after the
