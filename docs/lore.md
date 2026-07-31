@@ -470,3 +470,42 @@ other sessions while nothing is executing against them.
 what actually landed with `git for-each-ref refs/remotes/origin-claims/` after
 any timeout — do not infer it from the loop's output.
 
+## L-0023: Normalising a title destroys the character credential patterns key on
+
+**Tags:** #security #sniff #redaction #critical
+**Date:** 2026-07-31
+**Repo:** kazi-org/dira
+
+**Rule:** Run `carriesCredential` over the **verbatim excerpt**, never over a
+normalised title. Anything that has been through `titleFor` is unsafe to screen.
+**Why:** `internal/sniff/text.go` strips markup with `[*_`]+`, and the credential
+patterns in `redact.go` are anchored on the underscore that strip removes:
+`\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}` cannot match `ghpAbCdEfGhIjKlMnOp`,
+and any `<VENDOR>` + underscore + `API` + underscore + `KEY` variable normalises into one unbroken run of capitals. The secret is still
+entirely recoverable from the normalised string — only the shape the detector
+recognises is gone. So a title carrying a live GitHub token is screened and
+passes. This is a fail-OPEN in the one path whose whole job is refusing secrets,
+and it is invisible because the redactor runs and returns cleanly.
+**Trigger:** Any new consumer of a staged entry's `title`. `HandoffItem` carries
+a verbatim excerpt it never renders for exactly this reason — if that field ever
+looks redundant, this is why it is not.
+
+## L-0024: Truncation can fake a redaction test green
+
+**Tags:** #testing #security #redaction
+**Date:** 2026-07-31
+**Repo:** kazi-org/dira
+
+**Rule:** A "the output contains no secret" assertion must use a fixture whose
+secret sits inside the drawn width, and must assert legitimate content is PRESENT
+first.
+**Why:** `with-credentials.jsonl`'s tokens sit late in their sentences, past
+`bound(title, 48)`. They are cut off at a word boundary before redaction is ever
+consulted, so the absence assertion passes **against a build with no redaction at
+all**. Found while writing the handoff golden: the first version of that test was
+green for the wrong reason and would have stayed green through the removal of the
+entire credential check.
+**Trigger:** Any test asserting a secret is absent from bounded, truncated or
+summarised output. Prove the fixture reaches the redactor before trusting the
+result — the L-0001 green-side rule applied to security.
+

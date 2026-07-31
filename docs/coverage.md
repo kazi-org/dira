@@ -165,3 +165,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0024:cc26e5` | blocked:E2 | revisit trigger: tuning `internal/sniff` needs a standing true-negative corpus that the transcripts cannot supply, at which point keeping rejects in the ledger returns |
 | `trigger:dec-0024:a25d31` | blocked:E2 | revisit trigger: the semantic tier needs the expected verdict as an input before it will extract a rejected decision, which would make the split keystroke a parameter rather than a key |
 | `impl:dec-0023` | blocked:E2 | E2-L2-T3 owns the delivery seam; `PreCompact` keeps the capture (it is the only point the doomed transcript still exists) and only the handoff moves, to `Stop`'s `additionalContext` or `SessionStart(compact)` |
+| `impl:dec-0025` | done:E2-L4-T2 | `y` writes `confirmed_by: human` and a bumped `updated`; state stays `staged`, every other byte unchanged. No schema change |
+| `trigger:dec-0025:6d5634` | blocked:E2 | revisit trigger: a surface needs to tell extraction-pending from human-pending in a way `confirmed_by`'s presence cannot express |
+| `trigger:dec-0025:c8b987` | blocked:E2 | revisit trigger: semantic extraction proves unreliable enough that a human writes the why_not by hand anyway |
