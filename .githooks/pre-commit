@@ -1,0 +1,78 @@
+#!/bin/sh
+
+# Fail on unset vars and on errors in simple commands
+set -eu
+
+# Gather staged files that matter
+STAGED_ALL="$(git diff --cached --name-only --diff-filter=ACM || true)"
+STAGED_GO_FILES="$(printf "%s\n" "$STAGED_ALL" | grep '\.go$' || true)"
+STAGED_MOD_FILES="$(printf "%s\n" "$STAGED_ALL" | grep -E '^(go\.mod|go\.sum)$' || true)"
+
+# --- scratch files must not reach a public repo ----------------------------
+# Lanes leave zz_-prefixed scratch tests behind; two were sitting in the tree
+# when this guard was written. Go's own convention is that zz_ sorts last, so
+# they are exactly the files a reviewer's eye slides off. Structural, not
+# remembered.
+STAGED_SCRATCH="$(printf "%s\n" "$STAGED_ALL" | grep -E '(^|/)zz_' || true)"
+if [ -n "$STAGED_SCRATCH" ]; then
+  echo "Commit failed: scratch files staged."
+  printf "%s\n" "$STAGED_SCRATCH" | sed 's/^/  /'
+  echo "Delete them, or rename them to something a reader would recognise."
+  exit 1
+fi
+
+# --- repo gates: always run, regardless of what is staged ------------------
+# These were previously enforced only by the committer remembering to run them,
+# and a commit did land with the coverage gate red. A guarantee that depends on
+# discipline is not a guarantee.
+if [ -f scripts/coverage.py ]; then
+  if ! python3 scripts/coverage.py >/tmp/dira-coverage.log 2>&1; then
+    echo "Commit failed: coverage gate red (something is unaccounted for)."
+    tail -20 /tmp/dira-coverage.log
+    exit 1
+  fi
+fi
+if [ -f scripts/privacy-lint.py ]; then
+  if ! python3 scripts/privacy-lint.py >/tmp/dira-privacy.log 2>&1; then
+    echo "Commit failed: privacy lint red (cst-0003 treats these as security bugs)."
+    tail -20 /tmp/dira-privacy.log
+    exit 1
+  fi
+fi
+
+# If no relevant Go files are staged, the Go checks below do not apply
+if [ -z "$STAGED_GO_FILES" ] && [ -z "$STAGED_MOD_FILES" ]; then
+  exit 0
+fi
+
+# Lint only when Go source files are staged
+if [ -n "$STAGED_GO_FILES" ]; then
+  # Lint the PACKAGES containing staged files, not the files themselves.
+  # golangci-lint rejects named files spanning more than one directory
+  # ("named files must all be in one directory"), so passing staged paths
+  # directly aborts with a typechecking error and reports "0 issues" — which
+  # reads as a lint failure with nothing wrong, and hides the real findings.
+  STAGED_GO_PKGS="$(printf "%s\n" "$STAGED_GO_FILES" | xargs -n1 dirname | sort -u | sed 's|^|./|')"
+  echo "Running golangci-lint on: $(printf "%s" "$STAGED_GO_PKGS" | tr '\n' ' ')"
+  # shellcheck disable=SC2086
+  if ! printf "%s\n" "$STAGED_GO_PKGS" | xargs golangci-lint run --fix; then
+    echo "Commit failed: golangci-lint found issues."
+    exit 1
+  fi
+
+  # If auto-fixes modified files, require user to re-stage
+  if ! git diff --quiet -- $STAGED_GO_FILES; then
+    echo "Commit failed: golangci-lint auto-fixed files."
+    echo "Please 'git add' the changes and commit again."
+    exit 1
+  fi
+fi
+
+# Always run tests when Go code or module files are staged
+echo "Running tests: go test ./..."
+if ! go test ./... ; then
+  echo "Commit failed: tests did not pass."
+  exit 1
+fi
+
+exit 0
