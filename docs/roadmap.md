@@ -133,6 +133,20 @@ laptop, with no dira server involved.
 
 ---
 
+## Open challenges (raised, awaiting a lane's reply)
+
+- **The fidelity gate's channel threshold may buy headroom twice.** E6-L1 measured noise
+  at exactly zero across 60 shots (5 arms including a second browser process and a
+  different origin), then set a 4× safety factor on the pixel count *and* chose a
+  4/255 channel threshold when 0/255 was admissible with a 16× margin. The two
+  compound. Challenged; if it stands, 0/255 is strictly stronger and free. Separately,
+  TOLERANCE.md justifies the choice with "as robust as the evidence allows", which
+  inverts — a larger threshold is less sensitive, not more robust.
+- **Fixture schema validation is verified but not gated.** 18/18 fixture entries pass the
+  Go validator and 17/17 invalid fixtures are correctly rejected, but nothing re-checks
+  it. Assigned to E6-L2. A verified-once property that nothing re-checks is the exact
+  failure mode this repo keeps shipping.
+
 ## Blocked
 
 - **The Notion portfolio mirror cannot be written from this machine.** The house rule
