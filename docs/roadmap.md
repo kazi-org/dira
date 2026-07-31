@@ -29,6 +29,7 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 | **`dira check` refuses a plan that contradicts a settled decision.** Lexical, in-process, no model and no network — the property that makes it usable from a hook. Exit 2 is a verdict, 1 always means the check did not run, and `check` routes its own usage errors to 1 so the two can never collide. Verified through a real process: conflict → 2 citing the `why_not` and `revisit_if`, compliant → 0, decision superseded → 0 with nothing citing it. | E3-L2, 2026-07-31 |
 | **CI runs every gate on every push**, and refuses a green run over an empty suite. Its first run caught what one laptop structurally could not: the platform allowlist passed on macOS and failed on ubuntu, because it had only ever seen its own host. | E0-L3, 2026-07-31 |
 | **The design fidelity gate** — nine gates behind one command, two of them negative controls, on an exit code that separates "a gate failed" from "a gate passed but its control did not trip". The tolerance it measures against is recorded evidence, not an assertion. Its `fixture-content` gate holds an 18-entry fixture ledger byte-equal to the mockups, so a pixel diff measures layout and never drifted prose. | E6-L1, 2026-07-31 |
+| **E9 is complete — both upstream kazi asks filed.** `kazi-org/kazi#1681` (register `portfolio` in `Kazi.CLI.Schema`) and `#1682` (post-disposition hook on approve/reject), both open, both enhancement, no duplicates across 9 searches. Two claims were corrected before filing: `kazi teach --hooks` does not exist, and the "silently lost" characterisation of a bus-carried disposition was an over-claim. | E9-L1/L2, 2026-07-31 |
 | **Four machine gates**, all enforced by the pre-commit hook rather than by memory: coverage, privacy lint, contrast, and contrast-as-rendered. | — |
 
 ---
@@ -132,6 +133,24 @@ decision they had no context for, and find dira from it.
 laptop, with no dira server involved.
 
 ---
+
+## Ready to claim (unblocked, 2026-07-31)
+
+15 of 40 lanes shipped. These eight have every dependency satisfied. **None has an
+executable task breakdown yet** — `docs/plan/tasks/` holds only the five lanes already
+finished — so `/apply --pool` has nothing to claim until they are expanded to task
+fidelity. That expansion is the current blocker on the loop, not the work itself.
+
+| lane | what it is | why now |
+|---|---|---|
+| **E1-L6** | hold the cold-start budget: <100ms `dira brief` on a cold cache | M1's remaining exit criterion; `brief` measured 61.2ms cold in-process, but nothing pins the *spawned binary* |
+| **E2-L2** | the semantic tier: the skill and the `--deep` handoff, no model client in the binary | blocks E2-L3, whose acceptance cannot pass without it |
+| **E2-L4** | the disposition flow — one keystroke per staged entry | `sniff` stages today with nothing to dispose them |
+| **E3-L3** | inherit constraints across ledger boundaries without leaking private text | the last M3 lane |
+| **E6-L4** | close the three open design questions against hostile data | gates E6-L5's ship |
+| **E0-L4** | (E0 tail) | unblocked since E0-L1 |
+| **E5-L1** | (E5 head) | no dependencies |
+| **E8-L3** | (E8) | no dependencies |
 
 ## Open challenges (raised, awaiting a lane's reply)
 
