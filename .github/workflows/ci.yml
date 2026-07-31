@@ -7,6 +7,19 @@
 # can reproduce). If you add a gate here, add it to hooks/pre-commit and
 # scripts/ci-local.sh in the same change.
 #
+# The `perf` job is the one gate whose VERDICT that symmetry cannot cover, and it is
+# said here rather than discovered. Every other gate is a function of the tree: the
+# same commit produces the same answer on any machine. A latency budget is a
+# function of the tree AND the hardware, and on the maintainer's machine — which
+# runs a dozen parallel sessions — `dira version`, an invocation that opens no
+# ledger at all, has been measured at a 95-107ms median through this harness, above
+# warmBudget's 80ms ceiling. A verdict taken there is a report on the machine. So:
+# scripts/ci-local.sh runs the IDENTICAL invocation, and hooks/pre-commit runs it
+# when the gate's own inputs are staged, because a gate a contributor cannot
+# reproduce is a cst-0004 violation — but the binding verdict is this workflow's,
+# taken on a runner that is doing nothing else. The perf job's comment states the
+# whole runner-variance policy.
+#
 # Every `uses:` is pinned to a 40-character commit SHA. dira is a public repo; an
 # action referenced by a moving tag (`@v4`) is an unreviewed dependency that can
 # change under us between two pushes. The trailing comment records which release the
@@ -103,6 +116,251 @@ jobs:
             echo "::error::go test executed 0 tests. A green run over an empty suite is not a gate."
             exit 1
           fi
+
+  # ---------------------------------------------------------------------------
+  # The latency gate (int-0002, E1-L6). internal/perf is the only thing in this
+  # repository that measures what a hook actually pays: the shipped binary,
+  # spawned, over the 200-entry fixture. Every file in it carries `//go:build perf`,
+  # so `go test ./...` never compiles the package and the `go` job above cannot see
+  # a syntax error in it. THIS JOB IS THAT PACKAGE'S ONLY COMPILE CHECK as well as
+  # its only run, which is why the executed-count assertion below is load-bearing
+  # rather than ceremonial: a build tag that stops matching — renamed, dropped,
+  # misspelled — produces `no test files`, exit 0, and a green job over zero tests.
+  #
+  # RUNNER-VARIANCE POLICY. E1-L6-T4 owns this decision; this is it.
+  #
+  # CHOSEN: a dedicated runner per measurement, with budget.go's numbers asserted
+  # exactly as written. A GitHub-hosted runner is a fresh VM that executes one job
+  # and nothing else, so the perf package never shares a machine with the -race
+  # suite, the linter or a browser; `-p 1` stops its own three measurements from
+  # overlapping each other; and it is a job of its own rather than a step in `go`
+  # so nothing in this workflow can queue behind it or beside it. That is
+  # internal/index/latency_test.go's lesson applied at the job level — the answer
+  # to contention is to remove the contention, not to loosen the assertion.
+  #
+  # NO MULTIPLIER IS APPLIED, and no percentile is substituted. What was rejected,
+  # and why, because the alternative to writing this down is re-litigating it after
+  # the first red run:
+  #
+  #   - A stated CI multiplier (budget.go's numbers x N). Rejected on three counts.
+  #     It has no honest derivation available: a multiplier needs a paired
+  #     measurement of one tree on CI hardware and on a reference machine, and no
+  #     such pair exists — a factor chosen to make the first run green is a budget
+  #     change wearing a different name, and budget.go's header forbids the edit
+  #     precisely so it cannot be made by accident. It also cannot live where the
+  #     assertion lives: the tests read the constants directly, so a multiplier
+  #     would have to be re-implemented as a second comparison in this YAML, and
+  #     two gates over one number drift apart. And int-0002's 100ms is a claim
+  #     about a user's machine — a CI-only ceiling certifies a number no user
+  #     experiences.
+  #   - A stated higher percentile (assert p90, or p99, instead of the median).
+  #     Rejected: it is a strict loosening of the statistic int-0002 was written
+  #     against, and at N=20 the p90 is a SINGLE observation — the 18th sample —
+  #     which is noisier than the median, not less noisy. The tail is already
+  #     asserted anyway, by coldMaxBudget over every sample.
+  #   - A self-hosted runner. Rejected: dira is public, and a self-hosted runner on
+  #     a public repository executes fork-PR code on somebody's own hardware. It
+  #     would also make the gate unreproducible by any contributor, which is the
+  #     cst-0004 failure this workflow's header exists to prevent.
+  #
+  # WHEN A RUN IS RED, read the published minimum before touching anything. The
+  # step summary carries n, min, median, p90 and max for every measurement and the
+  # ceiling each was judged against, so the diagnosis needs no re-run: a median
+  # over the ceiling with the minimum far under it is a noisy runner, and a median
+  # over the ceiling with the minimum beside it is dira having got slower — a
+  # re-run cannot move the second one. If one budget goes red on three runs whose
+  # MINIMUM was inside its ceiling, the finding is that this runner class cannot
+  # certify that budget, and it goes to the lane (E1-L6-T5's phase attribution and
+  # E1-L6-T6's ledger entry). It does not go to budget.go, and it does not become
+  # continue-on-error: a gate disabled after three false alarms protects nothing,
+  # and neither does one raised until it cannot fail.
+  #
+  # BOTH PLATFORMS, for the reason the `go` job gives: darwin-arm64 is int-0002's
+  # primary user platform, and a latency budget certified only on linux is a budget
+  # certified where nobody runs the hook. fail-fast: false, so a red on one leg
+  # never hides the other's number.
+  #
+  # THE LINUX LEG IS NOT OPTIONAL. internal/perf/NETWORK.md assigns closing its own
+  # gap to this job in as many words: darwin's dtrace needs SIP disabled, so
+  # TestTheBriefOpensNoSocket skips on the maintainer's machine and the socket claim
+  # has been observed neither red nor green anywhere. `strace` on this leg is where
+  # it is observed, and the step below is RED if that test skips on linux — a
+  # skipped socket assertion on the one platform that can take it is the gap
+  # itself, not a pass.
+  #
+  # Not continue-on-error. Red here is red.
+  # ---------------------------------------------------------------------------
+  perf:
+    name: perf budgets (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      # strace is what makes TestTheBriefOpensNoSocket more than a skip, and it is
+      # the whole reason this job has a linux leg. Deliberately NOT best-effort: a
+      # runner without a tracer certifies nothing about the socket claim, and the
+      # assertion below would go red anyway — failing here says why in one line
+      # instead of leaving it to be inferred from a skip message.
+      - name: Install strace (the tracer the socket assertion needs)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends strace
+          strace -V
+          # Preflight the EXACT qualifier internal/perf's tracer builds, over a
+          # binary that does nothing. strace validates `-e trace=` names against
+          # the syscall table for the personalities it knows and exits non-zero on
+          # one it does not — and `socketcall` exists only in the 32-bit personality.
+          # Inside the test that failure is indistinguishable from "the tracer did
+          # not attach", which is a skip, which this job then reports as the socket
+          # gap. One line here says which of the two it actually is.
+          strace -f -e trace=socket,connect,socketcall -o /dev/null -- /bin/true
+
+      # Ubuntu 24.04 refuses unprivileged user namespaces by default (an AppArmor
+      # restriction), and `unshare -rn` is what the DEPENDENCE half of the socket
+      # test uses. Best-effort ON PURPOSE, and it is the only `|| true` in this
+      # workflow: networkIsolator() probes the facility and skips that subtest with
+      # its reason named when it is absent, so a failure here costs a named skip
+      # that the summary publishes rather than a false verdict. The BEHAVIOUR half
+      # — the trace, the half that is evidence — does not use it and is asserted
+      # unconditionally.
+      - name: Permit unprivileged user namespaces, if the runner allows it
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+
+      # Separate from the run below so a package that no longer compiles is legible
+      # as a compile failure rather than as a mysterious zero-test count. `go vet
+      # ./...` in the `go` job cannot reach this package: the tag excludes it.
+      - name: go vet -tags perf ./internal/perf
+        run: go vet -tags perf ./internal/perf
+
+      # The gate. Deliberately NOT `set -e`: a red measurement is exactly when the
+      # distribution needs publishing, and an early exit would leave the run page
+      # with a failure and no numbers — the thing this job exists to prevent.
+      # Everything is written to the summary first, the assertions are read after,
+      # and the step exits non-zero at the end.
+      - name: Perf budgets, and prove the tests were executed rather than tagged out
+        shell: bash
+        run: |
+          set -uo pipefail
+          log="${RUNNER_TEMP}/perf.log"
+
+          # -p 1: one package at a time, so the three measurements never overlap.
+          # -count=1: a cached PASS is not a run, and a cached timing is not a
+          # measurement at all.
+          go test -tags perf -count=1 -p 1 -v ./internal/perf 2>&1 | tee "$log"
+          status=${PIPESTATUS[0]}
+
+          # `t.Log` output arrives prefixed with `    file.go:NN: `. Strip it, so
+          # the summary reads as numbers rather than as test plumbing.
+          strip='s/^[[:space:]]*([a-z_]+\.go:[0-9]+:)?[[:space:]]*//'
+
+          ran=$(awk '/^=== RUN/ { n++ } END { print n+0 }' "$log")
+          skipped=$(grep -cE '^[[:space:]]*--- SKIP: ' "$log" || true)
+
+          {
+            echo "### perf budgets — \`${RUNNER_OS}\` \`$(uname -m)\`"
+            echo
+            echo "\`go test -tags perf -count=1 -p 1 ./internal/perf\`, asserted against"
+            echo "\`internal/perf/budget.go\` **unmodified**: no CI multiplier, no percentile"
+            echo "substitution. Runner-variance policy and what it rejected: see the \`perf\` job"
+            echo "comment in \`.github/workflows/ci.yml\`."
+            echo
+            echo '**Distribution.** The minimum is the uncontended estimate and is asserted'
+            echo 'against by nothing; the median carries every assertion here, and the single-run'
+            echo 'maximum carries `coldMaxBudget`. A median over its ceiling with the minimum far'
+            echo 'under it is a noisy runner; a median over its ceiling with the minimum beside it'
+            echo 'is a regression, and re-running will not move it.'
+            echo
+            echo '```'
+            grep -E 'n=[0-9]+[[:space:]]+min ' "$log" | sed -E "$strip" \
+              || echo '(no distribution was reported — the measurement did not complete)'
+            echo '```'
+            echo
+            echo '**Budgets these were measured against.**'
+            echo
+            echo '```'
+            grep -E '^[[:space:]]*[a-z_]+\.go:[0-9]+:[[:space:]]+budget ' "$log" | sed -E "$strip" | sort -u \
+              || echo '(no budget table was reported)'
+            echo '```'
+            if grep -qE 'budget .* is broken|budget is broken' "$log"; then
+              echo
+              echo '**Broken.**'
+              echo
+              echo '```'
+              grep -E 'budget .* is broken|budget is broken' "$log" | sed -E "$strip"
+              echo '```'
+            fi
+            echo
+            echo '**Verdicts.**'
+            echo
+            echo '```'
+            grep -E '^--- (PASS|FAIL|SKIP): ' "$log" || echo '(no top-level test reported a result)'
+            echo '```'
+            echo
+            echo "- \`=== RUN\` lines (tests and subtests): **${ran}**"
+            echo "- skipped tests and subtests: **${skipped}**"
+            if [ "$skipped" -gt 0 ]; then
+              echo
+              echo '```'
+              grep -E '^[[:space:]]*--- SKIP: ' "$log"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # ---------------------------------------------------------------------
+          # Assertions, read after the summary is written.
+          # ---------------------------------------------------------------------
+          failed=0
+
+          # The same check the `go` job makes, for a sharper reason: this package
+          # is tagged out of `go test ./...`, so nothing else in this workflow
+          # would notice it vanishing. Zero executed tests here means the `perf`
+          # tag stopped matching or the package stopped compiling, and both look
+          # like a fast green job.
+          echo "tests and subtests executed: $ran"
+          if [ "$ran" -eq 0 ]; then
+            echo "::error::go test -tags perf executed 0 tests. Either the perf build tag no longer matches internal/perf's files or the package did not compile. A green run over zero tests is not a gate."
+            failed=1
+          fi
+
+          # And the sharper form of the same false victory, which the count above
+          # cannot catch: `=== RUN` is printed before a test skips, so all three
+          # budget tests can skip — under -short, under -race, with no toolchain —
+          # and still be counted. A skipped budget is not a met budget.
+          for t in TestColdStartBudget TestWarmBriefBudget TestReindexBudget; do
+            if ! grep -qE "^--- (PASS|FAIL): ${t} " "$log"; then
+              echo "::error::${t} did not run to a verdict on ${RUNNER_OS}. A budget that skipped is not a budget that was met; see the log for its skip reason."
+              failed=1
+            fi
+          done
+
+          # internal/perf/NETWORK.md: darwin's dtrace needs SIP disabled, so the
+          # socket claim skips on the maintainer's machine and has never been
+          # observed anywhere. This leg is where it is observed, and a skip here is
+          # the gap rather than a pass. On darwin it is expected to skip and the
+          # summary publishes the skip; NETWORK.md's table says so.
+          if [ "$RUNNER_OS" = "Linux" ] && ! grep -qE '^--- (PASS|FAIL): TestTheBriefOpensNoSocket ' "$log"; then
+            echo "::error::TestTheBriefOpensNoSocket did not run to a verdict on the linux runner, which is the only platform where it is more than a skip (internal/perf/NETWORK.md). Read its skip reason in the log: a tracer that cannot attach certifies nothing."
+            failed=1
+          fi
+
+          if [ "$status" -ne 0 ]; then
+            echo "::error::go test -tags perf ./internal/perf failed. Read the published minimum before touching a budget: the runner-variance policy is in this job's comment."
+            failed=1
+          fi
+          exit "$failed"
 
   # ---------------------------------------------------------------------------
   # Formatting and lint. Its own job, so an unformatted file and a failing test are

@@ -7,6 +7,23 @@ set -eu
 STAGED_ALL="$(git diff --cached --name-only --diff-filter=ACM || true)"
 STAGED_GO_FILES="$(printf "%s\n" "$STAGED_ALL" | grep '\.go$' || true)"
 STAGED_MOD_FILES="$(printf "%s\n" "$STAGED_ALL" | grep -E '^(go\.mod|go\.sum)$' || true)"
+# The inputs to the latency gate ITSELF: the harness and its budgets, and the hook
+# configuration the measured argv is read out of. See the perf block below for why
+# the trigger is these files and not every Go file.
+STAGED_PERF_FILES="$(printf "%s\n" "$STAGED_ALL" | grep -E '^(internal/perf/|hooks/settings\.example\.json$)' || true)"
+
+# --- scratch files must not reach a public repo ----------------------------
+# Lanes leave zz_-prefixed scratch tests behind; two were sitting in the tree
+# when this guard was written. Go's own convention is that zz_ sorts last, so
+# they are exactly the files a reviewer's eye slides off. Structural, not
+# remembered.
+STAGED_SCRATCH="$(printf "%s\n" "$STAGED_ALL" | grep -E '(^|/)zz_' || true)"
+if [ -n "$STAGED_SCRATCH" ]; then
+  echo "Commit failed: scratch files staged."
+  printf "%s\n" "$STAGED_SCRATCH" | sed 's/^/  /'
+  echo "Delete them, or rename them to something a reader would recognise."
+  exit 1
+fi
 
 # --- repo gates: always run, regardless of what is staged ------------------
 # These were previously enforced only by the committer remembering to run them,
@@ -27,6 +44,76 @@ if [ -f scripts/privacy-lint.py ]; then
   fi
 fi
 
+# --- the latency gate (int-0002, E1-L6) ------------------------------------ #
+# The same invocation .github/workflows/ci.yml's `perf` job and scripts/ci-local.sh
+# run, because ci.yml's header requires a gate to exist in all three: one a
+# contributor cannot reproduce is a cst-0004 violation in this repo's own terms.
+#
+# THE TRIGGER IS NARROWER THAN THE OTHER GATES' AND THAT IS DELIBERATE, so read
+# this before widening it. internal/perf times the shipped binary, spawned, twenty
+# times per measurement — a minute or so of wall clock — and its verdict is a
+# function of the hardware as well as of the tree. On this machine `dira version`,
+# an invocation that opens no ledger at all, has been measured at a 95-107ms median
+# through this harness, already above warmBudget's 80ms ceiling; a budget verdict
+# taken on a loaded developer machine is a report on the machine. Running it on
+# every commit that touches any Go file would therefore block commits for reasons
+# the commit did not cause, and a gate bypassed with --no-verify three times is a
+# gate that no longer exists.
+#
+# So the split is: the CHEAP half runs for every Go change (below, with the lint
+# and test block) because a `perf`-tagged package is invisible to `go test ./...`
+# and a syntax error in it would otherwise reach CI unseen; and the TIMED half runs
+# here, when the gate's own inputs are staged, because changing the harness or the
+# measured argv is exactly when a contributor should watch it run. A regression in
+# cmd/dira or internal/{index,brief,ledger} is caught by CI, on hardware that can
+# hold a verdict — that is the runner-variance policy in ci.yml's `perf` job, not an
+# omission here. `scripts/ci-local.sh` runs it unconditionally on demand.
+if [ -n "$STAGED_PERF_FILES" ]; then
+  echo "Running the latency gate: go test -tags perf -count=1 -p 1 ./internal/perf"
+  echo "(twenty spawns per measurement — about a minute, and it wants an idle machine)"
+  # The status is written from INSIDE the pipeline. `sh` has no PIPESTATUS, and the
+  # exit status of a pipeline is tee's — which is zero whether or not the tests
+  # passed. A gate that read it would be a gate that can never fail.
+  #
+  # `set +e` around it is not decoration either, and it was found by running this
+  # block against a red transcript rather than by reading it: under errexit the
+  # shell abandons the group the moment `go test` returns non-zero, so `echo $?`
+  # never runs, the status file keeps whatever a previous commit left in it, and the
+  # gate reports the LAST run's verdict. A stale 0 there is a green commit over a
+  # red measurement. Hence the removal first, and a missing file read as failure.
+  rm -f /tmp/dira-perf.status
+  set +e
+  { go test -tags perf -count=1 -p 1 -v ./internal/perf 2>&1; echo $? >/tmp/dira-perf.status; } \
+    | tee /tmp/dira-perf.log
+  set -e
+  PERF_STATUS="$(cat /tmp/dira-perf.status 2>/dev/null || echo 1)"
+  PERF_RAN="$(awk '/^=== RUN/ { n++ } END { print n+0 }' /tmp/dira-perf.log)"
+  echo "tests and subtests executed: $PERF_RAN"
+  if [ "$PERF_RAN" -eq 0 ]; then
+    echo "Commit failed: go test -tags perf executed 0 tests."
+    echo "Either the perf build tag no longer matches internal/perf's files, or the package"
+    echo "did not compile. A green run over zero tests is not a gate."
+    exit 1
+  fi
+  # `=== RUN` is printed before a test skips, so the count above cannot tell a met
+  # budget from a skipped one.
+  for t in TestColdStartBudget TestWarmBriefBudget TestReindexBudget; do
+    if ! grep -qE "^--- (PASS|FAIL): $t " /tmp/dira-perf.log; then
+      echo "Commit failed: $t did not run to a verdict."
+      echo "A budget that skipped is not a budget that was met; its skip reason is above."
+      exit 1
+    fi
+  done
+  if [ "$PERF_STATUS" -ne 0 ]; then
+    echo "Commit failed: the latency gate is red."
+    echo "Read the reported MINIMUM before touching a budget: a minimum far under the"
+    echo "ceiling with the median over it is a busy machine, and this measurement wants an"
+    echo "idle one. Raising a number in internal/perf/budget.go is a decision about"
+    echo "int-0002, not a fix for a red run."
+    exit 1
+  fi
+fi
+
 # If no relevant Go files are staged, the Go checks below do not apply
 if [ -z "$STAGED_GO_FILES" ] && [ -z "$STAGED_MOD_FILES" ]; then
   exit 0
@@ -41,8 +128,37 @@ if [ -n "$STAGED_GO_FILES" ]; then
   # reads as a lint failure with nothing wrong, and hides the real findings.
   STAGED_GO_PKGS="$(printf "%s\n" "$STAGED_GO_FILES" | xargs -n1 dirname | sort -u | sed 's|^|./|')"
   echo "Running golangci-lint on: $(printf "%s" "$STAGED_GO_PKGS" | tr '\n' ' ')"
-  # shellcheck disable=SC2086
-  if ! printf "%s\n" "$STAGED_GO_PKGS" | xargs golangci-lint run --fix; then
+  # golangci-lint takes a MACHINE-GLOBAL lock, not a per-repo one: a run in an
+  # unrelated repository blocks this one. With several sessions on this machine
+  # that is common, and this used to report "golangci-lint found issues" for it
+  # — a verdict the linter never reached. Retry, then fail DISTINCTLY so "did
+  # not run" is never mistaken for "found something".
+  LINT_OUT=""
+  LINT_RC=1
+  for attempt in 1 2 3 4 5 6; do
+    # shellcheck disable=SC2086
+    LINT_OUT="$(printf "%s\n" "$STAGED_GO_PKGS" | xargs golangci-lint run --fix 2>&1)"
+    LINT_RC=$?
+    case "$LINT_OUT" in
+      *"parallel golangci-lint is running"*)
+        echo "  golangci-lint is locked by another repo on this machine; waiting (${attempt}/6)..."
+        sleep 20
+        ;;
+      *) break ;;
+    esac
+  done
+
+  case "$LINT_OUT" in
+    *"parallel golangci-lint is running"*)
+      echo "Commit BLOCKED: golangci-lint could not run — another repo on this"
+      echo "machine holds its global lock. This is NOT a lint failure; nothing"
+      echo "was checked. Re-run the commit when the other run finishes."
+      exit 1
+      ;;
+  esac
+
+  if [ "$LINT_RC" -ne 0 ]; then
+    printf "%s\n" "$LINT_OUT"
     echo "Commit failed: golangci-lint found issues."
     exit 1
   fi

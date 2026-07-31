@@ -59,7 +59,12 @@ need() {
 # --- Go -------------------------------------------------------------------- #
 
 gate_build() { need go && go build ./...; }
-gate_vet()   { need go && go vet ./...; }
+
+# The second vet is not redundant. internal/perf's files all carry `//go:build
+# perf`, so `go vet ./...` does not compile them and a syntax error in that package
+# is invisible to every other gate in this script. .golangci.yml carries the same
+# tag for the same reason.
+gate_vet()   { need go && go vet ./... && go vet -tags perf ./internal/perf; }
 
 # `gofmt -l` exits 0 whether or not it found anything — it reports on stdout. A gate
 # that only checks the exit code here can never fail.
@@ -108,6 +113,66 @@ gate_test() {
   fi
 }
 
+# The latency gate (int-0002, E1-L6): the same invocation .github/workflows/ci.yml's
+# `perf` job runs, so a contributor can reproduce it rather than take CI's word for
+# it. internal/perf is tagged out of `go test ./...` on purpose — it times the
+# SHIPPED BINARY, spawned, and a timing test that competes with the rest of the
+# suite reports the load average. `-p 1` and a run of its own is the whole method.
+#
+# It is also the ONE gate here whose verdict depends on the machine and not only on
+# the tree. Every other gate is a function of the commit; this one is a function of
+# the commit and the hardware, and on a busy machine it is red for reasons the
+# commit did not cause — `dira version`, an invocation that opens no ledger at all,
+# has been measured at a 95-107ms median through this harness on the maintainer's
+# machine, above warmBudget's 80ms ceiling. Read the published MINIMUM before
+# believing a red: a minimum far under the ceiling with the median over it is
+# contention, and a minimum beside the median is dira. The binding verdict is CI's,
+# taken on a runner that is doing nothing else; ci.yml's `perf` job comment carries
+# the runner-variance policy and what it rejected.
+#
+# No skip flag, for the reason at the top of this file. A "ci-local passed" that
+# quietly omitted the latency gate would mean something different from what CI
+# means by it.
+gate_perf() {
+  need go || return 1
+  local log status ran rc=0
+  log=$(mktemp)
+  go test -tags perf -count=1 -p 1 -v ./internal/perf 2>&1 | tee "$log"
+  status=${PIPESTATUS[0]}
+
+  # The same two assertions the CI job makes, and for the same reasons. `=== RUN`
+  # count: a perf build tag that stops matching produces "no test files", exit 0
+  # and a green gate over nothing, and this package is the only place in the repo
+  # where that failure is invisible to everything else. Named verdicts: `=== RUN`
+  # is printed BEFORE a test skips, so all three budgets can skip and still be
+  # counted — a skipped budget is not a met budget.
+  ran=$(awk '/^=== RUN/ { n++ } END { print n+0 }' "$log")
+  echo "tests and subtests executed: $ran"
+  if [ "$ran" -eq 0 ]; then
+    echo "go test -tags perf executed 0 tests — either the perf build tag no longer matches"
+    echo "internal/perf's files, or the package did not compile."
+    rc=1
+  fi
+  for t in TestColdStartBudget TestWarmBriefBudget TestReindexBudget; do
+    if ! grep -qE "^--- (PASS|FAIL): ${t} " "$log"; then
+      echo "$t did not run to a verdict — a budget that skipped is not a budget that was met."
+      rc=1
+    fi
+  done
+  # On linux the socket assertion is not allowed to skip: it is the only platform
+  # where it is more than a skip, which is what internal/perf/NETWORK.md says the
+  # CI job exists to fix. On darwin it skips (dtrace needs SIP disabled) and
+  # NETWORK.md's table records that, so it is reported below rather than asserted.
+  if [ "$(uname -s)" = "Linux" ] && ! grep -qE '^--- (PASS|FAIL): TestTheBriefOpensNoSocket ' "$log"; then
+    echo "TestTheBriefOpensNoSocket did not run to a verdict — see internal/perf/NETWORK.md;"
+    echo "a tracer that cannot attach certifies nothing."
+    rc=1
+  fi
+  grep -E '^[[:space:]]*--- SKIP: ' "$log"
+  rm -f "$log"
+  [ "$status" -eq 0 ] && [ "$rc" -eq 0 ]
+}
+
 # --- repo gates ------------------------------------------------------------ #
 
 gate_coverage() { need python3 && python3 scripts/coverage.py; }
@@ -134,10 +199,11 @@ gate_rendered() {
 # --- run ------------------------------------------------------------------- #
 
 run_gate "go build ./..."            gate_build
-run_gate "go vet ./..."              gate_vet
+run_gate "go vet ./... +perf tag"    gate_vet
 run_gate "gofmt -l ."                gate_gofmt
 run_gate "golangci-lint run ./..."   gate_golangci
 run_gate "go test -race -count=1"    gate_test
+run_gate "perf budgets (int-0002)"   gate_perf
 run_gate "coverage register"         gate_coverage
 run_gate "privacy lint (cst-0003)"   gate_privacy
 run_gate "token contrast"            gate_contrast
