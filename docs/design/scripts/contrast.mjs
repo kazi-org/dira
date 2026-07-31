@@ -9,8 +9,19 @@
 // drift from the tokens it checks. A hardcoded palette here would be the same class
 // of bug as the DESIGN.md table that kept listing pre-fix values.
 //
-//   node docs/design/scripts/contrast.mjs        # non-zero on any failure
-//   node docs/design/scripts/contrast.mjs -v     # print the full matrix
+//   node docs/design/scripts/contrast.mjs                     # non-zero on any failure
+//   node docs/design/scripts/contrast.mjs -v                  # print the full matrix
+//   node docs/design/scripts/contrast.mjs --probe-regression  # the negative control
+//
+// The negative control substitutes the PRE-r4 light --bearing-lift (#b8862f) and
+// requires the script to catch it: at least one pair under the floor and at least
+// one hover<rest inversion. Exit codes are distinct because "found failures" and
+// "found nothing when it should have" are opposite outcomes that both exit
+// non-zero, and a runner that cannot tell them apart cannot certify the gate:
+//
+//   0  no failures                     (a normal, passing run)
+//   1  failures found                  (a normal failing run; the EXPECTED probe result)
+//   3  the probe caught nothing        (the gate is broken — only reachable under --probe-regression)
 //
 // Two rules, both from WEB.md §2:
 //   1. every ink/accent on every surface clears WCAG 4.5:1 for normal text
@@ -45,6 +56,19 @@ const SURFACES = ['ground', 'panel', 'sunk'];
 const INKS = ['ink', 'ink-mid', 'ink-low', 'bearing', 'bearing-lift', 'converged', 'caught'];
 const FLOOR = 4.5;
 
+// ---- the negative control ---------------------------------------------------
+// #b8862f is the value --bearing-lift actually shipped with before r4. It is not
+// a made-up bad colour: it is the defect this script was written to have caught,
+// restored. DESIGN.md's r3 -> r4 section records what it scored (2.95 / 3.18 /
+// 2.62 in light) and that hover came out BELOW rest, inverting WEB.md 2.
+const PROBE = process.argv.includes('--probe-regression');
+const PRE_R4_BEARING_LIFT = '#b8862f';
+if (PROBE) {
+  SCHEMES.light['bearing-lift'] = PRE_R4_BEARING_LIFT;
+  console.log(`--probe-regression: light --bearing-lift restored to the pre-r4 value ${PRE_R4_BEARING_LIFT}.`);
+  console.log('  Expecting this script to report contrast failures AND a hover<rest inversion.');
+}
+
 // ---- WCAG 2.x relative luminance -------------------------------------------
 const chan = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
 function lum(hex) {
@@ -60,6 +84,8 @@ const ratio = (a, b) => {
 
 // ---- run --------------------------------------------------------------------
 const failures = [];
+const inversions = [];
+const hoverLines = [];
 let pairs = 0;
 
 for (const [scheme, T] of Object.entries(SCHEMES)) {
@@ -78,20 +104,45 @@ for (const [scheme, T] of Object.entries(SCHEMES)) {
     }
     if (VERBOSE) console.log(`  ${ink.padEnd(14)} ${cells.join('  ')}`);
   }
-  // hover must exceed rest, in whichever direction this scheme needs
+  // hover must exceed rest, in whichever direction this scheme needs.
+  // Printed unconditionally, not behind -v: an assertion nobody sees the result
+  // of is an assertion nobody checks. All six surface x scheme combinations are
+  // named on their own line, with the ratio that produced the verdict.
   for (const surf of SURFACES) {
     const rest = ratio(T['bearing'], T[surf]);
     const hover = ratio(T['bearing-lift'], T[surf]);
-    if (!(hover > rest)) {
-      failures.push(`${scheme}: hover does NOT exceed rest on --${surf} `
-        + `(rest ${rest.toFixed(2)} -> hover ${hover.toFixed(2)}) — WEB.md §2`);
+    const held = hover > rest;
+    if (!held) {
+      const msg = `${scheme}: hover does NOT exceed rest on --${surf} `
+        + `(rest ${rest.toFixed(2)} -> hover ${hover.toFixed(2)}) — WEB.md §2`;
+      failures.push(msg);
+      inversions.push(msg);
     }
-    if (VERBOSE) console.log(`    hover>rest on ${surf}: ${rest.toFixed(2)} -> ${hover.toFixed(2)}`
-      + `${hover > rest ? '' : '  INVERTED'}`);
+    hoverLines.push(`  ${held ? 'hover > rest' : 'hover < rest  INVERTED'}  ${scheme.padEnd(5)} on --${surf.padEnd(6)} `
+      + `rest ${rest.toFixed(2)}:1 -> hover ${hover.toFixed(2)}:1`);
   }
 }
 
 console.log(`\n${pairs} ink/surface pairs checked across 2 schemes, plus 6 hover>rest assertions.`);
+console.log(hoverLines.join('\n'));
+console.log(`\n${failures.length} failures`);
+
+if (PROBE) {
+  // Two-sided: the probe must produce BOTH a floor violation and an inversion.
+  // A probe that only trips one of them would leave the other check uncertified.
+  const floorFails = failures.length - inversions.length;
+  console.log(`\nPROBE RESULT — ${floorFails} contrast-floor violation(s), ${inversions.length} hover inversion(s):`);
+  for (const f of failures) console.log(`  ${f}`);
+  if (floorFails < 1 || inversions.length < 1) {
+    console.log('\nPROBE BROKEN — the pre-r4 regression was restored and this script did not catch it' +
+      (floorFails < 1 ? ' (no floor violation)' : '') + (inversions.length < 1 ? ' (no inversion)' : '') +
+      '.\n  The matrix is not measuring what it claims to measure.');
+    process.exit(3);
+  }
+  console.log('\nPROBE OK — the known regression is caught, on both the floor and the hover direction.');
+  process.exit(1);
+}
+
 if (failures.length) {
   console.log(`\nCONTRAST FAIL — ${failures.length} violation(s):`);
   for (const f of failures) console.log(`  ${f}`);

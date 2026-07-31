@@ -250,6 +250,72 @@ Playwright is not a repo dependency — it lives in the session scratchpad and i
 symlinked in as `node_modules` (gitignored), so the repo stays free of a Node
 toolchain it does not otherwise need.
 
+### One command
+
+```
+node docs/design/scripts/gates.mjs          # every gate, plus every negative control
+node docs/design/scripts/gates.mjs --fast   # skip the browser captures
+node docs/design/scripts/gates.mjs --list   # what runs, and what each one proves
+```
+
+Four gates and two negative controls, run together. This document requires the
+contrast matrix be re-run "whenever a colour token moves"; a requirement whose
+invocation nobody remembers is a requirement that stops being met at the first
+busy moment. `gates.mjs` is that invocation.
+
+Every gate that has a negative control runs it in the same pass, and a control
+that **fails to trip** is reported as `BLIND` with its own exit code (3), not as
+a pass — a checker that cannot fail is indistinguishable from one that always
+prints "ok".
+
+| gate | proves | negative control |
+|---|---|---|
+| `pixeldiff.mjs --self-test` | the comparator's own arithmetic | 13 assertions, each with a known-bad counterpart |
+| `contrast.mjs` | 42 token pairs clear 4.5:1; hover exceeds rest on all six surface × scheme combinations | `--probe-regression` restores the pre-r4 `--bearing-lift` `#b8862f` and must report both a floor violation and a hover inversion |
+| `contrast-rendered.mjs` | every text node clears its floor **as composited**, including `color-mix` tints | — |
+| `tokens-doc-sync.mjs` | this document agrees with `tokens.css` value for value, and states the measured tolerance | `--design` / `--tokens` accept copies, so the checker can be tested without editing what it guards |
+| `render.mjs` | 3 viewports × 2 schemes, plus **no asset from any host but `127.0.0.1`** | `--probe-external` serves a stylesheet from this machine's LAN address; it returns 200, so the failed-request check stays silent and the loopback check must not |
+
+### The pixel tolerance
+
+**`0.00033%` of pixels, at a channel threshold of `4/255`, with no 16×16 block
+more than `1.6%` changed.** A comparison fails if either percentage is exceeded,
+or if the two captures differ in size at all.
+
+Measured, not chosen. `docs/design/fidelity/TOLERANCE.md` carries the method and
+the evidence; `tolerance.json` carries the numbers and `pixeldiff.mjs` reads them
+at run time, so the figure published here and the figure enforced are the same
+figure.
+
+```
+node docs/design/scripts/pixeldiff.mjs <a.png> <b.png> [--out diff.png]
+node docs/design/scripts/measure-tolerance.mjs --write     # re-derive it
+```
+
+The short version of the evidence: across 3 screens × 2 viewports × 2 schemes,
+**all 60 noise measurements were bit-identical** — a second screenshot of the
+same page, a fresh browser context, a second Chromium process, a different
+origin, and markup round-tripped through the DOM serializer all produced zero
+differing pixels. The tolerance is therefore not absorbing observed variance;
+there is none. It sits a factor of four below the *smallest real defect that
+could be constructed* — a 2px card-radius change, which moves 0.001345% of pixels.
+
+Two percentages rather than one because legitimate variance is **diffuse** (a
+scatter along glyph edges) and a real regression is **clustered** (one element,
+gone wrong). A frame-wide percentage is area-weighted, so a tolerance loose
+enough for diffuse noise is loose enough to hide a missing card; the block figure
+is scale-free and catches that.
+
+**This tolerance is not a cross-machine allowance.** Changing only glyph
+rasterization costs 1.07–4.64% of pixels, and letting the Palatino stack fall
+through to a generic serif — what a stock Linux install actually renders, the
+failure noted above — costs up to 100%. Both are three to four orders of
+magnitude above the tolerance, and no number that still catches a 2px radius
+change could ever absorb them. So the baseline is regenerated in the same run and
+the same environment as the capture, which is why `docs/design/renders/` is
+gitignored: a hand-committed baseline compared across machines is the one thing
+this gate cannot survive.
+
 ### Defects caught by the loop (kept as a record)
 
 - **r1 → r2:** red was doing double duty — marking rejected alternatives *and*
