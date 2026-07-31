@@ -430,3 +430,43 @@ author does not have to read the source.
 command's errors through `usagef` "for consistency with the rest of the binary".
 Ask first which of the two things the new refusal is: a rule in the record saying
 no (2), or dira never getting far enough to ask (1).
+
+## L-0021: This repo's task ids are not claimable without a `T-` prefix
+
+**Tags:** #tooling #apply #pool #gotcha
+**Date:** 2026-07-31
+**Repo:** kazi-org/dira
+
+**Rule:** Claim pool tasks as `T-<task-id>`, e.g. `T-E1-L6-T1`, never the bare
+`E1-L6-T1`.
+**Why:** `claim.sh` validates the id against a fixed set of shapes —
+`T<n>.<n>`, `T<AA><n>.<n>`, `S<n>.<n>`, `S-*`, `T-*`, `R-<slug>`, `M-<slug>`.
+This repo's plan uses an epic-lane-task scheme (`E1-L6-T1`) that matches none of
+them, so **every** task returns `BLOCKED`, and `BLOCKED` means "do not dispatch".
+`/apply --pool` therefore appears to run correctly and claims nothing. The
+failure is quiet: a wave of seven candidates produced seven `BLOCKED` lines and
+no work, which reads as "the pool is empty" rather than "the ids are invalid".
+The `T-*` shape is already accepted, so prefixing satisfies the validator with no
+script change and no plan rewrite.
+**Trigger:** Any `/apply --pool` run in this repo, or any repo whose plan does
+not use kazi's `T<n>.<n>` numbering. Check for `BLOCKED: id must look like a
+task` in the claim output — a run that dispatches nothing is the symptom.
+
+## L-0022: A claim push takes 1-2 minutes, so claim in small batches
+
+**Tags:** #tooling #apply #pool
+**Date:** 2026-07-31
+**Repo:** kazi-org/dira
+
+**Rule:** Claim at most three tasks per shell invocation, and give the call a
+generous timeout.
+**Why:** Each `claim.sh claim` mints a commit and pushes a ref to `origin`, so it
+costs a full network round trip. Six sequential claims exceeded a 120-second
+command timeout and left the wave half-claimed — one task locked, five not, with
+no error to distinguish "the push failed" from "the command was killed". A
+half-claimed wave is worse than an unclaimed one: the locks that did land block
+other sessions while nothing is executing against them.
+**Trigger:** Claiming a wave of more than about three tasks in one loop. Verify
+what actually landed with `git for-each-ref refs/remotes/origin-claims/` after
+any timeout — do not infer it from the loop's output.
+
