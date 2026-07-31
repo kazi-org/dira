@@ -174,8 +174,11 @@ thinking.*
 
 ## Upstream asks (kazi-org/kazi)
 
-All additive, none breaking. Tracked as [qst-0005](../.dira/entries/qst-0005.md);
-issues not yet filed.
+All additive, none breaking. Tracked as [qst-0005](../.dira/entries/qst-0005.md).
+**Both filed 2026-07-31** — kazi-org/kazi#1681 (ask 1) and #1682 (ask 2), both open,
+both labelled enhancement. No duplicates existed; 9 searches across `--state all`. The
+only near-hit for ask 1 was the closed issue that *built* `portfolio` — registration
+was simply never done as part of it.
 
 | # | Ask | Why |
 |---|---|---|
@@ -188,6 +191,20 @@ documented at `lib/kazi/goal/loader.ex:24` as a "string-keyed map, verbatim" and
 with no validation (`loader.ex:640`). dira writes `metadata.why = "dira:dec-NNNN"`
 today. This also removes the only ask that would have put a dira-shaped string into
 kazi's file format.
+
+**Two claims did not survive verification and were corrected before filing.**
+`kazi teach --hooks` does not exist — the command is `kazi install-hooks`, and the ask
+would have cited a non-existent surface. And qst-0005's "the disposition would vanish,
+and nothing would indicate it had" was an over-claim: every bus verb prints a no-daemon
+error and exits 1, so a direct `bus post` fails loudly. The filed issue argues the
+verifiable version instead, in kazi's own words — ADR-0067 states that convergence
+never depends on the bus, so a consumer cannot distinguish "no disposition" from
+"daemon was down". Stronger argument, and true.
+
+Ask 1 also held up better than this table claimed: `portfolio_json/1` already emits the
+*same* lockstep `schema_version` constant as the registered commands, so it is inside
+the contract-version discipline while absent from the registry. Independently confirmed:
+`@schemas` has exactly four keys and `portfolio` appears zero times in `schema.ex`.
 
 Risk worth stating: ask 2 could read as dira colonising kazi's surface with its own
 concerns, and kazi may reasonably refuse — the fallback (the skill wraps the commands)
