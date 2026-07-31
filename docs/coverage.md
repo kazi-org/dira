@@ -151,3 +151,5 @@ Registering every obligation forced three admissions no plan document had surfac
 | `blocked:4d0b4b` | blocked:E1 | E1-L5 must choose the cold-cache behaviour and E1-L6 must state which case its budget measures; measured numbers are in the row |
 | `blocked:0841e6` | blocked:E6 | same finding as `design-q:be981a`, tracked from both the roadmap and DESIGN.md because it is both a blocker and an open design question |
 | `answer:qst-0006` | blocked:E3 | edge vocabulary gap found by `dira why`; becomes urgent when `dira check` must reason about constraint amendment |
+| `impl:dec-0019` | blocked:E6 | E6-L2 owns it; the entry is in flight as I register this. The renderer must derive the ruling from the decision title and never invent an upheld alternative the schema has no field for |
+| `trigger:dec-0019:ec6b0e` | blocked:E6 | revisit trigger: a decision whose chosen option genuinely cannot be stated in its title. None exists today; if one arrives, dec-0019 is what it falsifies |
