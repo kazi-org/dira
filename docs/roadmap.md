@@ -27,6 +27,8 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 | **Go-to-market groundwork.** 19 channels rated with pre-registered thresholds, a gated landing page, approval-gated ecosystem drafts. | E8-L1/L2/L5 |
 | **`dira why` answers the question the product exists to answer.** The spine above an entry, every rejected alternative with its grounds, and the `revisit if` that would reopen it. Box-drawing tree on wide terminals, stacked form on narrow. It refuses to print kazi convergence — `dec-0003` gives it no client, so a test asserts the output contains no check mark and no predicate count. 16.4ms median, of which 15.9ms is opening the index. | E1-L4, 2026-07-31 |
 | **`dira check` refuses a plan that contradicts a settled decision.** Lexical, in-process, no model and no network — the property that makes it usable from a hook. Exit 2 is a verdict, 1 always means the check did not run, and `check` routes its own usage errors to 1 so the two can never collide. Verified through a real process: conflict → 2 citing the `why_not` and `revisit_if`, compliant → 0, decision superseded → 0 with nothing citing it. | E3-L2, 2026-07-31 |
+| **CI runs every gate on every push**, and refuses a green run over an empty suite. Its first run caught what one laptop structurally could not: the platform allowlist passed on macOS and failed on ubuntu, because it had only ever seen its own host. | E0-L3, 2026-07-31 |
+| **The design fidelity gate** — nine gates behind one command, two of them negative controls, on an exit code that separates "a gate failed" from "a gate passed but its control did not trip". The tolerance it measures against is recorded evidence, not an assertion. Its `fixture-content` gate holds an 18-entry fixture ledger byte-equal to the mockups, so a pixel diff measures layout and never drifted prose. | E6-L1, 2026-07-31 |
 | **Four machine gates**, all enforced by the pre-commit hook rather than by memory: coverage, privacy lint, contrast, and contrast-as-rendered. | — |
 
 ---
@@ -35,8 +37,10 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 | Item | Owner | Notes |
 |---|---|---|
-| **CI on every push** (E0-L3) | agent | dispatched 2026-07-30. Nobody but one laptop currently runs any gate. |
-| **The design fidelity gate** (E6-L1) | agent | dispatched 2026-07-30. Must measure pixels, not source, and must record a real tolerance — the previous acceptance clause cited one that existed nowhere. |
+| **`dira brief` + SessionStart injection** (E1-L5) | agent | dispatched 2026-07-31. M1's exit criterion runs through this. Also owns the multi-word resolver fix. |
+| **`dira supersede`** (E3-L4) | agent | dispatched 2026-07-31. The red-to-green enforcement flip, currently only exercised by hand. |
+| **Serve the read-only surfaces from the binary** (E6-L2) | agent | dispatched 2026-07-31. First job is deciding where the upheld-option card comes from — the fidelity gate routed that question here. |
+| **`dira sniff`, the regex capture tier** (E2-L1) | agent | dispatched 2026-07-31. May only ever stage, never accept. |
 | Privacy enforcement + coverage gate | maintainer | 2026-07-30. `scripts/coverage.py` (nothing-forgotten gate, 47 obligations) and `scripts/privacy-lint.py` (cst-0003 enforcement, 4 invariants). Both verified red→green. |
 | Founding design + repo scaffold | maintainer | 2026-07-29. Design doc v2, entry schema, founding ledger (21 entries — 3 intents, 9 decisions, 4 constraints, 5 questions; all validate against the schema, no dangling edges), hook config, license. |
 
