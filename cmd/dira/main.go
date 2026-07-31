@@ -88,6 +88,7 @@ func newApp(stdout, stderr io.Writer) *app {
 	a.commands = []*command{
 		{name: "help", summary: "show usage for dira or one of its commands", run: runHelp},
 		{name: "log", summary: "write an entry to the ledger, or add an edge to one", run: runLog, usage: writeLogUsage},
+		{name: "check", summary: "refuse a plan that contradicts a settled decision", run: runCheck, usage: writeCheckUsage},
 		{name: "why", summary: whySummary, run: runWhy, usage: writeWhyUsage},
 		{name: "reindex", summary: "rebuild the derived read cache from the entry files", run: runReindex},
 		{name: "version", summary: "print the dira version", run: runVersion},
@@ -121,6 +122,13 @@ func (a *app) main(args []string) int {
 	err := a.run(args)
 	if err == nil {
 		return exitOK
+	}
+
+	// A command that has already rendered its own verdict selects its exit
+	// code directly: the verdict is the output, and nothing more is printed.
+	var coded interface{ ExitCode() int }
+	if errors.As(err, &coded) {
+		return coded.ExitCode()
 	}
 
 	var ue *usageError
