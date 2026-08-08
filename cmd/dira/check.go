@@ -104,6 +104,17 @@ func runCheck(a *app, args []string) error {
 	if err != nil {
 		return err
 	}
+	verdict.Parents = enforcer.ParentReports(parents, inherited)
+
+	// A parent that could not be read is reported and changes nothing. It goes
+	// to stderr for the reason the index notice above does — stdout is the
+	// parseable verdict — and its write error is dropped for a stronger one:
+	// returning it here would let a closed stderr turn a verdict into exit 1,
+	// and a report about the check's completeness must not be able to overturn
+	// the check. The same report reaches a machine reader through --json's
+	// parents block, which is on stdout because it is part of the document
+	// rather than a note about it.
+	_ = enforcer.RenderParents(a.stderr, verdict)
 
 	if *asJSON {
 		err = enforcer.RenderJSON(a.stdout, verdict)

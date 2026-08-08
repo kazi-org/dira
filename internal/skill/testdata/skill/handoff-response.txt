@@ -1,0 +1,33 @@
+Three ids staged, and the handoff asks for the because, the rejected
+alternative and the edge. Taking them one call at a time, dec-0001 first.
+
+The sentence tier 1 caught is "We settled on lexical matching in the binary
+rather than an agent adjudicating the exit code, because the non-zero exit is
+the product and a verdict that needs a live session produces nothing at a
+terminal with the network unplugged." Both halves of what tier 2 owes are in
+it: the road refused is named (an agent adjudicating the exit code) and so is
+the reason it lost. So the alternative and its why_not are quoted from the
+turn rather than reconstructed from what would have been sensible.
+
+```bash
+dira log --kind decision --state staged --tier semantic --hook PreCompact \
+  --title 'Lexical matching in the binary, not an agent adjudicating the exit code' \
+  --body 'The non-zero exit is the product, and a verdict that needs a live session produces nothing at a terminal with the network unplugged.' \
+  --alternative 'An agent adjudicating the exit code' \
+  --why-not 'A verdict that needs a live session produces nothing at a terminal with the network unplugged.' \
+  --edge derives_from=dec-0001 \
+  --edge-note 'the regex capture this extraction supplies the reasoning for' \
+  --excerpt 'We settled on lexical matching in the binary rather than an agent adjudicating the exit code, because the non-zero exit is the product and a verdict that needs a live session produces nothing at a terminal with the network unplugged.'
+```
+
+It stays staged and it does not say who confirmed it: tier 2 proposes and a
+person disposes, so that field is not mine to write.
+
+It is a new entry rather than an edit of dec-0001, because `dira log <id>`
+adds edges and tags and changes nothing else. The capture keeps its
+`source.tier: regex`, which is the true record that a pattern found it, and
+the two are joined by the derives_from edge — `dira why dec-0001` names the
+extraction from the other side, so nothing is orphaned by leaving both in
+place.
+
+dec-0002 and dec-0003 follow, one call each, in the same shape.

@@ -33,6 +33,11 @@
       "type": "array",
       "description": "Matches against thinking this ledger has retired, redirected to whatever replaced it. Informational and never a verdict: a notice cannot change `verdict` or `exit_code`, because the entry it came from is superseded and a superseded entry enforces nothing. It exists so supersession moves enforcement rather than silently dropping it — a plan that would have been refused before gets told where the thinking went instead of a bare compliant verdict.",
       "items": { "$ref": "#/$defs/notice" }
+    },
+    "parents": {
+      "type": "array",
+      "description": "What became of each parent ledger this one declares, in declared order, and empty for a ledger that declares none. It is how a caller tells a verdict reached over the whole enforcement set from one reached over part of it: a check that silently dropped a parent's constraints produces the same conflicts as a check that had none to drop, and only one of those is the whole answer. Never a verdict — a parent that could not be read does not move `verdict` or `exit_code` in either direction, because exit 2 means a cited conflict and nothing else. Optional: a document without it is one produced before this block existed, which is not the same fact as a ledger with no parents.",
+      "items": { "$ref": "#/$defs/parent" }
     }
   },
   "allOf": [
@@ -60,6 +65,38 @@
       "type": "string",
       "pattern": "^([a-z][a-z0-9_-]*:)?(int|dec|qst|cst|note)-[0-9]{4,}$",
       "description": "An entry reference, optionally namespaced by a ledger name. Matches the `$defs/ref` pattern in entry.schema.json."
+    },
+    "parent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "status", "evaluated"],
+      "description": "One declared parent ledger's outcome. The three properties are the whole of what may be published about a parent, and `additionalProperties: false` is the enforcement rather than the documentation of that: a declaration also carries a filesystem path and may carry a `label`, dec-0011 says a private parent's label must never ship, and a path to that ledger identifies it at least as well as its label does. A document that carried either would fail validation here rather than be caught in review — which is the standard cst-0003 asks for, since a private strategic note in a public repository's history cannot be un-published.",
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "The key the parent is declared under in this ledger's `[parents]`, and the namespace a ref like `me:cst-0002` resolves through (dec-0011). It is this ledger's own word for that parent, not the parent's `[ledger].name` — the two can disagree, and the declared key is what resolves. Same pattern as the namespace half of `$defs/ref`, so a citation built from it is a valid reference."
+        },
+        "status": {
+          "enum": ["resolved", "unresolved", "withheld"],
+          "description": "What became of this parent. `resolved`: it was read, and `evaluated` is a real count of what it contributed. `unresolved`: it is declared and could not be read from here. `withheld`: it is declared `visibility = \"private\"` and could not be read from here — a designed state and not a fault (dec-0018), because a private parent is expected to be absent wherever it has not been shared. The last two are the same unreadable ledger and are reported as different facts on purpose: one is a gap and one is the configuration working."
+        },
+        "evaluated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many of this parent's entries produced enforcement units. Note what is deliberately not here: a total. How many constraints a ledger nobody could open holds is not knowable from a run that could not open it, so this document states the count it can know and never one it would have had to invent."
+        }
+      },
+      "allOf": [
+        {
+          "description": "A parent that could not be read evaluated none of its constraints. This is the honesty rule as a shape rule: without it a document could report a withheld parent alongside a count of what it supposedly holds, which is the one number such a run cannot have.",
+          "if": {
+            "properties": { "status": { "enum": ["unresolved", "withheld"] } },
+            "required": ["status"]
+          },
+          "then": { "properties": { "evaluated": { "const": 0 } } }
+        }
+      ]
     },
     "notice": {
       "type": "object",

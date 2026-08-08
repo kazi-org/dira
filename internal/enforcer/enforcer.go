@@ -42,6 +42,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/kazi-org/dira/internal/ledger"
 )
@@ -138,6 +139,131 @@ type Verdict struct {
 	// A superseded entry is not counted: it cannot be cited, and counting it
 	// would make the number a count of files rather than of what is enforced.
 	Enforced int
+
+	// Parents is what became of each declared parent ledger, in declared
+	// order, or empty for a check with no parents.
+	//
+	// It is on the verdict rather than beside it because a caller that has the
+	// answer must also have the account of how complete it is: a check that
+	// quietly dropped a parent's constraints and a check that had none to drop
+	// produce identical conflicts, and only one of those is the whole answer.
+	// It is not part of the verdict — nothing here moves Compliant or
+	// ExitCode, and an unreachable parent may not, because exit 2 means a
+	// cited conflict and nothing else.
+	Parents []ParentReport
+}
+
+// A ParentStatus is what became of one declared parent ledger.
+//
+// dec-0011 resolves a cross-boundary reference into three states — oriented,
+// withheld, orphan — of which only the last is drift. Two of them are about a
+// declared parent and are the two this type distinguishes; the third is about a
+// ref with no declaration behind it, which is not a parent at all and has
+// nothing to report here.
+type ParentStatus string
+
+const (
+	// ParentResolved is a parent that was read. Its Evaluated count is a real
+	// count of what that parent contributed.
+	ParentResolved ParentStatus = "resolved"
+
+	// ParentUnresolved is a declared parent that could not be read from here.
+	//
+	// It is reported rather than dropped: a check missing half its enforcement
+	// set looks exactly like a compliant one, and it fails that way in exactly
+	// the configuration a public clone has.
+	ParentUnresolved ParentStatus = "unresolved"
+
+	// ParentWithheld is a parent the child declared `visibility = "private"`
+	// and could not read from here.
+	//
+	// dec-0018 makes this a designed state rather than a fault: a private
+	// parent is expected to be absent wherever it has not been shared, so its
+	// absence is the configuration working. The renderer says so by never
+	// using the word error or the word warning about it, and by reporting it
+	// under a different name from the parent that is simply missing — the two
+	// are different facts, and collapsing them would either alarm a reader
+	// about a working setup or quiet one about a broken one.
+	ParentWithheld ParentStatus = "withheld"
+)
+
+// A ParentReport is what one declared parent contributed, for a caller that has
+// to report it.
+//
+// Everything it carries is safe to print. That is the whole design: the
+// declaration behind it holds a path and may hold a `label`, dec-0011 says a
+// private parent's label must never ship, and a filesystem path to that ledger
+// identifies it at least as well as its label does — so neither is copied into
+// this type and no renderer can print what it was never given.
+type ParentReport struct {
+	// Namespace is the key the parent was declared under.
+	//
+	// It is the child's own word for that ledger, committed in the child's own
+	// config and already published in every inherited citation and remedy line,
+	// so naming it discloses nothing a resolved parent would not have.
+	Namespace string
+
+	// Status is what became of this parent.
+	Status ParentStatus
+
+	// Evaluated is how many of the parent's entries produced enforcement
+	// units.
+	//
+	// It is zero for anything but ParentResolved, and that zero is the only
+	// count such a parent has. How many constraints a ledger holds that nobody
+	// could open is not knowable from here, so no field states it: a report
+	// that named a total would be inventing the one number the failure it is
+	// reporting made unreadable.
+	Evaluated int
+}
+
+// ParentReports pairs each declaration with what became of it.
+//
+// The two halves arrive separately because they are two different facts.
+// Inherited.Parents says whether a parent could be read; the declaration says
+// whether the child expected to be able to. Only together do they tell an
+// unresolved parent from a withheld one — the same unreadable ledger, and
+// dec-0011 says a reader should hear about them differently.
+//
+// A parent declared private that *was* read is resolved, not withheld: it
+// contributed, and its citations carry no text (inherit.go's forcedPrivate),
+// which is where its privacy is kept. Withheld is about a ledger that is not
+// here.
+func ParentReports(parents []Parent, inh *Inherited) []ParentReport {
+	if inh == nil {
+		return nil
+	}
+
+	// Matched by namespace rather than by position. Inherit returns one result
+	// per declaration in declared order today, but a report that silently
+	// mislabelled one parent as another's kind is exactly the failure this is
+	// meant to catch, and a name is what both sides actually agree on.
+	private := make(map[string]bool, len(parents))
+	for _, p := range parents {
+		private[strings.TrimSpace(p.Decl.Name)] = p.Decl.Private()
+	}
+
+	reports := make([]ParentReport, 0, len(inh.Parents))
+	for _, result := range inh.Parents {
+		report := ParentReport{
+			Namespace: result.Namespace,
+			Status:    ParentResolved,
+			Evaluated: result.Evaluated,
+		}
+		if result.Err != nil {
+			// The error itself is deliberately not carried forward. It is
+			// the backend's, and a backend's error names the file it
+			// failed on — so the one field a reader would most want here
+			// is the one that cannot be printed.
+			report.Evaluated = 0
+			report.Status = ParentUnresolved
+			if private[result.Namespace] {
+				report.Status = ParentWithheld
+			}
+		}
+		reports = append(reports, report)
+	}
+	return reports
 }
 
 // Compliant reports whether the plan contradicts nothing.

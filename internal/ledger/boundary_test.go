@@ -54,6 +54,17 @@ var allowed = map[string][]string{
 	// .dira/cache/ before a query to prove the answer does not change.
 	// Deleting the cache is the thing under test.
 	"internal/index/indextest": {"os", "path/filepath"},
+
+	// Locates the skill document this repository ships, for the two test
+	// packages that check it from two different directories. Same shape as
+	// indextest: a test harness, imported by nothing in the shipped binary.
+	//
+	// It exists so internal/skill itself stays pure policy — it takes a
+	// document's TEXT and returns what it found — which is what let E2-L2-T8
+	// give the installer a two-method Root port instead of a filesystem, and
+	// is the same restructuring internal/nomodel made for the same rule.
+	// Reading a file is a filesystem concern; parsing its contents is not.
+	"internal/skill/skilltest": {"os", "path/filepath"},
 }
 
 // TestNoFilesystemImportsAboveTheBackend is E1-L1's acceptance line (c).

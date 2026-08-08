@@ -99,6 +99,76 @@ func Render(w io.Writer, v *Verdict) error {
 	return err
 }
 
+// RenderParents writes the report on the declared parents that contributed
+// nothing.
+//
+// # It is not the verdict, and it does not go where the verdict goes
+//
+// A caller writes this to stderr and the verdict to stdout. `dira check`'s exit
+// code means a cited conflict and nothing else, so a parent that could not be
+// read may not move it in either direction, and a report that landed in the
+// middle of the parseable document would move something else instead: the shape
+// a hook reads. cmd/dira/check.go already makes exactly this split for the index
+// notice, for the same reason.
+//
+// # Silence is the report for a parent that worked
+//
+// A resolved parent prints nothing. Its contribution is already visible — in the
+// citations it produced, in the enforced count, and in --json's parents block,
+// which unlike this one lists every parent — and a line per healthy parent on
+// every invocation would train a reader to skip the lines that matter. What is
+// reported here is the gap.
+//
+// # What is deliberately absent from every line
+//
+// No path, no label, no text from the parent, and no error from its backend. A
+// declaration carries a path, and a filesystem path to a private parent
+// identifies that ledger at least as well as the `label` dec-0011 says must
+// never ship; a backend's error names the file it failed to read. None of that
+// reaches ParentReport, so no line here can print it. What is left — the
+// namespace, and a count of zero — is the child's own word and a number, and
+// both are already published in the citations a resolved parent produces.
+func RenderParents(w io.Writer, v *Verdict) error {
+	var b strings.Builder
+	for _, p := range v.Parents {
+		b.WriteString(parentLine(p))
+	}
+	if b.Len() == 0 {
+		return nil
+	}
+	_, err := io.WriteString(w, b.String())
+	return err
+}
+
+// parentLine renders one parent's report, or nothing for a parent that was
+// read.
+//
+// The two reported forms are two different facts and are worded as two, because
+// dec-0011 distinguishes them and dec-0018 settles how the second must read. A
+// withheld parent is a private ledger that is not on this machine, which is the
+// configuration behaving exactly as designed — so its line states the fact and
+// nothing more. It contains neither the word "error" nor the word "warning",
+// and that is a rule about the string rather than a matter of tone: the reader
+// this line is written for is deciding whether something needs fixing, and
+// nothing here does.
+//
+// Both lines state the count they can know. Neither states a total. The number
+// of constraints an unopened ledger holds is not knowable from here, so the line
+// says how many were evaluated — zero — and stops, rather than reporting a
+// number it would have had to invent.
+func parentLine(p ParentReport) string {
+	switch p.Status {
+	case ParentWithheld:
+		return fmt.Sprintf("ⓘ the parent ledger %s is withheld: it is declared private and is not readable here, "+
+			"so %d of its constraints were evaluated\n", p.Namespace, p.Evaluated)
+	case ParentUnresolved:
+		return fmt.Sprintf("ⓘ the parent ledger %s is unresolved: no ledger could be read where this ledger "+
+			"declares it, so %d of its constraints were evaluated\n", p.Namespace, p.Evaluated)
+	default:
+		return ""
+	}
+}
+
 // namespaceOf returns the parent ledger a citation was inherited from, and the
 // empty string for one this ledger owns.
 //
@@ -244,6 +314,26 @@ type jsonVerdict struct {
 	Enforced  int            `json:"enforced_entries"`
 	Conflicts []jsonConflict `json:"conflicts"`
 	Notices   []jsonNotice   `json:"notices"`
+	Parents   []jsonParent   `json:"parents"`
+}
+
+// jsonParent is the machine form of one declared parent's outcome.
+//
+// It lists every parent, where the human report lists only the ones that
+// contributed nothing. The difference is deliberate and is the difference
+// between the two audiences: a human is being told what is missing, and a hook
+// deciding whether this verdict was reached over the whole enforcement set needs
+// to see that the parents it expected are there and how much each one added.
+//
+// The fields are the three that are safe to publish, and the type is a wall
+// rather than a filter — there is no path field and no label field to populate,
+// so no future edit to a renderer can put one in the document by accident.
+// schema/check.schema.json is `additionalProperties: false` over the same three,
+// which makes that a validation failure rather than a review finding.
+type jsonParent struct {
+	Namespace string `json:"namespace"`
+	Status    string `json:"status"`
+	Evaluated int    `json:"evaluated"`
 }
 
 // jsonNotice is the machine form of a redirect. It carries the same words the
@@ -300,6 +390,7 @@ func RenderJSON(w io.Writer, v *Verdict) error {
 		Enforced:  v.Enforced,
 		Conflicts: []jsonConflict{},
 		Notices:   []jsonNotice{},
+		Parents:   []jsonParent{},
 	}
 	if !v.Compliant() {
 		out.Verdict = "conflict"
@@ -342,6 +433,14 @@ func RenderJSON(w io.Writer, v *Verdict) error {
 			jn.SupersededBy = &by
 		}
 		out.Notices = append(out.Notices, jn)
+	}
+
+	for _, p := range v.Parents {
+		out.Parents = append(out.Parents, jsonParent{
+			Namespace: p.Namespace,
+			Status:    string(p.Status),
+			Evaluated: p.Evaluated,
+		})
 	}
 
 	enc := json.NewEncoder(w)
