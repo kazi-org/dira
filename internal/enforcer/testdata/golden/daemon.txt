@@ -1,0 +1,5 @@
+✗ conflicts with dec-0060 (accepted 2026-07-03)
+    rejected alternative: "a daemon"
+    why_not: violates the single-binary intent (int-0002)
+    revisit_if: cold-start latency stops being the binding constraint
+→ supersede dec-0060, or revise the plan

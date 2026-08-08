@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "dira",
+  "displayName": "dira",
+  "version": "0.0.0-unreleased",
+  "description": "dira gives your AI coding agent a memory for why. A git-native decision ledger, captured by hooks and read back at the start of every session. This bundle is scaffolding: no dira binary has shipped, and this manifest has never been published to a marketplace. See .claude-plugin/BUNDLE.md.",
+  "author": { "name": "kazi-org", "url": "https://github.com/kazi-org/dira" },
+  "homepage": "https://github.com/kazi-org/dira",
+  "repository": "https://github.com/kazi-org/dira",
+  "license": "Apache-2.0",
+  "keywords": ["dira", "decision-memory", "adr", "hooks", "agent"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira brief --context --chain 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira sniff --stage --quiet 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira sniff --deep --stage 2>/dev/null || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

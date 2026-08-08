@@ -1,0 +1,107 @@
+/* ============================================================================
+   openq/common.css — the shared substrate for the open-question studies.
+
+   This is s1-decision.html's <style> block lifted verbatim into a file so that
+   every option in docs/design/openq/ starts from IDENTICAL layout. The only
+   thing that differs between two options for the same question is the treatment
+   under study; anything else that moved would make the comparison dishonest.
+
+   It changes nothing in the real system: tokens.css, screens/ and landing/ are
+   untouched. Every value here is a token.
+   ============================================================================ */
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* mobile chain: the pre-formatted tree is illegible when clipped, so at narrow
+   widths the same graph renders as a stacked list. (WEB.md 9) */
+.chain .row > span:first-child { flex: 0 0 auto; min-width: 13ch; }
+.chain .row > .txt, .chain .row > .dim { flex: 1 1 auto; white-space: normal; }
+.chain .row > .lo:last-child { margin-left: auto; padding-left: var(--s4); text-align: right; }
+.chain-stack { display: none; }
+@media (max-width: 767px) {
+  .chain { display: none; }
+  .chain-stack {
+    display: grid; gap: var(--s2);
+    background: var(--sunk); border: 1px solid var(--rule);
+    border-radius: var(--r-shell); padding: var(--s4);
+    font-family: var(--mono); font-size: var(--t-sub);
+  }
+  .chain-stack .row { display: flex; gap: var(--s2); align-items: baseline; }
+  .chain-stack .row.sub { padding-left: var(--s4); }
+  .chain-stack .row.sub2 { padding-left: var(--s5); }
+  .chain-stack .m { flex: none; width: 12px; }
+  .chain-stack .m.ok { color: var(--converged); }
+  .chain-stack .m.no { color: var(--ink-low); }
+  .chain-stack .k { color: var(--bearing); flex: none; }
+  .chain-stack .v { color: var(--ink-mid); }
+}
+
+.body { display: grid; grid-template-columns: minmax(0,1fr) 244px; gap: var(--s7); margin-top: var(--s6); }
+@media (max-width: 1023px) { .body { grid-template-columns: 1fr; gap: var(--s6); } }
+
+.tagrow { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-bottom: var(--s3); }
+
+/* the ruling is the anchor — one element clearly wins the frame (TASTE 6, 11) */
+h1.ruling {
+  font-family: var(--serif); font-weight: 400;
+  font-size: var(--t-display); line-height: 1.1; letter-spacing: -.019em;
+  max-width: 24ch;
+}
+.arising { font-size: var(--t-sub); color: var(--ink-low); margin-bottom: var(--s3); max-width: var(--m-sub); }
+
+.because {
+  font-family: var(--serif); font-size: var(--t-lede); line-height: 1.62;
+  color: var(--ink-mid); max-width: var(--m-lede); margin-top: var(--s4);
+}
+.because em { font-style: italic; color: var(--ink); }
+
+/* alternatives — refusals are neutral records; only the upheld one is hued */
+.args { margin-top: var(--s7); }
+.arg { padding-left: var(--s4); margin-bottom: var(--s5); position: relative; }
+.arg::before { content:""; position:absolute; left:0; top:5px; bottom:2px; width:2px; background: var(--rule); }
+.arg.upheld::before { background: var(--converged); width: 3px; }
+
+.arg .opt { display: flex; gap: var(--s2); align-items: baseline; margin-bottom: var(--s2); }
+.arg .mark { flex: none; font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-low); }
+.arg.upheld .mark { color: var(--converged); }
+.arg .name { font-family: var(--serif); font-size: var(--t-body); }
+.arg.upheld .name { color: var(--ink); font-weight: 600; }
+.arg:not(.upheld) .name {
+  color: var(--ink-mid); text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--ink-low) 60%, transparent);
+  text-decoration-thickness: 1px;
+}
+.arg .tag {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .12em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-chip); flex: none; transform: translateY(-2px);
+  color: var(--ink-low); background: color-mix(in oklab, var(--ink-low) 12%, transparent);
+}
+.arg.upheld .tag { color: var(--converged); background: color-mix(in oklab, var(--converged) 14%, transparent); }
+.arg .grounds { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: var(--m-prose); }
+.arg .grounds + .grounds { margin-top: var(--s3); }
+.arg .revisit { font-size: var(--t-sub); color: var(--ink-low); margin-top: var(--s3); max-width: var(--m-sub); }
+.arg .revisit b {
+  color: var(--bearing); font-weight: 600; font-size: var(--t-label);
+  letter-spacing: .12em; text-transform: uppercase; margin-right: 6px;
+}
+
+.rail { display: grid; gap: var(--s4); align-content: start; position: sticky; top: var(--s4); }
+@media (max-width: 1023px) { .rail { position: static; } }
+.kv {
+  display: flex; justify-content: space-between; gap: var(--s3);
+  font-family: var(--mono); font-size: var(--t-sub); padding: 5px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.kv:last-child { border-bottom: 0; }
+.kv .k { color: var(--ink-low); }
+.kv a { text-decoration: none; }
+.kv a:hover, .kv a:focus-visible { text-decoration: underline; }
+
+/* the study banner — present on every option page so a render can never be
+   mistaken for a real screen. Not part of the treatment under comparison. */
+.study {
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low);
+  border-bottom: 1px solid var(--rule); background: var(--sunk);
+  padding: var(--s2) var(--s5);
+}
+.study b { color: var(--bearing); font-weight: 400; }
