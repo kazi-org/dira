@@ -1,0 +1,37 @@
+# dira's derived read cache — rebuildable from .dira/entries/ at any time via
+# `dira reindex`. Never committed: if the cache and the entry files ever disagree,
+# the files win (dec-0002).
+.dira/cache/
+
+# The scratch file `dira log` writes an entry to before committing it into place
+# with a link. A process killed between those two steps cannot remove it, so the
+# one thing a crash can leave behind is this — never an entry, and never
+# something that should reach a commit.
+.dira/entries/.dira-*.tmp
+
+# Go build output
+/dira
+/dist/
+*.test
+*.out
+
+# Editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Mockup render harness: playwright lives in the session scratchpad, symlinked in.
+node_modules
+
+# Mockup renders: derived artifacts, reproducible in one command
+# (`node docs/design/scripts/render.mjs r1`). Same logic as .dira/cache/ —
+# the source is the record, the render is exhaust.
+docs/design/renders/
+
+# A global ~/.gitignore on this machine contains `plan.md`, which silently swallowed
+# docs/plan.md — the L0 program plan — for this repo's entire history. Repo-level
+# .gitignore takes precedence over core.excludesFile, so this negation restores it.
+# scripts/coverage.py reads docs/plan.md, so an untracked plan.md would make the
+# coverage gate fail on a fresh clone for the wrong reason.
+!docs/plan.md

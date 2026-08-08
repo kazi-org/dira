@@ -1,0 +1,59 @@
+# dira ledger configuration
+#
+# This file is the only hand-edited file in .dira/. Everything under entries/
+# is written by dira itself (via hooks, the skill, or `dira log`), and
+# everything under cache/ is derived and gitignored.
+
+[ledger]
+# Short name this ledger is known by when other ledgers reference it.
+# Namespaced refs elsewhere resolve as "<name>:<entry-id>", e.g. dira:dec-0001.
+name = "dira"
+
+# Which tier this ledger sits at: person | workspace | repo.
+# The tier does not change the entry model (dec-0006) — it only changes which
+# mix of entries is idiomatic, and which drift checks apply.
+tier = "repo"
+
+[parents]
+# Upward links. Resolution is read-only and one-way: dira never writes to a parent
+# ledger (cst-0003).
+#
+# Resolution reports THREE states, not two (dec-0011):
+#   oriented  edge present, target resolved and readable   -> not drift
+#   withheld  edge present, namespace declared private     -> not drift
+#   orphan    no derives_from edge at all                  -> DRIFT
+# Only orphan is drift. "withheld" is a designed state and must never render as an
+# error — that distinction is what keeps the orphan-work signal meaningful in a
+# public ledger whose parent is private.
+#
+# A namespaced ref whose namespace is NOT declared here is an ERROR, not a withheld
+# state: an undeclared foreign ref is a typo or an invention, and treating it as
+# withheld would let real mistakes hide behind the privacy boundary.
+#
+# Cross-boundary refs publish verbatim and opaquely (dec-0011). What leaks is the
+# namespace and an integer id — never a title, body, alternative, or edge note. Set
+# visibility = "private" for a parent not readable from here, and omit `label` when
+# the namespace itself must not ship.
+#
+# Commented out until the sire workspace ledger exists.
+# sire = { path = "../../sire-run/sire", ref = "main" }
+# me   = { visibility = "private" }   # readable only on the maintainer's machine
+
+[mirror]
+# When true, every accepted decision also emits a conventional ADR file, so the
+# docs/adr/ corpus stays intact for humans and audits. The ADR is exhaust; the
+# entry is truth (dec-0009). Deleting an ADR must never lose information.
+adr = true
+adr_dir = "docs/adr"
+
+[brief]
+# Hard token ceiling on the session brief, enforced by the binary, not by taste.
+# The moment the brief stops fitting on one screen, dira has become the ADR pile
+# it exists to replace. Raising this number requires superseding cst-0001.
+max_tokens = 1500
+
+[kazi]
+# Execution truth is read from kazi, never recomputed and never hand-entered
+# (dec-0004). If the kazi binary is absent, dira degrades to ledger-side buckets
+# rather than guessing.
+enabled = true
