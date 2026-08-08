@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>Distill — 3 staged · dira</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+/* S3 — THE DISTILL QUEUE. Agents propose, you dispose. Taps, not typing.
+   The BECAUSE gets top billing over the title, because the because is what
+   is actually being approved. At mobile width this becomes the swipe deck. */
+
+.wrap { max-width: 760px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+.head { margin-bottom: var(--s6); }
+.head h1 {
+  font-family: var(--serif); font-weight: 400; font-size: clamp(25px, 4vw, 33px);
+  line-height: 1.16; letter-spacing: -.014em;
+}
+.head .sub { font-size: var(--t-ui); color: var(--ink-mid); margin-top: var(--s2); max-width: var(--m-ui); }
+.progress {
+  display: flex; gap: 5px; margin-top: var(--s4);
+}
+.progress i {
+  height: 3px; flex: 1; border-radius: 2px; background: var(--rule);
+}
+.progress i.done { background: var(--converged); }
+.progress i.now { background: var(--bearing); }
+
+/* --- the card. One at a time: a queue of three is a decision, a queue of
+       thirty is a chore. Only the top card is actionable. --- */
+.deck { display: grid; gap: var(--s4); }
+
+.stage {
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: var(--r-shell); padding: var(--s5);
+}
+.stage.next { opacity: .58; padding: var(--s4) var(--s5); }
+
+.stage .meta { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-bottom: var(--s4); }
+.stage .src {
+  font-family: var(--mono); font-size: var(--t-label); color: var(--ink-low);
+  margin-left: auto;
+}
+
+/* THE BECAUSE — top billing, serif, the largest thing on the card */
+.stage .because {
+  font-family: var(--serif); font-size: var(--t-lede); line-height: 1.5;
+  color: var(--ink); margin-bottom: var(--s4);
+}
+.stage.next .because { font-size: var(--t-body); margin-bottom: var(--s2); }
+
+/* the title is secondary — it is the label, not the substance */
+.stage .titleline {
+  display: flex; gap: var(--s2); align-items: baseline;
+  padding-top: var(--s3); border-top: 1px solid var(--rule-soft);
+  font-size: var(--t-ui); color: var(--ink-mid);
+}
+.stage .titleline .k {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-low); flex: none; padding-top: 3px;
+}
+
+/* the rejected alternative the agent extracted — shown, because approving a
+   decision means approving what it rules out */
+.stage .against { max-width: var(--m-ui);
+  margin-top: var(--s3); padding: var(--s3) var(--s4);
+  background: var(--sunk); border-radius: var(--r-card);
+  font-size: var(--t-ui); color: var(--ink-mid);
+  display: flex; gap: var(--s2); align-items: baseline;
+}
+.stage .against .m { color: var(--ink-low); font-family: var(--mono); flex: none; }
+.stage .against s { text-decoration-color: color-mix(in oklab, var(--ink-low) 55%, transparent); }
+
+.stage .edge {
+  margin-top: var(--s3); font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low);
+}
+.stage .edge a { text-decoration: none; }
+
+/* actions: confirm is primary, reject is quiet, edit is a link.
+   Hover is never the only affordance — all three are permanently visible. */
+.actions {
+  display: flex; gap: var(--s2); align-items: center;
+  margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--rule-soft);
+  flex-wrap: wrap;
+}
+.actions .grow { flex: 1; }
+.hint { font-family: var(--mono); font-size: var(--t-label); color: var(--ink-low); }
+kbd {
+  font-family: var(--mono); font-size: var(--t-label); padding: 1px 5px;
+  border: 1px solid var(--rule); border-radius: 3px; color: var(--ink-mid);
+  background: var(--sunk);
+}
+
+/* base: the swipe hint is touch-only, so it is hidden by default and
+   revealed at mobile widths. Declared BEFORE the media query so the query
+   actually wins — source order decides between equal-specificity rules. */
+.swipe-note {
+  display: none; text-align: center; font-family: var(--mono);
+  font-size: var(--t-label); color: var(--ink-low); margin-top: var(--s3);
+}
+
+/* mobile: the swipe deck. Actions become thumb-reachable and full-width. */
+@media (max-width: 767px) {
+  .wrap { padding: var(--s5) var(--s4) var(--s8); }
+  .stage { padding: var(--s4); }
+  .stage .because { font-size: var(--t-lede); }
+  .actions { flex-direction: column; align-items: stretch; gap: var(--s2); }
+  .actions .btn { width: 100%; }
+  .actions .grow, .actions .hint { display: none; }
+  .swipe-note { display: block; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb">kazi-org/dira · distill</nav>
+  <span class="spacer"></span>
+  <span class="crumb">3 staged</span>
+</header>
+
+<main class="wrap">
+
+  <div class="head">
+    <h1>Three decisions from yesterday.</h1>
+    <p class="sub">Captured from your sessions. Confirm the reasoning, or reject it — that is the whole job.</p>
+    <div class="progress" role="img" aria-label="1 of 3 reviewed">
+      <i class="done"></i><i class="now"></i><i></i>
+    </div>
+  </div>
+
+  <div class="deck">
+
+    <!-- the actionable card -->
+    <article class="stage">
+      <div class="meta">
+        <span class="chip chip-id">dec-0011</span>
+        <span class="chip chip-staged">◆ staged</span>
+        <span class="src">PreCompact · 14:22 · semantic</span>
+      </div>
+
+      <p class="because">Because a hand-entered status field is exactly what went stale in
+        Obsidian and Linear — a derived view cannot lie.</p>
+
+      <div class="titleline">
+        <span class="k">Decides</span>
+        <span>Status is read from kazi at query time, never written into an entry</span>
+      </div>
+
+      <div class="against">
+        <span class="m">✗</span>
+        <span><s>Store planned/in-progress/done as a field on each entry</s> — correct at the
+          moment of writing and wrong within a day, and the wrongness is invisible.</span>
+      </div>
+
+      <p class="edge">derives_from <a href="#">int-0003</a> · mirrors to <a href="#">adr/0011</a></p>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="button">Confirm</button>
+        <button class="btn" type="button">Reject</button>
+        <button class="btn btn-quiet" type="button">Edit the because</button>
+        <span class="grow"></span>
+        <!-- Keyboard hints removed 2026-07-30. The page advertised Y/N/E with zero
+             script tags — promising interaction it cannot deliver. Either the distill
+             surface gets JS (defensible: it is a localhost app view, NOT the crawlable
+             public renderer dec-0012's reasoning covers) or the hints stay gone. It
+             does not get to claim them meanwhile. -->
+      </div>
+      <p class="swipe-note">swipe right to confirm · left to reject</p>
+    </article>
+
+    <!-- what is behind it, dimmed and non-actionable -->
+    <article class="stage next" aria-label="Next in queue">
+      <div class="meta">
+        <span class="chip chip-id">dec-0012</span>
+        <span class="chip chip-staged">◆ staged</span>
+        <span class="src">Stop · 16:05 · regex</span>
+      </div>
+      <p class="because">Because the renderer is read-only and stores nothing, so the
+        no-servers promise survives it.</p>
+      <div class="titleline"><span class="k">Decides</span><span>Ship the public ledger renderer ahead of the paid apps</span></div>
+    </article>
+
+    <article class="stage next" aria-label="Next in queue">
+      <div class="meta">
+        <span class="chip chip-id">qst-0006</span>
+        <span class="chip chip-open">◆ open question</span>
+        <span class="src">Stop · 16:41 · regex</span>
+      </div>
+      <p class="because">Unresolved: should the brief inherit personal focus into a public
+        repo session, or only reference it?</p>
+      <div class="titleline"><span class="k">Blocks</span><span>dec-0006 — the fractal tier design</span></div>
+    </article>
+
+  </div>
+
+  <footer class="made">
+    <span><a href="https://github.com/kazi-org/dira">dira</a> · staged by hooks, disposed by you</span>
+  </footer>
+</main>
+</body>
+</html>

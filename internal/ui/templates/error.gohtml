@@ -1,0 +1,42 @@
+{{- /*
+The error page. A 404 on the surface a stranger lands on is still a page: it
+carries the topbar, the same tokens, and the attribution line, because a bare
+"404 page not found" from an unfamiliar tool reads as "this tool is broken"
+rather than as "that link was wrong".
+*/ -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>{{ .Code }} — dira</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/decision.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="/">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/">ledger</a> · {{ .Code }}</nav>
+  <span class="spacer"></span>
+  <span class="crumb">decision memory for AI coding agents</span>
+</header>
+
+<main class="wrap">
+  <h1 class="ruling">{{ .Headline }}</h1>
+  <p class="because">{{ .Detail }}</p>
+
+  <div class="everydec">
+    <p>The ledger index lists every entry in this repository.</p>
+    <a href="/">See the whole graph →</a>
+  </div>
+
+  <footer class="made">
+    <span>kept with <a href="https://github.com/kazi-org/dira" rel="noopener">dira</a>, written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>kazi-org/dira — decision memory · dira</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+/* S2 — THE LEDGER INDEX / MAP. Groups by WHY, not by goal — the view
+   kazi portfolio structurally cannot give. The dial lives HERE, where
+   roll-ups are the content. Status is derived from kazi, never stored. */
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* --- the drama surface: the bearing dial + the claim --- */
+.bearing {
+  display: flex; align-items: center; gap: var(--s6);
+  padding-bottom: var(--s6); margin-bottom: var(--s6);
+  border-bottom: 1px solid var(--rule);
+}
+@media (max-width: 767px) { .bearing { flex-direction: column; align-items: flex-start; gap: var(--s4); } }
+
+.dial { flex: none; width: 148px; height: 148px; position: relative; }
+.dial svg { display: block; width: 100%; height: 100%; }
+.dial .read { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.dial .read .n { font-family: var(--mono); font-size: var(--t-lede); line-height: 1; color: var(--ink); }
+.dial .read .l {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-low); margin-top: 4px;
+}
+
+.claim { min-width: 0; }
+.claim h1 {
+  font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 4vw, 36px);
+  line-height: 1.16; letter-spacing: -.014em; margin-bottom: var(--s3);
+}
+.claim .sub { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: var(--m-lede); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-top: var(--s4); }
+.legend span {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-mid);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+/* --- legend: closes the jargon gate for a stranger without an onboarding
+       carousel (TASTE 14 bans those outright). Permanently visible, not a
+       hover tooltip — hover is never the only affordance (WEB.md 5). --- */
+.legend-key {
+  display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4);
+  padding: var(--s3) var(--s4); margin-bottom: var(--s6);
+  background: var(--sunk); border: 1px solid var(--rule); border-radius: var(--r-card);
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-mid);
+}
+.legend-key b { color: var(--bearing); font-weight: 400; }
+.legend-key .k { display: inline-flex; gap: 6px; align-items: baseline; }
+
+/* --- the conversion path. A stranger is a visitor, not a user already
+       inside the app, so an affordance here is legitimate rather than the
+       "Get started on a screen you're already in" slop tell. Kept to one
+       restrained line: this is a record first, a pitch second. --- */
+.take {
+  display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
+  margin-top: var(--s6); padding: var(--s4);
+  border: 1px solid var(--rule); border-radius: var(--r-card);
+  background: var(--panel);
+}
+.take p { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); flex: 1; min-width: 260px; max-width: var(--m-prose); }
+.take p b { color: var(--ink); font-weight: 600; }
+.take a.cta {
+  font-family: var(--ui); font-size: var(--t-ui); font-weight: 500;
+  padding: 9px 16px; border-radius: var(--r-chip); min-height: 40px;
+  display: inline-flex; align-items: center;
+  background: var(--converged); border: 1px solid var(--converged);
+  color: var(--panel); text-decoration: none;
+  transition: background var(--dur) var(--ease);
+}
+.take a.cta:hover, .take a.cta:focus-visible { background: color-mix(in oklab, var(--converged) 84%, black); }
+.take code { color: var(--ink); background: var(--sunk); padding: 2px 6px; border-radius: var(--r-chip); }
+@media (max-width: 767px) { .take a.cta { min-height: 44px; width: 100%; justify-content: center; } }
+
+/* --- the intent tree: grouped by why --- */
+.tree { display: grid; gap: var(--s5); }
+.intent { }
+.intent > .head { display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s3); }
+.intent .iid { font-family: var(--mono); font-size: var(--t-sub); color: var(--bearing); flex: none; }
+.intent .ititle { font-family: var(--serif); font-size: var(--t-lede); color: var(--ink); }
+.intent .roll {
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low);
+  margin-left: auto; display: flex; gap: var(--s3); flex: none;
+}
+.intent .roll b { font-weight: 400; }
+.intent .roll .d { color: var(--converged); }
+.intent .roll .r { color: var(--bearing); }
+
+.kids { display: grid; gap: 1px; background: var(--rule-soft); border: 1px solid var(--rule); border-radius: var(--r-card); overflow: hidden; }
+.kid {
+  display: grid; grid-template-columns: 88px minmax(0,1fr) auto;
+  gap: var(--s3); align-items: center;
+  padding: 10px var(--s4); background: var(--panel);
+  font-size: var(--t-ui); text-decoration: none; color: inherit;
+  min-height: 40px;
+  transition: background var(--dur) var(--ease);
+}
+.kid:hover, .kid:focus-visible { background: var(--sunk); }
+.kid .k-id { font-family: var(--mono); font-size: var(--t-sub); color: var(--bearing); }
+.kid .k-t { color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kid .k-s { font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low); text-align: right; }
+.kid .k-s.done { color: var(--converged); }
+.kid .k-s.gap { color: var(--ink-mid); }
+@media (max-width: 767px) {
+  .kid { grid-template-columns: 1fr auto; row-gap: 2px; padding: 12px var(--s3); min-height: 44px; }
+  .kid .k-id { grid-column: 1; }
+  .kid .k-s { grid-column: 2; grid-row: 1; }
+  .kid .k-t { grid-column: 1 / -1; white-space: normal; }
+}
+
+/* --- the one alarm --- */
+.drift { margin-top: var(--s6); }
+.drift .label { font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 6px; }
+.drift a { color: var(--caught); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb">kazi-org/dira · ledger</nav>
+  <span class="spacer"></span>
+  <span class="crumb">22 entries · updated 29 Jul</span>
+</header>
+
+<main class="wrap">
+
+  <section class="bearing">
+    <div class="dial">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Of 14 tracked items: 6 converged, 4 in motion, 4 to be planned">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--sunk)" stroke-width="10"/>
+        <!-- r=50 -> circumference 314.16 -->
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--converged)" stroke-width="10"
+                stroke-dasharray="134.6 179.5" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bearing)" stroke-width="10"
+                stroke-dasharray="89.8 224.4" transform="rotate(64 60 60)"/>
+        <!-- the needle: points at the current focus intent. It rides just
+             inside the ring band so it never crosses the centre readout. -->
+        <g transform="rotate(28 60 60)">
+          <line x1="60" y1="30" x2="60" y2="17" stroke="var(--bearing-lift)" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="60" cy="34" r="2" fill="var(--bearing-lift)"/>
+        </g>
+      </svg>
+      <div class="read" aria-hidden="true"><div><div class="n">43%</div><div class="l">converged</div></div></div>
+    </div>
+    <div class="claim">
+      <h1>Why this codebase is the way it is.</h1>
+      <p class="sub">Every decision, the alternatives that lost, and the reasoning — kept as
+        the work happened, not written up afterwards.</p>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--converged)"></i>6 converged</span>
+        <span><i class="dot" style="background:var(--bearing)"></i>4 in motion</span>
+        <span><i class="dot" style="background:transparent;box-shadow:inset 0 0 0 2px var(--ink-low)"></i>4 to be planned</span>
+        <span><i class="dot" style="background:var(--ink-low)"></i>4 open questions</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="legend-key" aria-label="What the identifiers mean">
+    <span class="k"><b>int-</b>an intent — a direction the work serves</span>
+    <span class="k"><b>dec-</b>a decision, with the alternatives it ruled out</span>
+    <span class="k"><b>qst-</b>an open question, which can block work</span>
+    <span class="k"><b>cst-</b>a standing constraint</span>
+    <span class="k"><b>converged</b>proven done by tests, not asserted</span>
+  </div>
+
+  <div class="tree">
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">int-0001</span>
+        <span class="ititle">The why survives the session that made it</span>
+        <span class="roll"><b class="d">2 converged</b><b class="r">1 in motion</b></span>
+      </div>
+      <div class="kids">
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0009</span><span class="k-t">ADRs are mirrored exhaust; the entry is the record</span><span class="k-s done">converged</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0006</span><span class="k-t">Tiers are fractal — one model at every level</span><span class="k-s done">converged</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">cst-0001</span><span class="k-t">The brief never exceeds 1,500 tokens</span><span class="k-s">in motion</span></a>
+      </div>
+    </section>
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">int-0002</span>
+        <span class="ititle">Zero-ceremony operation — one binary, no daemon</span>
+        <span class="roll"><b class="d">3 converged</b><b class="r">1 in motion</b></span>
+      </div>
+      <div class="kids">
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0001</span><span class="k-t">Go, not Elixir/OTP, despite kazi&rsquo;s stack</span><span class="k-s done">converged</span></a>
+        <a class="kid" href="s1-decision-long.html"><span class="k-id">dec-0002</span><span class="k-t">Entries are markdown files, not rows in a database</span><span class="k-s done">converged</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0003</span><span class="k-t">No model client in the binary</span><span class="k-s done">converged</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0005</span><span class="k-t">A storage interface before the first surface</span><span class="k-s">in motion</span></a>
+      </div>
+    </section>
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">int-0003</span>
+        <span class="ititle">Replace the tool pile</span>
+        <span class="roll"><b class="d">1 converged</b><b>2 to be planned</b></span>
+      </div>
+      <div class="kids">
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0004</span><span class="k-t">Status is derived from kazi, never stored</span><span class="k-s done">converged</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0010</span><span class="k-t">A public ledger renderer is the growth engine</span><span class="k-s gap">to be planned</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0007</span><span class="k-t">OSS free; individuals buy once; teams subscribe</span><span class="k-s gap">to be planned</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">qst-0003</span><span class="k-t">Does importing an ADR corpus help, or make a second pile?</span><span class="k-s">blocks this</span></a>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="drift">
+    <span class="label">⚠ Drift</span>
+    <p><b>One active intent has no parent.</b> Work with no stated purpose is visible here by
+      construction — <a href="#">int-0004</a> serves nothing recorded. Either link it upward, or
+      ask why it exists.</p>
+  </div>
+
+  <div class="take">
+    <p><b>This page wrote itself.</b> Every entry was captured by a coding agent as the
+      work happened — nobody typed it up afterwards, and nobody re-reads it: it comes
+      back to you at the start of the next session, and argues if you contradict it.</p>
+    <a class="cta" href="https://github.com/kazi-org/dira">Keep your own →</a>
+  </div>
+
+  <footer class="made">
+    <span>Decision memory kept with <a href="https://github.com/kazi-org/dira">dira</a></span>
+    <span class="sep" aria-hidden="true">·</span><span>written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

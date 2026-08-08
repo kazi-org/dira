@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en" data-anchor="chart-room">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a26" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
+<title>dec-0001 · dira — Chart Room</title>
+<style>
+/* ============================================================
+   ANCHOR 1 — "CHART ROOM"
+   POV: the ledger is an instrument, not a document. Status is
+   read at a glance off a dial; the prose is the log beneath it.
+   Canon lens: Tide Guide — data made beautiful through restraint;
+   the chart IS the sky. Here the dial IS the status.
+   Density: DENSE instrument.
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* --- hue budget: 4 saturated hues, one meaning each ---
+     brass   = the instrument / current bearing / brand
+     verdigris = converged, achieved (runtime state only)
+     signal  = drift & contradiction ONLY (never decoration)
+     slate   = the chart ground (near-neutral, carries the metaphor) */
+  --brass:      #a8792c;
+  --brass-lift: #c99a45;
+  --verdigris:  #2f7d6e;
+  --signal:     #a8402f;
+
+  /* surfaces — hued, never pure poles */
+  --ground:   #f4f1ea;
+  --panel:    #fbf9f4;
+  --sunk:     #eae5da;
+  --rule:     #d8d1c2;
+
+  /* ink */
+  --ink:      #22242a;
+  --ink-mid:  #55585f;
+  --ink-low:  #7d8189;
+
+  /* type roles (6 max) */
+  --display: "Baskerville", "Hoefler Text", "Palatino", serif;
+  --ui: system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", "Menlo", "Monaco", monospace;
+
+  /* spacing scale — named, nothing off-scale */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
+
+  /* concentric radii: inner ~= half outer */
+  --r-shell: 14px; --r-card: 8px; --r-chip: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brass:      #c9a24e;
+    --brass-lift: #e0bd6d;
+    --verdigris:  #4fa392;
+    --signal:     #d1604c;
+
+    --ground: #101a26;
+    --panel:  #172431;
+    --sunk:   #0c1520;
+    --rule:   #29394a;
+
+    --ink:     #e8e6e1;
+    --ink-mid: #a3adb8;
+    --ink-low: #74818e;
+  }
+}
+:root[data-theme="dark"] {
+  --brass: #c9a24e; --brass-lift: #e0bd6d; --verdigris: #4fa392; --signal: #d1604c;
+  --ground: #101a26; --panel: #172431; --sunk: #0c1520; --rule: #29394a;
+  --ink: #e8e6e1; --ink-mid: #a3adb8; --ink-low: #74818e;
+}
+:root[data-theme="light"] {
+  --brass: #a8792c; --brass-lift: #c99a45; --verdigris: #2f7d6e; --signal: #a8402f;
+  --ground: #f4f1ea; --panel: #fbf9f4; --sunk: #eae5da; --rule: #d8d1c2;
+  --ink: #22242a; --ink-mid: #55585f; --ink-low: #7d8189;
+}
+
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+}
+
+/* ---------- chrome: suppressed, brass hairline only ---------- */
+.topbar {
+  display: flex; align-items: center; gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in oklab, var(--panel) 70%, transparent);
+  position: sticky; top: 0; backdrop-filter: blur(8px);
+}
+.wordmark {
+  font-family: var(--display);
+  font-size: 21px; letter-spacing: .02em;
+  color: var(--ink);
+}
+.wordmark b { color: var(--brass); font-weight: 400; }
+.crumb {
+  font-family: var(--mono); font-size: 12px; color: var(--ink-low);
+  display: flex; gap: var(--s2); align-items: center;
+}
+.crumb a { color: var(--ink-mid); text-decoration: none; }
+.crumb a:hover, .crumb a:focus-visible { color: var(--brass); text-decoration: underline; }
+
+.wrap {
+  max-width: 1180px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8);
+  display: grid; grid-template-columns: 1fr 268px; gap: var(--s7);
+}
+@media (max-width: 1023px) { .wrap { grid-template-columns: 1fr; gap: var(--s6); } }
+
+/* ---------- THE DRAMA SURFACE: the bearing dial ---------- */
+/* one signature surface per screen (TASTE 13). The dial is the
+   only element with computed geometry; everything else is flat. */
+.dial-block {
+  display: flex; align-items: center; gap: var(--s5);
+  padding: var(--s5); margin-bottom: var(--s6);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-shell);
+}
+.dial { flex: 0 0 132px; width: 132px; height: 132px; position: relative; }
+.dial svg { display: block; width: 100%; height: 100%; }
+.dial-read {
+  position: absolute; inset: 0; display: grid; place-content: center;
+  text-align: center;
+}
+.dial-read .n {
+  font-family: var(--mono); font-size: 27px; font-variant-numeric: tabular-nums;
+  color: var(--ink); line-height: 1;
+}
+.dial-read .l {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .13em;
+  color: var(--ink-low); margin-top: 3px;
+}
+.dial-legend { display: grid; gap: var(--s2); min-width: 0; }
+.dial-legend h1 {
+  font-family: var(--display); font-weight: 400;
+  font-size: 25px; line-height: 1.2; letter-spacing: -.005em;
+}
+.leg { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-top: var(--s1); }
+.leg span {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-mid);
+  font-variant-numeric: tabular-nums;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+/* ---------- the record ---------- */
+.rec-head { margin-bottom: var(--s5); }
+.idline {
+  display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap;
+  margin-bottom: var(--s3);
+}
+.eid {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+  color: var(--brass); background: color-mix(in oklab, var(--brass) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--brass) 32%, transparent);
+  padding: 2px 7px; border-radius: var(--r-chip);
+}
+/* state chip: label + hue, never hue alone (WEB.md 12) */
+.state {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .1em;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: var(--r-chip);
+  color: var(--verdigris);
+  background: color-mix(in oklab, var(--verdigris) 13%, transparent);
+}
+.when { font-family: var(--mono); font-size: 11.5px; color: var(--ink-low); }
+
+h2.title {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(28px, 4.4vw, 40px); line-height: 1.14;
+  letter-spacing: -.014em; max-width: 24ch;
+}
+
+.because {
+  font-family: var(--display); font-size: 18.5px; line-height: 1.5;
+  color: var(--ink-mid); max-width: 62ch; margin-top: var(--s4);
+  padding-left: var(--s4); border-left: 2px solid var(--brass);
+}
+
+/* ---------- alternatives: the why-not ledger ---------- */
+.sec { margin-top: var(--s7); }
+.sec > h3 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .15em;
+  color: var(--ink-low); margin-bottom: var(--s4);
+  display: flex; align-items: center; gap: var(--s3);
+}
+.sec > h3::after {
+  content: ""; flex: 1; height: 1px; background: var(--rule);
+}
+.alts { display: grid; gap: var(--s3); }
+.alt {
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: var(--r-card); padding: var(--s4) var(--s4) var(--s4) var(--s5);
+  position: relative;
+}
+.alt::before {
+  content: "✕"; position: absolute; left: var(--s3); top: var(--s4);
+  font-size: 11px; color: var(--signal); opacity: .8;
+}
+.alt.chosen::before { content: "✓"; color: var(--verdigris); opacity: 1; }
+.alt.chosen { border-color: color-mix(in oklab, var(--verdigris) 40%, var(--rule)); }
+.alt .opt {
+  font-weight: 600; font-size: 14.5px; margin-bottom: var(--s1);
+}
+.alt.chosen .opt { color: var(--ink); }
+.alt:not(.chosen) .opt { color: var(--ink-mid); }
+.alt .why { font-size: 13.5px; color: var(--ink-mid); max-width: 68ch; }
+.alt .rev {
+  margin-top: var(--s3); padding-top: var(--s2);
+  border-top: 1px dashed var(--rule);
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-low);
+}
+.alt .rev b { color: var(--brass); font-weight: 400; }
+
+/* ---------- rail ---------- */
+.rail { display: grid; gap: var(--s5); align-content: start; }
+.card {
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: var(--r-card); padding: var(--s4);
+}
+.card h4 {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .13em;
+  color: var(--ink-low); margin-bottom: var(--s3); font-weight: 600;
+}
+.edge {
+  display: flex; gap: var(--s2); align-items: baseline;
+  font-family: var(--mono); font-size: 12px; padding: 5px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--rule) 55%, transparent);
+}
+.edge:last-child { border-bottom: 0; }
+.edge .t { color: var(--ink-low); flex: none; }
+.edge a { color: var(--brass); text-decoration: none; }
+.edge a:hover, .edge a:focus-visible { text-decoration: underline; }
+
+/* the ONLY red on the page */
+.drift {
+  border-color: color-mix(in oklab, var(--signal) 45%, var(--rule));
+  background: color-mix(in oklab, var(--signal) 7%, var(--panel));
+}
+.drift h4 { color: var(--signal); }
+.drift p { font-size: 13px; color: var(--ink-mid); }
+
+/* ---------- attribution: the loop, quietly ---------- */
+.made {
+  grid-column: 1 / -1; margin-top: var(--s8); padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap;
+  font-size: 12.5px; color: var(--ink-low);
+}
+.made a { color: var(--ink-mid); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.made a:hover, .made a:focus-visible { color: var(--brass); border-color: var(--brass); }
+.made .dot-sep { color: var(--rule); }
+
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--brass-lift); outline-offset: 2px; border-radius: 2px;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="wordmark">di<b>ra</b></span>
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="#">kazi-org/dira</a><span>/</span><a href="#">ledger</a><span>/</span><span>dec-0001</span>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div>
+    <!-- THE DIAL: derived status, never hand-entered -->
+    <section class="dial-block" aria-label="Ledger bearing">
+      <div class="dial">
+        <svg viewBox="0 0 120 120" role="img" aria-label="9 accepted, 4 active, 4 open, 1 answered">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--sunk)" stroke-width="9"/>
+          <!-- arcs: circumference 326.7 -->
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--verdigris)" stroke-width="9"
+                  stroke-dasharray="134 193" stroke-linecap="butt" transform="rotate(-90 60 60)"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--brass)" stroke-width="9"
+                  stroke-dasharray="60 267" stroke-linecap="butt" transform="rotate(58 60 60)"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--ink-low)" stroke-width="9"
+                  stroke-dasharray="60 267" stroke-linecap="butt" transform="rotate(124 60 60)"/>
+          <!-- the needle: current focus -->
+          <line x1="60" y1="60" x2="60" y2="22" stroke="var(--brass-lift)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="60" cy="60" r="3.5" fill="var(--brass-lift)"/>
+        </svg>
+      </div>
+      <div class="dial-legend">
+        <h1>Decision memory · kazi-org/dira</h1>
+        <div class="leg">
+          <span><i class="dot" style="background:var(--verdigris)"></i>9 accepted</span>
+          <span><i class="dot" style="background:var(--brass)"></i>4 active intents</span>
+          <span><i class="dot" style="background:var(--ink-low)"></i>4 open questions</span>
+        </div>
+      </div>
+    </section>
+
+    <article>
+      <header class="rec-head">
+        <div class="idline">
+          <span class="eid">dec-0001</span>
+          <span class="state">◆ accepted</span>
+          <span class="when">29 Jul 2026</span>
+        </div>
+        <h2 class="title">Go, not Elixir/OTP, despite kazi&rsquo;s stack</h2>
+        <p class="because">
+          dira is invoked from hooks several times a session, in the latency path of a
+          human waiting on a prompt. OTP&rsquo;s value is supervision of long-lived
+          concurrent work — exactly what kazi needs and exactly what dira has none of.
+        </p>
+      </header>
+
+      <section class="sec">
+        <h3>The road taken, and three not</h3>
+        <div class="alts">
+          <div class="alt chosen">
+            <div class="opt">Go — one static binary, sub-100&nbsp;ms cold start</div>
+            <div class="why">Stdlib covers files, JSON/YAML, an embedded HTTP server for <code>dira ui</code>, and SQLite via one dependency. Wide contributor pool for drive-by PRs.</div>
+          </div>
+          <div class="alt">
+            <div class="opt">Elixir/OTP, reusing kazi&rsquo;s Burrito + Homebrew pipeline</div>
+            <div class="why">BEAM start-up is tens to hundreds of milliseconds before any work happens, and a Burrito binary also pays a first-run unpacking cost. Paying that for a process with no concurrency and no uptime is paying for the one thing that does not apply.</div>
+            <div class="rev"><b>revisit if</b> dira grows a genuinely long-lived component — a watch daemon or hosted service</div>
+          </div>
+          <div class="alt">
+            <div class="opt">Rust</div>
+            <div class="why">Equivalent start-up and single-binary story with better guarantees, but slower to write and a smaller contributor pool for an OSS tool that wants drive-by PRs.</div>
+            <div class="rev"><b>revisit if</b> never on performance grounds; only if team expertise shifts</div>
+          </div>
+          <div class="alt">
+            <div class="opt">A TypeScript CLI on Node or Bun</div>
+            <div class="why">Node start-up sits in the same range as BEAM. Bun fixes that but ships a large binary and a young ecosystem, for a tool meant to be boring infrastructure.</div>
+          </div>
+        </div>
+      </section>
+    </article>
+  </div>
+
+  <aside class="rail">
+    <div class="card">
+      <h4>Edges</h4>
+      <div class="edge"><span class="t">derives from</span><a href="#">int-0002</a></div>
+      <div class="edge"><span class="t">realized by</span><a href="#">kazi:prop-8a1f</a></div>
+      <div class="edge"><span class="t">mirrored to</span><a href="#">adr/0001</a></div>
+    </div>
+    <div class="card">
+      <h4>Serves</h4>
+      <div class="edge"><span class="t">int-0002</span></div>
+      <p style="font-size:13px;color:var(--ink-mid);margin-top:6px">Zero-ceremony operation — one binary, no server, no daemon.</p>
+    </div>
+    <div class="card drift">
+      <h4>⚠ Drift</h4>
+      <p>1 active intent has no parent. Why does that work exist?</p>
+    </div>
+  </aside>
+
+  <footer class="made">
+    <span>Decision record kept with <a href="https://github.com/kazi-org/dira">dira</a></span>
+    <span class="dot-sep">·</span>
+    <span>22 entries, written by an agent, read by one</span>
+  </footer>
+</main>
+
+</body>
+</html>
