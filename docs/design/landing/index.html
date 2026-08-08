@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<meta name="description" content="dira is a decision memory for AI coding agents: a git-native ledger of the intents, decisions, rejected alternatives, and open questions behind a codebase, captured by the agent and pushed back before a contradiction gets planned.">
+<title>dira — decision memory for AI coding agents</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="dira - never explain the same decision twice">
+<meta property="og:description" content="Your coding agent has amnesia. dira records the decisions and the alternatives they beat, then argues when a plan contradicts them.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../tokens.css">
+<style>
+/* LANDING — the go-to-market page (E8-L2). Not a rendered ledger entry like
+   s1/s2/s3 — this is the page a stranger reaches from a link with zero
+   context. It reuses the system's own idiom rather than inventing one:
+   .invoke + .chain carry the dira check catch (the demo, product-marketing
+   §6); the struck-through/upheld contrast from s1's alternatives carries the
+   three inversions; s2's .legend-key decodes dec-/int- for a stranger; s2's
+   .take carries the one restrained conversion block. .card, .chip, .drift,
+   .btn, .made are the shared tokens.css components, used unmodified.
+
+   What this page deliberately does NOT contain: an install command that
+   works (there is no binary — see .status below), and the `dira init`
+   import/retrospective clip. That clip answers qst-0003 (does importing an
+   existing ADR corpus produce a useful ledger, or a second pile?), which is
+   open and unowned. Leading with it would assert a value this project has
+   not yet earned the right to claim. */
+
+.wrap { max-width: 920px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* --- hero: tagline + hook, same anchor-wins-the-frame logic as s1.ruling --- */
+.hero { padding: var(--s6) 0 var(--s7); border-bottom: 1px solid var(--rule); }
+.kicker {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-low); margin-bottom: var(--s4);
+}
+h1.tagline {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(34px, 6vw, 58px); line-height: 1.08; letter-spacing: -.02em;
+  max-width: 16ch;
+}
+.hook {
+  font-family: var(--serif); font-size: var(--t-lede); line-height: 1.62;
+  color: var(--ink-mid); max-width: 56ch; margin-top: var(--s5);
+}
+
+/* --- section rhythm --- */
+section.block { padding: var(--s7) 0; border-bottom: 1px solid var(--rule); }
+section.block:last-of-type { border-bottom: 0; }
+.block h2 { margin-bottom: var(--s5); }
+
+/* --- the demo: .invoke + .chain, unmodified, plus one narrow addition —
+       .chain has no colour for an actual check failure (its .no is deliberately
+       neutral, for a refused alternative, Law 1). This IS a check failure, so
+       it earns --caught legitimately. --- */
+.chain .fail { color: var(--caught); }
+.demo-caption {
+  font-family: var(--ui); font-size: var(--t-sub); color: var(--ink-low);
+  margin-top: var(--s3);
+ max-width: var(--m-sub);}
+
+/* --- three inversions: reuses the strike-through/emphasis contrast that
+       carries s1's refused/upheld alternatives, compacted to one row per
+       inversion instead of stacked blocks — the technique, not a literal copy. --- */
+.inversions { display: grid; gap: var(--s4); margin-top: var(--s5); }
+.inv {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;
+  gap: var(--s4); padding: var(--s4) 0; border-bottom: 1px solid var(--rule-soft);
+}
+.inv:last-child { border-bottom: 0; }
+.inv .old {
+  font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--ink-low) 60%, transparent);
+}
+.inv .arrow { color: var(--ink-low); font-family: var(--mono); font-size: var(--t-mono); }
+.inv .new { font-family: var(--serif); font-size: var(--t-body); color: var(--ink); }
+.inv .new b { color: var(--converged); font-weight: 600; }
+@media (max-width: 700px) {
+  .inv { grid-template-columns: 1fr; gap: var(--s2); }
+  .inv .arrow { display: none; }
+}
+
+/* --- proof pillars: plain tokens.css .card, two only (see comment in body) --- */
+.pillars { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-top: var(--s5); }
+.pillars .card p { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); }
+@media (max-width: 700px) { .pillars { grid-template-columns: 1fr; } }
+
+/* --- objections: question in ui-label voice, answer in the serif prose voice --- */
+.qa { display: grid; gap: var(--s5); margin-top: var(--s5); }
+.qa dt { font-family: var(--ui); font-size: var(--t-ui); font-weight: 600; color: var(--ink); }
+.qa dd { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); margin: var(--s2) 0 0; max-width: 62ch; }
+
+/* --- status: a factual disclosure, not an alarm — plain .card, never --caught --- */
+.status p { font-family: var(--ui); font-size: var(--t-ui); color: var(--ink-mid); line-height: 1.6; }
+.status code { color: var(--ink); background: var(--sunk); padding: 1px 5px; border-radius: var(--r-chip); }
+
+/* --- legend-key: copied from s2-index.html verbatim (screen-local, not in
+       tokens.css). Closes the jargon gate for dec-/int- without a tooltip
+       (hover is never the only affordance, WEB.md 5) or an onboarding
+       carousel (TASTE 14 bans those outright). --- */
+.legend-key {
+  display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4);
+  padding: var(--s3) var(--s4); margin-top: var(--s4);
+  background: var(--sunk); border: 1px solid var(--rule); border-radius: var(--r-card);
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-mid);
+}
+.legend-key b { color: var(--bearing); font-weight: 400; }
+.legend-key .k { display: inline-flex; gap: 6px; align-items: baseline; }
+
+/* --- the conversion path: copied from s2-index.html's .take, restrained to
+       one line and a single link. A visitor is not a user already inside the
+       app, so an affordance here is legitimate (dec-0010) — but the CTA
+       cannot promise "get started" on software that does not exist yet. --- */
+.take {
+  display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
+  margin-top: var(--s5); padding: var(--s4);
+  border: 1px solid var(--rule); border-radius: var(--r-card);
+  background: var(--panel);
+}
+.take p { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); flex: 1; min-width: 260px; }
+.take p b { color: var(--ink); font-weight: 600; }
+.take a.cta {
+  font-family: var(--ui); font-size: var(--t-ui); font-weight: 500;
+  padding: 9px 16px; border-radius: var(--r-chip); min-height: 40px;
+  display: inline-flex; align-items: center;
+  background: var(--converged); border: 1px solid var(--converged);
+  color: var(--panel); text-decoration: none;
+  transition: background var(--dur) var(--ease);
+}
+.take a.cta:hover, .take a.cta:focus-visible { background: color-mix(in oklab, var(--converged) 84%, black); }
+@media (max-width: 767px) { .take a.cta { min-height: 44px; width: 100%; justify-content: center; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb">decision memory for AI coding agents</nav>
+  <span class="spacer"></span>
+  <a class="crumb" href="https://github.com/kazi-org/dira">kazi-org/dira ↗</a>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="kicker">dira</p>
+    <h1 class="tagline">Never explain the same decision twice.</h1>
+    <p class="hook">Your coding agent has amnesia. You keep re-explaining decisions you
+      already made — and it keeps suggesting the thing you rejected in July. dira is a
+      git-native ledger of the intents, decisions, rejected alternatives, and open
+      questions behind your codebase, captured by the agent, pushed back before you ask.</p>
+  </section>
+
+  <section class="block">
+    <h2 class="seclabel">See it catch a contradiction</h2>
+    <div class="invoke"><span class="p">$</span><span class="c">dira check</span><span class="a">"add a background daemon to track run state"</span></div>
+    <section class="chain" aria-label="dira check output">
+<span class="ln"><span class="fail">✗ conflicts with </span><span class="id">dec-0060</span><span class="lo"> (accepted 3 Jul 2026)</span></span>
+<span class="ln"><span class="dim">    rejected alternative: </span><span class="txt">"a daemon"</span></span>
+<span class="ln"><span class="dim">    why_not: violates the single-binary intent (</span><span class="id-q">int-0002</span><span class="dim">)</span></span>
+<span class="ln"><span class="dim">    revisit_if: cold-start latency stops being the binding constraint</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="tree">→ </span><span class="txt">supersede </span><span class="id">dec-0060</span><span class="txt">, or revise the plan</span></span>
+    </section>
+    <p class="demo-caption">The full transcript. Nothing cut, nothing staged for this page —
+      this is the same output <code>dira check</code> prints in a terminal.</p>
+
+    <div class="legend-key" aria-label="What the identifiers mean">
+      <span class="k"><b>dec-</b>a decision, with the alternatives it ruled out</span>
+      <span class="k"><b>int-</b>an intent — a direction the work serves</span>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="seclabel">Three inversions</h2>
+    <div class="inversions">
+      <div class="inv">
+        <span class="old">You write the record.</span>
+        <span class="arrow">→</span>
+        <span class="new"><b>The agent writes it.</b> Your whole job is confirm or ignore.</span>
+      </div>
+      <div class="inv">
+        <span class="old">You go read the record.</span>
+        <span class="arrow">→</span>
+        <span class="new"><b>The record comes to you</b> — one screen, every session start, capped forever.</span>
+      </div>
+      <div class="inv">
+        <span class="old">The record is a document.</span>
+        <span class="arrow">→</span>
+        <span class="new"><b>The record is an enforcer</b> — it blocks contradictions before work is planned.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="seclabel">What that costs you</h2>
+    <div class="pillars">
+      <div class="card">
+        <h3>Zero clerical work</h3>
+        <p>Hooks capture it; you press confirm. If it needed discipline, you'd have kept
+          using ADRs.</p>
+      </div>
+      <div class="card">
+        <h3>It argues back</h3>
+        <p>The only check that stops a plan by citing your own past reasoning, not a
+          linter rule.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="seclabel">Objections</h2>
+    <dl class="qa">
+      <div>
+        <dt>I already have ADRs.</dt>
+        <dd>So does the author — 83 of them, unread. Whether indexing an existing pile
+          produces a useful ledger or just a second pile is an open question the project
+          is still working through, not a shipped feature yet.</dd>
+      </div>
+      <div>
+        <dt>Another tool to maintain?</dt>
+        <dd>It replaces tools rather than adding one, and you don't maintain it — the
+          agent writes it.</dd>
+      </div>
+      <div>
+        <dt>Why not just a bigger CLAUDE.md?</dt>
+        <dd>A context file has no lifecycle, no supersession, no rejected alternatives,
+          and cannot enforce anything. It also grows until it stops being read — which is
+          the original failure.</dd>
+      </div>
+      <div>
+        <dt>Is this lock-in?</dt>
+        <dd>Plain markdown in your own repo. Delete the binary; the record is still
+          readable. Apache 2.0.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2 class="seclabel">Status</h2>
+    <div class="card status">
+      <p><b>Design phase.</b> The binary currently answers <code>--help</code> and
+        <code>--version</code> and nothing else: no <code>log</code>, no <code>why</code>,
+        no <code>brief</code> yet. What exists beyond that is the founding design, the
+        entry schema, and dira's own ledger under <code>.dira/</code> — the tool's first
+        user is itself. <code>brew install</code> is not a thing yet. The only way to run
+        it today is a source build; <code>brew install kazi-org/tap/dira</code> fails
+        until that ships.</p>
+    </div>
+
+    <div class="take">
+      <p><b>Nothing to install yet.</b> Watching the repo is the whole ask while this
+        ships.</p>
+      <a class="cta" href="https://github.com/kazi-org/dira">★ Star kazi-org/dira →</a>
+    </div>
+  </section>
+
+  <footer class="made">
+    <span>Decision record kept with <a href="https://github.com/kazi-org/dira">dira</a></span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span>written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

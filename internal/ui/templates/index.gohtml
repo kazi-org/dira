@@ -1,0 +1,139 @@
+{{- /*
+S2 — THE LEDGER INDEX, served. Groups by WHY, not by goal.
+
+Three elements here are not decoration and must survive any edit: the
+permanently-visible .legend-key that closes the jargon gate for a stranger (a
+hover tooltip or an onboarding carousel would break DESIGN.md's recorded r3→r4
+reasoning), the single restrained .take conversion block, and the drift row as
+the only red on the page.
+
+Every roll-up is DERIVED at read time (dec-0004). No status field is read from
+any entry file, because there is none. Execution status is a join with kazi and
+dira embeds no kazi client, so the page states that the join is unavailable
+rather than guessing — dec-0004's own degradation rule.
+
+The <style> block below is byte-equal to the one in
+docs/design/screens/s2-index.html, asserted by a Go test in both directions.
+*/ -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>{{ .Title }}</title>
+<meta name="description" content="Every decision in {{ .Ledger }}, the alternatives that lost, and the reasoning — kept as the work happened.">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="/">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb">{{ .Ledger }} · ledger</nav>
+  <span class="spacer"></span>
+  <span class="crumb">{{ .Total }} entries · updated {{ .Latest }}</span>
+</header>
+
+<main class="wrap">
+
+  <section class="bearing">
+    <div class="dial">
+      <svg viewBox="0 0 120 120" role="img" aria-label="{{ .DialLabel }}">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--sunk)" stroke-width="10"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--converged)" stroke-width="10"
+                stroke-dasharray="{{ .SettledArc }}" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bearing)" stroke-width="10"
+                stroke-dasharray="{{ .MovingArc }}" transform="rotate({{ .MovingRotate }} 60 60)"/>
+        <g transform="rotate(28 60 60)">
+          <line x1="60" y1="30" x2="60" y2="17" stroke="var(--bearing-lift)" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="60" cy="34" r="2" fill="var(--bearing-lift)"/>
+        </g>
+      </svg>
+      <div class="read" aria-hidden="true"><div><div class="n">{{ .Percent }}%</div><div class="l">settled</div></div></div>
+    </div>
+    <div class="claim">
+      <h1>Why this codebase is the way it is.</h1>
+      <p class="sub">Every decision, the alternatives that lost, and the reasoning — kept as
+        the work happened, not written up afterwards.</p>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--converged)"></i>{{ .Settled }} settled</span>
+        <span><i class="dot" style="background:var(--bearing)"></i>{{ .Moving }} active</span>
+        <span><i class="dot" style="background:transparent;box-shadow:inset 0 0 0 2px var(--ink-low)"></i>{{ .Staged }} staged</span>
+        <span><i class="dot" style="background:var(--ink-low)"></i>{{ .Open }} open questions</span>
+      </div>
+      <p class="sub">{{ .StatusNote }}</p>
+    </div>
+  </section>
+
+  <div class="legend-key" aria-label="What the identifiers mean">
+    <span class="k"><b>int-</b>an intent — a direction the work serves</span>
+    <span class="k"><b>dec-</b>a decision, with the alternatives it ruled out</span>
+    <span class="k"><b>qst-</b>an open question, which can block work</span>
+    <span class="k"><b>cst-</b>a standing constraint</span>
+    <span class="k"><b>note-</b>a thought not yet any of the other four</span>
+  </div>
+
+  <div class="tree">
+{{- range .Groups }}
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">{{ .ID }}</span>
+        <span class="ititle">{{ .Title }}</span>
+        <span class="roll">{{ if .Settled }}<b class="d">{{ .Settled }} settled</b>{{ end }}{{ if .Moving }}<b class="r">{{ .Moving }} in motion</b>{{ end }}</span>
+      </div>
+      <div class="kids">
+{{- range .Rows }}
+        <a class="kid" href="/e/{{ .ID }}"><span class="k-id">{{ .ID }}</span><span class="k-t">{{ .Title }}</span><span class="k-s{{ if .StatusClass }} {{ .StatusClass }}{{ end }}">{{ .Status }}</span></a>
+{{- end }}
+{{- if not .Rows }}
+        <a class="kid" href="/e/{{ .ID }}"><span class="k-id">{{ .ID }}</span><span class="k-t">nothing arises from this yet</span><span class="k-s gap">no children</span></a>
+{{- end }}
+      </div>
+    </section>
+{{- end }}
+{{- if .Unparented }}
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">—</span>
+        <span class="ititle">Not arising from an intent in this ledger</span>
+        <span class="roll"><b>{{ len .Unparented }} entries</b></span>
+      </div>
+      <div class="kids">
+{{- range .Unparented }}
+        <a class="kid" href="/e/{{ .ID }}"><span class="k-id">{{ .ID }}</span><span class="k-t">{{ .Title }}</span><span class="k-s{{ if .StatusClass }} {{ .StatusClass }}{{ end }}">{{ .Status }}</span></a>
+{{- end }}
+      </div>
+    </section>
+{{- end }}
+
+  </div>
+
+{{- if .Drift }}
+
+  <div class="drift">
+    <span class="label">⚠ Drift</span>
+    <p><b>{{ len .Drift }} active {{ if eq (len .Drift) 1 }}intent has{{ else }}intents have{{ end }} no parent.</b> Work with no stated purpose is visible here by
+      construction — {{ range $i, $id := .Drift }}{{ if $i }}, {{ end }}<a href="/e/{{ $id }}">{{ $id }}</a>{{ end }}
+      {{ if eq (len .Drift) 1 }}serves{{ else }}serve{{ end }} nothing recorded. Either link {{ if eq (len .Drift) 1 }}it{{ else }}them{{ end }} upward, or
+      ask why {{ if eq (len .Drift) 1 }}it exists{{ else }}they exist{{ end }}.</p>
+  </div>
+{{- end }}
+
+  <div class="take">
+    <p><b>This page wrote itself.</b> Every entry was captured by a coding agent as the
+      work happened — nobody typed it up afterwards, and nobody re-reads it: it comes
+      back to you at the start of the next session, and argues if you contradict it.</p>
+    <a class="cta" href="https://github.com/kazi-org/dira" rel="noopener">Keep your own →</a>
+  </div>
+
+  <footer class="made">
+    <span>Decision memory kept with <a href="https://github.com/kazi-org/dira" rel="noopener">dira</a></span>
+    <span class="sep" aria-hidden="true">·</span><span>written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

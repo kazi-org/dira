@@ -1,0 +1,18 @@
+# golangci-lint configuration.
+#
+# build-tags exists for internal/perf, whose files all carry //go:build perf so
+# they never run in `go test ./...` — a spawned-subprocess benchmark has no place
+# in the ordinary suite. Without the tag here, golangci-lint cannot typecheck the
+# package at all and exits NON-ZERO while reporting "0 issues": a failure with no
+# finding, which the pre-commit hook then reported as a lint failure. Same shape
+# as every other blind check this repo has found — the tool reported a verdict it
+# never reached.
+#
+# Adding a tag here is what keeps a tag-excluded package linted rather than
+# silently unchecked. Any future build tag must be added here for the same
+# reason.
+version: "2"
+
+run:
+  build-tags:
+    - perf

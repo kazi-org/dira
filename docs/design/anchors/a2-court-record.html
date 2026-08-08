@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" data-anchor="court-record">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1a1815" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>dec-0001 · dira — Court Record</title>
+<style>
+/* ============================================================
+   ANCHOR 2 — "COURT RECORD"
+   POV: the payload is the reasoning, so the prose IS the design.
+   A decision reads as a record of judgement: the question, the
+   arguments refused with their grounds, the ruling. Chrome
+   disappears; the sentence is the largest thing on screen.
+   Canon lens: Craft (strict measure, chrome suppression,
+   saturation reserved for user content) + Things 3 (one hue).
+   Density: CALM. Deliberate law break recorded in DESIGN.md.
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* hue budget: 2 hues only. Restraint is the whole idea. */
+  --seal:    #7a5c1f;   /* the mark of a ruling — brand + accepted */
+  --against: #96382c;   /* refusal & contradiction. The only other hue. */
+
+  --ground: #f7f4ed;
+  --raised: #fffdf8;
+  --rule:   #ded7c8;
+  --rule-soft: #ebe5d8;
+
+  --ink:     #23211d;
+  --ink-mid: #55514a;
+  --ink-low: #837d73;
+
+  --text: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --ui: system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", "Menlo", monospace;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 18px;
+  --s5: 28px; --s6: 40px; --s7: 60px; --s8: 96px;
+
+  --r-shell: 12px; --r-card: 6px; --r-chip: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --seal:    #c9a860;
+    --against: #d17a6a;
+    --ground: #1a1815;
+    --raised: #221f1b;
+    --rule:   #3a352d;
+    --rule-soft: #2c2823;
+    --ink:     #ece8df;
+    --ink-mid: #b0a99d;
+    --ink-low: #837d73;
+  }
+}
+:root[data-theme="dark"] {
+  --seal:#c9a860; --against:#d17a6a; --ground:#1a1815; --raised:#221f1b;
+  --rule:#3a352d; --rule-soft:#2c2823; --ink:#ece8df; --ink-mid:#b0a99d; --ink-low:#837d73;
+}
+:root[data-theme="light"] {
+  --seal:#7a5c1f; --against:#96382c; --ground:#f7f4ed; --raised:#fffdf8;
+  --rule:#ded7c8; --rule-soft:#ebe5d8; --ink:#23211d; --ink-mid:#55514a; --ink-low:#837d73;
+}
+
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--ground); color: var(--ink);
+  font-family: var(--text); font-size: 17px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-wrap: pretty;
+}
+
+/* chrome: a single hairline. No panel, no blur, no shadow. */
+.topbar {
+  border-bottom: 1px solid var(--rule);
+  padding: var(--s3) var(--s5);
+  display: flex; align-items: baseline; gap: var(--s4);
+}
+.wordmark { font-family: var(--text); font-size: 20px; letter-spacing: .01em; }
+.wordmark b { font-weight: 400; color: var(--seal); }
+.crumb { font-family: var(--ui); font-size: 12px; color: var(--ink-low); }
+.crumb a { color: var(--ink-mid); text-decoration: none; }
+.crumb a:hover, .crumb a:focus-visible { color: var(--seal); text-decoration: underline; }
+
+/* strict measure — the Craft discipline */
+.doc { max-width: 720px; margin: 0 auto; padding: var(--s7) var(--s5) var(--s8); }
+
+.meta {
+  font-family: var(--ui); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-low);
+  display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+.meta .id { font-family: var(--mono); letter-spacing: .04em; text-transform: none; font-size: 12px; color: var(--seal); }
+.meta .sep { color: var(--rule); }
+.meta .ruled { color: var(--seal); }
+
+/* the question that was open — sets up the ruling */
+.question {
+  font-family: var(--ui); font-size: 12.5px; color: var(--ink-low);
+  margin-bottom: var(--s3);
+}
+.question a { color: var(--ink-mid); }
+
+/* THE DRAMA SURFACE is the sentence itself (TASTE 13, 6) */
+h1.ruling {
+  font-size: clamp(30px, 5.6vw, 46px); line-height: 1.13;
+  font-weight: 400; letter-spacing: -.017em;
+  margin-bottom: var(--s5);
+}
+.because {
+  font-size: 20px; line-height: 1.62; color: var(--ink-mid);
+  margin-bottom: var(--s6);
+}
+.because em { font-style: italic; color: var(--ink); }
+
+/* arguments refused — indented testimony, struck option, stated grounds */
+.refusals { margin: var(--s6) 0; }
+.refusals > h2 {
+  font-family: var(--ui); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-low);
+  padding-bottom: var(--s2); border-bottom: 1px solid var(--rule);
+  margin-bottom: var(--s5); font-weight: 600;
+}
+.arg { margin-bottom: var(--s5); padding-left: var(--s5); position: relative; }
+.arg::before {
+  content: ""; position: absolute; left: 0; top: 6px; bottom: 2px;
+  width: 2px; background: var(--rule-soft);
+}
+.arg.refused::before { background: color-mix(in oklab, var(--against) 45%, transparent); }
+.arg.upheld::before { background: var(--seal); width: 3px; }
+
+.arg .opt {
+  font-size: 18px; margin-bottom: var(--s2);
+  display: flex; gap: var(--s2); align-items: baseline;
+}
+.arg.refused .opt span.txt {
+  color: var(--ink-mid); text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--against) 55%, transparent);
+  text-decoration-thickness: 1px;
+}
+.arg.upheld .opt span.txt { color: var(--ink); font-weight: 600; }
+.arg .tag {
+  font-family: var(--ui); font-size: 9.5px; letter-spacing: .12em;
+  text-transform: uppercase; padding: 2px 6px; border-radius: var(--r-chip);
+  flex: none; transform: translateY(-2px);
+}
+.arg.refused .tag { color: var(--against); background: color-mix(in oklab, var(--against) 12%, transparent); }
+.arg.upheld .tag { color: var(--seal); background: color-mix(in oklab, var(--seal) 14%, transparent); }
+
+.arg .grounds { font-size: 16.5px; color: var(--ink-mid); }
+.arg .revisit {
+  font-family: var(--ui); font-size: 12.5px; color: var(--ink-low);
+  margin-top: var(--s3);
+}
+.arg .revisit b { color: var(--seal); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 10px; }
+
+/* what it serves / links — set as a colophon, not a sidebar */
+.colophon {
+  margin-top: var(--s7); padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+  font-family: var(--ui); font-size: 13px; color: var(--ink-mid);
+  display: grid; gap: var(--s2);
+}
+.colophon .row { display: flex; gap: var(--s3); }
+.colophon .k { color: var(--ink-low); min-width: 96px; flex: none; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding-top: 2px; }
+.colophon a { color: var(--seal); text-decoration: none; border-bottom: 1px solid color-mix(in oklab, var(--seal) 35%, transparent); }
+.colophon a:hover, .colophon a:focus-visible { border-color: var(--seal); }
+
+/* the only red-adjacent alarm on the page */
+.contradiction {
+  margin-top: var(--s5); padding: var(--s4);
+  border: 1px solid color-mix(in oklab, var(--against) 40%, var(--rule));
+  border-radius: var(--r-card);
+  background: color-mix(in oklab, var(--against) 6%, transparent);
+  font-family: var(--ui); font-size: 13.5px; color: var(--ink-mid);
+}
+.contradiction b { color: var(--against); font-weight: 600; }
+
+.made {
+  margin-top: var(--s8); padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+  font-family: var(--ui); font-size: 12.5px; color: var(--ink-low);
+  display: flex; gap: var(--s2); flex-wrap: wrap; align-items: baseline;
+}
+.made a { color: var(--ink-mid); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.made a:hover, .made a:focus-visible { color: var(--seal); border-color: var(--seal); }
+.made .sep { color: var(--rule); }
+
+a:focus-visible { outline: 2px solid var(--seal); outline-offset: 3px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="wordmark">di<b>ra</b></span>
+  <nav class="crumb" aria-label="Breadcrumb"><a href="#">kazi-org/dira</a> / <a href="#">ledger</a> / dec-0001</nav>
+</header>
+
+<main class="doc">
+  <div class="meta">
+    <span class="id">dec-0001</span>
+    <span class="sep">·</span>
+    <span class="ruled">Accepted</span>
+    <span class="sep">·</span>
+    <span>29 July 2026</span>
+  </div>
+
+  <p class="question">Arising from <a href="#">int-0002</a> — zero-ceremony operation, one binary, no daemon.</p>
+
+  <h1 class="ruling">Go, not Elixir/OTP, despite kazi&rsquo;s stack.</h1>
+
+  <p class="because">
+    dira is invoked from hooks several times a session, in the latency path of a human
+    waiting on a prompt. OTP&rsquo;s value is the supervision of long-lived concurrent
+    work — <em>exactly what kazi needs, and exactly what dira has none of.</em>
+  </p>
+
+  <section class="refusals">
+    <h2>Arguments considered</h2>
+
+    <div class="arg upheld">
+      <div class="opt"><span class="txt">Go — one static binary, sub-100&nbsp;ms cold start</span><span class="tag">upheld</span></div>
+      <p class="grounds">The standard library already covers files, JSON and YAML, an embedded HTTP server for <code>dira ui</code>, and SQLite through a single dependency. A wide contributor pool matters for a tool that wants drive-by pull requests.</p>
+    </div>
+
+    <div class="arg refused">
+      <div class="opt"><span class="txt">Elixir/OTP, reusing kazi&rsquo;s Burrito and Homebrew pipeline</span><span class="tag">refused</span></div>
+      <p class="grounds">BEAM start-up costs tens to hundreds of milliseconds before any work happens, and a Burrito-wrapped binary pays a first-run unpacking cost besides. Free CI and free distribution is a real saving, and it loses anyway: paying BEAM&rsquo;s start-up for a process with no concurrency and no uptime is paying for the one thing that does not apply.</p>
+      <p class="revisit"><b>revisit if</b> &nbsp;dira grows a genuinely long-lived component — a watch daemon or a hosted service — which could be Elixir without changing the CLI.</p>
+    </div>
+
+    <div class="arg refused">
+      <div class="opt"><span class="txt">Rust</span><span class="tag">refused</span></div>
+      <p class="grounds">An equivalent start-up and single-binary story with better guarantees, but slower to write and a smaller contributor pool for an open-source tool that wants casual contribution.</p>
+      <p class="revisit"><b>revisit if</b> &nbsp;never on performance grounds; only if the team&rsquo;s expertise shifts.</p>
+    </div>
+
+    <div class="arg refused">
+      <div class="opt"><span class="txt">A TypeScript CLI on Node or Bun</span><span class="tag">refused</span></div>
+      <p class="grounds">Node&rsquo;s start-up sits in the same range as BEAM&rsquo;s. Bun fixes that but ships a large binary and a young ecosystem, for a tool meant to be boring infrastructure.</p>
+    </div>
+  </section>
+
+  <div class="contradiction">
+    <b>⚠ One active intent in this ledger has no parent.</b> Work with no stated purpose is
+    visible here by construction — <a href="#" style="color:inherit">int-0004</a> serves nothing recorded.
+  </div>
+
+  <div class="colophon">
+    <div class="row"><span class="k">Serves</span><span><a href="#">int-0002</a> — zero-ceremony operation</span></div>
+    <div class="row"><span class="k">Realized by</span><span><a href="#">kazi:prop-resume-8a1f</a> — converged, 3 predicates green</span></div>
+    <div class="row"><span class="k">Mirrored</span><span><a href="#">docs/adr/0001-language-go.md</a></span></div>
+  </div>
+
+  <footer class="made">
+    <span>Decision record kept with <a href="https://github.com/kazi-org/dira">dira</a></span>
+    <span class="sep">·</span>
+    <span>written by an agent, read by one</span>
+  </footer>
+</main>
+
+</body>
+</html>
