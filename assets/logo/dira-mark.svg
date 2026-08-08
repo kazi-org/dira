@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="dira">
+  <title>dira</title>
+  <!-- A compass bezel with a two-tone lozenge needle, off-north.
+
+       Sibling to kazi by construction: kazi's ring wraps a CHECK (the work is
+       objectively done), dira's wraps a NEEDLE (the direction it was done for).
+       Same ring language, different interior, so they read as one family.
+
+       Two things are load-bearing and were arrived at by rendering, not taste.
+       The needle is a LOZENGE, not a line: a line from the centre reads as a
+       clock hand and the whole mark becomes a stopwatch. The lozenge is the
+       thing that says compass. And the needle sits OFF-NORTH at 34 degrees ;
+       a needle at twelve o'clock reads as a default, off-north reads as a
+       bearing someone chose.
+
+       No gradient, deliberately. kazi is electric because convergence is
+       energetic; dira is brass because a bearing is a settled thing. -->
+  <circle cx="48" cy="48" r="33" fill="none" stroke="#8a5f18" stroke-width="5.5"/>
+  <g transform="rotate(34 48 48)">
+    <path d="M48 18 L56 48 L48 78 L40 48 Z" fill="#8a5f18"/>
+    <path d="M48 48 L56 48 L48 78 L40 48 Z" fill="#f7f4ed" stroke="#8a5f18"
+          stroke-width="3" stroke-linejoin="round"/>
+  </g>
+</svg>

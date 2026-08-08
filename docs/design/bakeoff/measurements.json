@@ -1,0 +1,508 @@
+{
+ "control-palatino": {
+  "candidate": "control-palatino",
+  "serifToken": "\"Palatino\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+  "ch_em": 0.5,
+  "ex_em": 0.4711,
+  "blocks": {
+   "ruling": {
+    "selector": "h1.ruling",
+    "fontFamily": "Palatino, \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+    "fontSizePx": 52,
+    "lineHeightPx": 57.2,
+    "maxWidthComputedPx": 624,
+    "renderedWidthPx": 624,
+    "renderedHeightPx": 114.38,
+    "lineCount": 2,
+    "charsPerLine_mean": 27,
+    "charsPerLine_max": 27,
+    "charsPerLine_perLine": [
+     27,
+     13
+    ]
+   },
+   "because": {
+    "selector": "p.because",
+    "fontFamily": "Palatino, \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+    "fontSizePx": 19,
+    "lineHeightPx": 30.78,
+    "maxWidthComputedPx": 570,
+    "renderedWidthPx": 570,
+    "renderedHeightPx": 123.06,
+    "lineCount": 4,
+    "charsPerLine_mean": 73,
+    "charsPerLine_max": 75,
+    "charsPerLine_perLine": [
+     75,
+     71,
+     73,
+     22
+    ]
+   },
+   "grounds_long": {
+    "selector": ".arg .grounds[1]",
+    "fontFamily": "Palatino, \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 528,
+    "renderedWidthPx": 528,
+    "renderedHeightPx": 127.81,
+    "lineCount": 5,
+    "charsPerLine_mean": 66.8,
+    "charsPerLine_max": 70,
+    "charsPerLine_perLine": [
+     68,
+     69,
+     70,
+     60,
+     65
+    ]
+   },
+   "grounds_first": {
+    "selector": ".arg .grounds",
+    "fontFamily": "Palatino, \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 528,
+    "renderedWidthPx": 528,
+    "renderedHeightPx": 102.25,
+    "lineCount": 4,
+    "charsPerLine_mean": 62,
+    "charsPerLine_max": 65,
+    "charsPerLine_perLine": [
+     60,
+     61,
+     65,
+     23
+    ]
+   }
+  },
+  "pageHeight": 1899,
+  "facesLoaded": []
+ },
+ "literata": {
+  "candidate": "literata",
+  "serifToken": "\"BakeoffSerif\", serif",
+  "ch_em": 0.582,
+  "ex_em": 0.5069,
+  "blocks": {
+   "ruling": {
+    "selector": "h1.ruling",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 52,
+    "lineHeightPx": 57.2,
+    "maxWidthComputedPx": 722.59,
+    "renderedWidthPx": 664,
+    "renderedHeightPx": 114.38,
+    "lineCount": 2,
+    "charsPerLine_mean": 27,
+    "charsPerLine_max": 27,
+    "charsPerLine_perLine": [
+     27,
+     13
+    ]
+   },
+   "because": {
+    "selector": "p.because",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 19,
+    "lineHeightPx": 30.78,
+    "maxWidthComputedPx": 660.06,
+    "renderedWidthPx": 660.05,
+    "renderedHeightPx": 123.06,
+    "lineCount": 4,
+    "charsPerLine_mean": 77.7,
+    "charsPerLine_max": 80,
+    "charsPerLine_perLine": [
+     80,
+     77,
+     76,
+     8
+    ]
+   },
+   "grounds_long": {
+    "selector": ".arg .grounds[1]",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 611.42,
+    "renderedWidthPx": 611.42,
+    "renderedHeightPx": 127.81,
+    "lineCount": 5,
+    "charsPerLine_mean": 71.5,
+    "charsPerLine_max": 78,
+    "charsPerLine_perLine": [
+     68,
+     69,
+     78,
+     71,
+     46
+    ]
+   },
+   "grounds_first": {
+    "selector": ".arg .grounds",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 611.42,
+    "renderedWidthPx": 611.42,
+    "renderedHeightPx": 76.69,
+    "lineCount": 5,
+    "charsPerLine_mean": 34.8,
+    "charsPerLine_max": 70,
+    "charsPerLine_perLine": [
+     69,
+     15,
+     7,
+     48,
+     70
+    ]
+   }
+  },
+  "pageHeight": 1873,
+  "facesLoaded": [
+   "BakeoffSerif|400|normal|loaded",
+   "BakeoffSerif|400|italic|loaded",
+   "BakeoffSerif|600|normal|loaded"
+  ]
+ },
+ "newsreader": {
+  "candidate": "newsreader",
+  "serifToken": "\"BakeoffSerif\", serif",
+  "ch_em": 0.5666,
+  "ex_em": 0.4405,
+  "blocks": {
+   "ruling": {
+    "selector": "h1.ruling",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 52,
+    "lineHeightPx": 57.2,
+    "maxWidthComputedPx": 706.99,
+    "renderedWidthPx": 664,
+    "renderedHeightPx": 114.38,
+    "lineCount": 2,
+    "charsPerLine_mean": 27,
+    "charsPerLine_max": 27,
+    "charsPerLine_perLine": [
+     27,
+     13
+    ]
+   },
+   "because": {
+    "selector": "p.because",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 19,
+    "lineHeightPx": 30.78,
+    "maxWidthComputedPx": 645.81,
+    "renderedWidthPx": 645.8,
+    "renderedHeightPx": 92.3,
+    "lineCount": 3,
+    "charsPerLine_mean": 84,
+    "charsPerLine_max": 85,
+    "charsPerLine_perLine": [
+     85,
+     83,
+     74
+    ]
+   },
+   "grounds_long": {
+    "selector": ".arg .grounds[1]",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 598.22,
+    "renderedWidthPx": 598.22,
+    "renderedHeightPx": 102.25,
+    "lineCount": 4,
+    "charsPerLine_mean": 83.3,
+    "charsPerLine_max": 87,
+    "charsPerLine_perLine": [
+     81,
+     82,
+     87,
+     83
+    ]
+   },
+   "grounds_first": {
+    "selector": ".arg .grounds",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 598.22,
+    "renderedWidthPx": 598.22,
+    "renderedHeightPx": 76.69,
+    "lineCount": 3,
+    "charsPerLine_mean": 78.5,
+    "charsPerLine_max": 83,
+    "charsPerLine_perLine": [
+     74,
+     83,
+     53
+    ]
+   }
+  },
+  "pageHeight": 1791,
+  "facesLoaded": [
+   "BakeoffSerif|400|normal|loaded",
+   "BakeoffSerif|400|italic|loaded",
+   "BakeoffSerif|600|normal|loaded"
+  ]
+ },
+ "p052": {
+  "candidate": "p052",
+  "serifToken": "\"BakeoffSerif\", serif",
+  "ch_em": 0.5,
+  "ex_em": 0.4689,
+  "blocks": {
+   "ruling": {
+    "selector": "h1.ruling",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 52,
+    "lineHeightPx": 57.2,
+    "maxWidthComputedPx": 624,
+    "renderedWidthPx": 624,
+    "renderedHeightPx": 114.38,
+    "lineCount": 2,
+    "charsPerLine_mean": 27,
+    "charsPerLine_max": 27,
+    "charsPerLine_perLine": [
+     27,
+     13
+    ]
+   },
+   "because": {
+    "selector": "p.because",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 19,
+    "lineHeightPx": 30.78,
+    "maxWidthComputedPx": 570,
+    "renderedWidthPx": 570,
+    "renderedHeightPx": 123.06,
+    "lineCount": 4,
+    "charsPerLine_mean": 73,
+    "charsPerLine_max": 75,
+    "charsPerLine_perLine": [
+     75,
+     71,
+     73,
+     22
+    ]
+   },
+   "grounds_long": {
+    "selector": ".arg .grounds[1]",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 528,
+    "renderedWidthPx": 528,
+    "renderedHeightPx": 127.81,
+    "lineCount": 5,
+    "charsPerLine_mean": 66.8,
+    "charsPerLine_max": 70,
+    "charsPerLine_perLine": [
+     68,
+     69,
+     70,
+     60,
+     65
+    ]
+   },
+   "grounds_first": {
+    "selector": ".arg .grounds",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 528,
+    "renderedWidthPx": 528,
+    "renderedHeightPx": 102.25,
+    "lineCount": 4,
+    "charsPerLine_mean": 62,
+    "charsPerLine_max": 65,
+    "charsPerLine_perLine": [
+     60,
+     61,
+     65,
+     23
+    ]
+   }
+  },
+  "pageHeight": 1899,
+  "facesLoaded": [
+   "BakeoffSerif|400|normal|loaded",
+   "BakeoffSerif|400|italic|loaded",
+   "BakeoffSerif|600 700|normal|loaded"
+  ]
+ },
+ "pagella": {
+  "candidate": "pagella",
+  "serifToken": "\"BakeoffSerif\", serif",
+  "ch_em": 0.5,
+  "ex_em": 0.4689,
+  "blocks": {
+   "ruling": {
+    "selector": "h1.ruling",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 52,
+    "lineHeightPx": 57.2,
+    "maxWidthComputedPx": 624,
+    "renderedWidthPx": 624,
+    "renderedHeightPx": 114.38,
+    "lineCount": 2,
+    "charsPerLine_mean": 27,
+    "charsPerLine_max": 27,
+    "charsPerLine_perLine": [
+     27,
+     13
+    ]
+   },
+   "because": {
+    "selector": "p.because",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 19,
+    "lineHeightPx": 30.78,
+    "maxWidthComputedPx": 570,
+    "renderedWidthPx": 570,
+    "renderedHeightPx": 123.06,
+    "lineCount": 4,
+    "charsPerLine_mean": 73,
+    "charsPerLine_max": 75,
+    "charsPerLine_perLine": [
+     75,
+     71,
+     73,
+     22
+    ]
+   },
+   "grounds_long": {
+    "selector": ".arg .grounds[1]",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 528,
+    "renderedWidthPx": 528,
+    "renderedHeightPx": 127.81,
+    "lineCount": 5,
+    "charsPerLine_mean": 66.8,
+    "charsPerLine_max": 70,
+    "charsPerLine_perLine": [
+     68,
+     69,
+     70,
+     60,
+     65
+    ]
+   },
+   "grounds_first": {
+    "selector": ".arg .grounds",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 528,
+    "renderedWidthPx": 528,
+    "renderedHeightPx": 102.25,
+    "lineCount": 4,
+    "charsPerLine_mean": 62,
+    "charsPerLine_max": 65,
+    "charsPerLine_perLine": [
+     60,
+     61,
+     65,
+     23
+    ]
+   }
+  },
+  "pageHeight": 1899,
+  "facesLoaded": [
+   "BakeoffSerif|400|normal|loaded",
+   "BakeoffSerif|400|italic|loaded",
+   "BakeoffSerif|600 700|normal|loaded"
+  ]
+ },
+ "sourceserif4": {
+  "candidate": "sourceserif4",
+  "serifToken": "\"BakeoffSerif\", serif",
+  "ch_em": 0.5191,
+  "ex_em": 0.4859,
+  "blocks": {
+   "ruling": {
+    "selector": "h1.ruling",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 52,
+    "lineHeightPx": 57.2,
+    "maxWidthComputedPx": 647.71,
+    "renderedWidthPx": 647.7,
+    "renderedHeightPx": 114.38,
+    "lineCount": 2,
+    "charsPerLine_mean": 27,
+    "charsPerLine_max": 27,
+    "charsPerLine_perLine": [
+     27,
+     13
+    ]
+   },
+   "because": {
+    "selector": "p.because",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 19,
+    "lineHeightPx": 30.78,
+    "maxWidthComputedPx": 591.66,
+    "renderedWidthPx": 591.66,
+    "renderedHeightPx": 123.06,
+    "lineCount": 4,
+    "charsPerLine_mean": 73,
+    "charsPerLine_max": 75,
+    "charsPerLine_perLine": [
+     75,
+     71,
+     73,
+     22
+    ]
+   },
+   "grounds_long": {
+    "selector": ".arg .grounds[1]",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 548.06,
+    "renderedWidthPx": 548.06,
+    "renderedHeightPx": 127.81,
+    "lineCount": 5,
+    "charsPerLine_mean": 66.8,
+    "charsPerLine_max": 70,
+    "charsPerLine_perLine": [
+     68,
+     69,
+     70,
+     60,
+     65
+    ]
+   },
+   "grounds_first": {
+    "selector": ".arg .grounds",
+    "fontFamily": "BakeoffSerif, serif",
+    "fontSizePx": 16.5,
+    "lineHeightPx": 25.575,
+    "maxWidthComputedPx": 548.06,
+    "renderedWidthPx": 548.06,
+    "renderedHeightPx": 102.25,
+    "lineCount": 6,
+    "charsPerLine_mean": 37,
+    "charsPerLine_max": 65,
+    "charsPerLine_perLine": [
+     60,
+     24,
+     7,
+     29,
+     65,
+     23
+    ]
+   }
+  },
+  "pageHeight": 1899,
+  "facesLoaded": [
+   "BakeoffSerif|400|normal|loaded",
+   "BakeoffSerif|400|italic|loaded",
+   "BakeoffSerif|600|normal|loaded"
+  ]
+ }
+}

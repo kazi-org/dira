@@ -1,0 +1,55 @@
+<!doctype html><meta charset="utf-8">
+<title>dira — open question 1: long content</title><style>
+:root { color-scheme: dark }
+* { box-sizing: border-box; margin: 0 }
+body { background: #12161b; color: #e6e9ed; font: 13px/1.5 system-ui, sans-serif; padding: 30px 30px 44px }
+h1 { font: 600 19px/1.3 system-ui; margin-bottom: 4px }
+.sub { color: #8b939c; font-size: 13px; max-width: 96ch; margin-bottom: 26px }
+h2 { font: 600 13px/1.4 ui-monospace, monospace; color: #d9a13f; letter-spacing: .04em;
+     margin: 30px 0 12px; text-transform: uppercase }
+.cols { display: grid; gap: 20px; align-items: start }
+.c3 { grid-template-columns: repeat(3, 1fr) }
+.c6 { grid-template-columns: repeat(6, 1fr) }
+figure { margin: 0; min-width: 0 }
+img { display: block; width: 100%; height: auto; border: 1px solid #2a323d; border-radius: 5px; background: #fff }
+.cap { margin-bottom: 11px; min-height: 132px }
+.ttl { font-weight: 650; font-size: 13px }
+.ttl b { color: #d9a13f; font-family: ui-monospace, monospace; margin-right: 6px }
+.trade { color: #aab2bc; font-size: 12.5px; margin-top: 4px }
+.cost { color: #8b939c; font-size: 12.5px; margin-top: 4px }
+.cost i { color: #e08a7a; font-style: normal; font-weight: 600 }
+.meta { font: 11.5px ui-monospace, monospace; color: #6f7883; margin-top: 6px }
+.note { color: #8b939c; font-size: 12.5px; margin: 10px 0 0; max-width: 110ch }
+.scheme { font: 11px ui-monospace, monospace; color: #6f7883; margin-bottom: 6px }
+</style>
+<h1>Open question 1 — long content</h1>
+<div class="sub">One decision, twenty alternatives, and a 405-word refusal on alternative 2. Identical content in all three columns — only the disclosure treatment differs. Laptop width (1024px), light scheme, full page, all at one scale, so column height is a real measurement and not a layout artifact.</div>
+<h2>the refusal device at close range — same 980px window, same scale</h2>
+<div class="cols c3">
+<figure><div class="scheme">A · top of the alternatives block</div><img src="detail-args-q1-a-run-long.png" alt="A alternatives"></figure>
+<figure><div class="scheme">B · top of the alternatives block</div><img src="detail-args-q1-b-progressive.png" alt="B alternatives"></figure>
+<figure><div class="scheme">C · top of the alternatives block</div><img src="detail-args-q1-c-summary-detail.png" alt="C alternatives"></figure>
+</div>
+
+<h2>whole page — laptop, light, one scale</h2>
+<div class="cols c3">
+<figure><div class="cap">
+  <div class="ttl"><b>A</b>Let it run</div>
+  <div class="trade">Nothing is hidden and nothing is summarised: every refusal keeps its strike-through and its grounds directly beneath, which is the strongest device in the system.</div>
+  <div class="cost"><i>costs:</i> The page becomes a scroll with no map — the reader has no idea 20 alternatives exist until they reach the twentieth, and the 400-word refusal at position 2 buries the 18 behind it.</div>
+  <div class="meta">laptop page height 5316px · 6.9 screens</div>
+</div><img src="q1-a-run-long-laptop-light.png" alt="option A"></figure>
+<figure><div class="cap">
+  <div class="ttl"><b>B</b>Progressive disclosure</div>
+  <div class="trade">Four alternatives read exactly as they do today; the remaining sixteen sit behind one &lt;details&gt;, zero JavaScript, the same collapse mechanism the rebuilt chain uses.</div>
+  <div class="cost"><i>costs:</i> Fixes the count and not the length — the 400-word refusal is in the visible four, so the first screen is still dominated by one alternative. It also asserts a ranking the ledger does not record: which four?</div>
+  <div class="meta">laptop page height 2857px · 3.7 screens</div>
+</div><img src="q1-b-progressive-laptop-light.png" alt="option B"></figure>
+<figure><div class="cap">
+  <div class="ttl"><b>C</b>Summary / detail split</div>
+  <div class="trade">All twenty are visible and scannable, each carrying a one-line ground, each opening to full reasoning. The strike-through survives on the summary line.</div>
+  <div class="cost"><i>costs:</i> The grounds — the testimony this direction was chosen for — are closed by default. r3&rarr;r4 rejected a comparison list for exactly this reason; this is that fix with a hinge on it.</div>
+  <div class="meta">laptop page height 2906px · 3.8 screens</div>
+</div><img src="q1-c-summary-detail-laptop-light.png" alt="option C"></figure>
+</div>
+<p class="note">The dark scheme, the mobile and wide viewports, and every option at every size are in renders/index.html. What this sheet cannot show: whether a reader who has scrolled past ten struck-through names still reads the eleventh as testimony or as a list.</p>

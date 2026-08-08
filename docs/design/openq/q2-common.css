@@ -1,0 +1,57 @@
+/* ============================================================================
+   openq/q2-common.css — shared substrate for the WITHHELD-state studies.
+
+   Every q2 option renders the SAME page: a decision whose parent lives in a
+   private ledger. The three resolution states from dec-0011 are shown adjacent,
+   deliberately — the question is not "does withheld look calm on its own" but
+   "does withheld read as different in kind from the orphan sitting next to it,
+   which IS drift and IS red".
+
+   Only the .wh-* rules differ between options. Everything here is identical.
+   ============================================================================ */
+
+/* --- the three-state panel ------------------------------------------------ */
+.states { margin-top: var(--s7); }
+.stgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); }
+@media (max-width: 767px) { .stgrid { grid-template-columns: 1fr; } }
+
+.stcell {
+  border: 1px solid var(--rule); border-radius: var(--r-card);
+  background: var(--panel); padding: var(--s4);
+  display: grid; gap: var(--s2); align-content: start;
+}
+.sthead { display: flex; align-items: baseline; gap: var(--s2); }
+.stmark { font-family: var(--mono); font-size: var(--t-mono); color: var(--ink-low); flex: none; }
+.stname {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 600; color: var(--ink-low);
+}
+.stref { font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-mid); }
+.stref .k { color: var(--ink-low); }
+.stslot { min-height: 22px; display: flex; align-items: center; }
+.sttitle { font-family: var(--serif); font-size: var(--t-small); color: var(--ink); }
+.stnote {
+  font-family: var(--ui); font-size: var(--t-sub); color: var(--ink-low);
+  max-width: var(--m-sub); border-top: 1px solid var(--rule-soft); padding-top: var(--s2);
+}
+
+/* oriented — resolved and readable. Converged is a runtime state token and this
+   is a runtime resolution result, so it is in-role. */
+.st-oriented .stmark, .st-oriented .stname { color: var(--converged); }
+.st-oriented .sttitle a { color: var(--bearing); text-decoration: none; border-bottom: 1px solid var(--rule); }
+
+/* orphan — the ONLY red on this page, alongside the drift card. Law 1. */
+.st-orphan {
+  border-color: color-mix(in oklab, var(--caught) 42%, var(--rule));
+  background: color-mix(in oklab, var(--caught) 7%, var(--panel));
+}
+.st-orphan .stmark, .st-orphan .stname { color: var(--caught); }
+.st-orphan .sttitle { color: var(--ink-mid); font-style: italic; }
+
+/* --- the edges rail carries the same three states ------------------------- */
+.kv .st { font-size: var(--t-chip); }
+.kv .st-o { color: var(--converged); }
+.kv .st-d { color: var(--caught); }
+
+/* --- a decision page's own furniture, q2 flavour -------------------------- */
+.arising .whref { font-family: var(--mono); font-size: var(--t-chip); }

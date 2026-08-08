@@ -1,0 +1,112 @@
+/* S2 — THE LEDGER INDEX / MAP. Groups by WHY, not by goal — the view
+   kazi portfolio structurally cannot give. The dial lives HERE, where
+   roll-ups are the content. Status is derived from kazi, never stored. */
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* --- the drama surface: the bearing dial + the claim --- */
+.bearing {
+  display: flex; align-items: center; gap: var(--s6);
+  padding-bottom: var(--s6); margin-bottom: var(--s6);
+  border-bottom: 1px solid var(--rule);
+}
+@media (max-width: 767px) { .bearing { flex-direction: column; align-items: flex-start; gap: var(--s4); } }
+
+.dial { flex: none; width: 148px; height: 148px; position: relative; }
+.dial svg { display: block; width: 100%; height: 100%; }
+.dial .read { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.dial .read .n { font-family: var(--mono); font-size: var(--t-lede); line-height: 1; color: var(--ink); }
+.dial .read .l {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-low); margin-top: 4px;
+}
+
+.claim { min-width: 0; }
+.claim h1 {
+  font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 4vw, 36px);
+  line-height: 1.16; letter-spacing: -.014em; margin-bottom: var(--s3);
+}
+.claim .sub { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: var(--m-lede); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-top: var(--s4); }
+.legend span {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-mid);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+/* --- legend: closes the jargon gate for a stranger without an onboarding
+       carousel (TASTE 14 bans those outright). Permanently visible, not a
+       hover tooltip — hover is never the only affordance (WEB.md 5). --- */
+.legend-key {
+  display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4);
+  padding: var(--s3) var(--s4); margin-bottom: var(--s6);
+  background: var(--sunk); border: 1px solid var(--rule); border-radius: var(--r-card);
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-mid);
+}
+.legend-key b { color: var(--bearing); font-weight: 400; }
+.legend-key .k { display: inline-flex; gap: 6px; align-items: baseline; }
+
+/* --- the conversion path. A stranger is a visitor, not a user already
+       inside the app, so an affordance here is legitimate rather than the
+       "Get started on a screen you're already in" slop tell. Kept to one
+       restrained line: this is a record first, a pitch second. --- */
+.take {
+  display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
+  margin-top: var(--s6); padding: var(--s4);
+  border: 1px solid var(--rule); border-radius: var(--r-card);
+  background: var(--panel);
+}
+.take p { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); flex: 1; min-width: 260px; max-width: var(--m-prose); }
+.take p b { color: var(--ink); font-weight: 600; }
+.take a.cta {
+  font-family: var(--ui); font-size: var(--t-ui); font-weight: 500;
+  padding: 9px 16px; border-radius: var(--r-chip); min-height: 40px;
+  display: inline-flex; align-items: center;
+  background: var(--converged); border: 1px solid var(--converged);
+  color: var(--panel); text-decoration: none;
+  transition: background var(--dur) var(--ease);
+}
+.take a.cta:hover, .take a.cta:focus-visible { background: color-mix(in oklab, var(--converged) 84%, black); }
+.take code { color: var(--ink); background: var(--sunk); padding: 2px 6px; border-radius: var(--r-chip); }
+@media (max-width: 767px) { .take a.cta { min-height: 44px; width: 100%; justify-content: center; } }
+
+/* --- the intent tree: grouped by why --- */
+.tree { display: grid; gap: var(--s5); }
+.intent { }
+.intent > .head { display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s3); }
+.intent .iid { font-family: var(--mono); font-size: var(--t-sub); color: var(--bearing); flex: none; }
+.intent .ititle { font-family: var(--serif); font-size: var(--t-lede); color: var(--ink); }
+.intent .roll {
+  font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low);
+  margin-left: auto; display: flex; gap: var(--s3); flex: none;
+}
+.intent .roll b { font-weight: 400; }
+.intent .roll .d { color: var(--converged); }
+.intent .roll .r { color: var(--bearing); }
+
+.kids { display: grid; gap: 1px; background: var(--rule-soft); border: 1px solid var(--rule); border-radius: var(--r-card); overflow: hidden; }
+.kid {
+  display: grid; grid-template-columns: 88px minmax(0,1fr) auto;
+  gap: var(--s3); align-items: center;
+  padding: 10px var(--s4); background: var(--panel);
+  font-size: var(--t-ui); text-decoration: none; color: inherit;
+  min-height: 40px;
+  transition: background var(--dur) var(--ease);
+}
+.kid:hover, .kid:focus-visible { background: var(--sunk); }
+.kid .k-id { font-family: var(--mono); font-size: var(--t-sub); color: var(--bearing); }
+.kid .k-t { color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kid .k-s { font-family: var(--mono); font-size: var(--t-chip); color: var(--ink-low); text-align: right; }
+.kid .k-s.done { color: var(--converged); }
+.kid .k-s.gap { color: var(--ink-mid); }
+@media (max-width: 767px) {
+  .kid { grid-template-columns: 1fr auto; row-gap: 2px; padding: 12px var(--s3); min-height: 44px; }
+  .kid .k-id { grid-column: 1; }
+  .kid .k-s { grid-column: 2; grid-row: 1; }
+  .kid .k-t { grid-column: 1 / -1; white-space: normal; }
+}
+
+/* --- the one alarm --- */
+.drift { margin-top: var(--s6); }
+.drift .label { font-family: var(--ui); font-size: var(--t-label); letter-spacing: .14em; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 6px; }
+.drift a { color: var(--caught); }

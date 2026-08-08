@@ -1,0 +1,15 @@
+dira
+Copyright 2026 Sire Run, Inc.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes software developed at Sire Run, Inc.
+
+This product embeds subsets of TeX Gyre Pagella, distributed under the GUST Font
+License (LPPL 1.3c). See assets/fonts/LICENSE-pagella.txt.
+
+Nature of the change, per LPPL 6b: the fonts are SUBSETS. Their character coverage
+is reduced to the Latin, punctuation and symbol set this interface uses. No outline,
+metric or hinting data was altered, and the faces retain their original names.
+
+Upstream: https://www.gust.org.pl/projects/e-foundry/tex-gyre/pagella
