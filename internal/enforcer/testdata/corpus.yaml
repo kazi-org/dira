@@ -1,0 +1,364 @@
+# internal/enforcer/testdata/corpus.yaml
+#
+# The adversarial corpus for `dira check`'s conflict-detection matcher,
+# authored and frozen (see corpus.sha256) BEFORE any matcher exists —
+# E3-L1's job per docs/plan/lanes/E3.md and .dira/entries/dec-0014.md. No
+# later lane may edit this file to make a failing row pass; a matcher that
+# cannot clear the bar reports an honest precision/recall result instead
+# (see dec-0014's "chosen" alternative and E3-L2's acc/risk in
+# docs/plan/lanes/E3.md).
+#
+# Row shape (see docs/decisions-pending/E3-L1-report.md for the full
+# TestCorpusWellFormed spec a later Go lane implements against this file):
+#
+#   id:                 unique row id, "row-NNN"
+#   plan:                the candidate free-text plan string
+#   expect:              "conflict" | "compliant"
+#   entry:                (conflict rows only) the entry id this plan must
+#                         cite — a file ledgers/daemon/<entry>.md must exist
+#   why_not_substring:    (conflict rows only) a literal, case-sensitive
+#                         substring of that entry file's raw text — the
+#                         reason the check must be able to quote back
+#   near_miss_of:         (compliant rows only, when the row is a deliberate
+#                         near-miss) the enforced entry this plan shares
+#                         vocabulary with but does not conflict with
+#   shared_terms:         (near-miss rows only) >=2 content words, each
+#                         appearing case-insensitively as a whole word in
+#                         both `plan` and the `near_miss_of` entry file
+#   note:                 why this row exists — never optional; a row with
+#                         no stated purpose is a row nobody can audit later
+#
+# 8 distinct enforced/non-enforced entries are exercised by this corpus,
+# under internal/enforcer/testdata/ledgers/daemon/: int-0002 (intent, never
+# enforced), dec-0060 (decision/accepted), dec-0042 (decision/rejected),
+# dec-0075 (decision/staged, never enforced), cst-0004 (constraint/active),
+# qst-0007 (question, never enforced), dec-0081 (decision/accepted),
+# dec-0082 (decision/accepted), dec-0083 (decision/accepted) — 9 total, all
+# 9 referenced by at least one row below.
+
+rows:
+  # ---------------------------------------------------------------------
+  # Conflict rows (24) — expect a non-zero `dira check` exit citing `entry`
+  # and quoting `why_not_substring`.
+  # ---------------------------------------------------------------------
+
+  - id: row-001
+    plan: "add a background daemon to track run state"
+    expect: conflict
+    entry: dec-0060
+    why_not_substring: "violates the single-binary intent"
+    note: >
+      The canonical demo string (README.md, .agents/product-marketing.md
+      §6). E3-L2's golden file is graded against this exact plan and this
+      exact entry independently of this corpus row; both must agree.
+
+  - id: row-002
+    plan: "what if we just ran dira as a daemon in the background"
+    expect: conflict
+    entry: dec-0060
+    why_not_substring: "violates the single-binary intent"
+    note: "paraphrase of row-001, same alternative, different phrasing"
+
+  - id: row-003
+    plan: "ship a systemd unit so dira keeps running between sessions"
+    expect: conflict
+    entry: dec-0060
+    why_not_substring: "long-lived process the user must install and keep alive"
+    note: "targets the systemd/launchd alternative, not the bare 'daemon' one"
+
+  - id: row-004
+    plan: "install a launchd agent so dira restarts itself after a crash"
+    expect: conflict
+    entry: dec-0060
+    why_not_substring: "long-lived process the user must install and keep alive"
+    note: "paraphrase of row-003 (launchd instead of systemd)"
+
+  - id: row-005
+    plan: "write a separate watcher binary that polls for crashed runs and restarts them"
+    expect: conflict
+    entry: dec-0060
+    why_not_substring: "doubling the release surface"
+    note: "targets the separate-watcher-binary alternative"
+
+  - id: row-006
+    plan: "don't bother persisting state — if a run crashes just start over"
+    expect: conflict
+    entry: dec-0060
+    why_not_substring: "throws away the completed portion of a long run"
+    note: "targets the no-persistence alternative"
+
+  - id: row-007
+    plan: "log every run mutation as an event so we can replay full history"
+    expect: conflict
+    entry: dec-0042
+    why_not_substring: "replaying every mutation since the run began"
+    note: "rejected-decision match: conflicts on dec-0042's own title/subject"
+
+  - id: row-008
+    plan: "track run state with an event log we replay on resume"
+    expect: conflict
+    entry: dec-0042
+    why_not_substring: "replaying every mutation since the run began"
+    note: "paraphrase of row-007; also shares vocabulary with dec-0060's title, which is deliberate — the correct citation is dec-0042, not dec-0060, since this plan proposes event sourcing, not a daemon"
+
+  - id: row-009
+    plan: "build an append-only mutation log for run state instead of snapshots"
+    expect: conflict
+    entry: dec-0042
+    why_not_substring: "resume time grow with run age"
+    note: "another dec-0042 paraphrase, quoting a different body sentence"
+
+  - id: row-010
+    plan: "add a compacted event log so old entries get folded together over time"
+    expect: conflict
+    entry: dec-0042
+    why_not_substring: "still needs a replay-and-fold step"
+    note: "targets dec-0042's own 'compacted event log' alternative, not the entry's title"
+
+  - id: row-011
+    plan: "spin up a small hosted sync service so ledgers stay in sync across devices"
+    expect: conflict
+    entry: cst-0004
+    why_not_substring: "network service, an account, or a hosted tier"
+    note: "constraint conflict: matched against cst-0004's title/body, not an alternative (constraints have none)"
+
+  - id: row-012
+    plan: "require users to create a dira account before dira brief will run"
+    expect: conflict
+    entry: cst-0004
+    why_not_substring: "an account"
+    note: "narrower cst-0004 paraphrase, account-specific"
+
+  - id: row-013
+    plan: "publish decisions to a paid hosted dashboard that everyone must sign into"
+    expect: conflict
+    entry: cst-0004
+    why_not_substring: "hosted tier"
+    note: "narrower cst-0004 paraphrase, hosted-tier-specific"
+
+  - id: row-014
+    plan: "require a login before the CLI will sync your ledger anywhere"
+    expect: conflict
+    entry: cst-0004
+    why_not_substring: "an account"
+    note: "second account-specific paraphrase, different wording from row-012"
+
+  - id: row-015
+    plan: "run a local background server the CLI talks to over a socket"
+    expect: conflict
+    entry: dec-0081
+    why_not_substring: "a process to keep alive and a port/socket to own"
+    note: "targets the local-server-over-a-socket alternative"
+
+  - id: row-016
+    plan: "split dira into a thin CLI plus a background indexer process"
+    expect: conflict
+    entry: dec-0081
+    why_not_substring: "two binaries to release and version"
+    note: "targets the split-into-two-binaries alternative"
+
+  - id: row-017
+    plan: "let people load community plugins into dira via a scripting VM"
+    expect: conflict
+    entry: dec-0081
+    why_not_substring: "a runtime dependency and a security surface"
+    note: "targets the plugin/scripting-VM alternative"
+
+  - id: row-018
+    plan: "add a plugin API so third parties can extend dira with native modules at runtime"
+    expect: conflict
+    entry: dec-0081
+    why_not_substring: "a runtime dependency and a security surface"
+    note: "paraphrase of row-017"
+
+  - id: row-019
+    plan: "turn on opt-out usage telemetry by default like most CLIs do"
+    expect: conflict
+    entry: dec-0082
+    why_not_substring: "phoning home by default breaks the exact trust"
+    note: "targets the opt-out-telemetry-by-default alternative"
+
+  - id: row-020
+    plan: "send anonymous aggregate usage stats with no user id attached"
+    expect: conflict
+    entry: dec-0082
+    why_not_substring: "still a network call on the happy path"
+    note: "targets the anonymous-aggregate-stats alternative"
+
+  - id: row-021
+    plan: "dira should phone home with anonymous telemetry so we know what's used"
+    expect: conflict
+    entry: dec-0082
+    why_not_substring: "still a network call on the happy path"
+    note: "paraphrase of row-020"
+
+  - id: row-022
+    plan: "store the ledger straight in a SQLite .db file committed to git"
+    expect: conflict
+    entry: dec-0083
+    why_not_substring: "a binary blob in git is unreviewable"
+    note: "targets the SQLite-as-source-of-truth alternative"
+
+  - id: row-023
+    plan: "skip the cache entirely and reparse every entry file on every query"
+    expect: conflict
+    entry: dec-0083
+    why_not_substring: "fails int-0002's felt-latency bar"
+    note: "targets the no-cache-at-all alternative"
+
+  - id: row-024
+    plan: "cache nothing, just re-read every markdown file from disk each time"
+    expect: conflict
+    entry: dec-0083
+    why_not_substring: "fails int-0002's felt-latency bar"
+    note: "paraphrase of row-023"
+
+  # ---------------------------------------------------------------------
+  # Compliant near-miss rows (19) — must NOT conflict. Each shares >=2
+  # content words with an enforced (or deliberately non-enforced) entry
+  # while genuinely not contradicting it.
+  # ---------------------------------------------------------------------
+
+  - id: row-025
+    plan: "write the checkpoint file atomically"
+    expect: compliant
+    near_miss_of: dec-0060
+    shared_terms: [checkpoint, file]
+    note: >
+      the literal string E3-L2's acc line also tests directly against
+      `dira check` (docs/plan/lanes/E3.md); included here too so the
+      fixture and the corpus never drift apart. This is what dec-0060
+      chose, not what it rejected.
+
+  - id: row-026
+    plan: "run a background goroutine inside dira's own process to flush the checkpoint file every few seconds"
+    expect: compliant
+    near_miss_of: dec-0060
+    shared_terms: [background, checkpoint]
+    note: "'background' without a separate long-lived process or daemon — stays in-process"
+
+  - id: row-027
+    plan: "track the run's progress by writing it to the checkpoint file before each risky step"
+    expect: compliant
+    near_miss_of: dec-0060
+    shared_terms: [track, checkpoint]
+    note: "reuses 'track' from dec-0060's own title but proposes exactly what dec-0060 adopted"
+
+  - id: row-028
+    plan: "record each completed step in the checkpoint file so resume can skip finished work"
+    expect: compliant
+    near_miss_of: dec-0060
+    shared_terms: [checkpoint, resume]
+    note: "compliant use of the checkpoint file for its intended purpose"
+
+  - id: row-029
+    plan: "compress the checkpoint snapshots using zstd before writing them to disk"
+    expect: compliant
+    near_miss_of: dec-0075
+    shared_terms: [checkpoint, snapshots]
+    note: >
+      near-identical to dec-0075's own title. dec-0075 is `state: staged`
+      and must never be cited regardless of similarity (dec-0003) — the
+      hardest near-miss in this corpus by design.
+
+  - id: row-030
+    plan: "keep a small in-memory event log of recent steps purely for the terminal's --verbose output, discarded on exit, never used to reconstruct state"
+    expect: compliant
+    near_miss_of: dec-0042
+    shared_terms: [event, log]
+    note: "an ephemeral debug log is not event-sourced persistence; explicitly never used to reconstruct state"
+
+  - id: row-031
+    plan: "print local, offline usage counts by entry kind in the brief output; nothing leaves the machine and no network call is made"
+    expect: compliant
+    near_miss_of: dec-0082
+    shared_terms: [usage, network]
+    note: "local-only, no network call — the negation is explicit in the plan text itself"
+
+  - id: row-032
+    plan: "keep a local tally of entries per kind — no account, no server, no telemetry involved"
+    expect: compliant
+    near_miss_of: cst-0004
+    shared_terms: [account, server]
+    note: "negation-heavy near-miss: mentions the forbidden nouns only to disclaim them"
+
+  - id: row-033
+    plan: "the CLI reads a config file for repo-specific settings; no server process is required to run it"
+    expect: compliant
+    near_miss_of: dec-0081
+    shared_terms: [server, process]
+    note: "negation-style near-miss for the local-server alternative"
+
+  - id: row-034
+    plan: "load a Go plugin compiled in-house at build time via go:generate, not a runtime scripting VM"
+    expect: compliant
+    near_miss_of: dec-0081
+    shared_terms: [plugin, scripting]
+    note: "build-time codegen, not the runtime plugin/scripting-VM loader dec-0081 rejected"
+
+  - id: row-035
+    plan: "cache query results in an in-memory map for the duration of one command, never a separate database file"
+    expect: compliant
+    near_miss_of: dec-0083
+    shared_terms: [cache, database]
+    note: "a transient in-process cache, not a persisted database replacing the entry files"
+
+  - id: row-036
+    plan: "read the SQLite cache file directly with a dira reindex health-check subcommand that reports staleness, never writes to it"
+    expect: compliant
+    near_miss_of: dec-0083
+    shared_terms: [sqlite, cache]
+    note: "read-only diagnostic over the existing derived cache, not a source-of-truth change"
+
+  - id: row-037
+    plan: "kazi's own run tracking already lets a run survive a reboot, so qst-0007 doesn't need a new mechanism here"
+    expect: compliant
+    near_miss_of: qst-0007
+    shared_terms: [reboot, survive]
+    note: "question kind is never enforcement substrate — shares vocabulary with qst-0007's title but a question cannot conflict on its own"
+
+  - id: row-038
+    plan: "keep dira a single binary, but let it briefly spawn a subprocess per command and exit immediately — no persistent process outlives the command"
+    expect: compliant
+    near_miss_of: dec-0081
+    shared_terms: [binary, process]
+    note: "a short-lived subprocess that exits with the command is not the long-lived process dec-0081 rejected"
+
+  - id: row-039
+    plan: "note in the plan doc that a daemon was considered and rejected; the actual change here only adds a --resume flag that reads the existing checkpoint file"
+    expect: compliant
+    near_miss_of: dec-0060
+    shared_terms: [daemon, checkpoint]
+    note: >
+      literally contains the word 'daemon', in a sentence that explicitly
+      does not propose one — the hardest realistic case for a naive
+      substring-only matcher, and exactly the kind of thing a person
+      actually writes in a plan or PR description
+
+  - id: row-040
+    plan: "the checkpoint write happens synchronously in the same process right before dira exits, not on any timer or background schedule"
+    expect: compliant
+    near_miss_of: dec-0060
+    shared_terms: [checkpoint, process]
+    note: "explicitly synchronous and in-process, the opposite of a background/daemon schedule"
+
+  - id: row-041
+    plan: "document that dira's CLI never creates a user account or hosted tier anywhere, and link to cst-0004 in the README"
+    expect: compliant
+    near_miss_of: cst-0004
+    shared_terms: [account, hosted]
+    note: "documenting compliance with cst-0004 is not a proposal to violate it"
+
+  - id: row-042
+    plan: "the event noted in the release log is just the git tag push, not a new event-sourcing subsystem for run state"
+    expect: compliant
+    near_miss_of: dec-0042
+    shared_terms: [event, log]
+    note: "'event' and 'log' used about release tagging, explicitly disclaiming a new event-sourcing subsystem"
+
+  - id: row-043
+    plan: "ship dira as one binary but let it start a lightweight http listener process only for the lifetime of dira ui, exiting the moment the command ends"
+    expect: compliant
+    near_miss_of: int-0002
+    shared_terms: [binary, process]
+    note: "a request-lifetime listener for `dira ui` is not the persistent process int-0002 rejects; intent kind is never enforcement substrate on its own either"

@@ -1,0 +1,55 @@
+int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-29
+          daemon
+            no JSON API layer, no client runtime, no service to operate
+└─ dec-0012  Surfaces are server-rendered Go templates and   accepted 2026-07-30
+             static output — no SPA, no dira-operated host
+   ├─ ✗ An embedded static SPA served from the binary, as design.md §9
+   │    originally specified
+   │    Three problems, and the first is fatal to the growth engine. The
+   │    rendered decision pages are the long-tail SEO surface named in
+   │    .agents/product-marketing.md §7 channel 4 — "every rendered decision
+   │    page is a page answering why did project X choose Y" — and client-side
+   │    rendering makes them uncrawlable, so the SPA actively undercuts
+   │    dec-0010. Second, the three built screens in docs/design/screens/
+   │    contain zero JavaScript, so an SPA is a runtime added for nothing
+   │    already designed. Third, on localhost the data is already in-process, so
+   │    a JSON API layer exists only to serialise to yourself.
+   │    revisit if  a surface appears that genuinely needs client-side state — a
+   │                graph explorer with live filtering, not a document view
+   ├─ ✗ A hosted renderer at dira.sire.run
+   │    design.md §9 sketches this as Tier 3 "much later", and dec-0005 already
+   │    rejected dira-operated infrastructure for sync on ops-burden grounds —
+   │    no ops, no on-call, no security surface for a solo maintainer already
+   │    carrying kazi. That reasoning transfers intact to rendering. It would
+   │    also make cst-0004 a promise that has to be kept rather than a property
+   │    of the architecture.
+   │    revisit if  teams pull for zero-setup shared rendering, per dec-0007's
+   │                team tier
+   └─ ✗ Ship both — static output now, hosted later
+        Designing two serving paths before either is validated. The static path
+        is strictly more constrained, so it can be extended into a hosted one
+        later without rework; the reverse is not true.
+
+edges
+  informs      cst-0004  dira never requires a network service, an account, or a
+                         hosted tier to function
+                           makes "never requires a hosted tier" true by
+                           construction rather than by promise
+               dec-0005  A storage interface (local FS | GitHub API) is
+                         committed to before the first surface ships
+                           narrows how surfaces are SERVED. dec-0005 is not
+                           replaced - its storage interface is live and being
+                           implemented
+               dec-0010  A public read-only ledger renderer is the growth
+                         engine, and ships before the paid apps
+                           supplies the serving mechanism dec-0010 left
+                           unspecified
+  derived by   dec-0019  The upheld option is the ruling, not an alternative —
+                         the renderer derives, never invents
+                           dec-0012 settled that the surfaces are
+                           server-rendered templates; this settles what those
+                           templates are allowed to emit
+  informed by  dec-0016  Self-host TeX Gyre Pagella; the system-font stack was
+                         silently broken on Linux
+                           narrows the no-webfont reading only. dec-0012 is not
+                           replaced - its server-rendered architecture stands

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>Go, not Elixir/OTP, despite kazi's stack — kazi-org/dira decision record</title>
+<meta name="description" content="Why kazi-org/dira chose Go over Elixir/OTP, with the three alternatives it rejected and the reasoning for each. A decision record kept automatically by a coding agent.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go, not Elixir/OTP, despite kazi's stack">
+<meta property="og:description" content="dec-0001 - accepted. Three alternatives rejected, each with its grounds. A decision record nobody typed.">
+<meta property="og:site_name" content="dira - decision memory for AI coding agents">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="decision.css">
+<!-- S1 — THE DECISION PAGE. The page a stranger lands on from a link.
+     Composition: invocation + chain (what is this tool) -> the ruling and its
+     reasoning in serif (what was decided) -> alternatives with grounds.
+
+     THREE alternatives, so every <details> is emitted OPEN: the degradation rule
+     in decision.css opens everything at six or fewer. Nothing is hidden on this
+     page — the struck name still sits directly above its grounds, exactly as it
+     did before the hinge existed. s1-decision-long.html is the same template on
+     the other side of that threshold.
+
+     dec-0019: THREE, not four. This page used to carry a fourth card for the
+     UPHELD option, and `alternatives` models the roads NOT taken, so no ledger
+     could produce it. The chosen road is the <h1 class="ruling"> — the largest
+     element on the page — and the case for it is recorded inside the refusals it
+     answers. The chain's matching ✓ row went with it: `dira why` prints ✗ lines
+     and never a ✓, and one producer stands behind both renderers. -->
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb"><a href="s2-index.html">kazi-org/dira</a> · <a href="s2-index.html">ledger</a> · dec-0001</nav>
+  <span class="spacer"></span>
+  <span class="crumb">decision memory for AI coding agents</span>
+</header>
+
+<main class="wrap">
+
+  <div class="invoke"><span class="p">$</span><span class="c">dira why</span><span class="a">elixir</span></div>
+
+  <section class="chain" aria-label="Why-chain">
+    <div class="row"><span class="id-q">int-0002</span><span class="txt">Zero-ceremony operation — one binary, no daemon</span><span class="lo">active</span></div>
+    <div class="node">
+      <div class="row"><span class="id">dec-0001</span><span class="txt">Go, not Elixir/OTP</span><span class="lo">accepted 29 Jul</span></div>
+      <div class="node">
+        <div class="row"><span class="no">✗ elixir/otp</span><span class="dim">BEAM start-up in a hook latency path</span></div>
+        <div class="row"><span class="no" style="visibility:hidden">✗ elixir/otp</span><span class="lo">revisit if a long-lived component appears</span></div>
+        <div class="row"><span class="no">✗ rust</span><span class="dim">slower to write, smaller contributor pool</span></div>
+        <div class="row"><span class="no">✗ node/bun</span><span class="dim">Node start-up matches BEAM; Bun is young</span></div>
+        <div class="node">
+          <div class="row"><span class="id">kazi:prop-8a1f</span><span class="ok">converged</span><span class="lo">3/3 predicates green</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chain-stack" aria-label="Why-chain">
+    <div class="row"><span class="k">int-0002</span><span class="v">Zero-ceremony operation</span></div>
+    <div class="row sub"><span class="k">dec-0001</span><span class="v">Go, not Elixir/OTP</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">elixir/otp — BEAM start-up in a hook path</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">rust — slower to write, smaller pool</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">node/bun — start-up matches BEAM</span></div>
+    <div class="row sub2"><span class="k">kazi:prop-8a1f</span><span class="v" style="color:var(--converged)">converged 3/3</span></div>
+  </section>
+
+  <div class="body">
+    <article>
+      <div class="tagrow">
+        <span class="chip chip-id">dec-0001</span>
+        <span class="chip chip-accepted">◆ accepted</span>
+        <span class="chip chip-date">29 Jul 2026</span>
+      </div>
+      <p class="arising">Arising from <a href="#">int-0002</a> — zero-ceremony operation, one binary, no daemon.</p>
+      <h1 class="ruling">Go, not Elixir/OTP, despite kazi&rsquo;s stack.</h1>
+      <p class="because">
+        dira is invoked from hooks several times a session, in the latency path of a
+        human waiting on a prompt. OTP&rsquo;s value is supervising long-lived concurrent
+        work — <em>exactly what kazi needs, and exactly what dira has none of.</em>
+      </p>
+
+      <section class="args">
+        <h2 class="seclabel">Alternatives on record — 3</h2>
+
+        <details class="alt" open>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">Elixir/OTP, reusing kazi&rsquo;s Burrito and Homebrew pipeline</span><span class="tag">refused</span></span>
+            <span class="one">free CI and free distribution, paid for in a latency path with no concurrency to supervise</span>
+          </summary>
+          <div class="detail">
+            <p class="grounds">BEAM start-up costs tens to hundreds of milliseconds before any work happens, and a Burrito-wrapped binary pays a first-run unpacking cost besides. Free CI and free distribution is a real saving — and it loses anyway, because paying BEAM&rsquo;s start-up for a process with no concurrency and no uptime buys the one thing that does not apply.</p>
+            <p class="revisit"><b>revisit if</b>dira grows a genuinely long-lived component — a watch daemon or a hosted service — which could be Elixir without changing the CLI.</p>
+          </div>
+        </details>
+
+        <details class="alt" open>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">Rust</span><span class="tag">refused</span></span>
+            <span class="one">the better guarantees, in the language fewer drive-by contributors will open</span>
+          </summary>
+          <div class="detail">
+            <p class="grounds">An equivalent start-up and single-binary story with better guarantees, but slower to write and a smaller contributor pool for an open-source tool that wants casual contribution.</p>
+            <p class="revisit"><b>revisit if</b>never on performance grounds; only if the team&rsquo;s expertise shifts.</p>
+          </div>
+        </details>
+
+        <details class="alt" open>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">A TypeScript CLI on Node or Bun</span><span class="tag">refused</span></span>
+            <span class="one">the ecosystem everyone already has, carrying the exact start-up this decision exists to avoid</span>
+          </summary>
+          <div class="detail">
+            <p class="grounds">Node&rsquo;s start-up sits in the same range as BEAM&rsquo;s. Bun fixes that but ships a large binary and a young ecosystem, for a tool meant to be boring infrastructure.</p>
+          </div>
+        </details>
+      </section>
+    </article>
+
+    <aside class="rail">
+      <div class="card">
+        <h3>What this is</h3>
+        <p class="what"><b>Nobody typed this page.</b> A coding agent recorded
+          it while the work happened, and reads it back at the start of the next session.</p>
+        <p class="key"><b>int-</b> an intent ·
+          <b>dec-</b> a decision ·
+          <b>converged</b> proven by tests</p>
+      </div>
+      <div class="card">
+        <h3>Edges</h3>
+        <div class="kv"><span class="k">derives_from</span><a href="#">int-0002</a></div>
+        <div class="kv"><span class="k">realized_by</span><a href="#">kazi:prop-8a1f</a></div>
+        <div class="kv"><span class="k">mirrored</span><a href="#">adr/0001</a></div>
+      </div>
+      <!-- the "This ledger" stats card was removed here: it duplicated
+           s2-index, and cutting it drops this screen out of the medium-density
+           slop zone into a committed CALM (TASTE 11). The count lives in the
+           footer instead, where it costs no block. -->
+      <!-- Attributed, not bare. Unattributed red on the surface a stranger lands
+           on reads as "this page is broken" — Law 1 is internally coherent and
+           externally illegible, because the stranger has not read DESIGN.md.
+           Naming the actor converts the alarm into a demonstration of the one
+           inversion this page otherwise never shows: that the record argues. -->
+      <div class="drift">
+        <h3>⚠ dira flagged this</h3>
+        <p><b>int-0004</b> is active work with no recorded purpose. dira raises it
+          unprompted — nobody asked it to check.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="everydec">
+    <p>Every decision in this repo is recorded like this one.</p>
+    <a href="https://github.com/kazi-org/dira">Keep your own →</a>
+  </div>
+
+  <footer class="made">
+    <span>1 of 22 entries · <a href="s2-index.html">see the whole graph</a></span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span>kept with <a href="https://github.com/kazi-org/dira">dira</a>, written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

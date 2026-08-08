@@ -1,0 +1,5889 @@
+{
+  "measured_at": "2026-07-31T05:29:34.620Z",
+  "platform": "darwin x64",
+  "node": "v24.5.0",
+  "device_scale_factor": 2,
+  "screens": [
+    "s1-decision",
+    "s2-index",
+    "s3-distill"
+  ],
+  "viewports": {
+    "mobile": [
+      390,
+      844
+    ],
+    "wide": [
+      1440,
+      900
+    ]
+  },
+  "schemes": [
+    "light",
+    "dark"
+  ],
+  "channel_probes": [
+    0,
+    4,
+    8,
+    16
+  ],
+  "channel_candidates": [
+    {
+      "c": 0,
+      "noiseZero": true,
+      "allVisible": true,
+      "deltaMargin": 2,
+      "admissible": true
+    },
+    {
+      "c": 4,
+      "noiseZero": true,
+      "allVisible": false,
+      "deltaMargin": 0.5,
+      "admissible": false
+    },
+    {
+      "c": 8,
+      "noiseZero": true,
+      "allVisible": false,
+      "deltaMargin": 0.25,
+      "admissible": false
+    },
+    {
+      "c": 16,
+      "noiseZero": true,
+      "allVisible": false,
+      "deltaMargin": 0.125,
+      "admissible": false
+    }
+  ],
+  "safety_factor": 4,
+  "noise_arms": [
+    {
+      "arm": "same-page",
+      "is": "the SAME live page screenshotted a second time — no reload, no new context"
+    },
+    {
+      "arm": "fresh-context",
+      "is": "a reload in a new browser context in the same browser process"
+    },
+    {
+      "arm": "fresh-browser",
+      "is": "a second chromium process — the CI-vs-laptop case, minus the OS change"
+    },
+    {
+      "arm": "other-origin",
+      "is": "served from a second HTTP server on a different port — a Go binary and the mockup harness are never the same port"
+    },
+    {
+      "arm": "reserialized",
+      "is": "markup round-tripped through the DOM serializer — normalized attribute quoting, entity encoding and boolean attributes, which is exactly what html/template output differs from hand-written HTML by (dec-0012)"
+    }
+  ],
+  "signal_arms": [
+    {
+      "arm": "spacing-1px",
+      "is": "one spacing step moved by 1px (--s4: 18px -> 19px)"
+    },
+    {
+      "arm": "type-0.5px",
+      "is": "body type moved by half a pixel (--t-body: 16.5px -> 17px)"
+    },
+    {
+      "arm": "hairline",
+      "is": "the card hairline removed (.card border-color -> transparent)"
+    },
+    {
+      "arm": "ink-swap",
+      "is": "body ink set one step lighter (--ink takes the value of --ink-mid) in both schemes"
+    },
+    {
+      "arm": "chip-hue",
+      "is": "one component hue wrong with no reflow (.chip-id colour -> --ink-mid)"
+    },
+    {
+      "arm": "radius-2px",
+      "is": "card radius off by 2px (--r-card: 7px -> 5px) — four corners, no reflow"
+    },
+    {
+      "arm": "ink-2",
+      "is": "one token hex off by 2/255 in a single channel (--ink), both schemes — a copy-paste typo, quiet per pixel and everywhere at once"
+    },
+    {
+      "arm": "opacity-1pct",
+      "is": "a stepped opacity off by one hundredth (.stage.next: .58 -> .57) — quiet per pixel over a large area, and covered by no other gate"
+    }
+  ],
+  "info_arms": [
+    {
+      "arm": "rasterization",
+      "is": "glyph rasterization changed with no layout change (-webkit-font-smoothing: auto) — a stand-in for a different machine's text renderer"
+    },
+    {
+      "arm": "serif-fallback",
+      "is": "the Palatino stack falls through to the generic serif, which is what a stock Linux install actually renders (DESIGN.md, \"where that reasoning currently FAILS\")"
+    }
+  ],
+  "noise_summary": [
+    {
+      "arm": "same-page",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 0,
+      "minPct": 0,
+      "maxDelta": 0,
+      "minMaxDelta": 0,
+      "maxBlockPct": 0,
+      "minBlockPct": 0,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark",
+        "s3-distill mobile light",
+        "s3-distill mobile dark",
+        "s3-distill wide light",
+        "s3-distill wide dark"
+      ]
+    },
+    {
+      "arm": "fresh-context",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 0,
+      "minPct": 0,
+      "maxDelta": 0,
+      "minMaxDelta": 0,
+      "maxBlockPct": 0,
+      "minBlockPct": 0,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark",
+        "s3-distill mobile light",
+        "s3-distill mobile dark",
+        "s3-distill wide light",
+        "s3-distill wide dark"
+      ]
+    },
+    {
+      "arm": "fresh-browser",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 0,
+      "minPct": 0,
+      "maxDelta": 0,
+      "minMaxDelta": 0,
+      "maxBlockPct": 0,
+      "minBlockPct": 0,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark",
+        "s3-distill mobile light",
+        "s3-distill mobile dark",
+        "s3-distill wide light",
+        "s3-distill wide dark"
+      ]
+    },
+    {
+      "arm": "other-origin",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 0,
+      "minPct": 0,
+      "maxDelta": 0,
+      "minMaxDelta": 0,
+      "maxBlockPct": 0,
+      "minBlockPct": 0,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark",
+        "s3-distill mobile light",
+        "s3-distill mobile dark",
+        "s3-distill wide light",
+        "s3-distill wide dark"
+      ]
+    },
+    {
+      "arm": "reserialized",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 0,
+      "minPct": 0,
+      "maxDelta": 0,
+      "minMaxDelta": 0,
+      "maxBlockPct": 0,
+      "minBlockPct": 0,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark",
+        "s3-distill mobile light",
+        "s3-distill mobile dark",
+        "s3-distill wide light",
+        "s3-distill wide dark"
+      ]
+    }
+  ],
+  "signal_summary": [
+    {
+      "arm": "spacing-1px",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 100,
+      "minPct": 100,
+      "maxDelta": 255,
+      "minMaxDelta": 255,
+      "maxBlockPct": 100,
+      "minBlockPct": 100,
+      "inertOn": []
+    },
+    {
+      "arm": "type-0.5px",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 100,
+      "minPct": 100,
+      "maxDelta": 255,
+      "minMaxDelta": 255,
+      "maxBlockPct": 100,
+      "minBlockPct": 100,
+      "inertOn": []
+    },
+    {
+      "arm": "hairline",
+      "n": 12,
+      "effective": 4,
+      "inert": 8,
+      "errors": 0,
+      "maxPct": 0.17647935739591006,
+      "minPct": 0.06424792139077853,
+      "maxDelta": 48,
+      "minMaxDelta": 22,
+      "maxBlockPct": 19.140625,
+      "minBlockPct": 18.359375,
+      "inertOn": [
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark",
+        "s3-distill mobile light",
+        "s3-distill mobile dark",
+        "s3-distill wide light",
+        "s3-distill wide dark"
+      ]
+    },
+    {
+      "arm": "ink-swap",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 2.0047139617396392,
+      "minPct": 0.5696733821733821,
+      "maxDelta": 67,
+      "minMaxDelta": 50,
+      "maxBlockPct": 74.609375,
+      "minBlockPct": 58.203125,
+      "inertOn": []
+    },
+    {
+      "arm": "chip-hue",
+      "n": 12,
+      "effective": 8,
+      "inert": 4,
+      "errors": 0,
+      "maxPct": 0.10286131996658313,
+      "minPct": 0.00790380254665969,
+      "maxDelta": 122,
+      "minMaxDelta": 53,
+      "maxBlockPct": 54.296875,
+      "minBlockPct": 35.15625,
+      "inertOn": [
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark"
+      ]
+    },
+    {
+      "arm": "radius-2px",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 0.03753794944950437,
+      "minPct": 0.002213927002062595,
+      "maxDelta": 109,
+      "minMaxDelta": 16,
+      "maxBlockPct": 21.09375,
+      "minBlockPct": 10.15625,
+      "inertOn": []
+    },
+    {
+      "arm": "ink-2",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 1.6518069424631479,
+      "minPct": 0.49766701552415843,
+      "maxDelta": 2,
+      "minMaxDelta": 2,
+      "maxBlockPct": 71.09375,
+      "minBlockPct": 53.125,
+      "inertOn": []
+    },
+    {
+      "arm": "opacity-1pct",
+      "n": 12,
+      "effective": 4,
+      "inert": 8,
+      "errors": 0,
+      "maxPct": 24.184780862412442,
+      "minPct": 0.7699561698502376,
+      "maxDelta": 3,
+      "minMaxDelta": 3,
+      "maxBlockPct": 100,
+      "minBlockPct": 55.078125,
+      "inertOn": [
+        "s1-decision mobile light",
+        "s1-decision mobile dark",
+        "s1-decision wide light",
+        "s1-decision wide dark",
+        "s2-index mobile light",
+        "s2-index mobile dark",
+        "s2-index wide light",
+        "s2-index wide dark"
+      ]
+    }
+  ],
+  "info_summary": [
+    {
+      "arm": "rasterization",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 4.814291101055807,
+      "minPct": 1.2310835351089588,
+      "maxDelta": 203,
+      "minMaxDelta": 158,
+      "maxBlockPct": 51.953125,
+      "minBlockPct": 44.921875,
+      "inertOn": []
+    },
+    {
+      "arm": "serif-fallback",
+      "n": 12,
+      "effective": 12,
+      "inert": 0,
+      "errors": 0,
+      "maxPct": 100,
+      "minPct": 1.5047142663687454,
+      "maxDelta": 255,
+      "minMaxDelta": 218,
+      "maxBlockPct": 100,
+      "minBlockPct": 92.96875,
+      "inertOn": []
+    }
+  ],
+  "chosen_channel_threshold": 0,
+  "noise_ceiling": {
+    "pct": 0,
+    "block_pct": 0,
+    "channel_delta": 0
+  },
+  "signal_floor": {
+    "pct": 0.002213927002062595,
+    "block_pct": 10.15625,
+    "weakest_peak_delta": 2
+  },
+  "derived": {
+    "channel_threshold": 0,
+    "pixel_tolerance_pct": 0.00055,
+    "block_tolerance_pct": 2.5
+  },
+  "separation": {
+    "pct_multiple": 4.025321821931991,
+    "block_multiple": 4.0625,
+    "separated": true
+  },
+  "rows": [
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s1-decision mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5848 vs 780x5886 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s1-decision mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5848 vs 780x5888 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0.17647935739591006,
+          "blockPct": 19.140625,
+          "px": 8050
+        },
+        "4": {
+          "pct": 0.1754709039250763,
+          "blockPct": 17.96875,
+          "px": 8004
+        },
+        "8": {
+          "pct": 0.17516398330351818,
+          "blockPct": 17.578125,
+          "px": 7990
+        },
+        "16": {
+          "pct": 0.17358553439264796,
+          "blockPct": 14.84375,
+          "px": 7918
+        }
+      },
+      "maxDelta": 48,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0.780762215440738,
+          "blockPct": 66.796875,
+          "px": 35614
+        },
+        "4": {
+          "pct": 0.7268099547511312,
+          "blockPct": 65.234375,
+          "px": 33153
+        },
+        "8": {
+          "pct": 0.6924786909397032,
+          "blockPct": 63.28125,
+          "px": 31587
+        },
+        "16": {
+          "pct": 0.6247588480830615,
+          "blockPct": 62.5,
+          "px": 28498
+        }
+      },
+      "maxDelta": 50,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0.019072924339682207,
+          "blockPct": 51.953125,
+          "px": 870
+        },
+        "4": {
+          "pct": 0.017275246413413308,
+          "blockPct": 46.875,
+          "px": 788
+        },
+        "8": {
+          "pct": 0.01642025325335859,
+          "blockPct": 44.53125,
+          "px": 749
+        },
+        "16": {
+          "pct": 0.014819881440948472,
+          "blockPct": 39.453125,
+          "px": 676
+        }
+      },
+      "maxDelta": 53,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0.017713704444210603,
+          "blockPct": 21.09375,
+          "px": 808
+        },
+        "4": {
+          "pct": 0.01567487460100319,
+          "blockPct": 19.53125,
+          "px": 715
+        },
+        "8": {
+          "pct": 0.013877196674734294,
+          "blockPct": 17.96875,
+          "px": 633
+        },
+        "16": {
+          "pct": 0.011575292013048511,
+          "blockPct": 17.1875,
+          "px": 528
+        }
+      },
+      "maxDelta": 109,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0.6559770598758288,
+          "blockPct": 62.5,
+          "px": 29922
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s1-decision mobile light",
+      "at": {
+        "0": {
+          "pct": 4.796117015679259,
+          "blockPct": 50.78125,
+          "px": 218772
+        },
+        "4": {
+          "pct": 4.3107001297835765,
+          "blockPct": 46.484375,
+          "px": 196630
+        },
+        "8": {
+          "pct": 3.920757480094005,
+          "blockPct": 44.140625,
+          "px": 178843
+        },
+        "16": {
+          "pct": 3.2645611912027777,
+          "blockPct": 35.546875,
+          "px": 148911
+        }
+      },
+      "maxDelta": 158,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s1-decision mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5848 vs 780x5746 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s1-decision mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5848 vs 780x5886 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s1-decision mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5848 vs 780x5888 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.17626012838051142,
+          "blockPct": 18.75,
+          "px": 8040
+        },
+        "4": {
+          "pct": 0.17485706268196008,
+          "blockPct": 16.796875,
+          "px": 7976
+        },
+        "8": {
+          "pct": 0.17345399698340874,
+          "blockPct": 14.84375,
+          "px": 7912
+        },
+        "16": {
+          "pct": 0.17170016486021958,
+          "blockPct": 12.5,
+          "px": 7832
+        }
+      },
+      "maxDelta": 22,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.7856948682872076,
+          "blockPct": 67.578125,
+          "px": 35839
+        },
+        "4": {
+          "pct": 0.7387140902872777,
+          "blockPct": 65.234375,
+          "px": 33696
+        },
+        "8": {
+          "pct": 0.7108281595285699,
+          "blockPct": 64.0625,
+          "px": 32424
+        },
+        "16": {
+          "pct": 0.6614797081623347,
+          "blockPct": 63.28125,
+          "px": 30173
+        }
+      },
+      "maxDelta": 67,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.019072924339682207,
+          "blockPct": 51.953125,
+          "px": 870
+        },
+        "4": {
+          "pct": 0.018217931179627486,
+          "blockPct": 49.609375,
+          "px": 831
+        },
+        "8": {
+          "pct": 0.017450629625732225,
+          "blockPct": 48.046875,
+          "px": 796
+        },
+        "16": {
+          "pct": 0.016507944859518047,
+          "blockPct": 44.53125,
+          "px": 753
+        }
+      },
+      "maxDelta": 122,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.01756024413343155,
+          "blockPct": 20.703125,
+          "px": 801
+        },
+        "4": {
+          "pct": 0.014776035637868742,
+          "blockPct": 18.359375,
+          "px": 674
+        },
+        "8": {
+          "pct": 0.013131818022378897,
+          "blockPct": 17.578125,
+          "px": 599
+        },
+        "16": {
+          "pct": 0.009295310252902592,
+          "blockPct": 16.796875,
+          "px": 424
+        }
+      },
+      "maxDelta": 97,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.6680565786242941,
+          "blockPct": 64.0625,
+          "px": 30473
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4561440,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s1-decision mobile dark",
+      "at": {
+        "0": {
+          "pct": 4.814291101055807,
+          "blockPct": 50.78125,
+          "px": 219601
+        },
+        "4": {
+          "pct": 4.447542881195412,
+          "blockPct": 46.875,
+          "px": 202872
+        },
+        "8": {
+          "pct": 4.085530008067628,
+          "blockPct": 45.3125,
+          "px": 186359
+        },
+        "16": {
+          "pct": 3.45686888351047,
+          "blockPct": 39.84375,
+          "px": 157683
+        }
+      },
+      "maxDelta": 192,
+      "total": 4561440,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s1-decision mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5848 vs 780x5746 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s1-decision wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3822 vs 2880x3838 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s1-decision wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3822 vs 2880x3846 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0.06433876969591255,
+          "blockPct": 18.359375,
+          "px": 7082
+        },
+        "4": {
+          "pct": 0.06392086749229607,
+          "blockPct": 16.796875,
+          "px": 7036
+        },
+        "8": {
+          "pct": 0.06379367986510844,
+          "blockPct": 16.40625,
+          "px": 7022
+        },
+        "16": {
+          "pct": 0.0631395720681435,
+          "blockPct": 14.84375,
+          "px": 6950
+        }
+      },
+      "maxDelta": 48,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0.5696733821733821,
+          "blockPct": 74.21875,
+          "px": 62706
+        },
+        "4": {
+          "pct": 0.5389394005465434,
+          "blockPct": 72.65625,
+          "px": 59323
+        },
+        "8": {
+          "pct": 0.5177354061282633,
+          "blockPct": 71.875,
+          "px": 56989
+        },
+        "16": {
+          "pct": 0.48019688644688646,
+          "blockPct": 70.703125,
+          "px": 52857
+        }
+      },
+      "maxDelta": 50,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0.00790380254665969,
+          "blockPct": 35.15625,
+          "px": 870
+        },
+        "4": {
+          "pct": 0.00715884644456073,
+          "blockPct": 32.8125,
+          "px": 788
+        },
+        "8": {
+          "pct": 0.006804538054538054,
+          "blockPct": 31.25,
+          "px": 749
+        },
+        "16": {
+          "pct": 0.006141345427059712,
+          "blockPct": 28.515625,
+          "px": 676
+        }
+      },
+      "maxDelta": 53,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0.007340543054828769,
+          "blockPct": 14.0625,
+          "px": 808
+        },
+        "4": {
+          "pct": 0.006413890342461771,
+          "blockPct": 13.28125,
+          "px": 706
+        },
+        "8": {
+          "pct": 0.005732528053956625,
+          "blockPct": 12.109375,
+          "px": 631
+        },
+        "16": {
+          "pct": 0.004796790511076225,
+          "blockPct": 10.9375,
+          "px": 528
+        }
+      },
+      "maxDelta": 109,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0.49766701552415843,
+          "blockPct": 70.703125,
+          "px": 54780
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s1-decision wide light",
+      "at": {
+        "0": {
+          "pct": 2.1405768503982787,
+          "blockPct": 51.953125,
+          "px": 235621
+        },
+        "4": {
+          "pct": 1.927937307401593,
+          "blockPct": 47.265625,
+          "px": 212215
+        },
+        "8": {
+          "pct": 1.7481485115413686,
+          "blockPct": 43.75,
+          "px": 192425
+        },
+        "16": {
+          "pct": 1.4563165009593582,
+          "blockPct": 34.765625,
+          "px": 160302
+        }
+      },
+      "maxDelta": 194,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s1-decision wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3822 vs 2880x3776 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s1-decision wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3822 vs 2880x3838 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s1-decision wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3822 vs 2880x3846 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0.06424792139077853,
+          "blockPct": 18.359375,
+          "px": 7072
+        },
+        "4": {
+          "pct": 0.06366649223792081,
+          "blockPct": 16.015625,
+          "px": 7008
+        },
+        "8": {
+          "pct": 0.06308506308506308,
+          "blockPct": 14.84375,
+          "px": 6944
+        },
+        "16": {
+          "pct": 0.06235827664399093,
+          "blockPct": 12.5,
+          "px": 6864
+        }
+      },
+      "maxDelta": 22,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0.5725351037851037,
+          "blockPct": 74.609375,
+          "px": 63021
+        },
+        "4": {
+          "pct": 0.5461890952962382,
+          "blockPct": 72.65625,
+          "px": 60121
+        },
+        "8": {
+          "pct": 0.5290732746089889,
+          "blockPct": 72.265625,
+          "px": 58237
+        },
+        "16": {
+          "pct": 0.49979286586429444,
+          "blockPct": 71.09375,
+          "px": 55014
+        }
+      },
+      "maxDelta": 67,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0.00790380254665969,
+          "blockPct": 35.15625,
+          "px": 870
+        },
+        "4": {
+          "pct": 0.007549494156637014,
+          "blockPct": 33.59375,
+          "px": 831
+        },
+        "8": {
+          "pct": 0.007231525088667946,
+          "blockPct": 32.8125,
+          "px": 796
+        },
+        "16": {
+          "pct": 0.006840877376591663,
+          "blockPct": 31.640625,
+          "px": 753
+        }
+      },
+      "maxDelta": 122,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0.007276949241234955,
+          "blockPct": 14.0625,
+          "px": 801
+        },
+        "4": {
+          "pct": 0.00613226059654631,
+          "blockPct": 12.890625,
+          "px": 675
+        },
+        "8": {
+          "pct": 0.005441813477527763,
+          "blockPct": 12.109375,
+          "px": 599
+        },
+        "16": {
+          "pct": 0.0038519681376824235,
+          "blockPct": 10.546875,
+          "px": 424
+        }
+      },
+      "maxDelta": 97,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0.5031360834932264,
+          "blockPct": 71.09375,
+          "px": 55382
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 11007360,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s1-decision wide dark",
+      "at": {
+        "0": {
+          "pct": 2.14909842141985,
+          "blockPct": 51.171875,
+          "px": 236559
+        },
+        "4": {
+          "pct": 1.9881879033664749,
+          "blockPct": 48.4375,
+          "px": 218847
+        },
+        "8": {
+          "pct": 1.830520669806384,
+          "blockPct": 44.53125,
+          "px": 201492
+        },
+        "16": {
+          "pct": 1.5554865108436537,
+          "blockPct": 36.71875,
+          "px": 171218
+        }
+      },
+      "maxDelta": 201,
+      "total": 11007360,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s1-decision wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3822 vs 2880x3776 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s2-index mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5608 vs 780x5624 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s2-index mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5608 vs 780x5624 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 1.9926890156918688,
+          "blockPct": 63.671875,
+          "px": 87165
+        },
+        "4": {
+          "pct": 1.843657412487655,
+          "blockPct": 58.59375,
+          "px": 80646
+        },
+        "8": {
+          "pct": 1.7362101759391346,
+          "blockPct": 55.46875,
+          "px": 75946
+        },
+        "16": {
+          "pct": 1.533134898862431,
+          "blockPct": 53.125,
+          "px": 67063
+        }
+      },
+      "maxDelta": 50,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0.03703500493800066,
+          "blockPct": 21.09375,
+          "px": 1620
+        },
+        "4": {
+          "pct": 0.032005559822963534,
+          "blockPct": 19.53125,
+          "px": 1400
+        },
+        "8": {
+          "pct": 0.027753392589341234,
+          "blockPct": 17.96875,
+          "px": 1214
+        },
+        "16": {
+          "pct": 0.021489447309704084,
+          "blockPct": 16.40625,
+          "px": 940
+        }
+      },
+      "maxDelta": 109,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 1.6186583269322214,
+          "blockPct": 54.6875,
+          "px": 70804
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s2-index mobile light",
+      "at": {
+        "0": {
+          "pct": 3.5024141336552175,
+          "blockPct": 49.21875,
+          "px": 153204
+        },
+        "4": {
+          "pct": 3.1231939719814186,
+          "blockPct": 45.3125,
+          "px": 136616
+        },
+        "8": {
+          "pct": 2.835281100259702,
+          "blockPct": 42.1875,
+          "px": 124022
+        },
+        "16": {
+          "pct": 2.4066352097735835,
+          "blockPct": 37.890625,
+          "px": 105272
+        }
+      },
+      "maxDelta": 193,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s2-index mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5608 vs 780x5498 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s2-index mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5608 vs 780x5624 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s2-index mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5608 vs 780x5624 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 2.0047139617396392,
+          "blockPct": 63.671875,
+          "px": 87691
+        },
+        "4": {
+          "pct": 1.878680639379641,
+          "blockPct": 60.15625,
+          "px": 82178
+        },
+        "8": {
+          "pct": 1.788813599619591,
+          "blockPct": 57.421875,
+          "px": 78247
+        },
+        "16": {
+          "pct": 1.6370158016021068,
+          "blockPct": 53.90625,
+          "px": 71607
+        }
+      },
+      "maxDelta": 67,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.03753794944950437,
+          "blockPct": 20.703125,
+          "px": 1642
+        },
+        "4": {
+          "pct": 0.029262226123852375,
+          "blockPct": 18.359375,
+          "px": 1280
+        },
+        "8": {
+          "pct": 0.025855920114122685,
+          "blockPct": 17.578125,
+          "px": 1131
+        },
+        "16": {
+          "pct": 0.01844891912652255,
+          "blockPct": 16.40625,
+          "px": 807
+        }
+      },
+      "maxDelta": 97,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 1.6518069424631479,
+          "blockPct": 55.078125,
+          "px": 72254
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 4374240,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s2-index mobile dark",
+      "at": {
+        "0": {
+          "pct": 3.5375516661180004,
+          "blockPct": 49.609375,
+          "px": 154741
+        },
+        "4": {
+          "pct": 3.274214492117488,
+          "blockPct": 45.3125,
+          "px": 143222
+        },
+        "8": {
+          "pct": 3.047249350744358,
+          "blockPct": 42.96875,
+          "px": 133294
+        },
+        "16": {
+          "pct": 2.665240133143129,
+          "blockPct": 40.625,
+          "px": 116584
+        }
+      },
+      "maxDelta": 200,
+      "total": 4374240,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s2-index mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x5608 vs 780x5498 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s2-index wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3282 vs 2880x3292 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s2-index wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3282 vs 2880x3288 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0.9933602478163722,
+          "blockPct": 70.3125,
+          "px": 93894
+        },
+        "4": {
+          "pct": 0.9202870031823414,
+          "blockPct": 67.96875,
+          "px": 86987
+        },
+        "8": {
+          "pct": 0.869727131153091,
+          "blockPct": 66.796875,
+          "px": 82208
+        },
+        "16": {
+          "pct": 0.7733999424470175,
+          "blockPct": 64.453125,
+          "px": 73103
+        }
+      },
+      "maxDelta": 50,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0.01711778048615343,
+          "blockPct": 14.0625,
+          "px": 1618
+        },
+        "4": {
+          "pct": 0.014790270160471259,
+          "blockPct": 13.28125,
+          "px": 1398
+        },
+        "8": {
+          "pct": 0.012833045568420342,
+          "blockPct": 12.5,
+          "px": 1213
+        },
+        "16": {
+          "pct": 0.009902498476538697,
+          "blockPct": 10.9375,
+          "px": 936
+        }
+      },
+      "maxDelta": 109,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0.8149036833908864,
+          "blockPct": 64.0625,
+          "px": 77026
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 1.645444004333401,
+          "blockPct": 48.828125,
+          "px": 155530
+        },
+        "4": {
+          "pct": 1.4683522073261561,
+          "blockPct": 45.3125,
+          "px": 138791
+        },
+        "8": {
+          "pct": 1.332711253300833,
+          "blockPct": 41.40625,
+          "px": 125970
+        },
+        "16": {
+          "pct": 1.130270752928431,
+          "blockPct": 37.5,
+          "px": 106835
+        }
+      },
+      "maxDelta": 196,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s2-index wide light",
+      "at": {
+        "0": {
+          "pct": 1.5120353443022547,
+          "blockPct": 93.359375,
+          "px": 142920
+        },
+        "4": {
+          "pct": 1.4642367458866545,
+          "blockPct": 92.1875,
+          "px": 138402
+        },
+        "8": {
+          "pct": 1.4295885808111586,
+          "blockPct": 90.625,
+          "px": 135127
+        },
+        "16": {
+          "pct": 1.366386095876498,
+          "blockPct": 88.671875,
+          "px": 129153
+        }
+      },
+      "maxDelta": 220,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s2-index wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3282 vs 2880x3292 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s2-index wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x3282 vs 2880x3288 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0.9991155460762408,
+          "blockPct": 70.703125,
+          "px": 94438
+        },
+        "4": {
+          "pct": 0.9383569469835467,
+          "blockPct": 68.359375,
+          "px": 88695
+        },
+        "8": {
+          "pct": 0.894398740605322,
+          "blockPct": 67.578125,
+          "px": 84540
+        },
+        "16": {
+          "pct": 0.8220660674385536,
+          "blockPct": 66.015625,
+          "px": 77703
+        }
+      },
+      "maxDelta": 67,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0.01733995192633218,
+          "blockPct": 14.84375,
+          "px": 1639
+        },
+        "4": {
+          "pct": 0.013531298666124991,
+          "blockPct": 12.890625,
+          "px": 1279
+        },
+        "8": {
+          "pct": 0.011944359807705328,
+          "blockPct": 12.109375,
+          "px": 1129
+        },
+        "16": {
+          "pct": 0.008495412688739929,
+          "blockPct": 10.15625,
+          "px": 803
+        }
+      },
+      "maxDelta": 97,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0.8308365495294198,
+          "blockPct": 67.1875,
+          "px": 78532
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 9452160,
+      "inert": true
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 1.6619904868305235,
+          "blockPct": 49.609375,
+          "px": 157094
+        },
+        "4": {
+          "pct": 1.5399548886180514,
+          "blockPct": 45.703125,
+          "px": 145559
+        },
+        "8": {
+          "pct": 1.434772581081996,
+          "blockPct": 40.625,
+          "px": 135617
+        },
+        "16": {
+          "pct": 1.2531104001625026,
+          "blockPct": 37.5,
+          "px": 118446
+        }
+      },
+      "maxDelta": 203,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s2-index wide dark",
+      "at": {
+        "0": {
+          "pct": 1.5047142663687454,
+          "blockPct": 92.96875,
+          "px": 142228
+        },
+        "4": {
+          "pct": 1.4570849414313767,
+          "blockPct": 91.796875,
+          "px": 137726
+        },
+        "8": {
+          "pct": 1.4168084332046855,
+          "blockPct": 91.015625,
+          "px": 133919
+        },
+        "16": {
+          "pct": 1.346655156070147,
+          "blockPct": 88.671875,
+          "px": 127288
+        }
+      },
+      "maxDelta": 218,
+      "total": 9452160,
+      "inert": false
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s3-distill mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x3192 vs 780x3272 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s3-distill mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x3192 vs 780x3202 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 1.869296639033481,
+          "blockPct": 58.59375,
+          "px": 46541
+        },
+        "4": {
+          "pct": 1.6947014973330763,
+          "blockPct": 57.03125,
+          "px": 42194
+        },
+        "8": {
+          "pct": 1.5760555234239446,
+          "blockPct": 56.25,
+          "px": 39240
+        },
+        "16": {
+          "pct": 1.3481620718462823,
+          "blockPct": 55.078125,
+          "px": 33566
+        }
+      },
+      "maxDelta": 50,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0.10286131996658313,
+          "blockPct": 51.953125,
+          "px": 2561
+        },
+        "4": {
+          "pct": 0.08892423366107577,
+          "blockPct": 44.921875,
+          "px": 2214
+        },
+        "8": {
+          "pct": 0.08193560825139773,
+          "blockPct": 41.796875,
+          "px": 2040
+        },
+        "16": {
+          "pct": 0.0695247734721419,
+          "blockPct": 37.109375,
+          "px": 1731
+        }
+      },
+      "maxDelta": 53,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 0.006345993188098452,
+          "blockPct": 10.15625,
+          "px": 158
+        },
+        "4": {
+          "pct": 0.004578754578754579,
+          "blockPct": 8.203125,
+          "px": 114
+        },
+        "8": {
+          "pct": 0.0038557933294775405,
+          "blockPct": 6.640625,
+          "px": 96
+        },
+        "16": {
+          "pct": 0.0026508579140158087,
+          "blockPct": 4.6875,
+          "px": 66
+        }
+      },
+      "maxDelta": 29,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 1.4420265407107513,
+          "blockPct": 55.859375,
+          "px": 35903
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 1.9021512113617376,
+          "blockPct": 55.078125,
+          "px": 47359
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s3-distill mobile light",
+      "at": {
+        "0": {
+          "pct": 3.533714092924619,
+          "blockPct": 48.046875,
+          "px": 87981
+        },
+        "4": {
+          "pct": 3.0615400681190152,
+          "blockPct": 44.921875,
+          "px": 76225
+        },
+        "8": {
+          "pct": 2.744401066769488,
+          "blockPct": 41.796875,
+          "px": 68329
+        },
+        "16": {
+          "pct": 2.2303756185335133,
+          "blockPct": 36.71875,
+          "px": 55531
+        }
+      },
+      "maxDelta": 167,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s3-distill mobile light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x3192 vs 780x3136 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s3-distill mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x3192 vs 780x3272 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s3-distill mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x3192 vs 780x3202 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 2489760,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 1.875441809652336,
+          "blockPct": 58.59375,
+          "px": 46694
+        },
+        "4": {
+          "pct": 1.7338217338217339,
+          "blockPct": 57.421875,
+          "px": 43168
+        },
+        "8": {
+          "pct": 1.6354588394062077,
+          "blockPct": 56.640625,
+          "px": 40719
+        },
+        "16": {
+          "pct": 1.4653219587430113,
+          "blockPct": 55.46875,
+          "px": 36483
+        }
+      },
+      "maxDelta": 67,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.10229901677270099,
+          "blockPct": 51.953125,
+          "px": 2547
+        },
+        "4": {
+          "pct": 0.09659565580618212,
+          "blockPct": 48.4375,
+          "px": 2405
+        },
+        "8": {
+          "pct": 0.09081196581196581,
+          "blockPct": 45.3125,
+          "px": 2261
+        },
+        "16": {
+          "pct": 0.08342169526380053,
+          "blockPct": 42.1875,
+          "px": 2077
+        }
+      },
+      "maxDelta": 122,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 0.0064263222157959,
+          "blockPct": 10.15625,
+          "px": 160
+        },
+        "4": {
+          "pct": 0.0038557933294775405,
+          "blockPct": 6.640625,
+          "px": 96
+        },
+        "8": {
+          "pct": 0.002490199858620911,
+          "blockPct": 5.078125,
+          "px": 62
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 16,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 1.447288092024934,
+          "blockPct": 55.859375,
+          "px": 36034
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 24.184780862412442,
+          "blockPct": 100,
+          "px": 602143
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s3-distill mobile dark",
+      "at": {
+        "0": {
+          "pct": 3.553153717627402,
+          "blockPct": 48.828125,
+          "px": 88465
+        },
+        "4": {
+          "pct": 3.233604845446951,
+          "blockPct": 44.921875,
+          "px": 80509
+        },
+        "8": {
+          "pct": 2.972575669944091,
+          "blockPct": 42.578125,
+          "px": 74010
+        },
+        "16": {
+          "pct": 2.480520210783369,
+          "blockPct": 39.0625,
+          "px": 61759
+        }
+      },
+      "maxDelta": 194,
+      "total": 2489760,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s3-distill mobile dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 780x3192 vs 780x3136 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s3-distill wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x2478 vs 2880x2504 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s3-distill wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x2478 vs 2880x2484 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.7176346291812394,
+          "blockPct": 58.203125,
+          "px": 51215
+        },
+        "4": {
+          "pct": 0.6550001120975697,
+          "blockPct": 55.859375,
+          "px": 46745
+        },
+        "8": {
+          "pct": 0.6124310599946193,
+          "blockPct": 54.6875,
+          "px": 43707
+        },
+        "16": {
+          "pct": 0.5309781633934176,
+          "blockPct": 52.734375,
+          "px": 37894
+        }
+      },
+      "maxDelta": 50,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.035885234508115864,
+          "blockPct": 54.296875,
+          "px": 2561
+        },
+        "4": {
+          "pct": 0.031023002421307507,
+          "blockPct": 46.875,
+          "px": 2214
+        },
+        "8": {
+          "pct": 0.028584880279795534,
+          "blockPct": 42.578125,
+          "px": 2040
+        },
+        "16": {
+          "pct": 0.024255111649179446,
+          "blockPct": 34.375,
+          "px": 1731
+        }
+      },
+      "maxDelta": 53,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.002213927002062595,
+          "blockPct": 15.234375,
+          "px": 158
+        },
+        "4": {
+          "pct": 0.0015973903685768094,
+          "blockPct": 10.9375,
+          "px": 114
+        },
+        "8": {
+          "pct": 0.0013451708366962606,
+          "blockPct": 9.375,
+          "px": 96
+        },
+        "16": {
+          "pct": 0.0009248049502286789,
+          "blockPct": 6.25,
+          "px": 66
+        }
+      },
+      "maxDelta": 29,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.5652099587480943,
+          "blockPct": 53.125,
+          "px": 40337
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 0.7699561698502376,
+          "blockPct": 55.859375,
+          "px": 54949
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s3-distill wide light",
+      "at": {
+        "0": {
+          "pct": 1.2310835351089588,
+          "blockPct": 44.921875,
+          "px": 87858
+        },
+        "4": {
+          "pct": 1.0669867052282307,
+          "blockPct": 41.796875,
+          "px": 76147
+        },
+        "8": {
+          "pct": 0.9554776477445969,
+          "blockPct": 37.5,
+          "px": 68189
+        },
+        "16": {
+          "pct": 0.7774807192180074,
+          "blockPct": 32.03125,
+          "px": 55486
+        }
+      },
+      "maxDelta": 159,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s3-distill wide light",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x2478 vs 2880x2430 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "noise",
+      "arm": "same-page",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-context",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "fresh-browser",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "other-origin",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "noise",
+      "arm": "reserialized",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "spacing-1px",
+      "tag": "s3-distill wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x2478 vs 2880x2504 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "type-0.5px",
+      "tag": "s3-distill wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x2478 vs 2880x2484 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    },
+    {
+      "pop": "signal",
+      "arm": "hairline",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 0,
+      "total": 7136640,
+      "inert": true
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-swap",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0.7201288001076137,
+          "blockPct": 58.984375,
+          "px": 51393
+        },
+        "4": {
+          "pct": 0.6701192718141871,
+          "blockPct": 56.640625,
+          "px": 47824
+        },
+        "8": {
+          "pct": 0.633057012823962,
+          "blockPct": 55.46875,
+          "px": 45179
+        },
+        "16": {
+          "pct": 0.572804569096942,
+          "blockPct": 53.515625,
+          "px": 40879
+        }
+      },
+      "maxDelta": 67,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "chip-hue",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0.035689063761097664,
+          "blockPct": 53.515625,
+          "px": 2547
+        },
+        "4": {
+          "pct": 0.03369933189848444,
+          "blockPct": 48.828125,
+          "px": 2405
+        },
+        "8": {
+          "pct": 0.03168157564344005,
+          "blockPct": 47.265625,
+          "px": 2261
+        },
+        "16": {
+          "pct": 0.029103331539772216,
+          "blockPct": 44.53125,
+          "px": 2077
+        }
+      },
+      "maxDelta": 122,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "radius-2px",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0.0022419513944937674,
+          "blockPct": 15.234375,
+          "px": 160
+        },
+        "4": {
+          "pct": 0.0013451708366962606,
+          "blockPct": 9.375,
+          "px": 96
+        },
+        "8": {
+          "pct": 0.0008827683615819209,
+          "blockPct": 5.46875,
+          "px": 63
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 16,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "ink-2",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 0.5677181418706843,
+          "blockPct": 53.515625,
+          "px": 40516
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 2,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "signal",
+      "arm": "opacity-1pct",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 13.288732512779122,
+          "blockPct": 100,
+          "px": 948369
+        },
+        "4": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "8": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        },
+        "16": {
+          "pct": 0,
+          "blockPct": 0,
+          "px": 0
+        }
+      },
+      "maxDelta": 3,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "rasterization",
+      "tag": "s3-distill wide dark",
+      "at": {
+        "0": {
+          "pct": 1.2376692673302843,
+          "blockPct": 45.3125,
+          "px": 88328
+        },
+        "4": {
+          "pct": 1.1290747466594924,
+          "blockPct": 41.796875,
+          "px": 80578
+        },
+        "8": {
+          "pct": 1.0390323737781366,
+          "blockPct": 38.671875,
+          "px": 74152
+        },
+        "16": {
+          "pct": 0.8700312752219531,
+          "blockPct": 35.15625,
+          "px": 62091
+        }
+      },
+      "maxDelta": 193,
+      "total": 7136640,
+      "inert": false
+    },
+    {
+      "pop": "info",
+      "arm": "serif-fallback",
+      "tag": "s3-distill wide dark",
+      "maxDelta": 255,
+      "dimensionChange": true,
+      "note": "dimension mismatch: 2880x2478 vs 2880x2430 — refusing to crop or scale. A size change IS the regression.",
+      "inert": false,
+      "at": {
+        "0": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "4": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "8": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        },
+        "16": {
+          "pct": 100,
+          "blockPct": 100,
+          "px": null
+        }
+      }
+    }
+  ]
+}

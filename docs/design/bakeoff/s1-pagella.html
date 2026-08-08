@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>TeX Gyre Pagella (Palatino metrics) — dira serif bake-off</title>
+<meta name="description" content="Why kazi-org/dira chose Go over Elixir/OTP, with the three alternatives it rejected and the reasoning for each. A decision record kept automatically by a coding agent.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go, not Elixir/OTP, despite kazi's stack">
+<meta property="og:description" content="dec-0001 - accepted. Three alternatives rejected, each with its grounds. A decision record nobody typed.">
+<meta property="og:site_name" content="dira - decision memory for AI coding agents">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="_snapshot/tokens.css">
+<style>
+/* S1 — THE DECISION PAGE. The page a stranger lands on from a link.
+   Composition: invocation + chain (what is this tool) -> the ruling and its
+   reasoning in serif (what was decided) -> alternatives with grounds. */
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* mobile chain: the pre-formatted tree is illegible when clipped, so at narrow
+   widths we render the same graph as a stacked list. Same data, same order,
+   same colours — a different typographic form. (WEB.md 9) */
+.chain .row > span:first-child { flex: 0 0 auto; min-width: 13ch; }
+    .chain .row > .txt, .chain .row > .dim { flex: 1 1 auto; white-space: normal; }
+    .chain .row > .lo:last-child { margin-left: auto; padding-left: var(--s4); text-align: right; }
+.chain-stack { display: none; }
+@media (max-width: 767px) {
+  .chain { display: none; }
+  .chain-stack {
+    display: grid; gap: var(--s2);
+    background: var(--sunk); border: 1px solid var(--rule);
+    border-radius: var(--r-shell); padding: var(--s4);
+    font-family: var(--mono); font-size: var(--t-sub);
+  }
+  .chain-stack .row { display: flex; gap: var(--s2); align-items: baseline; }
+  .chain-stack .row.sub { padding-left: var(--s4); }
+  .chain-stack .row.sub2 { padding-left: var(--s5); }
+  .chain-stack .m { flex: none; width: 12px; }
+  .chain-stack .m.ok { color: var(--converged); }
+  .chain-stack .m.no { color: var(--ink-low); }
+  .chain-stack .k { color: var(--bearing); flex: none; }
+  .chain-stack .v { color: var(--ink-mid); }
+}
+
+.body { display: grid; grid-template-columns: minmax(0,1fr) 244px; gap: var(--s7); margin-top: var(--s6); }
+@media (max-width: 1023px) { .body { grid-template-columns: 1fr; gap: var(--s6); } }
+
+.tagrow { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-bottom: var(--s3); }
+
+/* the ruling is the anchor. At >=52px against 16.5px grounds the type
+   contrast clears 3:1, so one element clearly wins the frame instead of
+   competing with the chain block (TASTE 6, 11). */
+h1.ruling {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(32px, 5.6vw, 52px); line-height: 1.1; letter-spacing: -.019em;
+  max-width: 24ch;
+}
+.arising { font-size: var(--t-sub); color: var(--ink-low); margin-bottom: var(--s3); max-width: var(--m-sub); }
+
+.because {
+  font-family: var(--serif); font-size: var(--t-lede); line-height: 1.62;
+  color: var(--ink-mid); max-width: 60ch; margin-top: var(--s4);
+}
+.because em { font-style: italic; color: var(--ink); }
+
+/* alternatives — refusals are neutral records; only the upheld one is hued */
+.args { margin-top: var(--s7); }
+.arg { padding-left: var(--s4); margin-bottom: var(--s5); position: relative; }
+.arg::before { content:""; position:absolute; left:0; top:5px; bottom:2px; width:2px; background: var(--rule); }
+.arg.upheld::before { background: var(--converged); width: 3px; }
+
+.arg .opt { display: flex; gap: var(--s2); align-items: baseline; margin-bottom: var(--s2); }
+.arg .mark { flex: none; font-family: var(--mono); font-size: var(--t-sub); color: var(--ink-low); }
+.arg.upheld .mark { color: var(--converged); }
+.arg .name { font-family: var(--serif); font-size: var(--t-body); }
+.arg.upheld .name { color: var(--ink); font-weight: 600; }
+.arg:not(.upheld) .name {
+  color: var(--ink-mid); text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--ink-low) 60%, transparent);
+  text-decoration-thickness: 1px;
+}
+.arg .tag {
+  font-family: var(--ui); font-size: var(--t-label); letter-spacing: .12em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-chip); flex: none; transform: translateY(-2px);
+  color: var(--ink-low); background: color-mix(in oklab, var(--ink-low) 12%, transparent);
+}
+.arg.upheld .tag { color: var(--converged); background: color-mix(in oklab, var(--converged) 14%, transparent); }
+.arg .grounds { font-family: var(--serif); font-size: var(--t-body); color: var(--ink-mid); max-width: 64ch; }
+.arg .revisit { font-size: var(--t-sub); color: var(--ink-low); margin-top: var(--s3); max-width: var(--m-sub); }
+.arg .revisit b {
+  color: var(--bearing); font-weight: 600; font-size: var(--t-label);
+  letter-spacing: .12em; text-transform: uppercase; margin-right: 6px;
+}
+
+.rail { display: grid; gap: var(--s4); align-content: start; position: sticky; top: var(--s4); }
+@media (max-width: 1023px) { .rail { position: static; } }
+.kv {
+  display: flex; justify-content: space-between; gap: var(--s3);
+  font-family: var(--mono); font-size: var(--t-sub); padding: 5px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.kv:last-child { border-bottom: 0; }
+.kv .k { color: var(--ink-low); }
+.kv a { text-decoration: none; }
+.kv a:hover, .kv a:focus-visible { text-decoration: underline; }
+</style>
+<style>
+/* ---- BAKE-OFF: self-hosted serif under test --------------------------------
+   Subsetted to Latin-1 + the punctuation dira's prose actually uses. In the
+   product these bytes come out of embed.FS, not off a URL -- the offline
+   constraint (int-0002, cst-0004) is preserved either way. */
+@font-face {
+  font-family: "BakeoffSerif";
+  src: url("fonts/pagella-regular.core.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "BakeoffSerif";
+  src: url("fonts/pagella-italic.core.woff2") format("woff2");
+  font-weight: 400; font-style: italic; font-display: block;
+}
+@font-face {
+  font-family: "BakeoffSerif";
+  src: url("fonts/pagella-bold.core.woff2") format("woff2");
+  font-weight: 600 700; font-style: normal; font-display: block;
+}
+:root { --serif: "BakeoffSerif", serif; }
+</style>
+</head>
+<body data-candidate="pagella">
+
+<header class="topbar">
+  <a class="wordmark" href="#">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb"><a href="s2-index.html">kazi-org/dira</a> · <a href="s2-index.html">ledger</a> · dec-0001</nav>
+  <span class="spacer"></span>
+  <span class="crumb">decision memory for AI coding agents</span>
+</header>
+
+<main class="wrap">
+
+  <div class="invoke"><span class="p">$</span><span class="c">dira why</span><span class="a">elixir</span></div>
+
+  <section class="chain" aria-label="Why-chain">
+    <div class="row"><span class="id-q">int-0002</span><span class="txt">Zero-ceremony operation — one binary, no daemon</span><span class="lo">active</span></div>
+    <div class="node">
+      <div class="row"><span class="id">dec-0001</span><span class="txt">Go, not Elixir/OTP</span><span class="lo">accepted 29 Jul</span></div>
+      <div class="node">
+        <div class="row"><span class="no">✗ elixir/otp</span><span class="dim">BEAM start-up in a hook latency path</span></div>
+        <div class="row"><span class="no" style="visibility:hidden">✗ elixir/otp</span><span class="lo">revisit if a long-lived component appears</span></div>
+        <div class="row"><span class="no">✗ rust</span><span class="dim">slower to write, smaller contributor pool</span></div>
+        <div class="row"><span class="no">✗ node/bun</span><span class="dim">Node start-up matches BEAM; Bun is young</span></div>
+        <div class="row"><span class="ok">✓ go</span><span class="dim">one static binary, sub-100 ms cold start</span></div>
+        <div class="node">
+          <div class="row"><span class="id">kazi:prop-8a1f</span><span class="ok">converged</span><span class="lo">3/3 predicates green</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chain-stack" aria-label="Why-chain">
+    <div class="row"><span class="k">int-0002</span><span class="v">Zero-ceremony operation</span></div>
+    <div class="row sub"><span class="k">dec-0001</span><span class="v">Go, not Elixir/OTP</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">elixir/otp — BEAM start-up in a hook path</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">rust — slower to write, smaller pool</span></div>
+    <div class="row sub2"><span class="m no">✗</span><span class="v">node/bun — start-up matches BEAM</span></div>
+    <div class="row sub2"><span class="m ok">✓</span><span class="v">go — one binary, sub-100 ms</span></div>
+    <div class="row sub2"><span class="k">kazi:prop-8a1f</span><span class="v" style="color:var(--converged)">converged 3/3</span></div>
+  </section>
+
+  <div class="body">
+    <article>
+      <div class="tagrow">
+        <span class="chip chip-id">dec-0001</span>
+        <span class="chip chip-accepted">◆ accepted</span>
+        <span class="chip chip-date">29 Jul 2026</span>
+      </div>
+      <p class="arising">Arising from <a href="#">int-0002</a> — zero-ceremony operation, one binary, no daemon.</p>
+      <h1 class="ruling">Go, not Elixir/OTP, despite kazi&rsquo;s stack.</h1>
+      <p class="because">
+        dira is invoked from hooks several times a session, in the latency path of a
+        human waiting on a prompt. OTP&rsquo;s value is supervising long-lived concurrent
+        work — <em>exactly what kazi needs, and exactly what dira has none of.</em>
+      </p>
+
+      <section class="args">
+        <h2 class="seclabel">Alternatives on record</h2>
+
+        <div class="arg upheld">
+          <div class="opt"><span class="mark">✓</span><span class="name">Go — one static binary, sub-100&nbsp;ms cold start</span><span class="tag">upheld</span></div>
+          <p class="grounds">The standard library already covers files, JSON and YAML, an embedded HTTP server for <code>dira ui</code>, and SQLite through a single dependency. A wide contributor pool matters for a tool that wants drive-by pull requests.</p>
+        </div>
+
+        <div class="arg">
+          <div class="opt"><span class="mark">✗</span><span class="name">Elixir/OTP, reusing kazi&rsquo;s Burrito and Homebrew pipeline</span><span class="tag">refused</span></div>
+          <p class="grounds">BEAM start-up costs tens to hundreds of milliseconds before any work happens, and a Burrito-wrapped binary pays a first-run unpacking cost besides. Free CI and free distribution is a real saving — and it loses anyway, because paying BEAM&rsquo;s start-up for a process with no concurrency and no uptime buys the one thing that does not apply.</p>
+          <p class="revisit"><b>revisit if</b>dira grows a genuinely long-lived component — a watch daemon or a hosted service — which could be Elixir without changing the CLI.</p>
+        </div>
+
+        <div class="arg">
+          <div class="opt"><span class="mark">✗</span><span class="name">Rust</span><span class="tag">refused</span></div>
+          <p class="grounds">An equivalent start-up and single-binary story with better guarantees, but slower to write and a smaller contributor pool for an open-source tool that wants casual contribution.</p>
+          <p class="revisit"><b>revisit if</b>never on performance grounds; only if the team&rsquo;s expertise shifts.</p>
+        </div>
+
+        <div class="arg">
+          <div class="opt"><span class="mark">✗</span><span class="name">A TypeScript CLI on Node or Bun</span><span class="tag">refused</span></div>
+          <p class="grounds">Node&rsquo;s start-up sits in the same range as BEAM&rsquo;s. Bun fixes that but ships a large binary and a young ecosystem, for a tool meant to be boring infrastructure.</p>
+        </div>
+      </section>
+    </article>
+
+    <aside class="rail">
+      <div class="card">
+        <h3>What this is</h3>
+        <p style="font-size:var(--t-ui);color:var(--ink-mid);margin-bottom:var(--s3)">
+          <b style="color:var(--ink)">Nobody typed this page.</b> A coding agent recorded
+          it while the work happened, and reads it back at the start of the next session.</p>
+        <p style="font-family:var(--mono);font-size: var(--t-chip);color:var(--ink-low)">
+          <b style="color:var(--bearing);font-weight:400">int-</b> an intent ·
+          <b style="color:var(--bearing);font-weight:400">dec-</b> a decision ·
+          <b style="color:var(--bearing);font-weight:400">converged</b> proven by tests</p>
+      </div>
+      <div class="card">
+        <h3>Edges</h3>
+        <div class="kv"><span class="k">derives_from</span><a href="#">int-0002</a></div>
+        <div class="kv"><span class="k">realized_by</span><a href="#">kazi:prop-8a1f</a></div>
+        <div class="kv"><span class="k">mirrored</span><a href="#">adr/0001</a></div>
+      </div>
+      <!-- the "This ledger" stats card was removed here: it duplicated
+           s2-index, and cutting it drops this screen out of the medium-density
+           slop zone into a committed CALM (TASTE 11). The count lives in the
+           footer instead, where it costs no block. -->
+      <!-- Attributed, not bare. Unattributed red on the surface a stranger lands
+           on reads as "this page is broken" — Law 1 is internally coherent and
+           externally illegible, because the stranger has not read DESIGN.md.
+           Naming the actor converts the alarm into a demonstration of the one
+           inversion this page otherwise never shows: that the record argues. -->
+      <div class="drift">
+        <h3>⚠ dira flagged this</h3>
+        <p><b>int-0004</b> is active work with no recorded purpose. dira raises it
+          unprompted — nobody asked it to check.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div style="margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--rule);
+              display:flex;gap:var(--s3);align-items:baseline;flex-wrap:wrap">
+    <p style="font-family:var(--serif);font-size: var(--t-body);color:var(--ink-mid);flex:1;min-width:240px;margin:0">
+      Every decision in this repo is recorded like this one.</p>
+    <a href="https://github.com/kazi-org/dira" style="font-size:var(--t-ui);color:var(--bearing);text-decoration:none;border-bottom:1px solid currentColor">Keep your own →</a>
+  </div>
+
+  <footer class="made">
+    <span>1 of 22 entries · <a href="s2-index.html">see the whole graph</a></span>
+    <span class="sep">·</span>
+    <span>kept with <a href="https://github.com/kazi-org/dira">dira</a>, written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>

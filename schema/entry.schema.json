@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kazi-org/dira/schema/entry.schema.json",
+  "title": "dira ledger entry",
+  "description": "A single entry in a dira ledger. Serialized as YAML frontmatter at the top of .dira/entries/<id>.md; the markdown body following the frontmatter is the entry's prose (the 'because'). One entry per file — see dec-0002 for why this is not JSONL.",
+  "type": "object",
+  "required": ["id", "kind", "title", "state", "created"],
+  "additionalProperties": false,
+
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable, immutable, ledger-local identifier. Never reused, never renumbered. Prefix encodes kind.",
+      "pattern": "^(int|dec|qst|cst|note)-[0-9]{4,}$",
+      "examples": ["int-0001", "dec-0060", "qst-0007", "cst-0001", "note-0012"]
+    },
+
+    "kind": {
+      "type": "string",
+      "description": "The closed entry set. Deliberately closed: adding a sixth kind is how dira becomes Obsidian. Requires superseding cst-0002 to extend.",
+      "enum": ["intent", "decision", "question", "constraint", "note"]
+    },
+
+    "title": {
+      "type": "string",
+      "description": "One line, imperative or declarative, no trailing period. This is what renders in the brief, so it must be legible with zero context.",
+      "minLength": 3,
+      "maxLength": 120
+    },
+
+    "state": {
+      "type": "string",
+      "description": "Lifecycle state. Valid values depend on kind — see the allOf constraints below. Note that NO state here describes execution progress: planned/in-progress/completed/blocked are DERIVED by joining kazi, never stored (dec-0005).",
+      "enum": [
+        "active", "achieved", "abandoned",
+        "accepted", "rejected", "superseded",
+        "open", "answered",
+        "staged"
+      ]
+    },
+
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC3339 UTC. Set once at capture, never rewritten."
+    },
+
+    "updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC3339 UTC. Bumped on any field change. Absent means never modified since creation."
+    },
+
+    "edges": {
+      "type": "array",
+      "description": "Typed, directed relationships. Edges are stored on the SUBJECT entry, so a single file write is a complete mutation — no two-file transactions, therefore no partial commits.",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+
+    "alternatives": {
+      "type": "array",
+      "description": "For decisions: the roads not taken, each with its own reason. This is the field that makes `dira why` worth reading and `dira check` possible — a decision without alternatives is an assertion, not a decision.",
+      "items": { "$ref": "#/$defs/alternative" }
+    },
+
+    "tags": {
+      "type": "array",
+      "description": "Freeform retrieval aids. Not a taxonomy — do not build features that depend on specific tag values.",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true
+    },
+
+    "source": {
+      "$ref": "#/$defs/source",
+      "description": "Provenance: how this entry came to exist. Present on agent-captured entries so a human can always audit what a hook inferred versus what a human confirmed."
+    },
+
+    "confirmed_by": {
+      "type": "string",
+      "description": "Who dispositioned this entry. 'human' means a person confirmed it; an agent identifier means it was auto-logged provisionally and is still staged. Absent on entries that need no disposition (notes).",
+      "examples": ["human", "agent:claude-code", "agent:dira-sniff"]
+    },
+
+    "adr": {
+      "type": "string",
+      "description": "Relative path to the mirrored ADR file, when adr_mirror is enabled for this ledger. The ADR is exhaust, not truth — this entry is the record. Deleting the ADR must never lose information.",
+      "examples": ["docs/adr/0078-checkpoint-resume.md"]
+    },
+
+    "private": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marks an entry as never-exportable. Enforced at read time by the inheritance rule (cst-0003): a private entry may be injected into a local session brief but must never be written into, or quoted into, a downstream public ledger."
+    }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "intent" } }, "required": ["kind"] },
+      "then": {
+        "properties": { "state": { "enum": ["active", "achieved", "abandoned"] } },
+        "description": "Intents are directions, not tasks. They are achieved or abandoned — never 'done', because doneness belongs to kazi."
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "decision" } }, "required": ["kind"] },
+      "then": {
+        "properties": { "state": { "enum": ["accepted", "rejected", "superseded", "staged"] } },
+        "description": "A decision MUST record at least the alternative of not doing it — unless it is still staged, in which case nobody has decided anything yet. Rejected decisions are first-class and permanent: they are the substrate `dira check` reads to stop relitigation.",
+        "allOf": [
+          {
+            "if": { "properties": { "state": { "const": "staged" } }, "required": ["state"] },
+            "then": {
+              "description": "A staged decision is a regex-tier proposal awaiting a human (dec-0003). `alternatives` is not required and may be empty, because the tier that captured it cannot know what was rejected or why, and a why_not it invented would be quoted back at the user three weeks later as their own reasoning. Tier 2 and the disposition flow fill this in; until then its absence is the honest record."
+            },
+            "else": {
+              "required": ["alternatives"],
+              "properties": { "alternatives": { "minItems": 1 } },
+              "description": "Once a decision leaves `staged`, a human has stood behind it and the roads not taken are part of what they stood behind. `alternatives: []` satisfied the letter of the old rule while asserting that there were none — which is exactly the assertion this field exists to prevent."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "question" } }, "required": ["kind"] },
+      "then": {
+        "properties": { "state": { "enum": ["open", "answered"] } },
+        "description": "An open question with a `blocks` edge is a decision-blocker — the class of blockage kazi structurally cannot see, because it exists upstream of any goal."
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "constraint" } }, "required": ["kind"] },
+      "then": {
+        "properties": { "state": { "enum": ["active", "superseded"] } },
+        "description": "Constraints inherit downward through derives_from and are evaluated by every `dira check` in every descendant ledger."
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "note" } }, "required": ["kind"] },
+      "then": {
+        "properties": { "state": { "enum": ["active", "abandoned"] } },
+        "description": "Notes are the escape hatch for thoughts that are not yet any of the other four. They surface once in the next brief and then decay — a note that matters becomes an intent, a decision, or a question."
+      }
+    }
+  ],
+
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "description": "A reference to an entry, optionally namespaced by ledger. Bare form (dec-0060) resolves within the current ledger; namespaced form (sire:int-0002) resolves via the ledger map in .dira/config.toml. Namespacing is what makes the tiers fractal without a server.",
+      "pattern": "^([a-z][a-z0-9_-]*:)?(int|dec|qst|cst|note)-[0-9]{4,}$",
+      "examples": ["dec-0060", "sire:int-0002", "me:cst-0002"]
+    },
+
+    "edge": {
+      "type": "object",
+      "required": ["type", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "supersedes: this entry replaces an earlier one, which flips to superseded. derives_from: this entry serves a parent intent, possibly in a parent ledger — absence of this edge on an active intent is what the orphan-work drift flag detects. informs: weaker context link, no lifecycle effect. blocks: this entry gates another; the source is typically an open question. realized_by: this decision is carried out by an external execution artifact, the only edge type whose target is not a dira ref.",
+          "enum": ["supersedes", "derives_from", "informs", "blocks", "realized_by"]
+        },
+        "to": {
+          "type": "string",
+          "description": "Target. A dira ref for all edge types except realized_by, which takes an external URI (kazi:<proposal-or-goal-id>). Kept as a single string rather than a union so the whole edge set is greppable with one pattern.",
+          "examples": ["int-0001", "sire:int-0002", "kazi:prop-resume-8a1f", "kazi:goal-resume"]
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional one line on why this edge exists. Renders in `dira why` chains.",
+          "maxLength": 280
+        }
+      }
+    },
+
+    "alternative": {
+      "type": "object",
+      "required": ["option", "why_not"],
+      "additionalProperties": false,
+      "properties": {
+        "option": {
+          "type": "string",
+          "description": "The road not taken, stated as though it had been chosen.",
+          "maxLength": 200
+        },
+        "why_not": {
+          "type": "string",
+          "description": "The actual reason. This string is what gets quoted back at you three weeks later when you try to relitigate, so it must survive loss of context."
+        },
+        "revisit_if": {
+          "type": "string",
+          "description": "The condition that would legitimately reopen this. Distinguishes a closed door from a locked one, and gives `dira check` something better to say than 'no'.",
+          "examples": ["cold-start latency stops being the binding constraint"]
+        }
+      }
+    },
+
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hook": {
+          "type": "string",
+          "description": "Which capture point produced this entry.",
+          "enum": ["SessionStart", "Stop", "PreCompact", "manual", "import", "kazi-disposition"]
+        },
+        "session": {
+          "type": "string",
+          "description": "Opaque session identifier, for tracing an entry back to the conversation that produced it."
+        },
+        "excerpt": {
+          "type": "string",
+          "description": "The transcript fragment the capture was inferred from. Bounded — this is evidence for review, not a transcript archive.",
+          "maxLength": 1000
+        },
+        "tier": {
+          "type": "string",
+          "description": "How the entry was extracted. regex: `dira sniff`, cheap and lossy, always staged. semantic: the already-running Claude session filled it in via the skill. human: typed by a person. dira never embeds a model client, so there is no 'api' tier (dec-0003).",
+          "enum": ["regex", "semantic", "human"]
+        }
+      }
+    }
+  }
+}
