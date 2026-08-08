@@ -17,10 +17,17 @@ import (
 // The shape is deliberately the cheapest one that is still a proof rather than a
 // guess:
 //
-//	list the ledger                          → id and content hash for every entry
 //	read the index's own versions            → id and content hash for every row
+//	list the ledger                          → id and content hash for every entry,
+//	                                           or ids alone when there are no rows
 //	re-read exactly the entries that differ  → nothing, on a cache nobody invalidated
 //	drop rows for ids the ledger no longer has
+//
+// The first two steps are in that order because of the third word of the second
+// one. A listing's hashes exist only to be compared against rows, so when there
+// are no rows there is nothing to compare and the hash pass is a second read of
+// every file in the ledger whose answer is discarded — E1-L6-T5 measured it at
+// roughly a sixth of the in-process work of a cold `dira brief`. See list.
 //
 // After it returns, every row's version equals the hash of the bytes on disk as
 // read in this process. Because the version is a content hash rather than a
@@ -34,14 +41,17 @@ import (
 // over a 200-entry ledger against 22ms to answer from files with no cache at
 // all, so skipping it would save a quarter of what it protects.
 func (ix *Index) sync(ctx context.Context) error {
-	infos, err := ix.store.List(ctx)
-	if err != nil {
-		return &ledgerError{fmt.Errorf("index: listing the ledger: %w", err)}
-	}
-
+	// The cache's own account is read FIRST, and the order is load-bearing
+	// rather than cosmetic: it is what makes the listing below able to know
+	// whether anyone will look at the versions it is about to compute.
 	cached, err := ix.cachedVersions(ctx)
 	if err != nil {
 		return fmt.Errorf("index: reading the cache: %w", err)
+	}
+
+	infos, err := ix.list(ctx, len(cached) == 0)
+	if err != nil {
+		return &ledgerError{fmt.Errorf("index: listing the ledger: %w", err)}
 	}
 
 	tx, err := ix.db.BeginTx(ctx, nil)
@@ -179,6 +189,44 @@ func (ix *Index) sync(ctx context.Context) error {
 	}
 
 	return ix.countRows(ctx)
+}
+
+// An idLister can enumerate the ledger without hashing it. It is satisfied by
+// ledger/local's Store and is deliberately an OPTIONAL interface rather than a
+// method on ledger.Store: a backend that cannot list more cheaply than it can
+// version — the GitHub Contents API returns a sha with the listing, so it is one
+// — should not be made to implement a second method that saves it nothing.
+type idLister interface {
+	ListIDs(ctx context.Context) ([]ledger.EntryInfo, error)
+}
+
+// list enumerates the ledger, with versions unless the cache is empty.
+//
+// The versions List computes exist for exactly one purpose: to decide, per
+// entry, whether the cached row is still current. When the cache holds no rows
+// there is nothing to be current — every entry is read and parsed below whatever
+// its hash is — so on that path the version pass is a second open, read and
+// SHA-1 of every file in the ledger whose answer is discarded. E1-L6-T5
+// attributed it at roughly a sixth of the in-process work of a cold
+// `dira brief`, and this is the whole of that lane's optimisation.
+//
+// Nothing about staleness detection is weakened, and the reason is that the
+// version STORED was never the one this listing computed. sync writes
+// entry.Version() — the hash of the bytes it actually parsed — and falls back to
+// info.Version only when the store left the entry's own version empty. So the
+// rows this path writes are byte-for-byte the rows the versioned path would have
+// written, and the next run's warm reconcile compares against exactly the same
+// values. What is skipped is a question nobody asked, not a check.
+//
+// The condition is `no rows at all`, not `Rebuilt`, and that is the strict
+// version: one surviving row is enough to take the full versioned listing.
+func (ix *Index) list(ctx context.Context, cold bool) ([]ledger.EntryInfo, error) {
+	if cold {
+		if l, ok := ix.store.(idLister); ok {
+			return l.ListIDs(ctx)
+		}
+	}
+	return ix.store.List(ctx)
 }
 
 // cachedVersions is the index's own account of what it holds.

@@ -122,6 +122,40 @@ func (s *Store) Get(ctx context.Context, id string) (*ledger.Entry, error) {
 // directory in a repository people also keep notes in, and a stray README.md is
 // not ledger rot.
 func (s *Store) List(ctx context.Context) ([]ledger.EntryInfo, error) {
+	return s.list(ctx, true)
+}
+
+// ListIDs returns every entry in the ledger, sorted by id, with every
+// EntryInfo.Version left EMPTY — it reads the directory and no entry file at
+// all.
+//
+// It exists for one caller and one situation: a cache with no rows in it, which
+// index.sync reaches on a cold build and on `dira reindex`. There, every entry
+// is going to be read and parsed whatever its hash says, and the row written for
+// it takes its version from the bytes that parse produced — so the version pass
+// List performs decides nothing and costs a second open, read and SHA-1 of every
+// file in the ledger. E1-L6-T5 measured that pass at roughly a sixth of the
+// in-process work of a cold `dira brief`.
+//
+// It is deliberately NOT an optimisation of List. List's hash is the whole
+// staleness check on a warm cache (dec-0015): it is what proves a cached row
+// still matches the file, and skipping it there would be exactly the "fast path
+// that bypasses the check" internal/index's package comment says does not exist.
+// This method is only sound where there is nothing to compare against.
+//
+// The empty Version is a fact callers must read, not an oversight, and it fails
+// in the safe direction: a row stored with an empty version can never equal a
+// real file hash, so the worst a caller that misuses this can cause is a re-read
+// on the next run. It can never make a stale row look current.
+func (s *Store) ListIDs(ctx context.Context) ([]ledger.EntryInfo, error) {
+	return s.list(ctx, false)
+}
+
+// list is List and ListIDs, which differ only in whether each file is opened to
+// hash it. One implementation so the two cannot disagree about which files are
+// entries — a listing that included a file the other skipped would make the
+// cold and warm paths index different ledgers.
+func (s *Store) list(ctx context.Context, versions bool) ([]ledger.EntryInfo, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -143,6 +177,10 @@ func (s *Store) List(ctx context.Context) ([]ledger.EntryInfo, error) {
 		}
 		id, ok := strings.CutSuffix(name.Name(), ".md")
 		if !ok || !ledger.ValidID(id) {
+			continue
+		}
+		if !versions {
+			out = append(out, ledger.EntryInfo{ID: id})
 			continue
 		}
 		data, err := read(filepath.Join(dir, name.Name()))
