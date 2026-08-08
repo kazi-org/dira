@@ -1,0 +1,524 @@
+# The labelled corpus `dira sniff` is graded against.
+#
+# Provenance. Every row is drawn from one real Claude Code session — the session
+# that built this repository, 3,210 transcript records and 328KB of message text
+# — and then redacted: absolute paths, usernames, personal names and anything
+# from a private instruction file are removed or generalised. Nothing here was
+# invented to be easy, and nothing was invented to be hard. Where a sentence was
+# shortened it was shortened for width, never to change whether it should match.
+#
+# The labelling rule, stated before the labels so it can be argued with:
+#
+#   expect: decision  — a reader three weeks later would want this in the ledger.
+#                       It commits to a course AND names or implies the road not
+#                       taken. Both halves are required, because a decision with
+#                       no rejected alternative is an assertion (entry.schema.json,
+#                       `alternatives`), and staging an assertion gives the human
+#                       nothing to confirm.
+#
+#   expect: none      — everything else, including things that are genuinely
+#                       decisions but do not belong in a ledger: a tactical next
+#                       step, a restatement of an entry that already exists, a
+#                       recommendation waiting on someone else, a hypothetical, a
+#                       question, an instruction, and anything quoted out of tool
+#                       output or code.
+#
+# The second bullet is the one that matters. int-0001's failure mode is not a
+# ledger that misses a decision; it is a ledger nobody reads. A sniffer that
+# stages twenty rows a session trains its human to reject reflexively, and at
+# that point the capture loop is worth less than nothing because it also costs
+# attention. So precision is graded harder than recall here, deliberately.
+#
+# `near_miss` on a `none` row names the rule family the row brushes against. A
+# row that brushes nothing teaches nothing: it is ordinary prose, and only a
+# handful are here to prove the matcher is not simply firing on everything.
+#
+# FROZEN. corpus.sha256 holds this file's digest and every grading test checks it
+# first. The corpus was written and frozen before internal/sniff/match.go existed,
+# so the cheapest way to make a failing precision number look good — deleting the
+# rows that produce it — fails loudly instead. If a row is genuinely mislabelled,
+# change it and regenerate the digest in the same commit, and say which row and
+# why.
+
+rows:
+  # ---------------------------------------------------------------- decisions
+
+  - id: p01
+    text: "So I'll use the web-design skill, which renders real screens headlessly, rather than hand-rolling the HTML."
+    expect: decision
+    note: The canonical shape — a first-person commitment, the reason, and the road not taken in one sentence.
+
+  - id: p02
+    text: "I'll make the calls myself and flag them for review afterwards rather than stall on them."
+    expect: decision
+    note: Commitment plus an explicit rejected alternative (stalling). Real, and the kind of call worth recalling.
+
+  - id: p03
+    text: "I'll read it through the browser session instead."
+    expect: decision
+    note: Short, and the rejected road is carried entirely by "instead" — the shortest legitimate positive in the corpus.
+
+  - id: p04
+    text: "I'll resolve it by cutting element count and strengthening the anchor instead."
+    expect: decision
+    note: A design call made mid-session, with the alternative (gutting the refusals) implied by "instead".
+
+  - id: p05
+    text: "We're going with static HTML the user deploys, not a hosted renderer."
+    expect: decision
+    note: Plural commitment with the rejected option stated after a comma rather than a contrast conjunction.
+
+  - id: p06
+    text: "Let's go with the derived cache rather than a status field on the entry."
+    expect: decision
+    note: The phrase dec-0003 names first. It appears zero times in the real session, and is here because the ledger claims it.
+
+  - id: p07
+    text: "Decision: the brief is capped at 1,500 tokens forever, and drops by priority instead of truncating."
+    expect: decision
+    note: An explicit marker. A human who writes "Decision:" has already done the sniffer's job.
+
+  - id: p08
+    text: "We're not doing a daemon; the checkpoint file covers resume and costs nothing when nothing is running."
+    expect: decision
+    note: A refusal is a decision whose rejected road is the thing refused. No contrast word appears at all.
+
+  - id: p09
+    text: "I ruled out the modification-time heuristic and went with a content hash."
+    expect: decision
+    note: Past tense, explicit rejection verb. The decision is already made; the sentence is the record of it.
+
+  - id: p10
+    text: "We settled on lexical matching in the binary rather than an agent adjudicating the exit code."
+    expect: decision
+    note: '"settled on" is unambiguous commitment language, and the rejected road is named.'
+
+  - id: p11
+    text: "I'm recording the two architecture calls as one entry rather than two, since they share a reasoning core."
+    expect: decision
+    note: Commitment in the present progressive, which is how an agent narrates a decision it is executing.
+
+  - id: p12
+    text: "Let's keep the plugin manifest in this repo instead of splitting it across two."
+    expect: decision
+    note: First-person-plural imperative. "let's" is a commitment; "let me" (elsewhere in this corpus) is not.
+
+  - id: p13
+    text: "I'll hold the wave here rather than start another agent."
+    expect: decision
+    note: A real call from the session, about how much unreviewed surface to create before a human sees any of it.
+
+  - id: p14
+    text: "We're choosing Go over Elixir here, because cold-start latency is the UX and a BEAM boot will not make the budget."
+    expect: decision
+    note: The moment dec-0001 was made, written as it would have been said. Four rows below cite it instead; those are none.
+
+  - id: p15
+    text: "I won't deepen the tree further; the register is the deliverable, not the tree."
+    expect: decision
+    note: A negative commitment with the alternative spelled out in the second clause.
+
+  - id: p16
+    text: "The page ships with two pillars instead of three, because the third asserts a capability that is still an open question."
+    expect: decision
+    note: No first-person pronoun at all — the commitment is carried by "ships" plus "instead of". A hard positive.
+
+  - id: p17
+    text: "I'm dropping proof pillar two rather than softening it."
+    expect: decision
+    note: Commitment, rejected road, and a reason omitted — which is exactly what the regex tier cannot supply and a human must.
+
+  - id: p18
+    text: "The lane keeps the frozen corpus and drops the second fixture ledger instead of maintaining both."
+    expect: decision
+    note: Third-person subject with a plain commitment verb. Tests that the matcher is not keyed only on pronouns.
+
+  - id: p19
+    text: "We'll answer the name collision with measured data rather than leaving it open."
+    expect: decision
+    note: An approach decision. The road not taken (leaving it open) is what makes it ledger-worthy rather than a task.
+
+  - id: p20
+    text: "We're not shipping the hero image; the screens carry the page on their own."
+    expect: decision
+    note: A refusal with its justification. The excerpt a human reviews is the whole sentence, including the justification.
+
+  - id: p21
+    text: "I'll verify and commit the Go work myself rather than letting an agent land it."
+    expect: decision
+    note: A process decision, made once and binding for the rest of the session.
+
+  - id: p22
+    text: "Going with an allowlist rather than deleting the no-dependencies clause."
+    expect: decision
+    note: Subjectless, which is how decisions get written in commit messages and bullet lists.
+
+  - id: p23
+    text: "Decided: the disposition flow separates a bad capture from a rejected option instead of overloading one word."
+    expect: decision
+    note: The second explicit-marker row, in past tense.
+
+  - id: p24
+    text: "We'll build the cache synchronously and eat the 55ms rather than serve an uncached brief once."
+    expect: decision
+    note: A latency trade-off with both roads named. The number in it must survive into the excerpt.
+
+  - id: p25
+    text: "I'm not going to grind the same broken path through six sites."
+    expect: decision
+    note: A refusal with no contrast word and no named alternative — the rejected road is the thing being refused.
+
+  # ------------------------------------------------------------------- none
+  # Citations. The session talks about its own ledger constantly, and every one
+  # of these would stage a duplicate of an entry that already exists.
+
+  - id: n01
+    text: "`dec-0001` chose Go over Elixir and explicitly accepted the cost of abandoning the packaging pipeline."
+    expect: none
+    near_miss: citation
+    note: An entry id is the grammatical subject. This is the ledger being read back, not a decision being made.
+
+  - id: n02
+    text: "One of those is wrong, and `dec-0001` (Go over Elixir) rests on it."
+    expect: none
+    near_miss: citation
+    note: Carries the exact "X over Y" shape of a choice, about a decision made weeks earlier.
+
+  - id: n03
+    text: "`dec-0001` (Go over Elixir) survived contact with reality."
+    expect: none
+    near_miss: citation
+    note: Same shape again, in a status report. Three rows on one pattern because it fired three times in one session.
+
+  - id: n04
+    text: "Go over Elixir, logged as `dec-0001`, with the brief capped at 1,500 tokens forever."
+    expect: none
+    near_miss: citation
+    note: A summary bullet. The word "logged" is the tell that this is a reference, and no matcher here reads it.
+
+  - id: n05
+    text: "The lexical matcher decided the conflict without a model, which is what `dec-0014` requires."
+    expect: none
+    near_miss: citation
+    note: Contains "decided" and an entry id; describes code behaviour, not a decision anyone made in this session.
+
+  # Action announcements. The single most common shape in agent text: 41
+  # occurrences of "I'll <verb>" in one session, almost none of them decisions.
+
+  - id: n06
+    text: "I'll fetch that shared conversation to see what it points at."
+    expect: none
+    near_miss: commitment
+    note: First-person commitment with no road not taken. If this stages, every turn stages.
+
+  - id: n07
+    text: "I'll report when the wave lands."
+    expect: none
+    near_miss: commitment
+    note: A promise about reporting, not a choice between courses.
+
+  - id: n08
+    text: "I'll check the dependency table and come back with the answer."
+    expect: none
+    near_miss: commitment
+    note: Two committed actions, zero alternatives.
+
+  - id: n09
+    text: "Two things run in parallel: I'll recon the surfaces so the contract is concrete rather than inferred, while I draft the docs."
+    expect: none
+    near_miss: commitment+contrast
+    note: >
+      The hardest row in the corpus. It has a first-person commitment and a
+      contrast, but the contrast qualifies the quality of an artefact
+      ("concrete rather than inferred"), not the course of action. A regex
+      cannot see which noun the contrast attaches to, so this is expected to
+      cost precision rather than be caught.
+
+  - id: n10
+    text: "I'll verify from a cleared cache rather than assume it is benign twice."
+    expect: none
+    near_miss: commitment+contrast
+    note: A verification step, not a decision. Same structural trap as n09 and equally expected to cost precision.
+
+  # "let me" — an agent narrating its own next tool call. Structurally identical
+  # to "let's" and never a decision, which is why the two are separated.
+
+  - id: n11
+    text: "Let me verify the dependency claim against the lane files rather than asserting it."
+    expect: none
+    near_miss: let-me
+    note: '"let me" announces a step the agent is about to take; "let''s" (p06, p12) proposes a course to a person.'
+
+  - id: n12
+    text: "Before committing, let me validate the entries against the schema rather than assume they conform."
+    expect: none
+    near_miss: let-me
+    note: Same family. Four rows here because this phrasing recurs constantly in real agent transcripts.
+
+  - id: n13
+    text: "Now let me settle the name-collision question with actual data rather than leaving it open."
+    expect: none
+    near_miss: let-me
+    note: Contains "settle", which is decision vocabulary, inside a step announcement.
+
+  - id: n14
+    text: "Reporting zero — let me verify that is true rather than a broken check."
+    expect: none
+    near_miss: let-me
+    note: Contrast between two explanations, not between two courses.
+
+  # Hypotheticals, conditionals and questions. int-0001's named failure: a
+  # ledger of decisions nobody made.
+
+  - id: n15
+    text: "If we go with a hosted renderer, the no-servers promise stops being architectural."
+    expect: none
+    near_miss: conditional
+    note: '"go with" inside an if-clause. The sentence argues against the thing it names.'
+
+  - id: n16
+    text: "We could go with a status field on the entry, but that is what went stale in the other tools."
+    expect: none
+    near_miss: modal
+    note: '"could" is the whole difference between an option and a decision.'
+
+  - id: n17
+    text: "Suppose we don't do the semantic tier at all — capture degrades to entries typed by hand."
+    expect: none
+    near_miss: hypothetical
+    note: Named explicitly in this lane's risk line as a shape that must not stage.
+
+  - id: n18
+    text: "Should we go with SQLite or a flat index?"
+    expect: none
+    near_miss: question
+    note: A question mark is the cheapest available signal and the matcher must use it.
+
+  - id: n19
+    text: "One option is to keep the ADR mirror in the write path instead of the disposition flow."
+    expect: none
+    near_miss: option
+    note: '"One option is" explicitly frames what follows as unchosen.'
+
+  - id: n20
+    text: "It might be better to drop the second pillar rather than reword it."
+    expect: none
+    near_miss: modal
+    note: Contrast present, commitment absent.
+
+  - id: n21
+    text: "We would have gone with the mtime heuristic if the hole were only theoretical."
+    expect: none
+    near_miss: conditional
+    note: Counterfactual, past tense, with a real decision's vocabulary.
+
+  - id: n22
+    text: "Maybe we drop the ADR mirror and let the entry stand on its own."
+    expect: none
+    near_miss: modal
+    note: '"Maybe" in front of a sentence that would otherwise be a clean positive.'
+
+  - id: n23
+    text: "We will decide later whether the recorded revisit triggers get a watch."
+    expect: none
+    near_miss: deferral
+    note: An explicit deferral, which contains the word "decide" and decides nothing.
+
+  - id: n24
+    text: "Whether the brief inherits personal focus or only references it is still unresolved."
+    expect: none
+    near_miss: question
+    note: An open question in declarative clothing. Staging this as a decision would assert an answer.
+
+  # Reports of someone else's decision, and deferrals to a human.
+
+  - id: n25
+    text: "You picked the scaffold-only option, so I did not file them."
+    expect: none
+    near_miss: second-person
+    note: >
+      A real decision, made by a person, reported back. Second-person reports
+      are excluded on purpose: the sniffer cannot tell a restatement from a
+      fresh call, and this session restated far more than it decided.
+
+  - id: n26
+    text: "You sequenced the UI first, and the launch plan can reference real screens instead of imagining them."
+    expect: none
+    near_miss: second-person
+    note: Second-person report carrying a contrast. Excluded for the same reason as n25.
+
+  - id: n27
+    text: "This is the phase-one gate — your call."
+    expect: none
+    near_miss: deferral
+    note: 'The opposite of a decision: an explicit handoff of one.'
+
+  - id: n28
+    text: "Needs a call: extend the epic's scope, or add a fifth lane."
+    expect: none
+    near_miss: option
+    note: Two named roads and nobody has taken either.
+
+  - id: n29
+    text: "One decision I am handing to the next lane rather than making silently."
+    expect: none
+    near_miss: deferral
+    note: A section heading. First person, contrast, and the word "decision" — and an explicit refusal to decide.
+
+  - id: n30
+    text: "The interface supports either with no change, but the next lane should choose explicitly rather than inherit a default."
+    expect: none
+    near_miss: deferral
+    note: A recommendation aimed at a future reader.
+
+  # Recommendations. Advice is not a decision until somebody takes it.
+
+  - id: n31
+    text: "Recommend static HTML the user deploys, so no infrastructure is needed at all."
+    expect: none
+    near_miss: recommendation
+    note: Verb-first recommendation with no subject committing to anything.
+
+  - id: n32
+    text: "I would recommend the real thing, because cross-lab disagreement is what an internal panel cannot fabricate."
+    expect: none
+    near_miss: recommendation
+    note: '"would recommend" is doubly hedged and still reads decisive.'
+
+  - id: n33
+    text: "One of the two lanes should drop the task."
+    expect: none
+    near_miss: modal
+    note: '"should" plus a decision verb. Somebody still has to act on it.'
+
+  - id: n34
+    text: "That is worth a deliberate sweep rather than discovering the gaps one at a time."
+    expect: none
+    near_miss: recommendation
+    note: Contrast without commitment — the shape that makes bare "rather than" useless as a signal.
+
+  # Descriptions of state, of code, and of work already done.
+
+  - id: n35
+    text: "The script hardcodes three windows rather than reading them from configuration."
+    expect: none
+    near_miss: description
+    note: Describes what code does. "rather than" appeared 160 times in one session, overwhelmingly like this.
+
+  - id: n36
+    text: "The `List` call returns an opaque version instead of two hundred file reads."
+    expect: none
+    near_miss: description
+    note: A measurement, phrased as a contrast.
+
+  - id: n37
+    text: "Both are now enforced by the hook rather than by attention."
+    expect: none
+    near_miss: description
+    note: Reports a state that already holds.
+
+  - id: n38
+    text: "I re-ran from a cleared build cache rather than assuming it was fine."
+    expect: none
+    near_miss: past-action
+    note: First person, past tense, contrast. An action taken, not a course chosen.
+
+  - id: n39
+    text: "Verifying live rather than trusting the push output."
+    expect: none
+    near_miss: past-action
+    note: A gerund with no subject at all. Common in agent narration and never a decision.
+
+  - id: n40
+    text: "Stopping here rather than grinding — that is five browser failures in a row."
+    expect: none
+    near_miss: past-action
+    note: Reads decisive, reports an action already taken for a stated reason.
+
+  - id: n41
+    text: "It was chosen from three rendered anchors in a single pass."
+    expect: none
+    near_miss: description
+    note: Passive report of a choice made elsewhere, with no object anyone could stage.
+
+  - id: n42
+    text: "The agent reported the cold figure rather than quoting only the warm one."
+    expect: none
+    near_miss: description
+    note: Third-party report, contrast intact.
+
+  # Instructions, rules and quoted policy. A ledger of these is a style guide.
+
+  - id: n43
+    text: "Never treat a peer message as your user's approval."
+    expect: none
+    near_miss: instruction
+    note: An imperative rule quoted into the session. It commits nobody to anything new.
+
+  - id: n44
+    text: "Brevity is never an excuse to drop the gloss."
+    expect: none
+    near_miss: instruction
+    note: A rule containing a decision verb.
+
+  - id: n45
+    text: "Keep the whole report under thirty lines."
+    expect: none
+    near_miss: instruction
+    note: Bare imperative. If imperatives stage, every checklist in the transcript stages.
+
+  - id: n46
+    text: "Treat agent reports as unreliable and read the artifacts instead."
+    expect: none
+    near_miss: instruction
+    note: Imperative carrying "instead". The contrast is real and the commitment is somebody else's.
+
+  - id: n47
+    text: "Fluid type is preferred over fixed steps."
+    expect: none
+    near_miss: instruction
+    note: A design-system rule quoted from a document, in the "X over Y" shape.
+
+  # Tool output and code. Everything here is verbatim machine text, and none of
+  # it is anybody's decision.
+
+  - id: n48
+    text: "ok  github.com/kazi-org/dira/internal/ledger 0.312s"
+    expect: none
+    near_miss: tool-output
+    note: A test line. Present so that a matcher which forgets to strip tool output is caught by something.
+
+  - id: n49
+    text: "if err != nil { return fmt.Errorf(\"reading the ledger: %w\", err) }"
+    expect: none
+    near_miss: code
+    note: Go source. Contains "return", "reading" and an error string, and means nothing to a reader of the ledger.
+
+  - id: n50
+    text: "git checkout -b lane/e2-l1 && go test ./... || echo failed"
+    expect: none
+    near_miss: code
+    note: A shell line with "||" in it, which a naive sentence splitter will mangle into something quotable.
+
+  # Ordinary prose. Not near-misses — here to prove the matcher is not simply
+  # firing on everything with a verb in it.
+
+  - id: n51
+    text: "The topbar keeps the wordmark, the breadcrumb, and the staged count."
+    expect: none
+    note: Plain description with no decision vocabulary anywhere.
+
+  - id: n52
+    text: "Nine commits, every gate enforced by the pre-commit hook."
+    expect: none
+    note: A status line.
+
+  - id: n53
+    text: "Measured 63 entries over 35 distinct references, with four runs across four worktrees."
+    expect: none
+    note: Contains the word "over" between two nouns, which is the choice pattern's cheapest false friend.
+
+  - id: n54
+    text: "The needle crosses over the numeral at the 43 per cent mark."
+    expect: none
+    note: '"crosses over" — a second bare "over" that is not a comparison at all.'

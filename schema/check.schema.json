@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kazi-org/dira/schema/check.schema.json",
+  "title": "dira check --json",
+  "description": "The machine-readable verdict of `dira check`. This is a published contract: a pre-commit hook, a CI step or a coding agent parses it to decide whether a plan contradicts something the ledger already settled. The exit code is the primary signal (0 compliant, 2 at least one cited conflict, 1 dira's own error) and is repeated here so a caller holding only stdout still knows what it is looking at. Two rules below are security rules rather than shape rules, and are expressed as schema constraints so that a leak fails validation rather than review: a private entry is cited by reference and never by text (cst-0003), and no basis other than an alternative may carry a revisit condition, because entry.schema.json gives `revisit_if` only to `$defs/alternative` (docs/design.md §7).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["plan", "verdict", "exit_code", "enforced_entries", "conflicts", "notices"],
+  "properties": {
+    "plan": {
+      "type": "string",
+      "description": "The candidate text that was checked, as it was given."
+    },
+    "verdict": {
+      "enum": ["compliant", "conflict"],
+      "description": "Whether the plan contradicts anything the ledger enforces."
+    },
+    "exit_code": {
+      "enum": [0, 2],
+      "description": "The process exit code this verdict produced. 1 is dira's own failure and never appears in a document, because a run that failed produced no verdict to serialise."
+    },
+    "enforced_entries": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many entries were eligible to be cited. Reported because \"no conflict\" against a ledger the check failed to read is indistinguishable from \"no conflict\" against one it read in full, and only one of those is an answer."
+    },
+    "conflicts": {
+      "type": "array",
+      "description": "The citations, strongest first and then by entry id. The order is total, so two runs over the same ledger produce the same document.",
+      "items": { "$ref": "#/$defs/conflict" }
+    },
+    "notices": {
+      "type": "array",
+      "description": "Matches against thinking this ledger has retired, redirected to whatever replaced it. Informational and never a verdict: a notice cannot change `verdict` or `exit_code`, because the entry it came from is superseded and a superseded entry enforces nothing. It exists so supersession moves enforcement rather than silently dropping it — a plan that would have been refused before gets told where the thinking went instead of a bare compliant verdict.",
+      "items": { "$ref": "#/$defs/notice" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "verdict": { "const": "conflict" } }, "required": ["verdict"] },
+      "then": {
+        "properties": {
+          "conflicts": { "minItems": 1 },
+          "exit_code": { "const": 2 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "verdict": { "const": "compliant" } }, "required": ["verdict"] },
+      "then": {
+        "properties": {
+          "conflicts": { "maxItems": 0 },
+          "exit_code": { "const": 0 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9_-]*:)?(int|dec|qst|cst|note)-[0-9]{4,}$",
+      "description": "An entry reference, optionally namespaced by a ledger name. Matches the `$defs/ref` pattern in entry.schema.json."
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["superseded_by", "replacement_enforced", "basis", "score"],
+      "description": "One redirect. It names the entry that replaced the retired one and deliberately does not name the retired one itself: the replacement is what is enforced now, what carries the `supersedes` edge back, and what `dira why` should be pointed at, so it is the only id in the line worth acting on.",
+      "properties": {
+        "superseded_by": {
+          "oneOf": [{ "$ref": "#/$defs/ref" }, { "type": "null" }],
+          "description": "The entry recorded as having replaced the one the plan matched. Null where the record names none — a state flipped to `superseded` with no `supersedes` edge pointing at it, which is a broken record rather than a successor this document may invent."
+        },
+        "replacement_enforced": {
+          "type": "boolean",
+          "description": "Whether that replacement is itself enforcement substrate. False for a replacement that is staged, superseded in its turn, or of a kind the check never matches — and false always where there is none. A redirect that claimed otherwise would send a caller to an entry that will not stop them either."
+        },
+        "basis": {
+          "enum": ["alternative", "decision", "constraint"],
+          "description": "What inside the retired entry was matched, on the same vocabulary a citation uses."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The overlap that produced the notice, rounded to three decimals. Advisory, on the same footing as a conflict's score."
+        }
+      },
+      "allOf": [
+        {
+          "description": "A replacement that does not exist cannot be enforced.",
+          "if": { "properties": { "superseded_by": { "type": "null" } }, "required": ["superseded_by"] },
+          "then": { "properties": { "replacement_enforced": { "const": false } } }
+        }
+      ]
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "kind", "state", "private", "basis", "revisit_if", "supersede", "score"],
+      "properties": {
+        "entry": { "$ref": "#/$defs/ref" },
+        "kind": {
+          "enum": ["decision", "constraint"],
+          "description": "The kinds that are enforcement substrate. An intent, a question and a note are never matched independently."
+        },
+        "state": {
+          "enum": ["accepted", "rejected", "active"],
+          "description": "The enforced states. A staged decision is an unconfirmed regex-tier guess and is never cited (dec-0003); a superseded entry is not enforced here."
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "When the entry last changed, or when it was created if it has not. Absent only for an entry whose record carries no usable timestamp."
+        },
+        "private": {
+          "type": "boolean",
+          "description": "True when the entry is cited by reference only. The rule is unconditional rather than context-dependent: the binary cannot classify its own stdout, because a pipe into a pull-request body looks exactly like a terminal."
+        },
+        "basis": {
+          "enum": ["alternative", "decision", "constraint"],
+          "description": "What inside the entry was matched: a road the decision did not take, a rejected decision's own subject, or a standing rule."
+        },
+        "title": { "type": "string" },
+        "rejected_alternative": {
+          "type": "string",
+          "description": "The `alternatives[].option` text the plan proposes again."
+        },
+        "why_not": {
+          "type": "string",
+          "description": "That alternative's recorded reason, whitespace-collapsed out of its YAML folded scalar."
+        },
+        "revisit_if": {
+          "type": ["string", "null"],
+          "description": "The condition under which the door legitimately reopens. Null means none is recorded — and for a constraint or a rejected decision's own subject it is null always, because that kind has no field to carry one. Null is never \"never\": `supersede` is the remedy that always exists."
+        },
+        "supersede": {
+          "$ref": "#/$defs/ref",
+          "description": "The entry to supersede, in writing, to change what is enforced. Always the cited entry."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The overlap that produced the citation, rounded to three decimals. Advisory: the verdict is already decided by the time a conflict exists, and this number moves whenever the matcher is retuned. Do not branch on it."
+        }
+      },
+      "allOf": [
+        {
+          "description": "cst-0003: a private entry is cited by ref and never by text, in every mode including this one.",
+          "if": { "properties": { "private": { "const": true } }, "required": ["private"] },
+          "then": {
+            "required": ["revisit_if"],
+            "properties": { "revisit_if": { "type": "null" } },
+            "not": {
+              "anyOf": [
+                { "required": ["title"] },
+                { "required": ["rejected_alternative"] },
+                { "required": ["why_not"] }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only an alternative can carry a revisit condition or an option text.",
+          "if": {
+            "properties": { "basis": { "not": { "const": "alternative" } } },
+            "required": ["basis"]
+          },
+          "then": {
+            "properties": { "revisit_if": { "type": "null" } },
+            "not": {
+              "anyOf": [
+                { "required": ["rejected_alternative"] },
+                { "required": ["why_not"] }
+              ]
+            }
+          }
+        },
+        {
+          "description": "A non-private alternative citation must quote what was proposed and why it was refused. A citation with neither is an assertion.",
+          "if": {
+            "properties": {
+              "basis": { "const": "alternative" },
+              "private": { "const": false }
+            },
+            "required": ["basis", "private"]
+          },
+          "then": { "required": ["title", "rejected_alternative", "why_not"] }
+        }
+      ]
+    }
+  }
+}

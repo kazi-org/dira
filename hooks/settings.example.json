@@ -1,0 +1,107 @@
+{
+  "//": [
+    "Example Claude Code hook configuration for dira. Merge these entries into",
+    "~/.claude/settings.json (or a project .claude/settings.json) — do not replace",
+    "the file, since other tools register hooks here too.",
+    "",
+    "`dira install-hooks` will do this merge for you once the binary exists; this",
+    "file documents what it writes, so the wiring is reviewable rather than magic.",
+    "",
+    "It must match the contract kazi's `install-hooks` already proved (cli.ex:440,",
+    "ADR-0071/ADR-0076): merge-never-clobber, idempotent, the operator's own hooks",
+    "and keys survive byte-identically, `--uninstall` removes exactly what was added,",
+    "and `--local` targets the repo's uncommitted .claude/settings.local.json rather",
+    "than the user-level file. Clobbering a hand-tuned settings file is a failure",
+    "mode kazi already solved; do not rediscover it.",
+    "",
+    "The three hook points are chosen deliberately — see docs/design.md §5.1.",
+    "Every command must be fast and must fail open: a dira error must never block",
+    "a session. Hence `|| true` on the capture hooks and a hard timeout on all three."
+  ],
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "//": [
+          "Inversion 2 — review is push, not pull. Injects the brief into Claude's",
+          "context so both parties are oriented before the first prompt. --context",
+          "renders the agent-facing form; bare `dira brief` is the human-facing one.",
+          "--chain walks the tier parents (repo -> workspace -> personal) so a",
+          "session in one repo knows the current focus might be elsewhere (§8.2).",
+          "Output is hard-capped at 1,500 tokens by cst-0001, enforced in-binary."
+        ],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira brief --context --chain 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "//": [
+          "Tier-1 capture. Regex-only, offline, deterministic, lossy. Anything it",
+          "finds is written `state: staged` with `source.tier: regex` and waits for",
+          "disposition — a regex has no business asserting rationale (dec-0003).",
+          "--quiet prints nothing when there is nothing staged, so the common case",
+          "adds no noise to the transcript."
+        ],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira sniff --stage --quiet 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+
+    "PreCompact": [
+      {
+        "//": [
+          "The insurance policy. Fires immediately before Claude Code's lossiest",
+          "moment, so a four-hour brainstorm cannot evaporate into a compaction",
+          "summary. --deep runs the same regex pass --stage does, through the same",
+          "may-only-ever-stage writer, and additionally emits the handoff block the",
+          "semantic tier works from. No API key is involved anywhere (dec-0003).",
+          "",
+          "CORRECTION, dec-0023. This comment used to say --deep 'asks the live",
+          "session (via the skill) to fill in the because, the rejected",
+          "alternatives, and the derives_from edge'. It cannot, and never could.",
+          "PreCompact is not one of the events whose stdout is delivered to the",
+          "model, and it carries no hookSpecificOutput.additionalContext. What it",
+          "does on exit 0 is append stdout to the COMPACTION SUMMARISER's prompt —",
+          "a one-turn call explicitly told that tool calls will be rejected. So the",
+          "block's only reader here cannot run `dira log`, and the failure is",
+          "silent: everything exits 0 and no entry is ever written. dec-0023 has",
+          "the quoted evidence.",
+          "",
+          "What still holds: tier 1 loses nothing. Every candidate the regex pass",
+          "finds is staged from this hook exactly as it would be from Stop, which",
+          "is what makes this an insurance policy rather than a gamble.",
+          "",
+          "What has to move: the handoff's DELIVERY, not its capture. PreCompact is",
+          "the only point at which the about-to-be-compacted transcript still",
+          "exists, so the capture stays here. Stop accepts additionalContext and is",
+          "already wired above; SessionStart injects context and its matcher list",
+          "includes 'compact'. E2-L2 owns choosing between them — until it lands,",
+          "read this hook as tier-1 capture that also prints a block, and not as a",
+          "working tier-2 handoff.",
+          "",
+          "Longer timeout than the others because this one is worth waiting for,",
+          "and it happens rarely."
+        ],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dira sniff --deep --stage --all 2>/dev/null || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+=== dira handoff, tier 2 ===
+
+dira sniff staged 3 decisions. Tier 1 records no because, no alternative
+and no edge (dec-0003):
+
+  dec-0001  We settled on lexical matching in the binary…
+  dec-0002  we're going with static HTML the user deploys…
+  dec-0003  I'll hold the wave here rather than start…
+
+If you can call tools, supply alternatives, why_not and derives_from
+from what was actually said. Never invent one. One call per id:
+
+  dira log --kind decision --state staged --tier semantic --hook PreCompact \
+    --title '<one line>' --body '<the because, in the words used>' \
+    --alternative '<the road not taken>' --why-not '<why it lost>' \
+    --edge derives_from=dec-0001 --excerpt '<the sentence>'
+
+If you cannot call tools, you are summarising for compaction: carry
+this block into the summary unchanged. Nothing else carries the ids
+across it (dec-0023).
+
+=== end dira handoff ===

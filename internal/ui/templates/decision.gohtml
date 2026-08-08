@@ -1,0 +1,148 @@
+{{- /*
+S1 — THE DECISION PAGE, served. The markup mirrors
+docs/design/screens/s1-decision.html element for element and class for class;
+the stylesheet is the same file, served from the binary.
+
+Everything a ledger supplies goes through html/template's contextual escaping.
+A ledger entry is untrusted text — a decision body can contain anything, and a
+`why_not` is prose an agent wrote — so nothing here is template.HTML except the
+.node wrappers, which are generated from an integer and a constant string.
+
+No <script>. dec-0012 makes crawlability an acceptance criterion, and this page
+renders complete with JavaScript disabled. The alternatives collapse with
+<details>, which is markup, not a runtime.
+*/ -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>{{ .Title }}</title>
+<meta name="description" content="{{ .Description }}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ .Ruling }}">
+<meta property="og:description" content="{{ .Description }}">
+<meta property="og:site_name" content="dira - decision memory for AI coding agents">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/decision.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="/">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/">ledger</a> · {{ .ID }}</nav>
+  <span class="spacer"></span>
+  <span class="crumb">decision memory for AI coding agents</span>
+</header>
+
+<main class="wrap">
+
+  <div class="invoke"><span class="p">$</span><span class="c">dira why</span><span class="a">{{ .Query }}</span></div>
+
+  <section class="chain" aria-label="Why-chain">
+{{- range .Chain }}
+    {{ .OpenTags }}<div class="row"><span class="{{ .Class }}">{{ .Lead }}</span>{{ if .Text }}<span class="{{ .TextClass }}">{{ .Text }}</span>{{ end }}{{ if .Right }}<span class="lo">{{ .Right }}</span>{{ end }}</div>{{ .CloseTags }}
+{{- end }}
+  </section>
+
+  <section class="chain-stack" aria-label="Why-chain">
+{{- range .Stack }}
+    <div class="{{ .Class }}">{{ if .Mark }}<span class="m no">{{ .Mark }}</span>{{ end }}{{ if .Key }}<span class="k">{{ .Key }}</span>{{ end }}{{ if .Value }}<span class="v">{{ .Value }}</span>{{ end }}</div>
+{{- end }}
+  </section>
+
+  <div class="body">
+    <article>
+      <div class="tagrow">
+        <span class="chip chip-id">{{ .ID }}</span>
+        <span class="chip chip-accepted">◆ {{ .State }}</span>
+        <span class="chip chip-date">{{ .Date }}</span>
+      </div>
+{{- if .Arising }}
+      <p class="arising">Arising from {{ if .Arising.Href }}<a href="{{ .Arising.Href }}">{{ .Arising.Key }}</a>{{ else }}<span class="whref">{{ .Arising.Key }}</span>{{ end }}{{ if .Arising.Value }} — {{ .Arising.Value }}{{ end }}</p>
+{{- end }}
+      <h1 class="ruling">{{ .Ruling }}</h1>
+{{- range .Because }}
+      <p class="because">{{ if .Heading }}<b>{{ .Text }}</b>{{ else }}{{ .Text }}{{ end }}</p>
+{{- end }}
+
+      <section class="args">
+        <h2 class="seclabel">Alternatives on record — {{ len .Alternatives }}</h2>
+{{- if .NoAlternatives }}
+        <p class="because">{{ .NoAlternatives }}</p>
+{{- end }}
+{{- /*
+   dec-0019: there is no upheld card. `alternatives` records the roads NOT
+   taken, so the chosen one has no field to live in; the ruling above carries
+   it. Every row here is a refusal, struck through with its one-line ground
+   always visible and the rest of the ground one keystroke away (dec-0017).
+*/}}
+{{- range .Alternatives }}
+
+        <details class="alt"{{ if .Open }} open{{ end }}>
+          <summary>
+            <span class="line1"><span class="caret" aria-hidden="true">▸</span><span class="mark">✗</span><span class="name">{{ .Option }}</span><span class="tag">refused</span></span>
+            <span class="one">{{ .One }}</span>
+          </summary>
+          <div class="detail">
+{{- if .Grounds }}
+            <p class="grounds">{{ .Grounds }}</p>
+{{- else }}
+            <p class="grounds">{{ .One }}</p>
+{{- end }}
+{{- if .RevisitIf }}
+            <p class="revisit"><b>revisit if</b>{{ .RevisitIf }}</p>
+{{- end }}
+          </div>
+        </details>
+{{- end }}
+      </section>
+    </article>
+
+    <aside class="rail">
+      <div class="card">
+        <h3>What this is</h3>
+        <p class="what"><b>Nobody typed this page.</b> A coding agent recorded
+          it while the work happened, and reads it back at the start of the next session.</p>
+        <p class="key"><b>int-</b> an intent ·
+          <b>dec-</b> a decision ·
+          <b>qst-</b> an open question</p>
+      </div>
+{{- if .Edges }}
+      <div class="card">
+        <h3>Edges</h3>
+{{- range .Edges }}
+        <div class="kv"><span class="k">{{ .Key }}</span>{{ if .Href }}<a href="{{ .Href }}">{{ .Value }}</a>{{ else }}<span class="whrail">{{ .Value }}</span>{{ end }}</div>
+{{- end }}
+      </div>
+{{- end }}
+{{- if .Drift }}
+      {{- /* the only red on this page, and it is attributed rather than bare:
+             unattributed red on the surface a stranger lands on reads as "this
+             page is broken". Naming the actor turns the alarm into the one
+             inversion the page otherwise never shows — the record argues. */}}
+      <div class="drift">
+        <h3>⚠ dira flagged this</h3>
+        <p>{{ range $i, $id := .Drift }}{{ if $i }}, {{ end }}<b>{{ $id }}</b>{{ end }}
+          {{ if eq (len .Drift) 1 }}is{{ else }}are{{ end }} active work with no recorded purpose. dira raises it
+          unprompted — nobody asked it to check.</p>
+      </div>
+{{- end }}
+    </aside>
+  </div>
+
+  <div class="everydec">
+    <p>Every decision in this repo is recorded like this one.</p>
+    <a href="https://github.com/kazi-org/dira" rel="noopener">Keep your own →</a>
+  </div>
+
+  <footer class="made">
+    <span>{{ .Total }} entries · <a href="/">see the whole graph</a></span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span>kept with <a href="https://github.com/kazi-org/dira" rel="noopener">dira</a>, written by an agent, read by one</span>
+  </footer>
+</main>
+</body>
+</html>
