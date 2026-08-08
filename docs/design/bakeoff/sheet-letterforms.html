@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Bake-off — letterforms 3x</title>
+<link rel="stylesheet" href="_snapshot/tokens.css">
+<style>
+
+@font-face { font-family: "BO-p052"; src: url("fonts/p052-regular.core.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-p052"; src: url("fonts/p052-italic.core.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+@font-face { font-family: "BO-p052"; src: url("fonts/p052-bold.core.woff2") format("woff2"); font-weight: 600 700; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-pagella"; src: url("fonts/pagella-regular.core.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-pagella"; src: url("fonts/pagella-italic.core.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+@font-face { font-family: "BO-pagella"; src: url("fonts/pagella-bold.core.woff2") format("woff2"); font-weight: 600 700; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-sourceserif4"; src: url("fonts/sourceserif4-regular.core.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-sourceserif4"; src: url("fonts/sourceserif4-italic.core.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+@font-face { font-family: "BO-sourceserif4"; src: url("fonts/sourceserif4-bold.core.woff2") format("woff2"); font-weight: 600 700; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-newsreader"; src: url("fonts/newsreader-regular.core.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-newsreader"; src: url("fonts/newsreader-italic.core.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+@font-face { font-family: "BO-newsreader"; src: url("fonts/newsreader-bold.core.woff2") format("woff2"); font-weight: 600 700; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-literata"; src: url("fonts/literata-regular.core.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "BO-literata"; src: url("fonts/literata-italic.core.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+@font-face { font-family: "BO-literata"; src: url("fonts/literata-bold.core.woff2") format("woff2"); font-weight: 600 700; font-style: normal; font-display: block; }
+.face-control { font-family: "Palatino","Palatino Linotype","Book Antiqua",Georgia,serif; }
+.face-p052 { font-family: "BO-p052", serif; }
+.face-pagella { font-family: "BO-pagella", serif; }
+.face-sourceserif4 { font-family: "BO-sourceserif4", serif; }
+.face-newsreader { font-family: "BO-newsreader", serif; }
+.face-literata { font-family: "BO-literata", serif; }
+body { background: var(--ground); color: var(--ink); width: 1240px; }
+.sheet { padding: var(--s6) var(--s5) var(--s7); }
+h1.sheet-title { font-family: var(--ui); font-size: 15px; font-weight: 600; letter-spacing: .02em;
+  color: var(--ink); margin-bottom: var(--s2); }
+p.sheet-sub { font-family: var(--ui); font-size: 12.5px; color: var(--ink-low); max-width: 78ch;
+  margin-bottom: var(--s6); line-height: 1.6; }
+.spec { border-top: 1px solid var(--rule); padding-top: var(--s3); margin-bottom: var(--s6); }
+.spec:last-child { margin-bottom: 0; }
+.spec .who { font-family: var(--ui); font-size: 11px; letter-spacing: .13em; text-transform: uppercase;
+  font-weight: 600; color: var(--bearing); margin-bottom: 2px; }
+.spec .note { font-family: var(--mono); font-size: 11px; color: var(--ink-low); margin-bottom: var(--s4); }
+.spec .metric { font-family: var(--mono); font-size: 11px; color: var(--ink-mid); margin-top: var(--s2); }
+
+.big { font-size: 49.5px; line-height: 1.35; color: var(--ink); white-space: nowrap; }
+.pangram { font-size: 26px; color: var(--ink-mid); margin-top: 6px; white-space: nowrap; }
+</style></head><body><div class="sheet">
+<h1 class="sheet-title">dira serif bake-off — letterforms at 3×</h1>
+<p class="sheet-sub">One line of the real <code>.grounds</code> prose, re-rendered at 49.5px — three times the 16.5px it ships at.
+This is a true optical enlargement, not a pixel zoom: what you are looking at is the letterform, not the rasteriser.
+Second line in each block carries the characters that separate these faces — <b>a g y e R Q &amp; 1 0</b> — plus the italic and the 600.</p>
+<section class="spec">
+  <div class="who">CONTROL — Palatino stack as it ships today</div>
+  <div class="note">macOS only. Stock Linux gets DejaVu Serif.</div>
+  <div class="face-control">
+    <div class="big face-control">Free CI and free distribution is a real saving</div>
+    <div class="pangram face-control">agyeRQ&amp;10 · <i>italic grounds</i> · <b style="font-weight:600">upheld</b> · “curly” — dash ×</div>
+  </div>
+</section>
+<section class="spec">
+  <div class="who">URW P052</div>
+  <div class="note">Palatino metric clone · AGPL-3.0 + PS/PDF-only exception</div>
+  <div class="face-p052">
+    <div class="big face-p052">Free CI and free distribution is a real saving</div>
+    <div class="pangram face-p052">agyeRQ&amp;10 · <i>italic grounds</i> · <b style="font-weight:600">upheld</b> · “curly” — dash ×</div>
+  </div>
+</section>
+<section class="spec">
+  <div class="who">TeX Gyre Pagella</div>
+  <div class="note">Palatino metric clone · GUST Font Licence (LPPL 1.3c)</div>
+  <div class="face-pagella">
+    <div class="big face-pagella">Free CI and free distribution is a real saving</div>
+    <div class="pangram face-pagella">agyeRQ&amp;10 · <i>italic grounds</i> · <b style="font-weight:600">upheld</b> · “curly” — dash ×</div>
+  </div>
+</section>
+<section class="spec">
+  <div class="who">Source Serif 4</div>
+  <div class="note">OFL 1.1 · screen-designed, contemporary</div>
+  <div class="face-sourceserif4">
+    <div class="big face-sourceserif4">Free CI and free distribution is a real saving</div>
+    <div class="pangram face-sourceserif4">agyeRQ&amp;10 · <i>italic grounds</i> · <b style="font-weight:600">upheld</b> · “curly” — dash ×</div>
+  </div>
+</section>
+<section class="spec">
+  <div class="who">Newsreader</div>
+  <div class="note">OFL 1.1 · long-form screen reading, editorial</div>
+  <div class="face-newsreader">
+    <div class="big face-newsreader">Free CI and free distribution is a real saving</div>
+    <div class="pangram face-newsreader">agyeRQ&amp;10 · <i>italic grounds</i> · <b style="font-weight:600">upheld</b> · “curly” — dash ×</div>
+  </div>
+</section>
+<section class="spec">
+  <div class="who">Literata</div>
+  <div class="note">OFL 1.1 · long-form screen reading, sturdier</div>
+  <div class="face-literata">
+    <div class="big face-literata">Free CI and free distribution is a real saving</div>
+    <div class="pangram face-literata">agyeRQ&amp;10 · <i>italic grounds</i> · <b style="font-weight:600">upheld</b> · “curly” — dash ×</div>
+  </div>
+</section>
+</div></body></html>

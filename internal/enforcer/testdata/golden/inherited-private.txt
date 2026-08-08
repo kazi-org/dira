@@ -1,0 +1,2 @@
+✗ conflicts with me:cst-0001 (active, private — cited by reference only)
+→ me:cst-0001 is enforced by the parent ledger me; supersede it there, or revise the plan

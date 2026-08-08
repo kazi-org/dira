@@ -1,0 +1,35 @@
+int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-29
+          daemon
+            files-in-git is what lets there be no server
+└─ dec-0002  One file per entry, not an append-only JSONL    accepted 2026-07-29
+             ledger
+   ├─ ✗ Append-only .dira/ledger.jsonl with a SQLite cache, following Beads
+   │    Every concurrent writer appends at the same offset, so two sessions
+   │    logging in the same minute produce a conflict on the same line of the
+   │    same file — and the merge resolution for an append log is exactly the
+   │    case git handles worst. It also forces a whole-file read-modify-write
+   │    through the GitHub API, which makes the phone a second-class client for
+   │    no gain. The mobile and multi-session designs both quietly assume
+   │    per-entry files; JSONL was the earlier sketch and does not survive them.
+   │    revisit if  entry volume grows past roughly 10k per ledger, where
+   │                per-file overhead starts to dominate — at which point
+   │                compaction into periodic archive files is additive, not a
+   │                schema change
+   ├─ ✗ A single YAML or TOML document holding all entries
+   │    Same line-level conflict problem as JSONL, plus the whole ledger has to
+   │    be parsed to read one entry, and a malformed edit takes down the entire
+   │    ledger instead of one file.
+   └─ ✗ SQLite as the source of truth, with git storing the .db file
+        A binary blob in git is unreviewable and unmergeable. It also breaks the
+        property that makes dira trustworthy — that the record is human-readable
+        text you can `git log -p` and read without dira installed.
+
+edges
+  informs     dec-0005  A storage interface (local FS | GitHub API) is committed
+                        to before the first surface ships
+                          a single-file mutation is what makes the GitHub API
+                          backend viable
+  derived by  dec-0015  The derived cache stays honest by content hash, not by
+                        modification time
+                          "if the cache and the files ever disagree, the files
+                          win" is a guarantee, and this is what makes it one
