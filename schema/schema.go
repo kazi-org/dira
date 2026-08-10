@@ -2,23 +2,32 @@
 // validator that keeps a ledger from drifting away from it.
 //
 // The schema is the contract; the Go types in internal/ledger are one
-// implementation of it. Nothing in the dira command path imports this package:
-// JSON Schema validation costs a compile of the schema document on every
-// invocation, which int-0002's budget cannot absorb. It is a gate for tests and
-// for `dira check`-shaped work that is already paying for a full ledger read.
+// implementation of it. Nothing in the dira command path imports this package,
+// and cmd/dira/build_test.go fails if that changes: importing it links
+// santhosh-tekuri/jsonschema, whose package init costs milliseconds and ~21,700
+// allocations before main runs, on every invocation, whether or not anything is
+// validated. int-0002's budget cannot absorb that on a hook that fires on every
+// tool call. This package is a gate for tests and for `dira check`-shaped work
+// that is already paying for a full ledger read.
+//
+// That claim was false for a while, which is why it now names the test that
+// keeps it honest: internal/ledger imported this package for SplitFrontmatter
+// alone, and the validator rode along. The split now lives in
+// internal/frontmatter, which depends on nothing; the two names below are kept
+// here, forwarding to it, because they are published API.
 package schema
 
 import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"gopkg.in/yaml.v3"
+
+	"github.com/kazi-org/dira/internal/frontmatter"
 )
 
 // Schema is entry.schema.json, embedded so a validator never depends on the
@@ -32,7 +41,12 @@ var Schema []byte
 // ErrNoFrontmatter marks a file that is not an entry at all, as opposed to an
 // entry that is wrong. The distinction matters: the first is a stray file, the
 // second is ledger rot, and only the second should fail a ledger-wide gate.
-var ErrNoFrontmatter = errors.New("no YAML frontmatter")
+//
+// It is frontmatter.ErrMissing, not a copy of it: a caller that got its error
+// from internal/frontmatter and one that got it from here have to agree under
+// errors.Is, or moving the split out of this package would have quietly broken
+// every caller that tells a stray file from a broken one.
+var ErrNoFrontmatter = frontmatter.ErrMissing
 
 // schemaURL is the $id entry.schema.json declares. Registering the document
 // under its own $id is what stops the compiler reaching the network to resolve
@@ -90,28 +104,13 @@ func (v *Validator) Validate(entryFile []byte) error {
 // markdown body that follows it. An entry opens with a `---` line and closes
 // the block with another; everything after the closing delimiter is the body,
 // returned byte for byte.
+//
+// This is frontmatter.Split. It stays here because it is published API, but a
+// package on the command path should call frontmatter.Split directly: importing
+// this package to reach it links the JSON Schema validator, which is what the
+// package comment above is about.
 func SplitFrontmatter(content []byte) (front, body []byte, err error) {
-	text := strings.ReplaceAll(string(content), "\r\n", "\n")
-	if !strings.HasPrefix(text, "---\n") {
-		return nil, nil, ErrNoFrontmatter
-	}
-	rest := text[len("---\n"):]
-
-	// The closing delimiter is a line that is exactly "---".
-	for offset := 0; offset < len(rest); {
-		end := strings.IndexByte(rest[offset:], '\n')
-		line := rest[offset:]
-		next := len(rest)
-		if end >= 0 {
-			line = rest[offset : offset+end]
-			next = offset + end + 1
-		}
-		if strings.TrimRight(line, " \t") == "---" {
-			return []byte(rest[:offset]), []byte(rest[next:]), nil
-		}
-		offset = next
-	}
-	return nil, nil, fmt.Errorf("%w: frontmatter opened but never closed", ErrNoFrontmatter)
+	return frontmatter.Split(content)
 }
 
 // jsonValue converts a yaml.v3-decoded value into the shape encoding/json

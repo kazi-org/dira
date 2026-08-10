@@ -61,23 +61,38 @@ func goTool(t *testing.T) string {
 // 200-entry ledger. That trade is recorded in full, with its rejected
 // alternatives, in dec-0015.
 //
-// Two of these are worth a second look by whoever owns them, and neither is
-// E1-L3's to change:
+// One line of that measurement did not survive contact with GODEBUG=inittrace.
+// "None of it costs measurable start-up time" was read off wall clock, and on a
+// machine where process spawn is 60ms it could not have measured anything
+// smaller than 60ms. It missed this: jsonschema does not initialise lazily. Its
+// package init ran before main on every invocation, allocating ~21,700 objects —
+// 31% of everything the binary allocated during init — to build a compiler
+// registry that `dira version`, `dira log` and every hook fire never touched.
+// E1-L6-T5 found it. This comment used to end by flagging two dependencies as
+// "worth a second look by whoever owns them"; the first has now had it.
 //
-//   - jsonschema and x/text are in the *binary* only because internal/ledger
-//     imports the schema package for two small helpers. Moving SplitFrontmatter
-//     out of a package that also embeds and compiles a JSON Schema document
-//     would take roughly 2MB out of the release for no behaviour change.
+//   - jsonschema and x/text are gone from the command path entirely, not
+//     allowlisted. internal/ledger imported the schema package for
+//     SplitFrontmatter and ErrNoFrontmatter, neither of which validates
+//     anything; both now live in internal/frontmatter, which depends on
+//     nothing. Measured on this tree, before against after: `go list -deps
+//     ./cmd/dira` goes from 2 jsonschema packages and 16 x/text packages to
+//     none of either; the binary from 20,909,632 to 19,647,024 bytes (−1.20MiB);
+//     GODEBUG=inittrace total package init from 23.2ms to 13.8ms, of which
+//     jsonschema's own init line was 8.2ms; and allocations during init from
+//     ~69,585 to ~47,875, a saving of ~21,710. Read the times as an upper bound
+//     with a wide error bar rather than a figure: they are the MINIMUM of 31
+//     interleaved runs per side on a machine at load average 390, where the
+//     median run was twenty times the minimum. The allocation counts are exact
+//     and load-independent, and they are the part of this worth quoting.
+//     Validation is unchanged: schema.NewValidator still compiles the published
+//     document, `dira log` still writes through it, and schema.SplitFrontmatter
+//     still exists and still forwards to the same code.
 //   - golang.org/x/exp and github.com/mattn/go-isatty arrive through
 //     modernc.org/sqlite, not through anything dira asked for.
 var allowedModules = []string{
 	// The ledger codec (E1-L1). Frontmatter is YAML; there is no stdlib YAML.
 	"gopkg.in/yaml.v3",
-
-	// The schema package's validator, reached because internal/ledger
-	// imports that package for SplitFrontmatter. See the note above.
-	"github.com/santhosh-tekuri/jsonschema/v6",
-	"golang.org/x/text",
 
 	// The derived read cache (E1-L3, dec-0015). modernc.org/sqlite is the
 	// pure-Go SQLite; the rest of this block is its dependency tree, not

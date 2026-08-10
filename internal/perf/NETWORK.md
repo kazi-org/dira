@@ -109,7 +109,12 @@ same test name: a skipped platform is honest, a renamed assertion is not.
 | anything else | none wired up | none | skips |
 
 **On the maintainer's machine (darwin, SIP enabled) the socket assertion skips,
-and has therefore never been observed either red or green there.** That is not a
+and had therefore never been observed either red or green there.**
+>
+> **Updated 2026-08-10: it has now.** CI run 31230739083, ubuntu-latest, ran the
+> traced assertion green with the positive control's own sockets visible in the
+> same trace — so the tracer was attached and the verdict is about dira. The
+> sentence below described the state before that run. That is not a
 formality, and it is stated rather than left to be inferred from a green `ok`:
 the socket claim itself is at present *unverified by execution anywhere*.
 

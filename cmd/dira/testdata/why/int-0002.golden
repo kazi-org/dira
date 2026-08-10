@@ -37,6 +37,11 @@ edges
                          single-run ceiling is dropped
                            this narrows what "not perceptible" is measured as;
                            it does not change the number
+               dec-0029  The cold-start budget is measured on a spawned binary,
+                         asserted on the median, gated by the minimum
+                           this is how "well under 100ms" is measured and what a
+                           run is allowed to conclude from it; the number itself
+                           is unchanged
   informed by  dec-0015  The derived cache stays honest by content hash, not by
                          modification time
                            spends 4.7ms of the read path per invocation, and

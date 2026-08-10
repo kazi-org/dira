@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kazi-org/dira/internal/frontmatter"
 	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/schema"
 )
 
 // `e` — edit the because, and nothing else.
@@ -269,7 +269,7 @@ func frontmatterOf(e *ledger.Entry) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("encoding %s: %w", e.ID, err)
 	}
-	front, _, err := schema.SplitFrontmatter(data)
+	front, _, err := frontmatter.Split(data)
 	if err != nil {
 		return "", fmt.Errorf("reading %s's frontmatter: %w", e.ID, err)
 	}

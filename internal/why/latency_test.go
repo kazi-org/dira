@@ -109,8 +109,26 @@ func TestTheWholeAnswerFitsTheBudget(t *testing.T) {
 	sort.Slice(chainOnly, func(i, j int) bool { return chainOnly[i] < chainOnly[j] })
 	t.Logf("building and rendering the chain alone, index already open: median %v", chainOnly[len(chainOnly)/2])
 
-	if median > budget {
-		t.Errorf("the median run is %v, over E1's %v budget for dira's own work", median, budget)
+	// The MEDIAN decides the verdict; the BEST sample decides whether this
+	// machine can reach one. dec-0029 codifies this and three other absolute
+	// budgets already carry it — this was the fourth and the only one without
+	// it, found by the lane that wrote that entry, after it went red here at a
+	// 48ms median with a 422ms slowest sample while the suite ran in parallel.
+	//
+	// A best sample comfortably inside the ceiling proves the code CAN meet it,
+	// so a median outside it is a statement about the scheduler. Reporting that
+	// as a regression is the defect this repo keeps finding in new costumes.
+	best := samples[0]
+	switch {
+	case best > budget:
+		t.Errorf("the fastest of %d runs is %v, over E1's %v budget — the best sample is over the "+
+			"ceiling, so this is dira's own work and not contention", runs, best, budget)
+	case median > budget:
+		t.Skipf("NOT MEASURABLE on this machine, and NOT recorded as a pass.\n"+
+			"  median %v is over the %v budget, but the best of %d runs is %v — comfortably inside it,\n"+
+			"  so the code can meet the ceiling and this box is too busy to show it.\n"+
+			"  CI's dedicated runner gates this on every push and is the authority.",
+			median, budget, runs, best)
 	}
 }
 

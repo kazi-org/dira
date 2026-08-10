@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/kazi-org/dira/internal/frontmatter"
 )
 
 // TestValidatorAcceptsTheLedger drives the exported entry point over the same
@@ -106,6 +108,22 @@ func TestSplitFrontmatterReturnsTheBodyVerbatim(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			front, body, err := SplitFrontmatter([]byte(tc.content))
+
+			// The implementation lives in internal/frontmatter, so a
+			// package on the command path can reach it without
+			// linking this package's JSON Schema compiler.
+			// SplitFrontmatter is the published name for it, and this
+			// is what stops the two becoming two: a forwarder that
+			// grew a wrapper, a normalisation or a second copy of the
+			// loop would pass every assertion below. Checked before
+			// the error branch, so the error cases are covered too.
+			altFront, altBody, altErr := frontmatter.Split([]byte(tc.content))
+			if string(altFront) != string(front) || string(altBody) != string(body) || !sameError(altErr, err) {
+				t.Errorf("frontmatter.Split = (%q, %q, %v), SplitFrontmatter = (%q, %q, %v); "+
+					"the published name is no longer the internal one",
+					altFront, altBody, altErr, front, body, err)
+			}
+
 			if tc.wantErr != nil {
 				if !errors.Is(err, tc.wantErr) {
 					t.Fatalf("err = %v, want %v", err, tc.wantErr)
@@ -122,6 +140,20 @@ func TestSplitFrontmatterReturnsTheBodyVerbatim(t *testing.T) {
 				t.Errorf("body = %q, want %q", body, tc.wantBody)
 			}
 		})
+	}
+}
+
+// sameError compares two errors by nil-ness and message. Identity is too strong
+// — fmt.Errorf builds a fresh value on each call — and errors.Is is too weak,
+// since two different messages wrapping the same sentinel would match.
+func sameError(a, b error) bool {
+	switch {
+	case a == nil && b == nil:
+		return true
+	case a == nil || b == nil:
+		return false
+	default:
+		return a.Error() == b.Error()
 	}
 }
 

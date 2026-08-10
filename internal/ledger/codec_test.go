@@ -1,12 +1,15 @@
 package ledger_test
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/kazi-org/dira/internal/frontmatter"
 	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/schema"
 )
 
 // ledgerDir is this repo's own ledger. It is the round-trip corpus because it is
@@ -373,3 +376,55 @@ func itoa(n int) string {
 }
 
 func quote(s string) string { return "\"" + strings.ReplaceAll(s, "\"", "\\\"") + "\"" }
+
+// TestDecodeStillReportsAStrayFileByThePublishedName is the invariant E1-L6's
+// dependency cut could have broken silently.
+//
+// The codec used to get its "this is not an entry" sentinel from
+// github.com/kazi-org/dira/schema, which meant importing the JSON Schema
+// validator to reach a string split. It now gets it from
+// internal/frontmatter — and a caller anywhere in the tree still asks
+// `errors.Is(err, schema.ErrNoFrontmatter)`, because that is the published
+// name. Had the move produced a second errors.New with the same message rather
+// than an alias, every one of those calls would have started answering false:
+// the same text, no compile error, no test failure, and a stray file in a
+// ledger would have been reported as ledger rot.
+//
+// So this asserts the identity in both directions, from the two names a caller
+// might hold, on the error Decode actually returns.
+func TestDecodeStillReportsAStrayFileByThePublishedName(t *testing.T) {
+	t.Parallel()
+
+	// Identity, not errors.Is: errors.Is(x, x) is true for any x and would
+	// pass just as happily on two unrelated sentinels.
+	if schema.ErrNoFrontmatter != frontmatter.ErrMissing {
+		t.Fatal("schema.ErrNoFrontmatter is no longer frontmatter.ErrMissing; " +
+			"a copy with the same message satisfies neither errors.Is nor the callers that hold the other name")
+	}
+
+	cases := []struct {
+		name    string
+		content string
+	}{
+		{name: "not an entry at all", content: "just prose, no delimiter\n"},
+		{name: "frontmatter never closed", content: "---\nid: dec-0001\n"},
+		{name: "frontmatter is empty", content: "---\n---\n\nbody\n"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := ledger.Decode([]byte(tc.content))
+			if err == nil {
+				t.Fatalf("Decode(%q) succeeded; it is not an entry", tc.content)
+			}
+			if !errors.Is(err, schema.ErrNoFrontmatter) {
+				t.Errorf("Decode(%q) = %v, which does not match schema.ErrNoFrontmatter", tc.content, err)
+			}
+			if !errors.Is(err, frontmatter.ErrMissing) {
+				t.Errorf("Decode(%q) = %v, which does not match frontmatter.ErrMissing", tc.content, err)
+			}
+		})
+	}
+}

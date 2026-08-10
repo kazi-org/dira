@@ -119,6 +119,10 @@ type Display interface {
 // refusal rather than a crash.
 type Editor func(ctx context.Context, store ledger.Store, e *ledger.Entry, now time.Time) (*ledger.Entry, error)
 
+// maxDispositionFailures bounds the retry loop for a card whose disposition
+// keeps failing. See the KeyConfirm branch for why a bound is needed at all.
+const maxDispositionFailures = 3
+
 // A Renderer turns one card into the text shown for it. position is 1-based and
 // total is the number of cards this session started with, which is the `1 of 3`
 // the design promises.
@@ -241,6 +245,7 @@ func Loop(ctx context.Context, opts Options) (*Result, error) {
 	// would mean holding the pre-image of every entry disposed of in a
 	// session in order to serve a keystroke nobody has asked for twice.
 	var last *Disposition
+	failures := 0
 
 	position, redraw := 0, true
 	for position < len(cards) {
@@ -266,9 +271,25 @@ func Loop(ctx context.Context, opts Options) (*Result, error) {
 		case KeyConfirm, KeyDiscard, KeyEdit:
 			disposition, err := dispose(ctx, opts, key, cards[position].Entry)
 			if err != nil {
+				// A failed disposition does not advance, so a human can see the
+				// reason and try again or quit. That is right for a human and
+				// unbounded for anything else: a key source that never ends,
+				// against a store failing persistently, spins here forever.
+				// Found by E2-L4-T7 through mutation, in merged code.
+				//
+				// Three tries per card, then the error is returned. A human gets
+				// room to retry; a runaway loop terminates. The counter resets on
+				// any successful disposition or any move to another card, so
+				// transient failures never accumulate across the session.
+				failures++
+				if failures >= maxDispositionFailures {
+					return result, fmt.Errorf("disposing %s: %w (gave up after %d attempts on the same card)",
+						cards[position].Entry.ID, err, failures)
+				}
 				show(oneLine(err.Error()))
 				continue
 			}
+			failures = 0
 			last = disposition
 			result.Dispositions = append(result.Dispositions, *disposition)
 			result.Remaining--

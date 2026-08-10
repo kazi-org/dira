@@ -7,7 +7,15 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/kazi-org/dira/schema"
+	// Not github.com/kazi-org/dira/schema, which is where these two names
+	// were reached for until E1-L6: that package compiles entry.schema.json
+	// with santhosh-tekuri/jsonschema, and importing it for a string split
+	// put the validator's package init — milliseconds and ~21,700
+	// allocations — in front of main on every dira run. The codec validates
+	// against Entry.Validate, not against the JSON Schema document; the
+	// document is still the contract, and schema_test.go is what holds the
+	// two in agreement.
+	"github.com/kazi-org/dira/internal/frontmatter"
 )
 
 // Decode reads one entry file — frontmatter and body — into an Entry.
@@ -45,7 +53,7 @@ func Decode(data []byte) (*Entry, error) {
 // nothing else may call it: an unvalidated entry is the ledger rot Decode exists
 // to keep out, and handing one to a caller pushes the problem downstream.
 func decodeEntry(data []byte) (*Entry, error) {
-	front, body, err := schema.SplitFrontmatter(data)
+	front, body, err := frontmatter.Split(data)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +63,7 @@ func decodeEntry(data []byte) (*Entry, error) {
 		return nil, fmt.Errorf("parsing frontmatter: %w", err)
 	}
 	if doc.Kind == 0 || len(doc.Content) == 0 {
-		return nil, fmt.Errorf("%w: frontmatter is empty", schema.ErrNoFrontmatter)
+		return nil, fmt.Errorf("%w: frontmatter is empty", frontmatter.ErrMissing)
 	}
 
 	root := doc.Content[0]
