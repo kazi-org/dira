@@ -1,0 +1,15 @@
+{
+   "model": "opus",
+   "hooks": {
+      "SessionStart": [
+         { "matcher":"",   "hooks": [ {"type":"command","command":"echo operator-start"} ] }
+      ],
+      "Stop": [
+         { "hooks": [ {"type":"command","command":"./notify.sh --done"} ] }
+      ],
+      "PreToolUse": [
+         { "matcher": "Bash", "hooks": [ {"type":"command","command":"./guard.sh"} ] }
+      ]
+   },
+   "permissions": { "allow": [ "Bash(ls:*)" ] }
+}

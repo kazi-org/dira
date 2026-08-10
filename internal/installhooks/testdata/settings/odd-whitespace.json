@@ -1,0 +1,12 @@
+{
+
+	"permissions"  :   { "allow" : [ ] }   ,
+
+	   "hooks"	:	{
+		"PreCompact"   : [   ]  ,
+
+		"Stop":[{"hooks":[{"type":"command","command":"echo operator-stop"}]}]
+	}  ,
+		"model":"sonnet"
+
+}

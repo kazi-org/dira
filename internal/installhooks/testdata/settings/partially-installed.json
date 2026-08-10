@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "dira brief --context --chain 2>/dev/null || true", "timeout": 5 }
+        ]
+      }
+    ]
+  }
+}

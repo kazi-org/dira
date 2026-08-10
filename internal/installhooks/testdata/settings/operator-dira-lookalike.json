@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "dira why dec-0003 2>/dev/null || true", "timeout": 5 }
+        ]
+      }
+    ]
+  }
+}

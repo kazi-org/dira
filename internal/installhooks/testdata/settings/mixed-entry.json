@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "dira sniff --stage --quiet 2>/dev/null || true", "timeout": 10 },
+          { "type": "command", "command": "echo mine" }
+        ]
+      }
+    ]
+  }
+}

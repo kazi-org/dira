@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          { "type": "command", "command": "dira sniff --deep --stage 2>/dev/null || true", "timeout": 60 }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "model": "opus",
+  "env": { "DIRA_FIXTURE": "1" },
+  "permissions": { "allow": ["Bash(ls:*)"], "deny": [] },
+  "statusLine": { "type": "command", "command": "./statusline.sh" },
+  "outputStyle": "Explanatory"
+}
