@@ -160,6 +160,38 @@ lock held by an unrelated repo. And `golangci-lint` exited non-zero reporting
 all — so nothing had ever linted it. All three fixed, each proved on the green
 side too.
 
+## Wave 5 shipped (2026-08-10)
+
+| what | result |
+|---|---|
+| **The JSON-schema library is off the command path.** `decode.go` imported `schema` for a string split and a sentinel, dragging in `jsonschema/v6` and 16 text packages on every invocation. | **-1.20 MiB binary, -21,710 allocations per run** — 31% of everything allocated before `main`. The timing was NOT confirmed: the machine sat at load 390-420 and its median run was 20x its minimum, so the lane reported the load-independent number and refused the millisecond figure. |
+| **`dira distill` cannot hang a hook.** `Terminal` has no read method; the only route to a `KeySource` is `Raw()`, called only when stdin is a terminal *and* a card exists. | No code path can block on a pipe. Raw mode restored across 7 exit paths including a panic in the renderer. |
+| **An unbounded spin in merged code**, found by mutation: a failed disposition did not advance the card — right for a human retrying, infinite against an endless key source and a failing store. | Bounded at 3 attempts. The test would HANG rather than fail without the bound; removing it is observed timing out. |
+| **`dec-0016` implemented** — the embedded serif was accepted, committed, and referenced nowhere for weeks while nine gates passed, because all of them measure mockups using the system stack. | Wired and proved to RENDER (Pagella measures 252.14px vs 254.38 Palatino, 236.06 fallback). The swap moved **zero pixels** — every capture height identical on both sides. |
+| **`dec-0029`** records the measurement discipline: spawned subprocess, median asserts, minimum decides whether the machine can judge. | Fourth absolute budget (`internal/why`) given the same discriminator. |
+
+**Three structural guards added, all for defects that had already shipped.**
+`cmd/dira/registered_test.go` — a command built and merged but absent from the
+registry answers "unknown command" while its tests pass; that happened to
+`dira sniff`, `dira why` and `dira install-skill`. `docs/design/scripts/fonts.mjs` —
+a committed font nothing references. And `gates.mjs` was scoring a control that
+crashed at `import` as "CONTROL TRIPPED": the harness built to catch blind gates
+was itself blind.
+
+**Corrections to the record, all mine.** I relayed four unverified figures in
+briefs, and lanes caught every one: `schema.NewValidator()` is not on the write
+path (all 19 call sites are tests, which is why the cut was possible); the spawn
+floor figures I quoted appear in no source, one being a hypothetical in a comment
+I wrote. And my own correction to `dec-0026` was wrong — it mixed ubuntu and macOS
+medians into one list because I grepped the first match per run, and the platforms
+differ by 17ms in the same run. Corrected again, per platform.
+
+**Open, measured-by-argument:** `tolerance.json` was not re-derived after the font
+change. The reasoning is in `DESIGN.md` — an unchanged capture height is an
+unchanged pixel-count denominator — and the command to close it properly is
+`node docs/design/scripts/measure-tolerance.mjs --write`. A 45-minute run was
+started and killed at 7 of 12 combinations.
+
 ## Order of work, set by the founder 2026-08-09
 
 Finish line is **all 40 lanes**. The order is *make it real on this machine first* —
