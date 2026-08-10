@@ -46,7 +46,27 @@ func NewServer(src Source, name string) (*Server, error) {
 		{"/decision.css", "assets/decision.css"},
 		{"/index.css", "assets/index.css"},
 	} {
-		s.mux.HandleFunc(a.path, s.stylesheet(a.file))
+		s.mux.HandleFunc(a.path, s.static(a.file, "text/css; charset=utf-8"))
+	}
+
+	// The fonts (dec-0016). The route set is derived from what is embedded
+	// rather than typed out beside it, so a face compiled into the binary
+	// cannot be left unreachable — which is the shape of the defect this
+	// whole change is fixing, one level up.
+	//
+	// The path is "/assets/fonts/<name>" because that is what tokens.css's
+	// relative url() resolves to from "/tokens.css", and the same relative
+	// url() resolves to the real file when the mockups are read straight out
+	// of the working tree. One string in the stylesheet, correct in both.
+	fonts, err := Fonts()
+	if err != nil {
+		return nil, err
+	}
+	if len(fonts) == 0 {
+		return nil, fmt.Errorf("ui: no fonts embedded; tokens.css asks for faces this binary does not carry")
+	}
+	for _, f := range fonts {
+		s.mux.HandleFunc("/"+f, s.static(f, "font/woff2"))
 	}
 	return s, nil
 }
@@ -138,14 +158,17 @@ func (s *Server) render(w http.ResponseWriter, r *http.Request, name string, dat
 	_, _ = w.Write([]byte(b.String()))
 }
 
-func (s *Server) stylesheet(file string) http.HandlerFunc {
+// static serves one embedded byte blob. no-store for the same reason the pages
+// carry it: a cache is a second copy of something this process is the only
+// source of, and over loopback from memory there is nothing to save.
+func (s *Server) static(file, contentType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		b, err := asset(file)
 		if err != nil {
 			s.oops(w, r, err)
 			return
 		}
-		w.Header().Set("content-type", "text/css; charset=utf-8")
+		w.Header().Set("content-type", contentType)
 		w.Header().Set("cache-control", "no-store")
 		_, _ = w.Write(b)
 	}

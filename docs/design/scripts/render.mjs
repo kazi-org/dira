@@ -34,7 +34,10 @@ const FILTER = POSITIONAL[1] ?? '';
 const VIEWPORTS = { mobile: [390, 844], laptop: [1024, 768], wide: [1440, 900] };
 const SCHEMES = ['light', 'dark'];
 const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
-               '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png' };
+               '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png',
+               // dec-0016's faces. The same content-type `dira ui` sends, so the
+               // harness is not serving the mockups something the binary would not.
+               '.woff2': 'font/woff2' };
 
 // Paths served from memory rather than disk. Used only by --probe-external, so
 // the negative control does not require writing a throwaway file into the repo.

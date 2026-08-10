@@ -2,6 +2,8 @@
 
 ## TeX Gyre Pagella — the serif dira ships
 
+Decision: `dec-0016`. Bake-off evidence: `docs/decisions-pending/serif-bakeoff.md`.
+
 **Why self-hosted at all.** The previous stack was
 `"Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif`. It resolves on macOS,
 mostly on Windows, and on a stock Linux install resolves to **none of them** — falling
@@ -51,3 +53,32 @@ Upstream: https://www.gust.org.pl/projects/e-foundry/tex-gyre/pagella
 Subsets, not the full faces. Regenerate with the bake-off tooling if the character set
 needs to grow — a missing glyph falls back silently, which is the failure mode this
 whole change exists to eliminate.
+
+## Where they are wired, and what stops them coming unwired
+
+These files are the canonical copies. Three places consume them:
+
+| | |
+|---|---|
+| `docs/design/tokens.css` | three `@font-face` blocks, `src: url("../../assets/fonts/…")`. That relative form is the one that resolves identically from the working tree, from the render harness, and from `/tokens.css` as `dira ui` serves it. |
+| `internal/ui/assets/fonts/` | byte-identical copies, because `go:embed` cannot reach outside its own package directory. Pinned to the files here by `TestEmbeddedAssetsMatchTheDesignSource`. |
+| `dira ui` | serves them from `embed.FS` at `/assets/fonts/<name>`, route set derived from what is embedded rather than listed by hand. Nothing is fetched; `dec-0012` and `int-0002` require the UI work with the network unplugged. |
+
+**For a while, none of those three existed.** `dec-0016` was accepted, these files were
+committed, this README and `NOTICE` were written to satisfy the licence — and
+`tokens.css` was never touched, so nothing anywhere referenced a byte of it. All nine
+design gates passed, because every one of them measures the mockups and the mockups
+used the system stack.
+
+So a font here that nothing references now fails the build, in two independent places:
+
+```
+node docs/design/scripts/fonts.mjs                    # the census
+node docs/design/scripts/fonts.mjs --probe-unwired    # its negative control
+go test ./internal/ui/                                # the same census, against a running server
+```
+
+Adding a face means adding its `@font-face` in `tokens.css`, its copy under
+`internal/ui/assets/fonts/`, its `AssetSources` entry, and its row in the Files table
+above — the licence record has to name every file that ships. Skipping any of them is a
+red build rather than a quiet fallback.

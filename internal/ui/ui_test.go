@@ -6,10 +6,12 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	texttemplate "text/template"
@@ -528,46 +530,334 @@ func TestTheDriftTestSeesAOneCharacterChange(t *testing.T) {
 		}
 
 		// Direction one: the design file moves.
-		movedDesign := strings.Replace(string(design), "px", "pt", 1)
-		if movedDesign == string(design) {
-			t.Fatalf("%s: could not stage a change; the control is not measuring anything", source)
-		}
+		movedDesign := flipOneByte(t, source, design)
 		if string(embedded) == movedDesign {
-			t.Errorf("%s: a one-token change in the design file is invisible to the comparison", source)
+			t.Errorf("%s: a one-byte change in the design file is invisible to the comparison", source)
 		}
 
 		// Direction two: the embedded copy moves.
-		movedEmbed := strings.Replace(string(embedded), "var(", "VAR(", 1)
-		if movedEmbed == string(embedded) {
-			t.Fatalf("%s: could not stage a change; the control is not measuring anything", name)
-		}
+		movedEmbed := flipOneByte(t, name, embedded)
 		if movedEmbed == string(design) {
-			t.Errorf("%s: a one-token change in the embedded copy is invisible to the comparison", name)
+			t.Errorf("%s: a one-byte change in the embedded copy is invisible to the comparison", name)
 		}
 	}
 }
 
+// flipOneByte stages the smallest possible difference. A byte and not a token
+// because AssetSources now covers the woff2 faces as well as the stylesheets,
+// and "replace the first `px`" cannot stage a change in a binary — it would
+// fail the control as unmeasurable on exactly the files that were added last,
+// which is the wrong direction for a check to give up in.
+func flipOneByte(t *testing.T, what string, b []byte) string {
+	t.Helper()
+	if len(b) == 0 {
+		t.Fatalf("%s is empty; the control is not measuring anything", what)
+	}
+	moved := append([]byte(nil), b...)
+	i := len(moved) / 2
+	moved[i]++
+	if string(moved) == string(b) {
+		t.Fatalf("%s: could not stage a change; the control is not measuring anything", what)
+	}
+	return string(moved)
+}
+
 // TestAssetSourcesCoversEveryEmbeddedAsset stops an asset being added without a
 // source to be pinned to, which would be a stylesheet nothing compares.
+//
+// It walks the whole embedded tree rather than its top level: the fonts sit in
+// assets/fonts/, and a top-level listing sees that directory as one entry it can
+// tick off without looking inside — which is how three unchecked files get into
+// a binary under a check that reports "ok".
 func TestAssetSourcesCoversEveryEmbeddedAsset(t *testing.T) {
 	t.Parallel()
 
-	files, err := Assets.ReadDir("assets")
+	embedded := embeddedAssets(t)
+	if len(embedded) == 0 {
+		t.Fatal("no embedded assets found; the check is not measuring anything")
+	}
+	for _, name := range embedded {
+		if _, ok := AssetSources[name]; !ok {
+			t.Errorf("%s is embedded and served but is pinned to no source", name)
+		}
+	}
+	if len(AssetSources) != len(embedded) {
+		t.Errorf("AssetSources has %d entries for %d embedded assets", len(AssetSources), len(embedded))
+	}
+	// A tree walk that found only the three stylesheets would pass every clause
+	// above while the fonts were absent from the binary entirely.
+	var fonts int
+	for _, name := range embedded {
+		if strings.HasSuffix(name, ".woff2") {
+			fonts++
+		}
+	}
+	if fonts == 0 {
+		t.Error("no font is embedded. dec-0016 self-hosts the serif because the system stack " +
+			"resolves to a different typeface on Linux than the one this design was tuned against; " +
+			"a binary with no face in it has not implemented that decision.")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// The fonts (dec-0016)
+// ---------------------------------------------------------------------------
+
+// TestEveryCommittedFontIsEmbeddedAndServed is the census, from the repository
+// side inward. dec-0016 was accepted, the three woff2 subsets were committed
+// under assets/fonts/, NOTICE and its README were written to satisfy the GUST
+// Font Licence — and nothing referenced any of it for the entire time the entry
+// read `accepted`. Every design gate measured the mockups, the mockups used the
+// system stack, and so no gate could fail.
+//
+// This is the clause that makes that unrepeatable in the binary: a font in
+// assets/fonts/ that `dira ui` will not hand a browser fails the build.
+func TestEveryCommittedFontIsEmbeddedAndServed(t *testing.T) {
+	t.Parallel()
+	root := repoRoot(t)
+	srv := realLedger(t)
+
+	committed, err := filepath.Glob(filepath.Join(root, "assets", "fonts", "*.woff2"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(files) == 0 {
-		t.Fatal("no embedded assets found; the check is not measuring anything")
+	if len(committed) == 0 {
+		t.Fatal("no font in assets/fonts/; the check is not measuring anything")
 	}
-	for _, f := range files {
-		name := "assets/" + f.Name()
-		if _, ok := AssetSources[name]; !ok {
-			t.Errorf("%s is embedded and served but is pinned to no design source", name)
+
+	for _, path := range committed {
+		name := filepath.Base(path)
+		want, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// Served, as a real request, and byte-identical to the file the
+		// licence record describes. A binary serving different bytes from the
+		// ones NOTICE names is serving something NOTICE does not cover.
+		url := "/" + FontDir + "/" + name
+		code, body := get(t, srv, url)
+		if code != http.StatusOK {
+			t.Errorf("GET %s = %d: assets/fonts/%s is committed, and carries a GUST Font Licence "+
+				"obligation, but `dira ui` will not serve it", url, code, name)
+			continue
+		}
+		if body != string(want) {
+			t.Errorf("GET %s is not byte-identical to assets/fonts/%s (%d bytes served, %d on disk)",
+				url, name, len(body), len(want))
 		}
 	}
-	if len(AssetSources) != len(files) {
-		t.Errorf("AssetSources has %d entries for %d embedded assets", len(AssetSources), len(files))
+}
+
+// TestTheServedTokensReferenceEveryServedFont closes the loop the other way:
+// take the stylesheet the browser is actually handed, resolve every url() in it
+// the way a browser would against /tokens.css, and require the server to answer
+// each one. This is a result and not a declaration — it does not read the CSS
+// source or the route table, it asks the running server the questions a browser
+// asks it.
+//
+// It also catches the inverse defect the census cannot see: a face embedded,
+// routed and served that no stylesheet ever asks for.
+func TestTheServedTokensReferenceEveryServedFont(t *testing.T) {
+	t.Parallel()
+	srv := realLedger(t)
+
+	css := mustGet(t, srv, "/tokens.css")
+	// Comments stripped first: a commented-out @font-face is not a reference,
+	// and counting one would let the gate pass on prose.
+	bare := regexp.MustCompile(`(?s)/\*.*?\*/`).ReplaceAllString(css, "")
+
+	asked := map[string]bool{}
+	for _, m := range regexp.MustCompile(`url\(\s*"([^"]+)"\s*\)`).FindAllStringSubmatch(bare, -1) {
+		ref, err := url.Parse(m[1])
+		if err != nil {
+			t.Errorf("tokens.css contains url(%q), which is not a URL: %v", m[1], err)
+			continue
+		}
+		if ref.IsAbs() || ref.Host != "" {
+			t.Errorf("tokens.css fetches %s from off this process. cst-0004 and int-0002 say the "+
+				"served surfaces reach no network; the faces are in the binary.", m[1])
+			continue
+		}
+		// Exactly what a browser does: resolve against the stylesheet's own
+		// URL. `..` segments that would climb above the root are discarded,
+		// which is why the relative form in tokens.css works both here and
+		// when the mockups are read out of the working tree.
+		resolved := (&url.URL{Path: "/tokens.css"}).ResolveReference(ref).Path
+		asked[resolved] = true
+
+		if code, _ := get(t, srv, resolved); code != http.StatusOK {
+			t.Errorf("tokens.css asks for %s, which resolves to %s, and GET %s = %d.\n"+
+				"A src that 404s renders the fallback while the stylesheet claims otherwise — and the "+
+				"fallback's metrics are the thing dec-0016 exists to stop shipping.",
+				m[1], resolved, resolved, code)
+		}
 	}
+	if len(asked) == 0 {
+		t.Fatal("the served tokens.css references no font at all. dec-0016 self-hosts the serif; " +
+			"a stylesheet that asks for nothing is the state that decision was left in.")
+	}
+
+	for _, f := range embeddedFonts(t) {
+		if !asked["/"+f] {
+			t.Errorf("%s is embedded and routed, and the served tokens.css never asks for it. "+
+				"A face nothing references is dead weight in the binary and a licence obligation "+
+				"carried for no reason.", f)
+		}
+	}
+}
+
+// TestTheServedSerifLeadsWithTheEmbeddedFace is the clause a request-level check
+// cannot reach. Every font could load, every route could answer, and the pages
+// would still render in Palatino on the machine that has Palatino — which is
+// the machine this design was tuned on, and therefore the machine every gate
+// runs on. The embedded face has to be FIRST, and dec-0016 requires the old
+// stack be kept behind it so a build without the font still renders.
+func TestTheServedSerifLeadsWithTheEmbeddedFace(t *testing.T) {
+	t.Parallel()
+	srv := realLedger(t)
+	css := mustGet(t, srv, "/tokens.css")
+
+	families := map[string]bool{}
+	for _, m := range regexp.MustCompile(`@font-face\s*\{[^}]*\}`).FindAllString(css, -1) {
+		if f := regexp.MustCompile(`font-family\s*:\s*"([^"]+)"`).FindStringSubmatch(m); f != nil {
+			families[f[1]] = true
+		}
+	}
+	if len(families) != 1 {
+		t.Fatalf("the served tokens.css declares %d @font-face families, want exactly 1: %v",
+			len(families), families)
+	}
+	var embedded string
+	for f := range families {
+		embedded = f
+	}
+
+	serif := regexp.MustCompile(`--serif\s*:\s*([^;]+);`).FindStringSubmatch(css)
+	if serif == nil {
+		t.Fatal("the served tokens.css declares no --serif")
+	}
+	stack := strings.Split(serif[1], ",")
+	first := strings.Trim(strings.TrimSpace(stack[0]), `"'`)
+	if first != embedded {
+		t.Errorf("--serif leads with %q, not with the embedded face %q. A self-hosted face behind a "+
+			"system font never renders on a machine that has the system font.", first, embedded)
+	}
+	if len(stack) < 3 {
+		t.Errorf("--serif is %q — dec-0016 keeps the old stack behind the embedded face explicitly, "+
+			"so a build that somehow ships without the font still renders.", serif[1])
+	}
+	if last := strings.TrimSpace(stack[len(stack)-1]); last != "serif" {
+		t.Errorf("--serif ends in %q, not the generic `serif`; the fallback chain has no floor", last)
+	}
+}
+
+// TestTheFontCensusSeesAnUnwiredFace is the negative control for the two checks
+// above, and it is the shape of the actual defect rather than a convenient one:
+// a face present in the binary that the stylesheet never names.
+//
+// It runs against a COPY of the served stylesheet and the real embedded
+// listing. Editing tokens.css to test the checker is how a reference gets
+// quietly rewritten to make a gate pass.
+func TestTheFontCensusSeesAnUnwiredFace(t *testing.T) {
+	t.Parallel()
+	srv := realLedger(t)
+	css := mustGet(t, srv, "/tokens.css")
+
+	// Direction one: a face is embedded and the stylesheet does not name it.
+	// Staged by stripping the @font-face blocks — which is precisely the file
+	// dec-0016 left behind.
+	stripped := regexp.MustCompile(`(?s)@font-face\s*\{[^}]*\}`).ReplaceAllString(css, "")
+	if stripped == css {
+		t.Fatal("the served tokens.css has no @font-face block to strip; the control is not measuring anything")
+	}
+	asked := referencedFonts(stripped)
+	unwired := 0
+	for _, f := range embeddedFonts(t) {
+		if !asked["/"+f] {
+			unwired++
+		}
+	}
+	if unwired == 0 {
+		t.Error("with every @font-face removed, the census still finds no unwired face — it is not " +
+			"reading the stylesheet it claims to read, and would have passed the tree dec-0016 left")
+	}
+
+	// Direction two: the stylesheet names a face that is not there. The
+	// comparison must notice a reference the server cannot answer.
+	renamed := strings.ReplaceAll(css, "pagella-italic", "pagella-oblique")
+	if renamed == css {
+		t.Fatal("could not stage a renamed reference; the control is not measuring anything")
+	}
+	var dangling int
+	for path := range referencedFonts(renamed) {
+		if code, _ := get(t, srv, path); code != http.StatusOK {
+			dangling++
+		}
+	}
+	if dangling == 0 {
+		t.Error("a src: url() pointing at a face the server does not have went unnoticed; " +
+			"the check would pass a stylesheet that renders entirely in the fallback")
+	}
+}
+
+// referencedFonts resolves every url() in a stylesheet the way a browser would
+// against /tokens.css. Shared by the check and its control so the control
+// cannot pass by exercising different code.
+func referencedFonts(css string) map[string]bool {
+	bare := regexp.MustCompile(`(?s)/\*.*?\*/`).ReplaceAllString(css, "")
+	out := map[string]bool{}
+	for _, m := range regexp.MustCompile(`url\(\s*"([^"]+)"\s*\)`).FindAllStringSubmatch(bare, -1) {
+		ref, err := url.Parse(m[1])
+		if err != nil {
+			continue
+		}
+		out[(&url.URL{Path: "/tokens.css"}).ResolveReference(ref).Path] = true
+	}
+	return out
+}
+
+// embeddedAssets lists every file in the embedded tree, at any depth.
+func embeddedAssets(t *testing.T) []string {
+	t.Helper()
+	var out []string
+	// fs.WalkDir would be the obvious call. io/fs is on dec-0005's banned list
+	// and internal/ui deliberately holds no exemption, so this walks embed.FS's
+	// own ReadDir instead — the same reasoning as asset() in assets.go.
+	var walk func(dir string)
+	walk = func(dir string) {
+		entries, err := Assets.ReadDir(dir)
+		if err != nil {
+			t.Fatalf("listing %s: %v", dir, err)
+		}
+		for _, e := range entries {
+			name := dir + "/" + e.Name()
+			if dir == "." {
+				name = e.Name()
+			}
+			if e.IsDir() {
+				walk(name)
+				continue
+			}
+			out = append(out, name)
+		}
+	}
+	walk("assets")
+	slices.Sort(out)
+	return out
+}
+
+// embeddedFonts is Fonts() with the error turned into a test failure.
+func embeddedFonts(t *testing.T) []string {
+	t.Helper()
+	fonts, err := Fonts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(fonts) == 0 {
+		t.Fatal("no font is embedded; the check is not measuring anything")
+	}
+	return fonts
 }
 
 // TestTokensAreServedByteForByte is the acceptance clause stated as a request
@@ -627,7 +917,15 @@ func TestServedFromEmbedFS(t *testing.T) {
 	if _, err := os.Stat("docs"); err == nil {
 		t.Fatal("the temporary directory contains repo files; the check is not measuring anything")
 	}
-	for _, path := range []string{"/tokens.css", "/decision.css", "/index.css", "/e/dec-0001"} {
+	paths := []string{"/tokens.css", "/decision.css", "/index.css", "/e/dec-0001"}
+	// The fonts belong in this list and not in a separate test: dec-0012 is the
+	// reason they are embedded rather than fetched, and "works with the network
+	// unplugged" is worth nothing if it holds for the stylesheets and not for
+	// the faces the stylesheets ask for.
+	for _, f := range embeddedFonts(t) {
+		paths = append(paths, "/"+f)
+	}
+	for _, path := range paths {
 		if code, _ := get(t, srv, path); code != http.StatusOK {
 			t.Errorf("GET %s = %d with the working directory outside the repo; the asset is not embedded", path, code)
 		}

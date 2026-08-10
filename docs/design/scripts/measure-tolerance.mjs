@@ -43,7 +43,8 @@ const QUICK = process.argv.includes('--quick');
 const WRITE = process.argv.includes('--write');
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript',
-               '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png' };
+               '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png',
+               '.woff2': 'font/woff2' };
 
 const SCREENS = ['s1-decision', 's2-index', 's3-distill'];
 const VIEWPORTS = QUICK ? { wide: [1440, 900] } : { mobile: [390, 844], wide: [1440, 900] };
@@ -193,12 +194,20 @@ const CHANNEL_PROBES = [0, 4, 8, 16];
 // the start and again at the end; if anything moved, the measurement is void.
 // (Not hypothetical: a concurrent edit to s1-decision.html landed during the
 // previous run of this script.)
+//
+// assets/fonts/ is in the set because dec-0016's faces are now an input to
+// every capture. A regenerated subset changes glyph rasterization on both
+// sides, which is precisely the kind of change that makes captures taken
+// before it incomparable with captures taken after it.
 async function fingerprint() {
   const files = [];
   for (const d of ['docs/design/screens', 'docs/design']) {
     for (const f of await readdir(join(ROOT, d))) {
       if (/\.(html|css)$/.test(f)) files.push(join(d, f));
     }
+  }
+  for (const f of await readdir(join(ROOT, 'assets/fonts'))) {
+    if (/\.woff2$/.test(f)) files.push(join('assets/fonts', f));
   }
   files.sort();
   const h = createHash('sha256');
@@ -218,7 +227,7 @@ const probeAll = (a, b) => {
 };
 
 const fpBefore = await fingerprint();
-console.log(`inputs fingerprinted: ${fpBefore.count} html/css files, sha256 ${fpBefore.hash.slice(0,16)}`);
+console.log(`inputs fingerprinted: ${fpBefore.count} html/css/woff2 files, sha256 ${fpBefore.hash.slice(0,16)}`);
 console.log(`measuring ${SCREENS.length} screens x ${Object.keys(VIEWPORTS).length} viewports x ${SCHEMES.length} schemes`);
 console.log(`  ${NOISE.length} noise arms, ${SIGNAL.length} signal arms, at deviceScaleFactor 2\n`);
 

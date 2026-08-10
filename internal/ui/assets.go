@@ -35,11 +35,12 @@ package ui
 import (
 	"embed"
 	"fmt"
+	"slices"
 )
 
-// Assets are the stylesheets served to the browser, embedded so `dira ui` works
-// from any working directory and with the network unplugged (cst-0004,
-// int-0002).
+// Assets are the stylesheets and font faces served to the browser, embedded so
+// `dira ui` works from any working directory and with the network unplugged
+// (cst-0004, int-0002).
 //
 // They are copies. go:embed cannot reach outside its own package directory and
 // docs/design/ is the single source of colour and spacing truth, so the binary
@@ -47,13 +48,25 @@ import (
 // TestEmbeddedAssetsMatchTheDesignSource pins every one of them to its original
 // in both directions — a copy nothing compares is drift with a delay on it.
 //
-//go:embed assets/*.css
+// The fonts are here for the same reason and under the same pin. dec-0016 self-
+// hosts TeX Gyre Pagella because the old system stack resolved to a different
+// typeface on Linux than the one every measure in this design was tuned
+// against; serving it from embed.FS rather than fetching it is what keeps
+// dec-0012's offline guarantee intact.
+//
+//go:embed assets/*.css assets/fonts/*.woff2
 var Assets embed.FS
 
-// AssetSources maps each embedded asset to the design file it is a copy of,
-// relative to the repository root. The drift test walks this map, so adding an
-// asset without adding its source here is caught by the test that asserts the
-// map covers the whole directory.
+// FontDir is where the embedded faces live, both inside Assets and on the
+// wire. The two are the same string on purpose: the route is derived from the
+// embedded tree rather than listed by hand, so a face cannot be added to the
+// binary and left unrouted.
+const FontDir = "assets/fonts"
+
+// AssetSources maps each embedded asset to the file it is a copy of, relative
+// to the repository root. The drift test walks this map, so adding an asset
+// without adding its source here is caught by the test that asserts the map
+// covers the whole directory.
 var AssetSources = map[string]string{
 	"assets/tokens.css":   "docs/design/tokens.css",
 	"assets/decision.css": "docs/design/screens/decision.css",
@@ -64,9 +77,38 @@ var AssetSources = map[string]string{
 	// that block and compares it, so the served rules and the mockup's rules
 	// are the same bytes either way.
 	"assets/index.css": "docs/design/screens/s2-index.html#style",
+
+	// The fonts. Left of the arrow is a path inside this package; right of it
+	// is a path from the repository root, and they read alike only because
+	// the repository's font directory and the package's are named the same
+	// thing. assets/fonts/ at the root is what NOTICE and its README describe
+	// for the GUST Font Licence, so the licence text and the served bytes
+	// cannot describe different files.
+	"assets/fonts/pagella-regular.core.woff2": "assets/fonts/pagella-regular.core.woff2",
+	"assets/fonts/pagella-italic.core.woff2":  "assets/fonts/pagella-italic.core.woff2",
+	"assets/fonts/pagella-bold.core.woff2":    "assets/fonts/pagella-bold.core.woff2",
 }
 
-// asset reads one embedded stylesheet.
+// Fonts lists the embedded faces by their name inside Assets, sorted. It reads
+// the embedded tree rather than a hand-written list so that the routing table,
+// the drift pin and the census check all count the same set.
+func Fonts() ([]string, error) {
+	entries, err := Assets.ReadDir(FontDir)
+	if err != nil {
+		return nil, fmt.Errorf("ui: listing embedded fonts: %w", err)
+	}
+	names := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		names = append(names, FontDir+"/"+e.Name())
+	}
+	slices.Sort(names)
+	return names, nil
+}
+
+// asset reads one embedded file — a stylesheet or a font face.
 //
 // It calls embed.FS's own ReadFile rather than io/fs.ReadFile, and that is not a
 // style choice: dec-0005 forbids anything above the storage backend from naming

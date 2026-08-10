@@ -163,7 +163,12 @@ process.on('exit', stopUI);
 // ---- the static server for the mockups --------------------------------------
 // Same shape as render.mjs: over http rather than file://, so relative paths and
 // prefers-color-scheme behave exactly as they do in `dira ui`.
-const MIME = { '.html': 'text/html', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png' };
+// .woff2 is load-bearing here rather than tidy: this server stands in for the
+// mockup side of the comparison, and the Go side sends font/woff2. A pixel diff
+// between two pages that loaded the same face over two different content-types
+// is measuring the harness.
+const MIME = { '.html': 'text/html', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png',
+               '.woff2': 'font/woff2' };
 const mockServer = createServer(async (req, res) => {
   const url = decodeURIComponent(req.url.split('?')[0]);
   try {

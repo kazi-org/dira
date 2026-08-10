@@ -442,6 +442,29 @@ jobs:
       - name: Token contrast matrix (docs/design/scripts/contrast.mjs)
         run: node docs/design/scripts/contrast.mjs
 
+      # dec-0016. A font committed to assets/fonts/ that nothing references is a
+      # decision recorded and never wired — the state dec-0016 sat in while it
+      # read `accepted`, which every design gate passed because they all measure
+      # the mockups and the mockups used the system stack. File reads only, no
+      # browser, so it belongs in the fast lane rather than beside the captures.
+      - name: Font wiring census (docs/design/scripts/fonts.mjs)
+        run: node docs/design/scripts/fonts.mjs
+
+      # The gate's own negative control, run in the same job. It exits 1 when it
+      # works — the failure IS the proof — and 3 when a staged defect goes
+      # unnoticed. A checker nobody ever proves can fail is a checker that
+      # always prints ok, and this repo has shipped several.
+      - name: Font wiring census — negative control
+        run: |
+          set +e
+          node docs/design/scripts/fonts.mjs --probe-unwired
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then
+            echo "::error::the font census control exited $code, want 1 (3 means a staged defect went unnoticed)"
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # Contrast AS DRAWN. This is the only gate that measures what actually ships:
   # every chip sits on a `color-mix(in oklab, ...)` tint of its own colour, a pair

@@ -168,36 +168,49 @@ No `#000`, no `#fff`, in either scheme. `color-scheme: light dark` is declared s
 native scrollbars and form controls follow, and `<meta name="theme-color">` is set
 per scheme so browser chrome matches.
 
-**Type — two families plus mono.** `--serif` (Palatino stack) for display and prose;
-`--ui` (system-ui) for chrome and labels, never display; `--mono` (SF Mono/Menlo)
-for ids, the chain, and numerics. `font-variant-numeric: tabular-nums` is set on
-`body`, so every roll-up and count is monospaced-digit by default.
+**Type — two families plus mono.** `--serif` (**TeX Gyre Pagella, self-hosted**) for
+display and prose; `--ui` (system-ui) for chrome and labels, never display; `--mono`
+(SF Mono/Menlo) for ids, the chain, and numerics. `font-variant-numeric: tabular-nums`
+is set on `body`, so every roll-up and count is monospaced-digit by default.
 
-**Why system fonts — and where that reasoning currently FAILS.** dira embeds its UI in
-a Go binary that must work with the network unplugged (`int-0002`, `cst-0004`), so a
-*network* webfont is out. That much holds.
-
-**The serif stack does not deliver what this paragraph used to claim.**
-`"Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif` resolves on macOS and
-mostly on Windows, and on a stock Linux install resolves to **none of them** — it falls
-through to DejaVu Serif, whose metrics are nothing like Palatino's. A git-native
+**The serif is the one face this design does not leave to the platform, and that is
+`dec-0016`.** The stack it replaced —
+`"Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif` — resolves on macOS
+and mostly on Windows, and on a stock Linux install resolves to **none of them**: it
+falls through to DejaVu Serif, whose metrics are nothing like Palatino's. A git-native
 developer tool has a large Linux audience. Every type ratio, measure and vertical rhythm
-in this system was tuned by rendering on macOS with Palatino loaded.
+in this system was tuned by rendering on macOS with Palatino loaded, so a third of the
+audience was seeing a different design from the one that was reviewed.
 
-That is the *same* failure this constraint was adopted to eliminate — an earlier pass
-rendered with its intended faces silently falling back, making every spacing judgement
-wrong — relocated to where the render harness structurally cannot catch it, because the
-harness runs on macOS. A gate that cannot see the failure is not evidence against it.
+That was the *same* failure the system-font rule was adopted to eliminate — an earlier
+pass rendered with its intended faces silently falling back, making every spacing
+judgement wrong — relocated to where the render harness structurally could not catch it,
+because the harness runs on macOS. A gate that cannot see a failure is not evidence
+against it.
 
-No serif ships by default across macOS, Windows and Linux, so **no stack can fix this**;
-only self-hosting can. And self-hosting is compatible with the offline constraint —
-`embed.FS` puts a subsetted woff2 (~30-80KB) inside the binary with no network call. The
-original trade ("bloat for zero functional gain") was miscounted: the gain is
-cross-platform typographic determinism, which is the thing the constraint existed to buy.
+No serif ships by default across macOS, Windows and Linux, so no stack could fix it;
+only self-hosting could. Self-hosting is compatible with the offline constraint:
+`embed.FS` puts the three subsetted faces — regular, italic, bold, **60.6 KB total** —
+inside the binary with no network call, and `dira ui` serves them from there at
+`/assets/fonts/`. `int-0002` and `cst-0004` are untouched; `dec-0012` narrows only to
+"no *network* webfont", which this is not. The original trade ("bloat for zero
+functional gain") was miscounted: the gain is cross-platform typographic determinism,
+which is the thing the constraint existed to buy.
 
-**Open, and it is a real decision, not a cleanup:** self-host one serif, or accept that
-a third of the audience sees a different design from the one that was reviewed. Recorded
-rather than quietly fixed because it changes a documented constraint.
+Pagella is a **Palatino metric clone**, so every measure and leading value already tuned
+stays valid — self-hosting was a determinism fix and not a re-tune. The old stack is
+kept *behind* it in `--serif` so a build that somehow ships without the face still
+renders. Licence: GUST Font Licence (LPPL 1.3c), obligations recorded in `NOTICE` and
+`assets/fonts/README.md`; the faces are subsets, which LPPL 6b requires be stated.
+
+**How this is kept true.** The decision was accepted, the woff2 files were committed,
+the licence text was written — and `tokens.css` was not touched for as long as the entry
+read `accepted`. Every gate here measured the mockups, the mockups used the system
+stack, so no gate could fail. `fonts.mjs` now fails the build if a face in
+`assets/fonts/` is not referenced, does not resolve, is not drawn with, or is not
+byte-identical in `internal/ui/assets/`; `internal/ui`'s tests assert the same census
+against a running server. Its first negative control is the tree as `dec-0016` actually
+left it.
 
 **Scale:** spacing `4 / 8 / 12 / 18 / 28 / 40 / 60 / 96`. Radii `14 / 7 / 4`,
 concentric — inner ≈ half outer, so curves align.
@@ -275,6 +288,7 @@ prints "ok".
 | `contrast-rendered.mjs` | every text node clears its floor **as composited**, including `color-mix` tints | — |
 | `tokens-doc-sync.mjs` | this document agrees with `tokens.css` value for value, and states the measured tolerance | `--design` / `--tokens` accept copies, so the checker can be tested without editing what it guards |
 | `render.mjs` | 3 viewports × 2 schemes, plus **no asset from any host but `127.0.0.1`** | `--probe-external` serves a stylesheet from this machine's LAN address; it returns 200, so the failed-request check stays silent and the loopback check must not |
+| `fonts.mjs` | every committed face is referenced by `tokens.css`, resolves under the path the binary serves, is what `--serif` leads with, and is byte-identical in `internal/ui/assets/` | `--probe-unwired` stages five trees, the first being **the tree `dec-0016` actually left** — faces committed and licensed, `--serif` still the Palatino stack, all nine other gates passing. Each must be caught by name |
 
 ### The pixel tolerance
 
@@ -326,14 +340,36 @@ opacity case is caught by no other gate in this repo, since `contrast.mjs` and
 `tokens-doc-sync.mjs` read declared hex values and never a rule's opacity.
 
 **This tolerance is not a cross-machine allowance.** Changing only glyph
-rasterization costs 1.23–4.64% of pixels, and letting the Palatino stack fall
-through to a generic serif — what a stock Linux install actually renders, the
-failure noted above — costs up to 100%. Both are three to four orders of
-magnitude above the tolerance, and no number that still catches a 2px radius
-change could ever absorb them. So the baseline is regenerated in the same run and
-the same environment as the capture, which is why `docs/design/renders/` is
-gitignored: a hand-committed baseline compared across machines is the one thing
-this gate cannot survive.
+rasterization costs 1.23–4.64% of pixels, and substituting the serif outright —
+what the Palatino stack falling through to DejaVu did on a stock Linux install
+before `dec-0016` embedded the face — costs up to 100%. Both are three to four
+orders of magnitude above the tolerance, and no number that still catches a 2px
+radius change could ever absorb them. So the baseline is regenerated in the same
+run and the same environment as the capture, which is why `docs/design/renders/`
+is gitignored: a hand-committed baseline compared across machines is the one
+thing this gate cannot survive.
+
+Self-hosting removes the second of those two, not the first. The mockups and the
+served pages now load the *same* face from the same bytes, so a font substitution
+between the two sides of a comparison is no longer possible. Rasterization still
+differs by platform, so regenerating the baseline in-run remains the rule.
+
+**The figures above were not re-derived for `dec-0016`, and here is the evidence
+they did not need to be.** What was measured is the layout: `uigate.mjs` reports
+`s1-decision` at `780x5848 vs 780x5984`, `2048x3822 vs 2048x4530` and
+`2880x3822 vs 2880x4530` — the same six capture heights E6-L2 recorded under the
+old system stack, on both sides of every pair. Swapping the serif moved the page
+by zero pixels, which is what a Palatino metric clone is supposed to mean and is
+worth having observed rather than assumed. A capture height that does not change
+is a pixel-count denominator that does not change, and the pixel tolerance is a
+share of that denominator set by the `radius-2px` arm — four corners, no glyph.
+Re-run `measure-tolerance.mjs --write` if that reasoning ever stops holding; the
+arms that DO touch every glyph (`ink-2`, `opacity-1pct`) sit two orders of
+magnitude above the floor and do not set it.
+
+(Those `uigate` pairs are red for a reason that predates this and has nothing to
+do with type: the mockups are illustrations rather than renders of the fixture
+ledger. E6-L2's report has the full account.)
 
 ### Defects caught by the loop (kept as a record)
 

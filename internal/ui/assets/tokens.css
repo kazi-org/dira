@@ -11,6 +11,48 @@
    screen is a defect — see DESIGN.md.
    ============================================================================ */
 
+/* ---- the serif, self-hosted (dec-0016) -------------------------------------
+   TeX Gyre Pagella, subsetted. Three faces, 60.6 KB total, embedded in the Go
+   binary via embed.FS and served from it — no network call, so int-0002's and
+   cst-0004's offline guarantee is untouched. dec-0012 narrows to "no NETWORK
+   webfont"; this is not one.
+
+   The URL is relative, and deliberately so: `../../assets/fonts/` is the one
+   form that resolves in all three places this file is read from.
+
+     docs/design/tokens.css over file://       -> <repo>/assets/fonts/...
+     /docs/design/tokens.css over the harness  -> /assets/fonts/...
+     /tokens.css served by `dira ui`           -> /assets/fonts/... (RFC 3986
+       discards the .. segments that would climb above the root, and the Go
+       server registers exactly that path from the embedded copy)
+
+   font-display: block, not swap. Swap paints the fallback first and reflows
+   when the real face arrives, which is a layout shift render.mjs would fail —
+   and would be a genuine defect besides, since the fallback's metrics are the
+   thing this decision exists to stop shipping. Loaded from memory over
+   loopback, the block period is not perceptible. */
+@font-face {
+  font-family: "TeX Gyre Pagella";
+  src: url("../../assets/fonts/pagella-regular.core.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "TeX Gyre Pagella";
+  src: url("../../assets/fonts/pagella-italic.core.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "TeX Gyre Pagella";
+  src: url("../../assets/fonts/pagella-bold.core.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
 :root {
   color-scheme: light dark;
 
@@ -56,7 +98,12 @@
      serif  display & prose — the record's voice
      ui     chrome, labels, buttons (never display)
      mono   ids, the chain, numerics */
-  --serif: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  /* The embedded face leads. The old system stack stays behind it, unchanged,
+     so a build that somehow ships without the woff2 still renders something
+     Palatino-shaped rather than nothing (dec-0016). It is a backstop, not the
+     design: the ratios below were tuned against these metrics, and Pagella is a
+     Palatino metric clone, so the two agree. */
+  --serif: "TeX Gyre Pagella", "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --ui: system-ui, -apple-system, "Helvetica Neue", sans-serif;
   --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
 

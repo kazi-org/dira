@@ -46,6 +46,13 @@ const GATES = [
     is: 'every text node clears its floor AS COMPOSITED in a browser, including color-mix tints the token matrix cannot see',
     cmd: ['contrast-rendered.mjs'] },
 
+  { id: 'fonts', browser: false, expect: 'pass',
+    is: 'every committed woff2 is referenced by tokens.css, resolves under the path the binary serves, is drawn with, and is byte-identical in internal/ui/assets/',
+    cmd: ['fonts.mjs'] },
+  { id: 'fonts:control', browser: false, expect: 'control',
+    is: 'five staged trees — starting with the tree as dec-0016 actually left it, which all nine other gates passed — each of which must be caught by name',
+    cmd: ['fonts.mjs', '--probe-unwired'] },
+
   { id: 'tokens-doc-sync', browser: false, expect: 'pass',
     is: 'DESIGN.md agrees with tokens.css value for value, and the measured tolerance is recorded',
     cmd: ['tokens-doc-sync.mjs'] },
@@ -92,7 +99,15 @@ for (const g of selected) {
 
   let status;
   if (g.expect === 'pass') status = code === 0 ? 'PASS' : 'FAIL';
-  else status = code === 1 ? 'CONTROL TRIPPED' : code === 0 || code === 3 ? 'BLIND' : 'FAIL';
+  // A control's exit code alone is not enough, and this was not hypothetical:
+  // with playwright missing from node_modules, render.mjs --probe-external died
+  // at `import` and exited 1, and this harness recorded CONTROL TRIPPED. A
+  // control that reports success when it never ran is the exact defect the
+  // controls exist to detect, one level up. So a tripped control must also SAY
+  // it tripped — every control script prints PROBE OK on the path where the
+  // check it certifies actually fired.
+  else if (code === 1) status = /PROBE OK/.test(out) ? 'CONTROL TRIPPED' : 'FAIL';
+  else status = code === 0 || code === 3 ? 'BLIND' : 'FAIL';
 
   results.push({ ...g, code, out, status, secs });
   const mark = status === 'PASS' || status === 'CONTROL TRIPPED' ? ' ok ' : status === 'BLIND' ? 'BLIND' : 'FAIL';

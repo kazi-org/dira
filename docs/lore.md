@@ -509,3 +509,40 @@ entire credential check.
 summarised output. Prove the fixture reaches the redactor before trusting the
 result — the L-0001 green-side rule applied to security.
 
+
+## L-0025: `../../assets/fonts/` is the only src that resolves in all three places tokens.css is read
+
+**Tags:** #design #fonts #gate
+**Date:** 2026-08-10
+**Repo:** kazi-org/dira
+
+**Rule:** `@font-face` src in `docs/design/tokens.css` must stay relative and
+must stay `../../assets/fonts/<name>`. Not root-absolute, not a bare basename.
+**Why:** the same bytes of that file are read from three roots. `file://` for
+`contrast-rendered.mjs`, `/docs/design/tokens.css` under the render harness, and
+`/tokens.css` as `dira ui` serves it. A root-absolute `/assets/fonts/…` breaks
+the `file://` reader; anything else breaks the served one. `../../` is the single
+form that lands on `assets/fonts/` in all three, because RFC 3986 discards the
+`..` segments that would climb above the root — which is why `dira ui` registers
+its font routes at `/assets/fonts/<name>` and not at `/fonts/<name>`.
+**Trigger:** adding a face, moving `tokens.css`, or "tidying" the URL. `fonts.mjs`
+fails if a src resolves outside `assets/fonts/`, and says why.
+
+## L-0026: An exit code alone cannot tell a tripped control from a crashed one
+
+**Tags:** #gate #testing #critical
+**Date:** 2026-08-10
+**Repo:** kazi-org/dira
+
+**Rule:** A negative control counts as tripped only if it exits 1 **and** its
+output says it tripped. `gates.mjs` requires `PROBE OK`; every control script
+prints it on the path where the check it certifies actually fired.
+**Why:** with playwright half-installed, `render.mjs --probe-external` died at
+`import` and exited 1. `gates.mjs` read exit 1 as CONTROL TRIPPED and printed
+` ok  render:control` — for a control that never reached a single line of the
+code it exists to exercise. Observed, not imagined: it is in the same run that
+reported `contrast-rendered` and `render` FAIL for the identical import error.
+A harness whose whole purpose is catching gates that cannot fail had a gate that
+could not fail.
+**Trigger:** adding a control to `GATES`, or any control that can die before it
+reaches its own logic. L-0001's rule applied to the harness itself.
