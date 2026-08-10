@@ -89,6 +89,7 @@ func newApp(stdout, stderr io.Writer) *app {
 		{name: "help", summary: "show usage for dira or one of its commands", run: runHelp},
 		{name: "log", summary: "write an entry to the ledger, or add an edge to one", run: runLog, usage: writeLogUsage},
 		{name: "sniff", summary: sniffSummary, run: runSniff, usage: writeSniffUsage},
+		{name: "distill", summary: distillSummary, run: runDistill, usage: writeDistillUsage},
 		{name: "check", summary: "refuse a plan that contradicts a settled decision", run: runCheck, usage: writeCheckUsage},
 		{name: "brief", summary: briefSummary, run: runBrief, usage: writeBriefUsage},
 		{name: "why", summary: whySummary, run: runWhy, usage: writeWhyUsage},

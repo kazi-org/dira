@@ -1,0 +1,19 @@
+1 of 3 · dec-0011 · staged
+PreCompact · 14:22 · semantic
+
+Because a hand-entered status field is exactly what went stale in Obsidian
+and Linear — a derived view cannot lie.
+
+decides   Status is read from kazi at query time, never written into an
+          entry
+
+✗ Store planned/in-progress/done as a field on each entry
+  correct at the moment of writing and wrong within a day, and the wrongness
+  is invisible.
+
+derives_from int-0003 · mirrors to docs/adr/0011-status-is-derived.md
+
+excerpt   status should come from kazi at query time, not be written down
+
+y stand behind it · n not a decision · e edit the because · u undo
+q leave the rest
