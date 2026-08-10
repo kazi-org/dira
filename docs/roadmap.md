@@ -212,6 +212,24 @@ is nothing (`dec-0028`); and the Notion portfolio mirror is **dropped for this r
 this file is the single progress surface, and a second one that cannot be written just
 makes every report carry a caveat.
 
+## Planned (from docs/plan.md, 2026-08-10)
+
+**23 of 40 lanes shipped.** `docs/plan.md` is now scoped to what remains, on the
+rolling-wave rule: only the frontier is decomposed, everything else carries a single
+planning task that fires when its trigger completes.
+
+| | |
+|---|---|
+| **Frontier, executable** | `E2-L3` — `dira install-hooks`, 6 of 8 tasks open. The "fires automatically" half of the founder's order. |
+| **Debt, measured by argument** | re-derive `tolerance.json` after the font change. Needs an idle machine. |
+| **Outline, one planning task each** | the ADR importer (`dec-0028`); the E0 tail; `E4` the kazi execution join; `E5` tiers and attention drift (`dec-0027`); `E6-L3` the distill web surface; `E8` go to market. |
+
+**Two outline epics carry a named blocker rather than a date.** `E4` depends on a
+kazi contract that is emitted but unpublished — `kazi-org/kazi#1681`, open and
+unanswered — so it is not decomposed until that is answered or a fallback is chosen.
+`E6-L3` inherits E6-L2's failing pixel clause, whose cause is that the mockups are
+illustrations rather than renders, which is a content decision and not a bug.
+
 ## Ready to claim (unblocked, 2026-07-31)
 
 15 of 40 lanes shipped. These eight have every dependency satisfied. **None has an
