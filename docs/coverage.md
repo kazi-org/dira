@@ -107,8 +107,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `serve:int-0001` | covered:E1/E2/E3 | brief + capture + enforcer are the whole intent |
 | `serve:int-0002` | covered:E0/E1 | single binary, <100ms cold as an acc: line |
 | `serve:int-0003` | covered:E4/E8 | derived status replaces the tracker; GTM proves adoption |
-| `answer:qst-0002` | deferred:never | may never be built and that is acceptable. Closer to self-surveillance than navigation |
-| `answer:qst-0003` | blocked:E2 | **Measured 2026-07-31, premise falsified** — 63/80 kazi ADRs carry real `why_not`s, not the predicted empty arrays. Evidence supports option (2) semantic import. Still open on neutrality: n=1 and the corpus shares an author with dira. Needs 2-3 unrelated public corpora before the import pitch ships |
 | `answer:qst-0005` | covered:E9 | file the two issues; maintainer decides |
 | `blocked:4784fa` | covered:E9 | automatic disposition capture = upstream ask 2; skill-wrap fallback exists |
 | `blocked:2147c3` | blocked:E2 | ADR import — same GAP as answer:qst-0003 |
@@ -170,3 +168,6 @@ Registering every obligation forced three admissions no plan document had surfac
 | `trigger:dec-0025:c8b987` | blocked:E2 | revisit trigger: semantic extraction proves unreliable enough that a human writes the why_not by hand anyway |
 | `impl:dec-0026` | done | `coldMaxBudget` removed from `internal/perf`; the cold gate asserts the median alone. CI comments updated; the tail is still published to the step summary, asserted by nothing |
 | `trigger:dec-0026:a08865` | blocked:E1 | revisit trigger: a measured distribution over many CI runs exists, so a percentile ceiling can be DERIVED rather than chosen. E1-L6-T5's phase attribution is the natural place |
+| `impl:dec-0027` | blocked:E5 | attention drift: local read only, opt-in and off by default, derived answer retained rather than a session timeline, deletable in one documented command |
+| `trigger:dec-0027:1a6f77` | blocked:E5 | revisit trigger: the drift report is read for a month and never changes a decision — a mirror nobody looks in |
+| `impl:dec-0028` | blocked:E2 | the importer measures first and offers indexing when the yield is nothing; short-label expansion is conditional on what the dry run finds |

@@ -1,0 +1,66 @@
+# Global gitignore — proposed replacement
+#
+# WHAT WAS WRONG: this file was a PROJECT gitignore living in the global slot. It
+# carried one project's build log, its plan files and its arXiv PDFs, plus bare
+# unanchored patterns. A bare pattern like `plan.md` matches at ANY DEPTH in EVERY
+# repository on this machine — so `docs/plan.md` in an unrelated repo is invisible,
+# `git status` shows nothing, and the file simply does not exist to anyone else.
+#
+# That is not hypothetical: it is exactly how kazi-org/dira's own program plan went
+# unwritten to git for the repository's entire history.
+#
+# WHAT CHANGED: the project-specific lines are removed (they belong in the project
+# that owns them). What remains is anchored with a leading slash where it should only
+# match at a repository root, so nothing matches at arbitrary depth by accident.
+#
+# Apply with:
+#   cp docs/proposed/gitignore.global ~/.gitignore
+#   git config --global core.excludesfile ~/.gitignore
+#
+# Then, in any repo that was relying on the old behaviour, check nothing you wanted
+# tracked is newly visible or newly ignored:
+#   git status --short
+#   git check-ignore -v <path>     # names the file and line that ignored something
+
+# --- safe unanchored: you never want these tracked at ANY depth ---
+# .claude is deliberate and is the one entry here that is not OS noise: skills are
+# global-only on this machine, so a project-local .claude is never source. It is the
+# only thing the old file was ignoring in dira, and that was correct.
+.DS_Store
+.claude
+.env
+.env.local
+.idea
+.salt
+
+# --- REMOVED, because they belong to a specific project, not to every repo ---
+# Move these into that project's own .gitignore:
+#   2004.00574v1.md
+#   2004.00574v1.pdf
+#   2506.21734v3.md
+#   2506.21734v3.pdf
+#   30day.md
+#   GEMINI.md
+#   artifacts
+#   bin
+#   bin/
+#   bin/zerfoo-predict
+#   bugs.md
+#   coverage/junit.xml
+#   gemma-plan.md
+#   gemma.md
+#   issues.md
+#   model_data
+#   plan.done.md
+#   plan.md
+#   plan.md
+#   predictions.csv
+#   predictions_metadata.json
+#   tmp
+#   todos.md
+#   vendor
+#   zonnx-converter.log
+
+# --- if you still want any of the above globally, anchor it ---
+# /plan.md          matches only a plan.md at a repository root
+# plan.md           matches docs/plan.md, src/plan.md, anything — this is the trap

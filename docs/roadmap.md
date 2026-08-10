@@ -160,6 +160,26 @@ lock held by an unrelated repo. And `golangci-lint` exited non-zero reporting
 all — so nothing had ever linted it. All three fixed, each proved on the green
 side too.
 
+## Order of work, set by the founder 2026-08-09
+
+Finish line is **all 40 lanes**. The order is *make it real on this machine first* —
+dira used daily by its author, then everything else built against what annoys him.
+
+1. **Make it capture and review without ceremony.** The hooks that fire
+   automatically, and the one-key review of what they caught. This is the shortest
+   path to dira being used rather than built.
+2. **Then the rest of the active lanes** — the cold-start entry, the non-interactive
+   cases, the distill card.
+3. **Then the parts that need someone else present**: the kazi execution join, the
+   public renderer and launch, the personal and workspace tiers.
+
+**Four founder decisions landed with this order** — attention drift IS built, reading
+session metadata locally (`dec-0027`, taken against the recommendation and recorded as
+such); import measures a corpus before importing it and offers indexing when the yield
+is nothing (`dec-0028`); and the Notion portfolio mirror is **dropped for this repo** —
+this file is the single progress surface, and a second one that cannot be written just
+makes every report carry a caveat.
+
 ## Ready to claim (unblocked, 2026-07-31)
 
 15 of 40 lanes shipped. These eight have every dependency satisfied. **None has an
@@ -194,15 +214,6 @@ fidelity. That expansion is the current blocker on the loop, not the work itself
 
 ## Blocked
 
-- **Wave 3 could not run: the account's weekly usage limit is exhausted, resetting
-  2026-08-02 04:00 America/Los_Angeles.** All three dispatched agents terminated on
-  their first action with `You've hit your weekly limit`; every worktree came back
-  with zero changed files. The six claims (`E1-L6-T4`, `E2-L2-T3`, `E2-L2-T4`,
-  `E2-L4-T4`, `E3-L3-T4`, `E3-L3-T5`) were **released**, not left held — a lock with
-  nothing executing behind it is worse than no lock, per `docs/lore.md` L-0022.
-  Worktrees removed, tree clean, nothing half-applied. **The pool is in a resumable
-  state: re-run `/apply --pool` after the reset and wave 3 claims cleanly.**
-
 
 
 - **The global gitignore is a project gitignore in the global slot — needs the owner's
@@ -219,13 +230,6 @@ fidelity. That expansion is the current blocker on the loop, not the work itself
   the project that owns them, and anchor what remains (`/plan.md`, not `plan.md`).
   **Not done here** — editing a global config affects every repo and is the owner's
   call, not a session's. Detail in `docs/lore.md` L-0005.
-
-- **The Notion portfolio mirror cannot be written from this machine.** The house rule
-  requires every lane event to also update the Engineering Portfolio database, but the
-  `ntn` CLI is not installed and no Notion MCP server is connected to this session. Four
-  lane completions (2026-07-31) are recorded here and in git, and NOT mirrored. Unblocks
-  on installing `ntn` or connecting the MCP; the backlog of unmirrored rows is this
-  file's Shipped section since 2026-07-30.
 
 
 
