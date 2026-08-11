@@ -546,3 +546,36 @@ A harness whose whole purpose is catching gates that cannot fail had a gate that
 could not fail.
 **Trigger:** adding a control to `GATES`, or any control that can die before it
 reaches its own logic. L-0001's rule applied to the harness itself.
+
+## L-0027: A command can be built, tested, merged — and unreachable
+
+**Tags:** #cli #integration #critical
+**Date:** 2026-08-11
+**Repo:** kazi-org/dira
+
+**Rule:** After merging any lane that adds a verb, run the built binary and invoke
+it. `go test` passing is not evidence the command exists.
+**Why:** A lane may not edit `cmd/dira/main.go` — it reports a registry line and the
+integrator adds it. That protocol is correct and it has a failure mode with no
+symptom: the lane's tests construct their own `app` and register the command into
+it, so they pass whether or not `newApp` knows about the verb. The binary answers
+`unknown command` and exits 2 before parsing a flag.
+
+It happened three times. `dira why` needed the line. `dira install-skill` shipped
+without it. And `dira sniff` was unreachable **for weeks** while
+`hooks/settings.example.json` installed it — so the entire regex capture path, the
+thing that makes dira capture without being asked, was dead in the shipped binary
+while every gate was green. Each was found by a later lane whose own acceptance
+could not pass without it, which is luck rather than a gate.
+
+`cmd/dira/registered_test.go` now closes it: it parses the SOURCE for run-functions
+taking `(*app, []string)` and resolves what is actually wired through
+`runtime.FuncForPC` on the registry's function values. It deliberately does not
+consult a hand-listed slice of verbs — that would be one more thing to forget to
+update, the same defect wearing a hat — and it deliberately does not derive the
+expected identifier from the verb, because that needs a rule about acronyms and the
+first version reported `dira ui` as unregistered on exactly that.
+**Trigger:** Any merged lane that reports a registry line. Also any *artefact* that
+is committed but must be referenced to work — see L-0025 for the font case, which is
+the same defect in a different medium: decided, committed, never wired.
+

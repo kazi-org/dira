@@ -100,6 +100,16 @@ minutes of working hours and are then recorded as defaulted.
    *Recommend: yes.* Today's red run measured min 26.8ms, median 144ms, max 897ms —
    a 33x spread inside one run — against a 100ms ceiling, and passed on re-run.
 
+## Where the session's own record lives
+
+- `docs/devlog.md` — the narrative: what ran, what was found, and a section on what
+  I got wrong (four unverified figures relayed in briefs, two commits straight to
+  main, three stale checkbox passes, and a plan rewrite that dropped an epic).
+- `docs/lore.md` — 27 invariants. **L-0027 is new and is the one that cost most**:
+  a command can be built, tested, merged and unreachable, because a lane's tests
+  register the verb into their own app rather than into `newApp`.
+- `.claude-checkpoint.md` — state at exit and the single next action.
+
 ## How to resume
 
 ```
