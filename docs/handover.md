@@ -108,7 +108,9 @@ minutes of working hours and are then recorded as defaulted.
 - `docs/lore.md` — 27 invariants. **L-0027 is new and is the one that cost most**:
   a command can be built, tested, merged and unreachable, because a lane's tests
   register the verb into their own app rather than into `newApp`.
-- `.claude-checkpoint.md` — state at exit and the single next action.
+- `.claude-checkpoint.83146ed7-a88.md` — state at exit and the single next
+  action. Per-session by name: a bare `.claude-checkpoint.md` is a shared path that
+  a concurrent session would clobber, and this repo assumes siblings are alive.
 
 ## How to resume
 
