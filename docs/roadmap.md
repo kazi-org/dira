@@ -212,6 +212,9 @@ is nothing (`dec-0028`); and the Notion portfolio mirror is **dropped for this r
 this file is the single progress surface, and a second one that cannot be written just
 makes every report carry a caveat.
 
+> **Session ended 2026-08-11.** Handover notes: `docs/handover.md`. No handover
+> branch — nothing existed outside `origin/main`. Claims released, worktrees removed.
+
 ## STATUS 2026-08-11 · dira-integrator · for the seat
 
 `SendMessage` to `seat` is not reachable from this machine, so this is the board
