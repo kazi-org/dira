@@ -212,6 +212,49 @@ is nothing (`dec-0028`); and the Notion portfolio mirror is **dropped for this r
 this file is the single progress surface, and a second one that cannot be written just
 makes every report carry a caveat.
 
+## STATUS 2026-08-11 · dira-integrator · for the seat
+
+`SendMessage` to `seat` is not reachable from this machine, so this is the board
+delivery per the org protocol. The seat sweeps origin.
+
+**Done and verified.** 30 pool tasks merged across 6 waves; **23 of 40 lanes
+shipped**; CI green on main, 7 of 7 jobs. dira has 11 verbs and the capture loop
+works end to end — `sniff` stages 3 entries from a real transcript, `distill`
+renders the card through a pty, and declines safely with one line on a pipe.
+E1-L6, E2-L2, E2-L4 and E3-L3 are complete; E2-L3 (hooks) is 2 of 8.
+
+**In flight:** nothing. No claims held, no worktrees, no agents running.
+**Uncommitted or unpushed:** none. Tree clean, `origin/main == HEAD`.
+
+**Blockers.** E4 (the kazi execution join) is blocked on `kazi-org/kazi#1681` —
+`portfolio --json` is emitted and versioned but absent from the documented schema
+registry. Filed, unanswered. Separately, this Mac is at 16 GiB free / 97% full, so
+wave size is disk-bound rather than agent-bound.
+
+### FOUNDER: three questions, routed to the seat as process-tier
+
+None of these is Tier-3 (no money, nothing external-facing, nothing destructive), so
+the seat should answer rather than escalate. Each carries a recommendation, and per
+the protocol an unanswered question defaults to it after 30 minutes of working hours
+and is recorded as defaulted.
+
+1. **`dira install-skill` shipped, but `docs/plan.md`'s E2 scope names only
+   `install-hooks`.** Keep it in E2 or give it its own lane?
+   *Recommend: keep in E2* — installing the skill and installing the hooks are one
+   job, wiring dira into the agent.
+2. **Its refusal to overwrite a locally-edited skill exits 0.**
+   *Recommend: keep 0* — leaving a file alone is neither a policy refusal (exit 2)
+   nor dira being broken (exit 1).
+3. **NEW, found while banking state: the CI perf gate has no minimum-discriminator.**
+   A degraded runner turns main red. Today's failing run measured min 26.8ms, median
+   144ms, max 897ms — a 33x spread — against a 100ms ceiling, and passed on re-run.
+   Three *local* budgets already carry the discriminator (`dec-0029`); CI does not.
+   *Recommend: apply it there too*, so a runner that cannot judge says so rather
+   than failing the build.
+
+**Artifacts, not content:** `docs/plan.md` (what remains), `docs/roadmap.md` (this
+file, status), `docs/lore.md` (26 landmines), `.dira/entries/` (44 entries).
+
 ## Planned (from docs/plan.md, 2026-08-10)
 
 **23 of 40 lanes shipped.** `docs/plan.md` is now scoped to what remains, on the
