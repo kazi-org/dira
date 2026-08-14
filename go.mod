@@ -1,6 +1,6 @@
 module github.com/kazi-org/dira
 
-go 1.26.2
+go 1.26.5
 
 require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
