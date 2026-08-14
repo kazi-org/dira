@@ -1,10 +1,209 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+const REPO = "https://github.com/kazi-org/dira";
+
+// Copy sourced from docs/design/landing/index.html (E8-L2's gated landing
+// page — docs/plan/website.md cites docs/growth/drafts/ as the source, but
+// that directory holds only the marketplace/awesome-list/directory-submission
+// drafts (E8-L5/L6), none of which is landing-page prose; docs/design/landing/
+// is the file that literally says "LANDING — the go-to-market page (E8-L2)"
+// in its own header comment, so that is what this page sources from).
+// Verbatim below except the Status section, which is inherently
+// time-sensitive — see the comment above STATUS_LINE.
+const STRAPLINE = "Never explain the same decision twice."; // README H1, verbatim
+const HOOK =
+  "Your coding agent has amnesia. You keep re-explaining decisions you already made — and it keeps suggesting the thing you rejected in July. dira is a git-native ledger of the intents, decisions, rejected alternatives, and open questions behind your codebase, captured by the agent, pushed back before you ask.";
+
+const inversions = [
+  ["You write the record.", "The agent writes it.", "Your whole job is confirm or ignore."],
+  ["You go read the record.", "The record comes to you", "one screen, every session start, capped forever."],
+  ["The record is a document.", "The record is an enforcer", "it blocks contradictions before work is planned."],
+];
+
+const pillars = [
+  [
+    "Zero clerical work",
+    "Hooks capture it; you press confirm. If it needed discipline, you'd have kept using ADRs.",
+  ],
+  [
+    "It argues back",
+    "The only check that stops a plan by citing your own past reasoning, not a linter rule.",
+  ],
+];
+
+const objections = [
+  [
+    "I already have ADRs.",
+    "So does the author — 83 of them, unread. Whether indexing an existing pile produces a useful ledger or just a second pile is an open question the project is still working through, not a shipped feature yet.",
+  ],
+  [
+    "Another tool to maintain?",
+    "It replaces tools rather than adding one, and you don't maintain it — the agent writes it.",
+  ],
+  [
+    "Why not just a bigger CLAUDE.md?",
+    "A context file has no lifecycle, no supersession, no rejected alternatives, and cannot enforce anything. It also grows until it stops being read — which is the original failure.",
+  ],
+  [
+    "Is this lock-in?",
+    "Plain markdown in your own repo. Delete the binary; the record is still readable. Apache 2.0.",
+  ],
+];
 ---
 
 <Layout>
-  <main class="mx-auto max-w-3xl px-6 py-24 text-center">
-    <h1 class="dira-serif ui-strong text-4xl">dira</h1>
-    <p class="ui-body mt-4">Never explain the same decision twice.</p>
+  <header class="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
+    <a href="/" class="dira-serif ui-strong flex items-center gap-1 text-xl font-bold" aria-label="dira home">
+      di<b class="dira-text">ra</b>
+    </a>
+    <nav class="flex items-center gap-6 text-sm" aria-label="Primary">
+      <a href="/why/" class="ui-body ui-link">The ledger</a>
+      <a href="/docs/" class="ui-body ui-link">Docs</a>
+      <a href={REPO} class="ui-outline rounded-lg border px-3 py-1.5 font-medium">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative overflow-hidden" aria-labelledby="hero-heading">
+      <div
+        class="dira-gradient pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full opacity-20 blur-[120px]"
+        aria-hidden="true"
+      >
+      </div>
+      <div class="mx-auto max-w-3xl px-6 pb-12 pt-16 text-center sm:pt-24">
+        <p class="dira-mono ui-muted text-xs uppercase tracking-[0.14em]">dira</p>
+        <h1
+          id="hero-heading"
+          class="dira-serif ui-strong mt-4 text-balance text-4xl font-normal tracking-tight sm:text-5xl"
+        >
+          {STRAPLINE}
+        </h1>
+        <p class="dira-serif ui-body mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed">
+          {HOOK}
+        </p>
+      </div>
+    </section>
+
+    <!-- See it catch a contradiction — the real check demo, verbatim from
+         docs/design/landing/index.html -->
+    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="demo-heading">
+      <h2 id="demo-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
+        See it catch a contradiction
+      </h2>
+      <div class="ui-code dira-mono mt-6 overflow-x-auto rounded-xl border p-5 text-sm">
+        <div><span class="ui-muted">$ </span><span>dira check</span> <span class="ui-body">"add a background daemon to track run state"</span></div>
+      </div>
+      <pre class="ui-code dira-mono mt-2 overflow-x-auto rounded-xl border p-5 text-sm leading-relaxed"><code>{`✗ conflicts with dec-0060 (accepted 3 Jul 2026)
+    rejected alternative: "a daemon"
+    why_not: violates the single-binary intent (int-0002)
+    revisit_if: cold-start latency stops being the binding constraint
+
+→ supersede dec-0060, or revise the plan`}</code></pre>
+      <p class="ui-muted mt-3 text-center text-xs">
+        The full transcript. Nothing cut, nothing staged for this page — this is the same
+        output <code class="ui-code rounded px-1 py-0.5">dira check</code> prints in a terminal.
+      </p>
+      <div class="ui-chip dira-mono mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 rounded-lg border px-4 py-3 text-xs">
+        <span><b class="dira-text">dec-</b> a decision, with the alternatives it ruled out</span>
+        <span><b class="dira-text">int-</b> an intent — a direction the work serves</span>
+      </div>
+    </section>
+
+    <!-- Three inversions -->
+    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="inversions-heading">
+      <h2 id="inversions-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
+        Three inversions
+      </h2>
+      <div class="mt-6 space-y-4">
+        {
+          inversions.map(([old, bold, rest]) => (
+            <div class="ui-hairline grid gap-2 border-b pb-4 last:border-0 sm:grid-cols-[1fr_auto_1fr] sm:items-baseline sm:gap-4">
+              <span class="dira-serif ui-body line-through decoration-1">{old}</span>
+              <span class="ui-muted hidden dira-mono sm:inline">&rarr;</span>
+              <span class="dira-serif ui-strong">
+                <b>{bold}</b> {rest}
+              </span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- What that costs you -->
+    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="pillars-heading">
+      <h2 id="pillars-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
+        What that costs you
+      </h2>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2">
+        {
+          pillars.map(([title, body]) => (
+            <div class="ui-card rounded-2xl border p-6">
+              <h3 class="dira-serif ui-strong text-lg font-semibold">{title}</h3>
+              <p class="dira-serif ui-body mt-2 text-sm leading-relaxed">{body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Objections -->
+    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="objections-heading">
+      <h2 id="objections-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
+        Objections
+      </h2>
+      <dl class="mt-6 space-y-6">
+        {
+          objections.map(([q, a]) => (
+            <div>
+              <dt class="ui-strong font-semibold">{q}</dt>
+              <dd class="dira-serif ui-body mt-1 max-w-2xl text-sm leading-relaxed">{a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <!-- Status: kept dynamic rather than copied verbatim from the stale draft
+         ("no binary yet") — the same call docs/design/landing/canonical.mjs's
+         own comment already made once for the same field, rather than ship a
+         canonical string that would itself be false. -->
+    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="status-heading">
+      <h2 id="status-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
+        Status
+      </h2>
+      <div class="ui-card mt-6 rounded-2xl border p-6">
+        <p class="ui-body text-sm leading-relaxed">
+          <b class="ui-strong">Pre-release, buildable from source today.</b> There is no
+          <code class="ui-code rounded px-1 py-0.5">brew install</code> yet — see
+          <a href="/docs/" class="ui-link">the docs page</a> for the full command tour, generated
+          from this build so it cannot go stale.
+        </p>
+      </div>
+      <div class="ui-card mt-4 flex flex-wrap items-center gap-4 rounded-2xl border p-5">
+        <p class="dira-serif ui-body flex-1 text-sm leading-relaxed">
+          <b class="ui-strong">Nothing to install yet.</b> Watching the repo is the whole ask
+          while this ships.
+        </p>
+        <a
+          href={REPO}
+          class="dira-mono inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-white"
+          style="background: var(--converged);"
+          >★ Star kazi-org/dira &rarr;</a
+        >
+      </div>
+    </section>
   </main>
+
+  <footer class="ui-hairline border-t">
+    <div class="ui-muted mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm sm:flex-row">
+      <span>Decision record kept with dira &middot; written by an agent, read by one</span>
+      <nav class="flex items-center gap-5" aria-label="Footer">
+        <a href="/why/" class="ui-link">The ledger</a>
+        <a href="/docs/" class="ui-link">Docs</a>
+        <a href={REPO} class="ui-link">GitHub</a>
+      </nav>
+    </div>
+  </footer>
 </Layout>
