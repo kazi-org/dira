@@ -153,11 +153,27 @@ gate_perf() {
     echo "internal/perf's files, or the package did not compile."
     rc=1
   fi
+  # dec-0029's minimum-discriminator is the one exception, mirroring ci.yml's
+  # perf job exactly: a test that SKIPPED naming "NOT MEASURABLE" means its own
+  # MINIMUM decided this machine cannot reach a verdict at all, and that is not
+  # a budget that was met but is also not this gate's business to fail — CI's
+  # dedicated runner is the authority. Any other skip still fails here.
   for t in TestColdStartBudget TestWarmBriefBudget TestReindexBudget; do
-    if ! grep -qE "^--- (PASS|FAIL): ${t} " "$log"; then
-      echo "$t did not run to a verdict — a budget that skipped is not a budget that was met."
-      rc=1
+    block=$(awk -v name="$t" '
+      $0 ~ ("^=== RUN   " name "$") { capture=1 }
+      capture { print }
+      capture && $0 ~ ("^--- (PASS|FAIL|SKIP): " name " ") { exit }
+    ' "$log")
+    if printf '%s\n' "$block" | grep -qE "^--- (PASS|FAIL): ${t} "; then
+      continue
     fi
+    if printf '%s\n' "$block" | grep -qE "^--- SKIP: ${t} " \
+      && printf '%s\n' "$block" | grep -q 'NOT MEASURABLE'; then
+      echo "$t: NOT MEASURABLE here (dec-0029) — this machine's own minimum could not judge it; not a pass, not a failure."
+      continue
+    fi
+    echo "$t did not run to a verdict — a budget that skipped without the minimum-discriminator's own reason is not a budget that was met."
+    rc=1
   done
   # On linux the socket assertion is not allowed to skip: it is the only platform
   # where it is more than a skip, which is what internal/perf/NETWORK.md says the
