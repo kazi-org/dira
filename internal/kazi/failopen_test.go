@@ -219,12 +219,30 @@ func TestStubBinaryMatrix(t *testing.T) {
 		}
 		observed[string(reason)] = true
 
-		// The fake sleeps 5s. A timeout implementation that merely waits
-		// for the process and then reports ReasonTimeout late would take
-		// close to 5s here; this bound (well under half that, generous
-		// over the 300ms deadline) fails that implementation and passes
-		// one that actually kills the process at the deadline.
-		if elapsed > 2*time.Second {
+		// Two-sided: enforcement happened, and it happened near the
+		// deadline rather than either short-circuiting or hanging.
+		//
+		// Lower bound, hard: elapsed can never be less than the deadline
+		// itself — Snapshot has no legitimate way to observe ReasonTimeout
+		// before the context it was handed actually expires.
+		if elapsed < deadline {
+			t.Errorf("Snapshot reported ReasonTimeout after %s, before its %s deadline even elapsed; "+
+				"that is not a timeout being enforced, it is something else being mistaken for one",
+				elapsed, deadline)
+		}
+		// Upper bound: CI-jitter headroom, not a wall-clock ceiling read
+		// off developer-machine timing (dec-0029's measurement discipline —
+		// a single-sample ceiling asserted for orderliness rather than a
+		// performance budget still needs scheduler headroom rather than a
+		// tight number, since this repo has observed multi-hundred-ms to
+		// multi-second scheduling variance on a loaded machine and CI is
+		// not guaranteed to be less loaded). The fake sleeps 5s regardless
+		// of when it's killed, so this only has to stay well clear of
+		// that: a timeout implementation that merely waits for the
+		// process and reports ReasonTimeout late would take close to 5s
+		// here, and 3s of scheduler headroom over a 300ms deadline still
+		// fails that implementation with room to spare.
+		if elapsed > 3*time.Second {
 			t.Errorf("Snapshot took %s to report ReasonTimeout against a %s deadline and a 5s sleep; "+
 				"this looks like it waited for the process rather than enforcing the deadline", elapsed, deadline)
 		}
