@@ -52,7 +52,13 @@ func run() error {
 	}
 	defer func() { _ = ix.Close() }()
 
-	srv, err := ui.NewServer(ix, store, "kazi-org/dira")
+	// "dira" is what local.Name() actually returns for this repository — the
+	// basename of the directory holding .dira in a real checkout. It was
+	// "kazi-org/dira" until E6-L3-T8 traced 12/18 pixel-diff pairs to this
+	// literal: Name() takes the last path segment only, so a two-segment
+	// org/repo string is a value it can never produce, and every mockup
+	// rendered from it inherited a header no served page could ever match.
+	srv, err := ui.NewServer(ix, store, "dira")
 	if err != nil {
 		return err
 	}
