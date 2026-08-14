@@ -24,21 +24,32 @@ export const TAGLINE = 'Never explain the same decision twice.';
 // The current status admission. Verbatim in README's status blockquote.
 //
 // NOTE 2026-07-30: this was originally "There is no binary yet." — true when
-// this lane started, false by the time this file was written. E0's Go-module
-// bootstrap landed in README concurrently (a `go build` now produces a binary
-// that answers `--help`/`--version`, nothing else, buildable from source).
-// Updated to the live wording rather than leaving a canonical string that
-// would itself fail the coherence gate it exists to enforce. See
-// docs/decisions-pending/E8-L2-report.md for the full note.
+// this lane started, false a few weeks later. E0's Go-module bootstrap landed
+// in README concurrently (a `go build` now produces a binary that answers
+// `--help`/`--version`, nothing else, buildable from source). Updated then to
+// that live wording; see docs/decisions-pending/E8-L2-report.md for that note.
+//
+// NOTE 2026-08-14: false again. README was rewritten (7f0e66a/09684cd/723eee3)
+// to describe what dira does today rather than what it did on 2026-07-29 —
+// 14 verbs now ship and are tested, so the "answers --help and --version and
+// nothing else" sentence no longer exists anywhere truthful to quote. Kept the
+// export name (an E8-L2 acc predicate checks for its presence, not its
+// wording) but retargeted it at the 14-verb claim: still the single sentence
+// whose falsehood is the most consequential — the moment a verb ships or
+// breaks without a README update, this stops matching and the gate catches
+// it, same job the old string did for the binary's existence.
 export const NO_BINARY =
-  'The binary currently answers --help and --version and nothing else: no log, no why, no brief yet.';
+  "14 verbs are real and tested against this repo's own 43-entry ledger — capture, review, enforcement, cross-project tiers, ADR import, and a read-only web surface all run today.";
 
-// The install-line admission. README states it without naming the tap;
-// docs/plan/lanes/E0.md and E8.md name the tap (`kazi-org/tap/dira`) as the
-// planned path once E0 ships — that plan language is not README/marketing
-// canon, so it is not asserted here as a canonical fact, only used as
-// supplementary detail on the page (see index.html's status line comment).
-export const INSTALL_LINE = 'brew install is not a thing yet.';
+// The install-line admission. Was "brew install is not a thing yet." — still
+// true (there's no tap yet), but README dropped that exact phrasing in the
+// 2026-08-14 rewrite in favor of naming the actual path (build from source).
+// Retargeted to the sentence that is both true today and the one that would
+// actually catch drift: if `brew install` ships, this line stops appearing
+// and the gate fails until the page is told about it. Backtick-free because
+// both normalizers (normalizeMarkdown, normalizeHtml) strip backticks/tags
+// before comparing — a canonical string that still has them can never match.
+export const INSTALL_LINE = 'there is no brew install yet.';
 
 // The category bet (product-marketing.md §1). README never uses these words
 // — it describes the product instead of naming its shelf — so this is

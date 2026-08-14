@@ -392,7 +392,23 @@ code, .mono { font-family: var(--mono); font-size: var(--t-mono); }
   border: 1px solid var(--rule); background: var(--panel); color: var(--ink);
   cursor: pointer; min-height: 40px;
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  /* .btn is also applied to <summary> (distill.gohtml's no-JS edit
+     disclosure). <button> centers its own text and hides list markers by
+     UA default; <summary> does neither (display: list-item, left-aligned).
+     Make the class itself own this instead of relying on the element.
+     appearance: none strips the native control rendering <button> gets by
+     default (form controls use platform text metrics for their box, not
+     plain CSS line-height) so both elements size their content box the
+     same way; without it a <button>'s native height and a <summary>'s
+     CSS-computed height disagreed by ~1px even once both used the same
+     line-height value. line-height is pinned explicitly for the same
+     reason: 'normal' resolves per-element rather than to one shared
+     number. */
+  display: inline-flex; align-items: center; justify-content: center;
+  text-align: center; list-style: none; line-height: 1.2;
+  -webkit-appearance: none; appearance: none;
 }
+.btn::-webkit-details-marker { display: none; }
 .btn:hover { border-color: var(--ink-low); background: var(--sunk); }
 .btn-primary {
   background: var(--converged); border-color: var(--converged);
