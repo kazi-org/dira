@@ -117,6 +117,25 @@ jobs:
             exit 1
           fi
 
+          # E4-L5-T6. The whole-module count above already catches the
+          # entire suite going empty (dec-0004's own honest-degradation
+          # and never-stored proofs among everything else); what it does
+          # NOT catch is these two named tests specifically disappearing
+          # — renamed, or t.Skip()-ed — while the rest of the module keeps
+          # the global count non-zero. Mirrors the ran -eq 0 pattern above
+          # rather than inventing a new idiom.
+          degradation_ran=$(grep -c '^=== RUN   TestDegradation$' "$log" || true)
+          neverstored_ran=$(grep -c '^=== RUN   TestNeverStored$' "$log" || true)
+          echo "TestDegradation ran: $degradation_ran; TestNeverStored ran: $neverstored_ran"
+          if [ "$degradation_ran" -eq 0 ]; then
+            echo "::error::TestDegradation did not run (E4-L5-T1/T2's honest-degradation proof). Renamed or skipped?"
+            exit 1
+          fi
+          if [ "$neverstored_ran" -eq 0 ]; then
+            echo "::error::TestNeverStored did not run (E4-L5-T3/T4's never-stored proof). Renamed or skipped?"
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # The latency gate (int-0002, E1-L6). internal/perf is the only thing in this
   # repository that measures what a hook actually pays: the shipped binary,
