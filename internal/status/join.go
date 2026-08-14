@@ -99,6 +99,21 @@ func runsForGoal(snap *kazi.Portfolio, goalID string) []kazi.RepoRun {
 	return out
 }
 
+// plannedContainsGoal reports whether goalID names any entry in
+// snap.Planned — kazi's own "proposed or approved, not yet running"
+// pipeline. It is what lets a bare goal-<id> ref (which resolveGoalID does
+// not validate against Planned the way a prop-<ref> target already is) be
+// distinguished from a stale or mistyped goal id once no run and no
+// blocked[] entry exists for it either.
+func plannedContainsGoal(snap *kazi.Portfolio, goalID string) bool {
+	for _, p := range snap.Planned {
+		if p.GoalID == goalID {
+			return true
+		}
+	}
+	return false
+}
+
 // blockedForGoal returns every top-level blocked[] entry naming goalID.
 func blockedForGoal(snap *kazi.Portfolio, goalID string) []kazi.BlockedEntry {
 	var out []kazi.BlockedEntry
@@ -177,8 +192,15 @@ func runIDForComplete(runs []kazi.RepoRun) string {
 //  1. No by_repo runs at all. If the goal appears in blocked[], its cause
 //     resolves the bucket directly (this is the DAG-blocked-before-a-run-ever-
 //     started shape: a goal can be blocked by an unmet dependency with no
-//     run_id yet). Otherwise kazi has nothing to say and the row is
-//     unresolved.
+//     run_id yet). Otherwise, if the goal appears in Planned — kazi's own
+//     "approved or proposed, not yet running" pipeline (lane doc point 5) —
+//     the row is dec-0004's Planned bucket, distinct from ToBePlanned (which
+//     is E4-L2's ledger-only "no realized_by edge at all"). A goal-<id> ref
+//     naming nothing kazi has ever recorded (no run, no block, no planned
+//     entry) is reported unresolved rather than guessed as Planned: a bare
+//     goal-<id> target skips the Planned-lookup validation a prop-<ref>
+//     target already passed in resolveGoalID, so this is the one place left
+//     that can catch a stale or mistyped goal id.
 //  2. Exactly one by_repo run, not "terminated": mapRunBucket resolves it
 //     directly, at zero cost — a genuinely single-run goal has nothing to
 //     disambiguate.
@@ -198,8 +220,11 @@ func resolveGoal(ctx context.Context, snap *kazi.Portfolio, goalID string, statu
 		if blocked := blockedForGoal(snap, goalID); len(blocked) > 0 {
 			return bucketForCause(blocked[0].Cause), SourcePortfolio, nil, nil, nil
 		}
+		if plannedContainsGoal(snap, goalID) {
+			return Planned, SourcePortfolio, nil, nil, nil
+		}
 		return "", SourcePortfolio, nil, nil, &UnresolvedDetail{
-			Ref: goalID, Reason: "kazi has no run or blocked record for this goal",
+			Ref: goalID, Reason: "kazi has no run, blocked, or planned record for this goal",
 		}
 	}
 

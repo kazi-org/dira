@@ -309,6 +309,58 @@ func TestJoinBucketMapping(t *testing.T) {
 		}
 	})
 
+	t.Run("a goal with no run and no block but present in Planned maps to Planned", func(t *testing.T) {
+		snap := loadPortfolioFixture(t, "portfolio-populated.json")
+		ctx := context.Background()
+		calls := 0
+		// "e45" is prop-e45's goal id (status: proposed) and has zero
+		// by_repo runs and zero blocked[] entries — a proposal kazi has
+		// accepted into its pipeline but nothing has started yet.
+		if got := len(runsForGoal(snap, "e45")); got != 0 {
+			t.Fatalf("e45: has %d by_repo runs, want 0", got)
+		}
+		if got := len(blockedForGoal(snap, "e45")); got != 0 {
+			t.Fatalf("e45: has %d blocked entries, want 0", got)
+		}
+		bucket, source, ev, amb, unres := resolveGoal(ctx, snap, "e45", neverCalledStatusFn(t), &calls)
+		if bucket != Planned {
+			t.Errorf("Bucket = %q, want %q", bucket, Planned)
+		}
+		if source != SourcePortfolio {
+			t.Errorf("Source = %q, want %q", source, SourcePortfolio)
+		}
+		if ev != nil || amb != nil || unres != nil {
+			t.Errorf("unexpected Evidence/Ambiguous/Unresolved on a Planned row (%+v/%+v/%+v)", ev, amb, unres)
+		}
+		if calls != 0 {
+			t.Errorf("statusFn was called %d times; a planned-only goal needs none", calls)
+		}
+	})
+
+	t.Run("both sides: a stale goal-<id> ref absent from Planned is Unresolved, not guessed as Planned", func(t *testing.T) {
+		snap := loadPortfolioFixture(t, "portfolio-populated.json")
+		ctx := context.Background()
+		calls := 0
+		const unknown = "totally-unknown-goal-nobody-recorded"
+		if len(runsForGoal(snap, unknown)) != 0 || len(blockedForGoal(snap, unknown)) != 0 || plannedContainsGoal(snap, unknown) {
+			t.Fatal("this fixture's own premise broke: the unknown goal id must be absent from every one of kazi's lists")
+		}
+		// The wrong, plausible-looking answer: treat "no run, no block" as
+		// always meaning Planned, without checking Planned at all.
+		naiveAlwaysPlanned := func() Bucket { return Planned }
+		if got := naiveAlwaysPlanned(); got != Planned {
+			t.Fatalf("the naive control's own premise broke: got %q, want Planned", got)
+		}
+
+		bucket, _, _, _, unres := resolveGoal(ctx, snap, unknown, neverCalledStatusFn(t), &calls)
+		if bucket == Planned {
+			t.Fatal("a goal id absent from every one of kazi's lists must never be guessed as Planned")
+		}
+		if bucket != "" || unres == nil {
+			t.Errorf("Bucket = %q, Unresolved = %+v, want the zero value with a named reason", bucket, unres)
+		}
+	})
+
 	t.Run("a single-run terminated status never maps to InProgress", func(t *testing.T) {
 		snap := loadPortfolioFixture(t, "portfolio-populated.json")
 		runs := runsForGoal(snap, "t1-3-tenant-default-calibration")
