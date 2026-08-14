@@ -21,6 +21,13 @@ import (
 // This test lives in internal/ui rather than in schema because internal/ui is
 // what serves those fixtures: the thing that consumes the fixture is the thing
 // that should refuse an invalid one.
+//
+// The directory it reads is DIRA_FIXTURE_ENTRIES_DIR when set, and the real
+// committed path otherwise (E6-L3-T7). The env var exists so docs/design/
+// scripts/fixture-schema.mjs's --probe-invalid case can point this same test
+// at a mutated COPY of the fixtures — proving the check can fail — without
+// ever touching the committed corpus to make that easy, and without a second
+// copy of this test's logic living in the .mjs file.
 func TestDesignFixturesValidate(t *testing.T) {
 	t.Parallel()
 
@@ -30,6 +37,9 @@ func TestDesignFixturesValidate(t *testing.T) {
 	}
 
 	dir := filepath.Join(repoRoot(t), "docs", "design", "fidelity", "fixtures", "ledger-design", "entries")
+	if override := os.Getenv("DIRA_FIXTURE_ENTRIES_DIR"); override != "" {
+		dir = override
+	}
 	files, err := filepath.Glob(filepath.Join(dir, "*.md"))
 	if err != nil {
 		t.Fatal(err)
