@@ -1,0 +1,6 @@
+[ledger]
+name = "sire-workspace"
+tier = "workspace"
+
+[parents]
+me = { path = "../../me", visibility = "private", label = "the founder's own ledger" }

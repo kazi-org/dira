@@ -1,0 +1,6 @@
+[ledger]
+name = "sire"
+tier = "workspace"
+
+[parents]
+me = { path = "../../me" }
