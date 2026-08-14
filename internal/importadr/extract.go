@@ -254,7 +254,6 @@ func sameOption(a, b string) bool {
 	return na == nb || strings.Contains(na, nb) || strings.Contains(nb, na)
 }
 
-
 // chosenOutcomeRe pulls the label out of a "Chosen option: X" / "Chosen
 // options: X" line, in whichever of the corpus's own phrasings it appears.
 var chosenOutcomeRe = regexp.MustCompile(`(?i)^chosen options?:?\s+(.+?)\s*$`)

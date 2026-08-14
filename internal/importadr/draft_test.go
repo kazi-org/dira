@@ -75,15 +75,18 @@ func TestImportPolicy(t *testing.T) {
 			// entry has no such field) — the excerpt is where this policy
 			// records where it came from, so recover the source document
 			// through it for this check.
-			path, ok := pathFromExcerpt(draft.Source.Excerpt)
+			key, ok := ParseImportExcerpt(draft.Source.Excerpt)
 			if !ok {
-				t.Errorf("%s: excerpt %q does not name a source path", draft.Title, draft.Source.Excerpt)
+				t.Errorf("%s: excerpt %q does not parse as one of this policy's own", draft.Title, draft.Source.Excerpt)
 				continue
 			}
-			source, ok := byPath[path]
+			source, ok := byPath[key.Path]
 			if !ok {
-				t.Errorf("draft excerpt names %q, which is not a scanned document", path)
+				t.Errorf("draft excerpt names %q, which is not a scanned document", key.Path)
 				continue
+			}
+			if source.SHA256 != key.SHA256 {
+				t.Errorf("draft excerpt for %q carries sha256 %s, want %s", key.Path, key.SHA256, source.SHA256)
 			}
 			reasoned := map[string]string{}
 			for _, alt := range source.Alternatives {
@@ -254,15 +257,4 @@ func draftWithEmptyWhyNot(docs []ScannedDocument) []*ledger.Entry {
 		out = append(out, entry)
 	}
 	return out
-}
-
-// pathFromExcerpt recovers the source path draftExcerpt encoded, so a test
-// can check a draft's alternatives against the document that produced them
-// without this package storing a path field on the entry itself.
-func pathFromExcerpt(excerpt string) (string, bool) {
-	const prefix = "imported from "
-	if len(excerpt) <= len(prefix) || excerpt[:len(prefix)] != prefix {
-		return "", false
-	}
-	return excerpt[len(prefix):], true
 }
