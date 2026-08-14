@@ -22,10 +22,10 @@
 
 ---
 
-> **Status: working, pre-release.** 13 verbs are real and tested against this repo's
-> own 43-entry ledger — capture, review, enforcement, cross-project tiers, and a
-> read-only web surface all run today. Build it from source (below); there is no
-> `brew install` yet. Stars and issues welcome.
+> **Status: working, pre-release.** 14 verbs are real and tested against this repo's
+> own 43-entry ledger — capture, review, enforcement, cross-project tiers, ADR
+> import, and a read-only web surface all run today. Build it from source (below);
+> there is no `brew install` yet. Stars and issues welcome.
 
 ## What dira is
 
@@ -81,12 +81,11 @@ Every line below is a real run against the binary built from this worktree
 | `supersede` | retires an entry in favour of the one that replaces it, writing both sides | `dira supersede dec-0001 --with dec-0003 --note "…"` → `dec-0001 is superseded by dec-0003; dira check now cites dec-0003 in its place` |
 | `ui` | serves the ledger index and per-entry pages on loopback, no JS required | `dira ui -addr 127.0.0.1:8942` → `serving the ledger read-only; ctrl-c to stop` (`curl` returns `200`) |
 | `install-hooks` | merges dira's Claude Code hook registrations (`SessionStart`/`Stop`/`PreCompact`) into a settings file, merge-never-clobber; defaults to `~/.claude/settings.json` | `dira install-hooks --dir DIR` → `INSTALLED DIR/settings.json` |
-| `import` *(not shipped)* | — | see below: `dira` has no `import` command today; `dec-0028` scopes it as a planned lane, not built |
 | `install-skill` | writes dira's tier-2 capture skill into `~/.claude` for Claude Code to load; defaults to `~/.claude` | `dira install-skill --root DIR` → `INSTALLED DIR/skills/dira/SKILL.md` |
 | `reindex` | rebuilds the derived SQLite cache from the entry files alone | `dira reindex` → `indexed 43 entries and 87 edges from .dira into .dira/cache` |
+| `import` | measures a directory of ADRs, reports the yield, and asks before writing; see below | `dira import DIR` → `2 documents scanned` / `2 record a rejected option with a reason` |
 | `version` | prints the binary's version | `dira version` → `dev` on a plain build |
 
-`import` is listed only to correct a common assumption: it does not exist yet.
 Run `dira --help` for the authoritative, current list — that is the source this
 table was built from, not the other way around.
 
@@ -160,6 +159,49 @@ contract dira holds everywhere: `0` no conflict, `2` a verdict against the plan,
 `1` as a verdict. `dira supersede` is the only way past a settled decision: it
 writes both sides — the replacement gains a `supersedes` edge, the retired entry's
 state becomes `superseded` — and `check` starts citing the replacement instead.
+
+## How import works
+
+An existing pile of ADRs is not thrown away — `dira import DIR` measures it before
+writing anything. Real output, run against a scratch ledger in a temp directory
+seeded with two documents from the vendored `bbc/tams` corpus
+(`internal/importadr/testdata/corpora/bbc-tams`), never against this repo's own
+`.dira`:
+
+```
+$ dira import /tmp/dira-import-demo/adrs
+2 documents scanned
+2 record a rejected option with a reason
+23 reasons found
+Import the 2 entries that carry a reason?
+```
+
+That's the report-and-ask mode `dira import DIR` runs by default — nothing is
+written until the prompt is answered yes, either interactively or with `--yes`.
+Confirming imports one staged `decision` entry per document, each `alternatives`
+list built from the document's own rejected options and `source.hook: import`
+recording which file and content hash it came from — real output, trimmed to one
+alternative:
+
+```yaml
+alternatives:
+  - option: "Option 1: Add a Source representation"
+    why_not: >
+      Source data are potentially duplicated between this API and other systems
+      (e.g. external MAM/PAM systems)
+source:
+  hook: import
+  excerpt: "imported from 0002-add-sources-to-api.md (sha256:97bdb1b4…)"
+  tier: regex
+```
+
+When a corpus yields nothing — no document records a reasoned rejection — import
+offers to index it instead: a manifest under `.dira/cache/imports/`, never a
+ledger entry, because a `decision` entry `dira check` can't cite anything against
+is worse than not having it. `dec-0028` records the evidence this rests on: five
+real corpora measured before the importer was built, from 90% of documents
+carrying a reason (`bbc/tams`) down to 0% (`nulib/meadow`) — the importer has to
+behave correctly at both ends of that range, not just the rich end.
 
 ## What it answers
 
@@ -270,7 +312,7 @@ hook while you wait for a prompt ([int-0002](.dira/entries/int-0002.md),
 
 ## Status
 
-**Working, pre-release.** All 13 verbs above are shipped, tested, and enforced
+**Working, pre-release.** All 14 verbs above are shipped, tested, and enforced
 against this repo's own ledger — `go test ./...` is green. What that status means
 concretely:
 
