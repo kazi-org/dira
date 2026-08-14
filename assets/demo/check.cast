@@ -1,0 +1,5 @@
+{"version":2,"width":92,"height":14,"timestamp":1786746494,"command":"./assets/demo/record-check.sh","env":{"SHELL":"/bin/zsh"}}
+[0.742182, "o", "\u001b[3J\u001b[H\u001b[2J"]
+[0.743031, "o", "$ dira check \"add a background daemon to track run state\"\r\n"]
+[0.847942, "o", "✗ conflicts with dec-0060 (accepted 2026-07-03)\r\n    rejected alternative: \"a daemon\"\r\n    why_not: violates the single-binary intent (int-0002)\r\n    revisit_if: cold-start latency stops being the binding constraint\r\n→ supersede dec-0060, or revise the plan\r\n"]
+[0.851452, "x", "2"]
