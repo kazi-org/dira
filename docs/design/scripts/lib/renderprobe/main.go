@@ -7,7 +7,8 @@
 //
 // Usage: go run ./docs/design/scripts/lib/renderprobe <path>
 // e.g.:  go run ./docs/design/scripts/lib/renderprobe /
-//        go run ./docs/design/scripts/lib/renderprobe /e/dec-0001
+//
+//	go run ./docs/design/scripts/lib/renderprobe /e/dec-0001
 package main
 
 import (
