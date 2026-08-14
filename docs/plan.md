@@ -190,12 +190,12 @@ of the founder's stated priority and the only lane with a decomposed breakdown.
 
 - [x] E2-L3-T1 — the contract corpus, 14 cases over 12 fixtures, four emptiness floors
 - [x] E2-L3-T2 — the shipped example IS the registrations, by embedding it
-- [ ] E2-L3-T3 — the byte-span JSON scanner and splicer · deps: [T1]
-- [ ] E2-L3-T4 — install: merge-never-clobber, idempotent, ownership by prefix · deps: [T2, T3]
-- [ ] E2-L3-T5 — uninstall: the exact inverse, including the deletion decision · deps: [T4]
-- [ ] E2-L3-T6 — the CLI with `--local`, `--dir`, `--uninstall`, confined root · deps: [T4, T5]
-- [ ] E2-L3-T7 — every command string the installer writes is accepted by the binary · deps: [T2, T6]
-- [ ] E2-L3-T8 — the installed strings fail open, with the failure path observed firing · deps: [T6]
+- [x] E2-L3-T3 — the byte-span JSON scanner and splicer · deps: [T1]
+- [x] E2-L3-T4 — install: merge-never-clobber, idempotent, ownership by prefix · deps: [T2, T3]
+- [x] E2-L3-T5 — uninstall: the exact inverse, including the deletion decision · deps: [T4]
+- [x] E2-L3-T6 — the CLI with `--local`, `--dir`, `--uninstall`, confined root · deps: [T4, T5]
+- [x] E2-L3-T7 — every command string the installer writes is accepted by the binary · deps: [T2, T6]
+- [x] E2-L3-T8 — the installed strings fail open, with the failure path observed firing · deps: [T6]
 
 **Two hazards recorded in the task file, not to be rediscovered.** Ownership must
 match by **command prefix, not whole string** — `--all` was added to the installed

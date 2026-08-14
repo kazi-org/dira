@@ -60,39 +60,39 @@ path), `dec-0012` (static, non-hosted), plus the deliverable-shaped launch asset
 
 Wave 1 — the site exists and shows the ledger (parallel-safe after T1):
 
-- [ ] W1-T1 Scaffold `site/`: Astro + Tailwind + sitemap, `site: "https://dira.sire.run"`,
+- [x] W1-T1 Scaffold `site/`: Astro + Tailwind + sitemap, `site: "https://dira.sire.run"`,
   `base: "/"`, `public/CNAME` = `dira.sire.run`, version badge sourced from git
   describe with a "pre-release" fallback until E0's release scaffolding tags. Record
   the architecture decision in dira's own ledger via `dira log` (mirror-kazi-site,
   citing dec-0012 and kazi ADR-0018) — the site plan dogfoods the product.
   `verifies: [dec-0012]` · `acc: [cd site && npm ci && npm run build emits dist/index.html and dist/CNAME containing dira.sire.run]`
-- [ ] W1-T2 Landing page `src/pages/index.astro` from the E8-L2 gated draft copy in
+- [x] W1-T2 Landing page `src/pages/index.astro` from the E8-L2 gated draft copy in
   `docs/growth/drafts/` — copy sourced, not rewritten; strapline identical to
   README's ("Never explain the same decision twice."). No analytics, no trackers.
   `verifies: [note-0001]` · `acc: [built dist/index.html contains the README strapline verbatim and no docs/growth draft-gate marker strings]`
-- [ ] W1-T3 The why pages: a build script that runs the locally built dira binary,
+- [x] W1-T3 The why pages: a build script that runs the locally built dira binary,
   serves `dira ui` against dira's own `.dira/` ledger, snapshots `/why/dec-0001` (and
   the index) to static HTML under `site/src/pages/why/`, styled by the site shell.
   Swap point to `dira render` documented inline for when E6-L3 merges.
   `verifies: [dec-0010]` · `acc: [dist/why/dec-0001/index.html exists and contains the rejected alternative "Elixir/OTP" with its why_not text]`
-- [ ] W1-T4 Docs page: install-from-source, the verb tour (one line + one real output
+- [x] W1-T4 Docs page: install-from-source, the verb tour (one line + one real output
   block per verb, generated from the built binary so it cannot go stale), link map to
   repo docs. `verifies: [note-0001]` · `acc: [a site build with a verb missing from the generated tour fails; the complete tour passes — both sides proven]`
 
 Wave 2 — gates, tests, and the founder handoff:
 
-- [ ] W2-T5 `.github/workflows/site.yml`: PR-triggered build job (always), deploy job
+- [x] W2-T5 `.github/workflows/site.yml`: PR-triggered build job (always), deploy job
   present but `workflow_dispatch`-only behind a `pages-live` environment — the deploy
   exists, is reviewable, and CANNOT fire until the founder activates it.
   `verifies: [infrastructure]` · `acc: [CI on a PR touching site/ runs the build job green; the deploy job is absent from push-triggered runs]`
-- [ ] W2-T6 Playwright smoke in `site/tests/`: homepage renders with strapline, the
+- [x] W2-T6 Playwright smoke in `site/tests/`: homepage renders with strapline, the
   dec-0001 why page shows all four rejection rows, zero broken internal links.
   `verifies: [dec-0010]` · `acc: [npx playwright test in site/ exits 0 locally; deleting the why snapshot makes the link test fail — both sides proven]`
-- [ ] W2-T7 README-site coherence gate (kazi's canonical.mjs pattern): strapline,
+- [x] W2-T7 README-site coherence gate (kazi's canonical.mjs pattern): strapline,
   verb list, and install instructions must match between README.md and the site
   source; wired into the site build. `verifies: [infrastructure]` ·
   `acc: [mutating the README strapline makes the coherence check exit non-zero; restoring it passes — both sides proven]`
-- [ ] W2-T8 Founder activation runbook `docs/growth/site-activation.md`: the exact
+- [x] W2-T8 Founder activation runbook `docs/growth/site-activation.md`: the exact
   DNS CNAME record, GitHub Pages custom-domain + HTTPS steps, environment approval,
   first-deploy command, and post-deploy verification (curl the live why page). Ends
   at "ready for David"; contains no action a session may take itself.
