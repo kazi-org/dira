@@ -2,8 +2,13 @@ package ui
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"html/template"
+	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -11,6 +16,7 @@ import (
 	"testing"
 	texttemplate "text/template"
 
+	"github.com/kazi-org/dira/internal/frontmatter"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/ledger/local"
@@ -37,10 +43,21 @@ func distillEntry(id, title string) *ledger.Entry {
 // distillServer opens a fresh temp ledger holding entries and serves it.
 func distillServer(t *testing.T, entries ...*ledger.Entry) *httptest.Server {
 	t.Helper()
+	srv, _ := distillServerDir(t, entries...)
+	return srv
+}
+
+// distillServerDir is distillServer plus the entries directory, for tests
+// (T3, T4) that have to read the files a POST wrote back — the queue itself
+// never hands out a path (dec-0005), so a test that wants to see the disk has
+// to build it, not borrow it from the store.
+func distillServerDir(t *testing.T, entries ...*ledger.Entry) (*httptest.Server, string) {
+	t.Helper()
 
 	root := t.TempDir()
 	dira := filepath.Join(root, ".dira")
-	if err := os.MkdirAll(filepath.Join(dira, "entries"), 0o755); err != nil {
+	entriesDir := filepath.Join(dira, "entries")
+	if err := os.MkdirAll(entriesDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
 	store, err := local.Open(dira)
@@ -65,7 +82,7 @@ func distillServer(t *testing.T, entries ...*ledger.Entry) *httptest.Server {
 	}
 	srv := httptest.NewServer(s)
 	t.Cleanup(srv.Close)
-	return srv
+	return srv, entriesDir
 }
 
 // ---------------------------------------------------------------------------
@@ -325,6 +342,283 @@ func TestDistillOnlyAnAwaitingTopCardIsActionable(t *testing.T) {
 	if !strings.Contains(body, `class="stage next" data-id="dec-0001"`) {
 		t.Error(`the same entry is not rendered dimmed (class="stage next") either; it has vanished from the deck`)
 	}
+}
+
+// ---------------------------------------------------------------------------
+// E6-L3-T3: Confirm and Reject through a no-JS form POST
+// ---------------------------------------------------------------------------
+
+func readFileT(t *testing.T, path string) string {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+	return string(data)
+}
+
+// ledgerSHA is a sha256 over every entry file's name, length and bytes — the
+// same "nothing else was touched" shape internal/distill's own dispose_test.go
+// uses (ledgerDigest), reimplemented here because that helper is unexported
+// in a different package.
+func ledgerSHA(t *testing.T, entriesDir string) string {
+	t.Helper()
+	names, err := os.ReadDir(entriesDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := sha256.New()
+	for _, n := range names {
+		if n.IsDir() {
+			continue
+		}
+		data := readFileT(t, filepath.Join(entriesDir, n.Name()))
+		_, _ = fmt.Fprintf(h, "%s\x00%d\x00%s", n.Name(), len(data), data)
+	}
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// frontmatterSHA hashes a file's frontmatter with the named top-level keys
+// dropped — a sha256 over the lines, not over decoded fields, so a re-ordered
+// or re-wrapped key counts as a change. The comparison internal/distill/
+// edit.go's onlyTheBody makes for `e` at the write, made independently here at
+// the boundary that has to trust it happened.
+func frontmatterSHA(t *testing.T, raw string, dropKeys ...string) string {
+	t.Helper()
+	front, _, err := frontmatter.Split([]byte(raw))
+	if err != nil {
+		t.Fatalf("splitting frontmatter: %v", err)
+	}
+	var kept []string
+	for _, line := range strings.Split(string(front), "\n") {
+		drop := false
+		for _, k := range dropKeys {
+			if strings.HasPrefix(line, k+":") {
+				drop = true
+			}
+		}
+		if !drop {
+			kept = append(kept, line)
+		}
+	}
+	sum := sha256.Sum256([]byte(strings.Join(kept, "\n")))
+	return hex.EncodeToString(sum[:])
+}
+
+// swapLines moves the line beginning with second above the line beginning
+// with first, changing key order and nothing else — the cheapest artefact a
+// handler that round-tripped an entry through json/yaml marshal (rather than
+// calling distill.Confirm/Discard/EditBody directly) would produce: every
+// scalar re-encoded instead of re-emitted, which reorders keys a decoded-field
+// comparison cannot see and a byte comparison can.
+func swapLines(file, first, second string) string {
+	lines := strings.Split(file, "\n")
+	a, b := -1, -1
+	for i, line := range lines {
+		if a < 0 && strings.HasPrefix(line, first) {
+			a = i
+		}
+		if b < 0 && strings.HasPrefix(line, second) {
+			b = i
+		}
+	}
+	if a < 0 || b < 0 {
+		return file
+	}
+	lines[a], lines[b] = lines[b], lines[a]
+	return strings.Join(lines, "\n")
+}
+
+// postNoRedirect POSTs a form and returns the response exactly as the server
+// sent it — no client-side redirect following — so a test can assert the 303
+// and its Location itself, rather than the page a redirect eventually lands
+// on.
+func postNoRedirect(t *testing.T, srv *httptest.Server, path string, form url.Values) *http.Response {
+	t.Helper()
+	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	resp, err := client.PostForm(srv.URL+path, form)
+	if err != nil {
+		t.Fatalf("POST %s: %v", path, err)
+	}
+	t.Cleanup(func() { _ = resp.Body.Close() })
+	return resp
+}
+
+// TestDistillDispose is E6-L3-T3's acceptance line.
+//
+// red today: the two routes do not exist; any POST to /distill/... 404s
+// through route's default case (docs/plan/tasks/E6-L3.md's own "red today"
+// note for this task) — witnessed directly against this branch's pre-T3
+// state and recorded in this lane's commit history rather than reproduced a
+// second time here.
+func TestDistillDispose(t *testing.T) {
+	t.Parallel()
+
+	t.Run("confirm writes confirmed_by and updated, leaves state staged, touches nothing else", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0001", "ship the thing without asking twice"))
+		path := filepath.Join(dir, "dec-0001.md")
+		before := readFileT(t, path)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0001/confirm", nil)
+		if resp.StatusCode != http.StatusSeeOther {
+			t.Fatalf("POST /distill/dec-0001/confirm = %d, want 303", resp.StatusCode)
+		}
+		if got := resp.Header.Get("Location"); got != "/distill" {
+			t.Errorf("Location = %q, want /distill (a page reload must not resubmit the write)", got)
+		}
+
+		after := readFileT(t, path)
+		if before == after {
+			t.Fatal("confirm did not change the file at all")
+		}
+		if !strings.Contains(after, "confirmed_by: human") {
+			t.Errorf("confirmed file does not carry confirmed_by: human:\n%s", after)
+		}
+		if !strings.Contains(after, "state: staged") {
+			t.Errorf("confirmed file is no longer staged (dec-0025):\n%s", after)
+		}
+		if got, want := frontmatterSHA(t, after, "confirmed_by", "updated"), frontmatterSHA(t, before, "confirmed_by", "updated"); got != want {
+			t.Error("confirm changed a frontmatter field other than confirmed_by and updated")
+		}
+
+		body := mustGet(t, srv, "/distill")
+		if strings.Contains(body, `class="stage" data-id="dec-0001"`) {
+			t.Error("dec-0001 is still offered as the actionable top card after being confirmed")
+		}
+	})
+
+	t.Run("discard deletes the entry; it disappears from the deck entirely", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0002", "drop the flaky test"))
+		path := filepath.Join(dir, "dec-0002.md")
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0002/discard", nil)
+		if resp.StatusCode != http.StatusSeeOther {
+			t.Fatalf("POST /distill/dec-0002/discard = %d, want 303", resp.StatusCode)
+		}
+		if got := resp.Header.Get("Location"); got != "/distill" {
+			t.Errorf("Location = %q, want /distill", got)
+		}
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("dec-0002.md still exists after discard (dec-0024): %v", err)
+		}
+
+		body := mustGet(t, srv, "/distill")
+		if strings.Contains(body, "dec-0002") {
+			t.Error("a discarded entry is still referenced somewhere in the served page")
+		}
+	})
+
+	t.Run("a GET to either action path is refused with 405 and touches nothing", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0003", "one"))
+		before := ledgerSHA(t, dir)
+
+		for _, path := range []string{"/distill/dec-0003/confirm", "/distill/dec-0003/discard"} {
+			code, _ := get(t, srv, path)
+			if code != http.StatusMethodNotAllowed {
+				t.Errorf("GET %s = %d, want 405", path, code)
+			}
+		}
+		if after := ledgerSHA(t, dir); after != before {
+			t.Error("a refused GET changed the ledger")
+		}
+	})
+
+	t.Run("a POST for an id that is not staged is refused and writes nothing", func(t *testing.T) {
+		t.Parallel()
+		accepted := decisionInState(t, "dec-0004", "already settled", ledger.StateAccepted)
+		srv, dir := distillServerDir(t, accepted)
+		before := ledgerSHA(t, dir)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0004/confirm", nil)
+		if resp.StatusCode == http.StatusSeeOther {
+			t.Fatal("confirming a non-staged entry redirected as if it had succeeded")
+		}
+		if after := ledgerSHA(t, dir); after != before {
+			t.Error("a refused confirm on a non-staged entry changed the ledger")
+		}
+	})
+
+	t.Run("a POST for an id that does not exist is refused and writes nothing", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0005", "one"))
+		before := ledgerSHA(t, dir)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-9999/confirm", nil)
+		if resp.StatusCode == http.StatusSeeOther {
+			t.Fatal("confirming a nonexistent entry redirected as if it had succeeded")
+		}
+		if after := ledgerSHA(t, dir); after != before {
+			t.Error("a refused confirm on a nonexistent entry changed the ledger")
+		}
+	})
+
+	// Both sides of the byte-identical-frontmatter assertion: a handler that
+	// round-tripped the entry through json/yaml marshal instead of calling
+	// distill.Confirm directly would re-encode every scalar rather than
+	// re-emit the bytes read from disk, which reorders keys. The comparison
+	// above has to be able to see that, or it proves nothing.
+	t.Run("the frontmatter-preservation comparison is not vacuous", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0006", "one"))
+		path := filepath.Join(dir, "dec-0006.md")
+		before := readFileT(t, path)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0006/confirm", nil)
+		if resp.StatusCode != http.StatusSeeOther {
+			t.Fatalf("setup: confirm failed with %d", resp.StatusCode)
+		}
+		after := readFileT(t, path)
+		if got, want := frontmatterSHA(t, after, "confirmed_by", "updated"), frontmatterSHA(t, before, "confirmed_by", "updated"); got != want {
+			t.Fatal("setup: the real handler already fails the comparison; the control below would prove nothing")
+		}
+
+		corrupted := swapLines(after, "kind:", "title:")
+		if corrupted == after {
+			t.Fatal("the control did not change anything; it stages no defect")
+		}
+		if got, want := frontmatterSHA(t, corrupted, "confirmed_by", "updated"), frontmatterSHA(t, before, "confirmed_by", "updated"); got == want {
+			t.Error("frontmatterSHA cannot tell a reordered frontmatter from an untouched one; the real-handler assertions above prove nothing")
+		}
+	})
+
+	// The 405 assertion's other side: a route registered for all methods
+	// would let this same request through as a write.
+	t.Run("the 405 assertion is not vacuous", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0007", "one"))
+		code, _ := get(t, srv, "/distill/dec-0007/confirm")
+		if code != http.StatusMethodNotAllowed {
+			t.Fatalf("setup: GET /distill/dec-0007/confirm = %d, want 405 before staging the control", code)
+		}
+		// A route registered for GET as well (the mistake this assertion
+		// exists to catch) would have disposed of dec-0007 on the GET
+		// above; the file must therefore still be staged and unconfirmed.
+		after := readFileT(t, filepath.Join(dir, "dec-0007.md"))
+		if strings.Contains(after, "confirmed_by:") {
+			t.Error("the 405 GET disposed of the entry anyway; the assertion above is not measuring what it claims to")
+		}
+	})
+}
+
+// decisionInState builds a decision this ledger will accept outside `staged`
+// — ledger.Entry.Validate requires at least one alternative the moment a
+// decision leaves staged (dec-0021), so a bare state flip on distillEntry's
+// output would fail to write at all and the "not staged" test would be
+// exercising a setup error, not the handler's refusal.
+func decisionInState(t *testing.T, id, title string, state ledger.State) *ledger.Entry {
+	t.Helper()
+	e := distillEntry(id, title)
+	e.State = state
+	e.ConfirmedBy = "human"
+	e.Source.Tier = ledger.TierHuman
+	e.Source.Hook = ledger.HookManual
+	e.Alternatives = []ledger.Alternative{{Option: "do nothing at all", WhyNot: "the problem does not go away on its own"}}
+	return e
 }
 
 // equal is shared with distill_mockup_test.go's TestDistillMockupMatchesTheQueue.

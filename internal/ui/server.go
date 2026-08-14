@@ -9,7 +9,9 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/kazi-org/dira/internal/distill"
 	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/why"
 )
@@ -85,6 +87,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) { s.mux.Serve
 // nothing in the command path may cost int-0002's budget, and this is one
 // prefix test.
 func (s *Server) route(w http.ResponseWriter, r *http.Request) {
+	// /distill/<id>/<action> is checked first and unconditionally, ahead of
+	// the read-only method gate below: it is the one family of routes that
+	// takes a POST at all (T3, T4), and it enforces its own method (POST
+	// only) rather than borrowing the GET-only refusal every other route
+	// shares.
+	if action, id, ok := distillActionPath(r.URL.Path); ok {
+		s.distillAction(w, r, action, id)
+		return
+	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		s.fail(w, r, http.StatusMethodNotAllowed, "This surface is read-only.",
 			"Every route here is a GET. dira's write path is the CLI and the hooks.")
@@ -101,6 +112,23 @@ func (s *Server) route(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, r, http.StatusNotFound, "No such page.",
 			"The surfaces are the ledger index at /, a decision at /e/<id>, and the distill queue at /distill.")
 	}
+}
+
+// distillActionPath recognizes "/distill/<id>/<action>" and splits it. It
+// does not validate id or action — distillAction does, so that a malformed id
+// and an unknown action are both refused the same way (a 404 that names what
+// a valid one looks like) rather than one of them 404ing through route's
+// default case with a different message.
+func distillActionPath(path string) (action, id string, ok bool) {
+	rest, found := strings.CutPrefix(path, "/distill/")
+	if !found || rest == "" {
+		return "", "", false
+	}
+	i := strings.LastIndex(rest, "/")
+	if i <= 0 || i == len(rest)-1 {
+		return "", "", false
+	}
+	return rest[i+1:], rest[:i], true
 }
 
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
@@ -121,6 +149,78 @@ func (s *Server) distill(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.render(w, r, "distill.gohtml", view)
+}
+
+// distillAction is the write half of the deck: confirm and discard, both
+// POST-only (T4 adds edit). It refuses a GET the same way the read routes
+// refuse a POST — a 405, not a silent success — because the point of a form
+// POST is that a page reload never resubmits it, and that only holds if the
+// method is enforced.
+func (s *Server) distillAction(w http.ResponseWriter, r *http.Request, action, id string) {
+	if r.Method != http.MethodPost {
+		s.fail(w, r, http.StatusMethodNotAllowed, "This action takes a form POST.",
+			"Confirm and reject each answer a POST from the deck's own forms; nothing here answers a GET.")
+		return
+	}
+	if !ledger.ValidID(id) {
+		s.fail(w, r, http.StatusNotFound, "That is not an entry id.",
+			"An id looks like dec-0001 — a kind prefix and four digits.")
+		return
+	}
+	switch action {
+	case "confirm":
+		s.distillConfirm(w, r, id)
+	case "discard":
+		s.distillDiscard(w, r, id)
+	default:
+		s.fail(w, r, http.StatusNotFound, "No such action.",
+			"The distill queue offers confirm and reject.")
+	}
+}
+
+// distillEntry reads the entry a /distill action targets, translating
+// ledger.ErrNotFound into the same 404 the read routes give a stranger's
+// stale link.
+func (s *Server) distillEntry(w http.ResponseWriter, r *http.Request, id string) (*ledger.Entry, bool) {
+	entry, err := s.store.Get(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, ledger.ErrNotFound) {
+			s.fail(w, r, http.StatusNotFound, "No entry with that id.",
+				"It may have been an id in another ledger, or a link written before the entry existed.")
+			return nil, false
+		}
+		s.oops(w, r, err)
+		return nil, false
+	}
+	return entry, true
+}
+
+// distillConfirm is `y`: POST /distill/<id>/confirm.
+func (s *Server) distillConfirm(w http.ResponseWriter, r *http.Request, id string) {
+	entry, ok := s.distillEntry(w, r, id)
+	if !ok {
+		return
+	}
+	if _, err := distill.Confirm(r.Context(), s.store, entry, time.Now()); err != nil {
+		s.fail(w, r, http.StatusBadRequest, "That entry could not be confirmed.", err.Error())
+		return
+	}
+	// 303, not 302: a reload of the response must re-issue the GET the
+	// redirect points at, never resubmit the POST that got here.
+	http.Redirect(w, r, "/distill", http.StatusSeeOther)
+}
+
+// distillDiscard is `n`: POST /distill/<id>/discard.
+func (s *Server) distillDiscard(w http.ResponseWriter, r *http.Request, id string) {
+	entry, ok := s.distillEntry(w, r, id)
+	if !ok {
+		return
+	}
+	if _, err := distill.Discard(r.Context(), s.store, entry); err != nil {
+		s.fail(w, r, http.StatusBadRequest, "That entry could not be rejected.", err.Error())
+		return
+	}
+	http.Redirect(w, r, "/distill", http.StatusSeeOther)
 }
 
 func (s *Server) decision(w http.ResponseWriter, r *http.Request, id string) {
