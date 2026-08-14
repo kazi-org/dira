@@ -44,6 +44,7 @@ constraint, a note, or a decision/intent already at rest.
 | `ambiguous_statuses` | array of strings, present only when the join could not resolve conflicting runs | every distinct raw status kazi reported across the conflicting runs |
 | `unresolved` | object `{ref, reason}`, present only when the join could not answer at all | why |
 | `blocks` | string, omitted if absent | the id this entry's own `blocks` edge names — typically an open question's row, independent of `bucket` |
+| `terminal` | string, omitted if not applicable | `"achieved"` or `"abandoned"` for an intent already at that lifecycle end — mutually exclusive with `bucket`, and part of what a degraded run still shows (`dec-0004`) |
 
 ## `degraded`
 
