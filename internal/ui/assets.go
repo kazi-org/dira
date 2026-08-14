@@ -6,9 +6,14 @@
 // dec-0012. The rendered decision pages are dec-0010's long-tail acquisition
 // surface, and a page a crawler cannot read is invisible to the one channel it
 // exists to feed. On localhost the data is already in-process, so a JSON API
-// exists only to serialise to yourself. Every page here renders complete with
-// JavaScript disabled, and this package emits no <script> at all — asserted by
-// TestNoScriptAnywhere rather than by intention.
+// exists only to serialise to yourself. / and /e/<id> render complete with
+// JavaScript disabled and carry no <script> at all, asserted by
+// TestNoScriptOnAnySurface. /distill is the one exception (E6-L3-T5): it is a
+// localhost app view a human disposes decisions from, not the crawlable
+// public renderer dec-0012's reasoning covers, and its <script> is
+// progressive enhancement over forms that already work without it — asserted
+// by TestDistillHasExactlyOneScript rather than left as a second, silent
+// carve-out of the claim above.
 //
 // # One producer behind both renderers
 //
