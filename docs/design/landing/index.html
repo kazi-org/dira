@@ -23,11 +23,11 @@
    .btn, .made are the shared tokens.css components, used unmodified.
 
    What this page deliberately does NOT contain: an install command that
-   works (there is no binary — see .status below), and the `dira init`
-   import/retrospective clip. That clip answers qst-0003 (does importing an
-   existing ADR corpus produce a useful ledger, or a second pile?), which is
-   open and unowned. Leading with it would assert a value this project has
-   not yet earned the right to claim. */
+   works (there is no `brew install` yet — see .status below), and the
+   `dira init` import/retrospective clip. That clip answers qst-0003 (does
+   importing an existing ADR corpus produce a useful ledger, or a second
+   pile?), which is open and unowned. Leading with it would assert a value
+   this project has not yet earned the right to claim. */
 
 .wrap { max-width: 920px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
 
@@ -243,12 +243,11 @@ section.block:last-of-type { border-bottom: 0; }
   <section class="block">
     <h2 class="seclabel">Status</h2>
     <div class="card status">
-      <p><b>Design phase.</b> The binary currently answers <code>--help</code> and
-        <code>--version</code> and nothing else: no <code>log</code>, no <code>why</code>,
-        no <code>brief</code> yet. What exists beyond that is the founding design, the
-        entry schema, and dira's own ledger under <code>.dira/</code> — the tool's first
-        user is itself. <code>brew install</code> is not a thing yet. The only way to run
-        it today is a source build; <code>brew install kazi-org/tap/dira</code> fails
+      <p><b>Working, pre-release.</b> 14 verbs are real and tested against this repo's own
+        43-entry ledger — capture, review, enforcement, cross-project tiers, ADR import,
+        and a read-only web surface all run today. The tool's first user is itself: its
+        own ledger lives under <code>.dira/</code> in this repo. Build it from source;
+        there is no brew install yet. <code>brew install kazi-org/tap/dira</code> fails
         until that ships.</p>
     </div>
 
