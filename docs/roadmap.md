@@ -252,7 +252,14 @@ hooks/pre-commit. Both to be swept before this run closes.
 
 **Founder-gated remainders:** minting HOMEBREW_TAP_TOKEN (E0-L5's live
 release half); any actual external publishing in E8 (artifacts stop at
-"ready + locally verified").
+"ready + locally verified"); dira.sire.run DNS + Pages activation (see below).
+
+**New scope, founder-requested 2026-08-14:** the public website at
+**dira.sire.run**, mirroring kazi.sire.run's Astro + GitHub Pages setup —
+standalone plan at `docs/plan/website.md` (8 tasks, two waves; deploy exists but
+cannot fire until the founder runs the activation runbook). Also dispatched: a
+README/docs refresh — the README still described the design-phase binary from
+2026-07-29.
 
 ## STATUS 2026-08-11 · dira-integrator · for the seat
 
