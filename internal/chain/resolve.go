@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -73,9 +74,17 @@ func Resolve(ctx context.Context, diraDir, ref string) (State, *ledger.Entry, er
 	if declared {
 		return Withheld, nil, nil
 	}
-	return "", nil, fmt.Errorf("chain: namespace %q in %q is not declared anywhere in the parent chain from %s"+
-		" — a typo or an invention, never treated as withheld", namespace, ref, diraDir)
+	return "", nil, fmt.Errorf("%w: %q in %q from %s — a typo or an invention, never treated as withheld",
+		ErrUndeclaredNamespace, namespace, ref, diraDir)
 }
+
+// ErrUndeclaredNamespace is what Resolve wraps when a ref's namespace is not
+// declared anywhere in the walked chain — dec-0011's "a typo or an
+// invention," told apart with errors.Is from every other reason Resolve can
+// fail to return an entry (a declared parent's ledger open but one entry
+// inside it unreadable, say), which a caller like internal/drift must not
+// fold into the same bucket as a mistyped ref.
+var ErrUndeclaredNamespace = errors.New("chain: namespace not declared anywhere in the parent chain")
 
 // splitRef splits a namespaced ref into its namespace and bare id. A ref with
 // no namespace splits to an empty namespace, which cannot match anything
