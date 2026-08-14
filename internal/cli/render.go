@@ -64,6 +64,8 @@ func writeRow(w io.Writer, indent, id, title, suffix string) error {
 // bucket of its own.
 func renderRowSuffix(n *Node) string {
 	switch {
+	case n.Terminal != "":
+		return "→ " + string(n.Terminal)
 	case n.Bucket == status.DecisionBlocked:
 		return "→ " + blockedRowLabel(n.BlockedBy)
 	case n.Bucket == status.Completed:

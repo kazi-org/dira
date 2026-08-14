@@ -65,6 +65,17 @@ type Node struct {
 	// — typically an open question's row, rendered per docs/design.md
 	// §6.4's "⛔ blocks <id>" line, independent of Bucket.
 	BlocksTarget string
+
+	// Terminal is set for an achieved or abandoned intent — dec-0004's own
+	// prose names these as part of what a degraded run still shows
+	// ("dira degrades to the ledger-side buckets (to-be-planned,
+	// decision-blocked, achieved/abandoned intents)"), even though they are
+	// not one of the six status.Bucket values. Mutually exclusive with
+	// Bucket: status.Terminal only ever reports achieved/abandoned intents,
+	// which are excluded from every other derivation by construction
+	// (isAtRest in status.DeriveDecisionBlocked; DeriveToBePlanned selects
+	// only active intents).
+	Terminal status.TerminalGroup
 }
 
 // Group is one derives_from parent's subtree — one level only, per
@@ -144,6 +155,15 @@ func BuildTree(ctx context.Context, ix *index.Index, snap *kazi.Portfolio, snapE
 	if err != nil {
 		return nil, fmt.Errorf("cli: deriving decision-blocked: %w", err)
 	}
+
+	terminal, err := status.Terminal(ctx, ix)
+	if err != nil {
+		return nil, fmt.Errorf("cli: deriving terminal groups: %w", err)
+	}
+	terminalByID := make(map[string]status.TerminalGroup, len(terminal))
+	for _, r := range terminal {
+		terminalByID[r.ID] = r.Group
+	}
 	// An entry blocked by more than one open question produces one Row per
 	// question (status.DeriveDecisionBlocked's own contract). This tree
 	// renders one node per entry, so the first — status's own total order,
@@ -164,6 +184,8 @@ func BuildTree(ctx context.Context, ix *index.Index, snap *kazi.Portfolio, snapE
 		case blockedByID[e.ID] != nil:
 			n.Bucket = status.DecisionBlocked
 			n.BlockedBy = blockedByID[e.ID]
+		case terminalByID[e.ID] != "":
+			n.Terminal = terminalByID[e.ID]
 		default:
 			if row, ok := joinedByID[e.ID]; ok {
 				n.Bucket = row.Bucket

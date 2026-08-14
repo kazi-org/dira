@@ -42,6 +42,7 @@ type jsonEntry struct {
 	Ambiguous    []string              `json:"ambiguous_statuses,omitempty"`
 	Unresolved   *jsonUnresolved       `json:"unresolved,omitempty"`
 	BlocksTarget string                `json:"blocks,omitempty"`
+	Terminal     string                `json:"terminal,omitempty"`
 }
 
 // jsonGroup is one Group, encoded.
@@ -113,6 +114,7 @@ func encodeEntry(n *Node) jsonEntry {
 		Title:        n.Title,
 		Bucket:       string(n.Bucket),
 		BlocksTarget: n.BlocksTarget,
+		Terminal:     string(n.Terminal),
 	}
 	if n.BlockedBy != nil {
 		e.BlockedBy = &jsonBlockingQuestion{ID: n.BlockedBy.ID, Title: n.BlockedBy.Title}
