@@ -1,0 +1,172 @@
+# release.yml — E0-L4's live half: a pushed tag becomes a GitHub Release
+# carrying a darwin-arm64 archive, a linux-amd64 archive and a checksums
+# file (docs/plan/lanes/E0.md's acc: line for E0-L4).
+#
+# Every `uses:` is pinned to a 40-character commit SHA, the same convention
+# ci.yml already established — see that file's header for why. The pins
+# below are the same actions/checkout and actions/setup-go SHAs ci.yml
+# pins, verified with:
+#   gh api repos/<owner>/<repo>/commits/<tag> --jq .sha
+#
+# goreleaser is not vendored and nothing in this repo installs it — it is
+# invoked via `go run github.com/goreleaser/goreleaser/v2@<pinned>`, matching
+# how this repo already runs Playwright-backed gates from a pinned version
+# rather than a global install (docs/lore.md L-0017's shape, applied here).
+#
+# The smoke test runs BEFORE the publish step, on a native Apple-Silicon
+# runner (macos-14 — macos-13 is Intel and cannot execute a darwin-arm64
+# binary). CGO_ENABLED=0 makes cross-COMPILING both targets from one runner
+# free; it does not make cross-EXECUTING them free, so only the darwin-arm64
+# binary can be smoke-tested here, and it must be, before anything is
+# published — a Release with a broken version stamp is worse than no
+# Release, and this step is what stands between the two.
+#
+# `permissions:` is scoped to the one job that needs to write — contents:
+# write to create the Release — matching E0-L3's own risk note about a
+# workflow left at the default write scope. No top-level `permissions:` key.
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v0.0.1-rc.1). Must already exist."
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v0.0.1-rc.1). Must already exist."
+        required: true
+        type: string
+    outputs:
+      tag:
+        description: "The tag that was released."
+        value: ${{ jobs.release.outputs.tag }}
+
+env:
+  # goreleaser is invoked as `go run .../goreleaser/v2@GORELEASER_VERSION`
+  # everywhere in this workflow, so the pin lives once.
+  GORELEASER_VERSION: "v2.17.1"
+
+jobs:
+  release:
+    name: build, smoke test, publish
+    runs-on: macos-14
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      # The tag this run releases: the ref name on a tag push, the supplied
+      # input on workflow_dispatch/workflow_call. Everything downstream reads
+      # this output rather than GITHUB_REF_NAME directly, so the two trigger
+      # shapes behave identically.
+      - name: Resolve the tag being released
+        id: tag
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="${{ inputs.tag }}"
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      # This is the step docs/plan/tasks/E0-L4.md's T3 and T4 both name: it
+      # must run before the publish step below, and it must be the kind of
+      # check that can actually fail — a plain `--version` print with nobody
+      # reading it is not a smoke test. cmd/dira/build_test.go's
+      # TestVersionIsSetByLdflags is the in-repo proof that this ldflags
+      # mechanism works; this step is the same mechanism, exercised for
+      # real, once, before anything is published.
+      - name: Smoke test the version stamp before publishing anything
+        id: smoke
+        run: |
+          set -euo pipefail
+          expected="${{ steps.tag.outputs.tag }}"
+          expected="${expected#v}"
+          out="${RUNNER_TEMP}/dira-smoke"
+          go build -trimpath -ldflags "-X main.version=${expected}" -o "${out}" ./cmd/dira
+          got="$("${out}" --version)"
+          echo "dira --version printed: ${got} (expected: ${expected})"
+          if [ "${got}" != "${expected}" ]; then
+            echo "::error::dira --version printed '${got}', expected '${expected}' — refusing to publish a Release from a version stamp that does not work."
+            exit 1
+          fi
+
+      - name: goreleaser check
+        run: go run github.com/goreleaser/goreleaser/v2@${GORELEASER_VERSION} check -f .goreleaser.yaml
+
+      # Builds both targets, archives them, writes checksums.txt, creates the
+      # GitHub Release for the tag resolved above, and uploads all three
+      # assets to it. This is the step that creates/uploads the Release —
+      # internal/relwf's structural test asserts it comes after the smoke
+      # test step above by array index, not by string search.
+      - name: goreleaser release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: go run github.com/goreleaser/goreleaser/v2@${GORELEASER_VERSION} release --clean
+
+  # Publishes Formula/dira.rb to kazi-org/homebrew-tap once the Release
+  # above exists — docs/plan/tasks/E0-L5.md's E0-L5-T3. This job cannot go
+  # green until HOMEBREW_TAP_TOKEN is minted on this repo: a fine-grained
+  # PAT with contents:write on kazi-org/homebrew-tap only, mintable only by
+  # the repo owner (see that task file's "human-gated prerequisite" note).
+  # It is wired here, gated on the secret, so turning it on live is a secret
+  # addition rather than a workflow edit.
+  tap-bump:
+    name: publish Formula/dira.rb to the tap
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      # This job writes to a DIFFERENT repo (kazi-org/homebrew-tap) via
+      # HOMEBREW_TAP_TOKEN, not via GITHUB_TOKEN, so it needs no elevated
+      # `permissions:` on dira's own repo — no `permissions:` key is
+      # declared on this job at all, and the default (read-only) is what it
+      # needs of its own repo, which it only checks out from.
+      - name: Publish Formula/dira.rb
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          base="https://github.com/kazi-org/dira/releases/download/${RELEASE_TAG}"
+          checksums="$(curl -fsSL "${base}/checksums.txt")"
+          darwin_line="$(printf '%s\n' "${checksums}" | grep 'darwin_arm64')"
+          linux_line="$(printf '%s\n' "${checksums}" | grep 'linux_amd64')"
+          darwin_sha="$(printf '%s\n' "${darwin_line}" | awk '{print $1}')"
+          darwin_asset="$(printf '%s\n' "${darwin_line}" | awk '{print $2}')"
+          linux_sha="$(printf '%s\n' "${linux_line}" | awk '{print $1}')"
+          linux_asset="$(printf '%s\n' "${linux_line}" | awk '{print $2}')"
+          scripts/tap-bump.sh \
+            --version "${version}" \
+            --darwin-arm64-url "${base}/${darwin_asset}" \
+            --darwin-arm64-sha256 "${darwin_sha}" \
+            --linux-amd64-url "${base}/${linux_asset}" \
+            --linux-amd64-sha256 "${linux_sha}" \
+            --remote "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/kazi-org/homebrew-tap.git"
