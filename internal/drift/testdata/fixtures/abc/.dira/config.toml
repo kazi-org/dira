@@ -1,0 +1,6 @@
+[ledger]
+name = "abc"
+tier = "repo"
+
+[parents]
+sire = { path = "../sire", visibility = "private", label = "the founding workspace" }
