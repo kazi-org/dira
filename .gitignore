@@ -20,6 +20,12 @@
 # site/dist; node_modules below is unanchored and already covers site/.
 site/dist/
 site/.astro/
+site/.bin/
+site/src/generated/
+site/public/why/
+site/public/tokens.css
+site/public/decision.css
+site/public/index.css
 
 # Editor / OS
 .DS_Store

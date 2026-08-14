@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "gen": "node scripts/snapshot-why.mjs && node scripts/gen-verb-tour.mjs",
+    "build": "npm run gen && astro build",
     "preview": "astro preview",
     "check:coherence": "node scripts/check-coherence.mjs",
     "test": "playwright test"
