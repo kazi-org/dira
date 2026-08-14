@@ -26,6 +26,8 @@ site/public/why/
 site/public/tokens.css
 site/public/decision.css
 site/public/index.css
+site/test-results/
+site/playwright-report/
 
 # Editor / OS
 .DS_Store
