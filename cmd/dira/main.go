@@ -87,6 +87,7 @@ func newApp(stdout, stderr io.Writer) *app {
 	}
 	a.commands = []*command{
 		{name: "help", summary: "show usage for dira or one of its commands", run: runHelp},
+		{name: "init", summary: initSummary, run: runInit, usage: writeInitUsage},
 		{name: "log", summary: "write an entry to the ledger, or add an edge to one", run: runLog, usage: writeLogUsage},
 		{name: "sniff", summary: sniffSummary, run: runSniff, usage: writeSniffUsage},
 		{name: "distill", summary: distillSummary, run: runDistill, usage: writeDistillUsage},
