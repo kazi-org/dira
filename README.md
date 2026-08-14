@@ -268,6 +268,24 @@ is already the sync layer; it was already paid for.
 
 Full rationale: [dec-0002](.dira/entries/dec-0002.md).
 
+## Install from a Release
+
+Each tagged release publishes a darwin-arm64 archive, a linux-amd64 archive, and a
+`checksums.txt`, built by [`.goreleaser.yaml`](.goreleaser.yaml) with
+`CGO_ENABLED=0` and no account needed to fetch them:
+
+```
+VERSION=0.0.1-rc.1  # the released tag, without the leading v
+curl -LO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/dira_${VERSION}_darwin_arm64.tar.gz"
+curl -LO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/checksums.txt"
+sha256sum --ignore-missing -c checksums.txt
+tar -xzf "dira_${VERSION}_darwin_arm64.tar.gz"
+./dira --version
+```
+
+Swap `dira_${VERSION}_darwin_arm64.tar.gz` for `dira_${VERSION}_linux_amd64.tar.gz` on
+linux-amd64.
+
 ## Build from source
 
 Go only — the toolchain version is the one pinned in [`go.mod`](go.mod), and there is
