@@ -144,7 +144,17 @@ func main() {
 // subdirectory of a repository — where a hook actually runs. The fixture is a
 // ledger directory, not a `.dira`, so it is copied under one rather than the
 // CLI being taught a second way to find a ledger for the benefit of a test.
-const work = await mkdtemp(join(tmpdir(), 'dira-uigate-ledger-'));
+//
+// local.Name() (internal/ui/server.go) renders the header from
+// filepath.Base(filepath.Dir(diraDir)) — the name of the directory that
+// *holds* .dira, not the ledger's mkdtemp wrapper. The wrapper is still
+// mkdtemp'd for isolation, but the directory that actually holds .dira is a
+// fixed "dira" subdirectory inside it, so local.Name() always renders "dira"
+// — the same value the corrected mockups (E6-L3-T8 follow-up) now carry —
+// instead of "dira-uigate-ledger-<random>".
+const tmp = await mkdtemp(join(tmpdir(), 'dira-uigate-ledger-'));
+const work = join(tmp, 'dira');
+await mkdir(work);
 await cp(FIXTURE, join(work, '.dira'), { recursive: true });
 
 const uiArgs = shimmed ? [work] : ['ui', '-C', work, '-addr', '127.0.0.1:0'];
@@ -295,7 +305,7 @@ await writeFile(join(OUT, 'ui-gate.json'), JSON.stringify({ gate, diffs }, null,
 
 const overTolerance = diffs.filter(d => d.code !== 0);
 console.log(`\n${diffs.length} pairs · ${diffs.length - overTolerance.length} within tolerance · ${overTolerance.length} over`);
-if (!KEEP) await rm(work, { recursive: true, force: true });
+if (!KEEP) await rm(tmp, { recursive: true, force: true });
 
 if (gate.length) { console.log('\nUIGATE FAIL — the served pages did not pass the mechanical gate.'); process.exit(1); }
 if (overTolerance.length) {
