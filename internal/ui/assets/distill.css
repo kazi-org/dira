@@ -89,13 +89,25 @@
 }
 .actions .grow { flex: 1; }
 
-/* E6-L3-T3: the served page's Confirm/Reject are real no-JS forms — a
-   <form class="dispose"> around each button. It contributes no box of its
-   own: the flex row still sizes on the button alone, exactly as it did when
-   these were bare buttons, so this screen's markup (illustrative, unwired)
-   stays pixel-identical whether the reader's browser is looking at this
-   file or at /distill with these rules applied to real forms. */
+/* E6-L3-T3/T4: the served page's Confirm/Reject/Edit are real no-JS forms —
+   a <form class="dispose"> around each button, an <details> disclosure
+   around Edit's textarea. Neither contributes a box of its own: the flex
+   row still sizes on the button/summary alone, exactly as it did when these
+   were bare buttons, so this screen's markup (illustrative, unwired) stays
+   pixel-identical whether the reader's browser is looking at this file or
+   at the served /distill with these rules applied to real forms. */
 .actions .dispose { display: contents; }
+.edit-disclosure { display: contents; }
+.edit-disclosure summary { list-style: none; cursor: pointer; }
+.edit-disclosure summary::-webkit-details-marker { display: none; }
+.edit-disclosure form {
+  flex-basis: 100%; margin-top: var(--s3); display: flex; flex-direction: column; gap: var(--s2);
+}
+.edit-disclosure textarea {
+  width: 100%; box-sizing: border-box; font-family: var(--mono); font-size: var(--t-label);
+  padding: var(--s3); border: 1px solid var(--rule); border-radius: 6px;
+  background: var(--sunk); color: var(--ink); resize: vertical;
+}
 
 .hint { font-family: var(--mono); font-size: var(--t-label); color: var(--ink-low); }
 kbd {

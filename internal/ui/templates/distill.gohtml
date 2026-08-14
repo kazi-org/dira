@@ -3,10 +3,10 @@ S3 — THE DISTILL QUEUE, served. The markup mirrors
 docs/design/screens/s3-distill.html element for element and class for class;
 the stylesheet is the same file, served from the binary (E6-L3-T2).
 
-Confirm and Reject are real POST forms (T3). Edit the because is still inert
-(type="button", no form) — T4 wires it through a textarea disclosure. T5
-layers `y`/`n`/`e` on top of the forms T3/T4 build, as a <script> served only
-on this route. No <script> until T5 lands.
+Confirm, Reject and Edit are real POST forms (T3, T4) — Edit through a
+<details>/<summary> disclosure reachable with no script. T5 layers
+`y`/`n`/`e` on top of the forms T3/T4 build, as a <script> served only on
+this route. No <script> until T5 lands.
 
 dec-0019 governs every field the same way it governs the decision page: drawn
 when the entry recorded it, omitted rather than invented when it did not. A
@@ -84,7 +84,13 @@ else — renders no .because, no .against and no mirrors line.
         <form class="dispose" method="post" action="/distill/{{ .ID }}/discard">
           <button class="btn" type="submit">Reject</button>
         </form>
-        <button class="btn btn-quiet" type="button">Edit the because</button>
+        <details class="edit-disclosure">
+          <summary class="btn btn-quiet">Edit the because</summary>
+          <form method="post" action="/distill/{{ .ID }}/edit">
+            <textarea name="body" rows="6">{{ .Body }}</textarea>
+            <button class="btn btn-primary" type="submit">Save</button>
+          </form>
+        </details>
         <span class="grow"></span>
       </div>
       <p class="swipe-note">swipe right to confirm · left to reject</p>
