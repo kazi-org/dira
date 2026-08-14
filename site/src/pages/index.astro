@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { STRAPLINE, INSTALL_CMD } from "../canonical.mjs";
 
 const REPO = "https://github.com/kazi-org/dira";
 
@@ -11,7 +12,6 @@ const REPO = "https://github.com/kazi-org/dira";
 // in its own header comment, so that is what this page sources from).
 // Verbatim below except the Status section, which is inherently
 // time-sensitive — see the comment above STATUS_LINE.
-const STRAPLINE = "Never explain the same decision twice."; // README H1, verbatim
 const HOOK =
   "Your coding agent has amnesia. You keep re-explaining decisions you already made — and it keeps suggesting the thing you rejected in July. dira is a git-native ledger of the intents, decisions, rejected alternatives, and open questions behind your codebase, captured by the agent, pushed back before you ask.";
 
@@ -180,6 +180,9 @@ const objections = [
           <a href="/docs/" class="ui-link">the docs page</a> for the full command tour, generated
           from this build so it cannot go stale.
         </p>
+        <pre class="ui-code dira-mono mt-3 overflow-x-auto rounded-xl border p-3 text-xs"><code>git clone {REPO}
+cd dira
+{INSTALL_CMD}</code></pre>
       </div>
       <div class="ui-card mt-4 flex flex-wrap items-center gap-4 rounded-2xl border p-5">
         <p class="dira-serif ui-body flex-1 text-sm leading-relaxed">
