@@ -1,0 +1,10 @@
+kazi is not installed; execution status is unavailable.
+
+int-7001  An entry written by the store contract suite
+  dec-7002  An entry written by the store contract suite  → unresolved (not_on_path)
+  dec-7003  An entry written by the store contract suite  → unresolved (not_on_path)
+  dec-7004  An entry written by the store contract suite  → unresolved (not_on_path)
+  dec-7005  An entry written by the store contract suite  → unresolved (not_on_path)
+unparented
+  dec-7006  An entry written by the store contract suite  → to be planned (no goal yet)
+  int-7001  An entry written by the store contract suite  → to be planned (no goal yet)

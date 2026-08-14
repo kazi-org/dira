@@ -94,6 +94,7 @@ func newApp(stdout, stderr io.Writer) *app {
 		{name: "check", summary: "refuse a plan that contradicts a settled decision", run: runCheck, usage: writeCheckUsage},
 		{name: "brief", summary: briefSummary, run: runBrief, usage: writeBriefUsage},
 		{name: "why", summary: whySummary, run: runWhy, usage: writeWhyUsage},
+		{name: "map", summary: mapSummary, run: runMap, usage: writeMapUsage},
 		{name: "supersede", summary: supersedeSummary, run: runSupersede, usage: writeSupersedeUsage},
 		{name: "ui", summary: uiSummary, run: runUI, usage: writeUIUsage},
 		{name: installSkillName, summary: installSkillSummary, run: runInstallSkill, usage: writeInstallSkillUsage},
