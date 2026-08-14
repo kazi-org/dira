@@ -26,6 +26,17 @@ import (
 // mapSummary is the one-line description in `dira help`.
 const mapSummary = "join the ledger to kazi's execution status: what is planned, running, blocked, or done"
 
+// kaziCallTimeout bounds every individual call this command makes into
+// internal/kazi — the portfolio snapshot and, per E4-L3-T3's bounded
+// fan-out, up to MaxStatusCalls `kazi status` calls. kazi calls measure
+// ≈0.65s typically (docs/plan/lanes/E4.md point 4); 3s gives a loaded
+// machine real headroom (~4.6x) without leaving a human waiting on a hung
+// terminal command indefinitely — and without a deadline at all,
+// kazi.Snapshot and kazi.Status block on ctx.Background() forever, which is
+// what a real hang (a wedged kazi process, not just a slow one) would
+// otherwise do to this command with no way to ever report ReasonTimeout.
+const kaziCallTimeout = 3 * time.Second
+
 // mapUsagef reports a mistake in this command's own flags with this
 // command's help.
 func mapUsagef(format string, args ...any) error {
@@ -75,10 +86,22 @@ func runMap(a *app, args []string) error {
 		return fmt.Errorf("%s", strings.TrimPrefix(notice, "dira: "))
 	}
 
-	snap, snapErr := kazi.Snapshot(ctx)
+	snapCtx, cancelSnap := context.WithTimeout(ctx, kaziCallTimeout)
+	defer cancelSnap()
+	snap, snapErr := kazi.Snapshot(snapCtx)
 	observedAt := a.now().UTC().Format(time.RFC3339)
 
-	return cli.Render(ctx, a.stdout, ix, snap, snapErr, kazi.Status, *jsonOut, observedAt)
+	// Each fan-out call to kazi status (E4-L3-T3, bounded at
+	// status.MaxStatusCalls) gets its own fresh deadline off the same
+	// budget, rather than sharing one deadline across the whole fan-out —
+	// a single slow-but-working call must not starve the calls after it.
+	statusFn := func(callCtx context.Context, ref string) (*kazi.RunStatus, *kazi.ProposalStatus, error) {
+		c, cancel := context.WithTimeout(callCtx, kaziCallTimeout)
+		defer cancel()
+		return kazi.Status(c, ref)
+	}
+
+	return cli.Render(ctx, a.stdout, ix, snap, snapErr, statusFn, *jsonOut, observedAt)
 }
 
 // writeMapUsage renders `dira map`'s own help.
