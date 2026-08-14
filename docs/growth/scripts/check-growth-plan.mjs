@@ -16,10 +16,6 @@ import { dirname, join, resolve } from "node:path";
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..", "..", "..");
 
-const targetDir = process.argv[2]
-  ? resolve(process.cwd(), process.argv[2])
-  : join(repoRoot, "docs", "growth");
-
 const EXPECTED_TOTAL_CHANNELS = 19;
 const EXPECTED_INNER_COUNT = 3;
 
@@ -28,7 +24,7 @@ const EXPECTED_INNER_COUNT = 3;
 // "viral"/"virality" — Traction's own channel is named "Viral Marketing" and must be
 // nameable in the channel taxonomy without tripping the check; what's banned is
 // *claiming* virality, not naming the channel that doesn't apply here.
-const BANNED_HYPE_TERMS = [
+export const BANNED_HYPE_TERMS = [
   "revolutionary",
   "seamless",
   "supercharge",
@@ -67,7 +63,7 @@ function readOrFail(path, label) {
 }
 
 // --- honest-limits exemption ---
-function stripHonestLimitsBlocks(text) {
+export function stripHonestLimitsBlocks(text) {
   return text.replace(
     /<!--\s*honest-limits:start\s*-->[\s\S]*?<!--\s*honest-limits:end\s*-->/g,
     "",
@@ -212,19 +208,32 @@ function checkExperiments(experimentsText) {
 }
 
 // --- run ---
-const channelsPath = join(targetDir, "channels.md");
-const experimentsPath = join(targetDir, "experiments.md");
+// Guarded so importing this module for its exports (BANNED_HYPE_TERMS,
+// stripHonestLimitsBlocks) never triggers a full run against argv/cwd --
+// same pattern as check-drafts.mjs's isMain guard, added when E8-L6 needed
+// to reuse the hype-term list rather than hand-maintain a second copy.
+function main() {
+  const targetDir = process.argv[2]
+    ? resolve(process.cwd(), process.argv[2])
+    : join(repoRoot, "docs", "growth");
 
-const channelsText = readOrFail(channelsPath, "channels.md");
-const experimentsText = readOrFail(experimentsPath, "experiments.md");
+  const channelsPath = join(targetDir, "channels.md");
+  const experimentsPath = join(targetDir, "experiments.md");
 
-checkChannels(channelsText);
-const specCount = checkExperiments(experimentsText);
-scanForBannedTerms(channelsText, "channels.md");
-scanForBannedTerms(experimentsText, "experiments.md");
+  const channelsText = readOrFail(channelsPath, "channels.md");
+  const experimentsText = readOrFail(experimentsPath, "experiments.md");
 
-console.log(
-  `growth plan OK: ${EXPECTED_TOTAL_CHANNELS} channels rated, ` +
-    `${EXPECTED_INNER_COUNT} inner-ring, ${specCount} pre-registered spec(s), ` +
-    `0 banned-hype terms outside honest-limits blocks.`,
-);
+  checkChannels(channelsText);
+  const specCount = checkExperiments(experimentsText);
+  scanForBannedTerms(channelsText, "channels.md");
+  scanForBannedTerms(experimentsText, "experiments.md");
+
+  console.log(
+    `growth plan OK: ${EXPECTED_TOTAL_CHANNELS} channels rated, ` +
+      `${EXPECTED_INNER_COUNT} inner-ring, ${specCount} pre-registered spec(s), ` +
+      `0 banned-hype terms outside honest-limits blocks.`,
+  );
+}
+
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMain) main();
