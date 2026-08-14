@@ -15,9 +15,10 @@
 #     --output-format asciicast-v2 --overwrite \
 #     --window-size 92x14 -c "./assets/demo/record-check.sh"
 #
-# --- BEGIN CANONICAL DEMO OUTPUT (read verbatim by check-demo-script.mjs and
-#     asserted against .agents/product-marketing.md §6 — do not hand-edit one
-#     side without the other) ---
+# The block below is read verbatim by check-demo-script.mjs and asserted
+# against .agents/product-marketing.md §6 — do not hand-edit one side
+# without the other.
+# --- BEGIN CANONICAL DEMO OUTPUT ---
 # $ dira check "add a background daemon to track run state"
 #
 # ✗ conflicts with dec-0060 (accepted 2026-07-03)
