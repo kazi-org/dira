@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "kind": "portfolio",
+  "planned": [],
+  "by_repo": {},
+  "fleet_remote": [],
+  "totals": {
+    "base": 0,
+    "empty": true,
+    "rows": []
+  },
+  "todo": [],
+  "blocked": [],
+  "rate": {
+    "green": 0,
+    "total": 0,
+    "delta": 0,
+    "empty?": true
+  }
+}

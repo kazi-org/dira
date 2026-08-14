@@ -1,0 +1,39 @@
+{
+  "converged": false,
+  "first_pass_rate": {
+    "first_pass": 3,
+    "rate": 0.6,
+    "reworked": 2,
+    "total": 5
+  },
+  "iteration": 4,
+  "kind": "run",
+  "observed_at": "2026-07-16T22:14:32.411901Z",
+  "predicate_audit": null,
+  "predicates": [
+    {
+      "id": "committed",
+      "verdict": "fail"
+    },
+    {
+      "id": "compile-clean",
+      "verdict": "pass"
+    },
+    {
+      "id": "format-clean",
+      "verdict": "pass"
+    },
+    {
+      "id": "home-fallback-preserved",
+      "verdict": "pass"
+    },
+    {
+      "id": "touched-modules-tests-pass",
+      "verdict": "unknown"
+    }
+  ],
+  "ref": "warnings-clean",
+  "release_ref": null,
+  "schema_version": 2,
+  "status": "in_progress"
+}
