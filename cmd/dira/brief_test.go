@@ -356,10 +356,12 @@ func TestChainWithNoParentsConfiguredSaysSo(t *testing.T) {
 	}
 }
 
-// TestChainWithParentsConfiguredSaysWhatItCannotDo is the other half. E5 owns
-// resolution and is blocked on qst-0001; until then a configured parent must not
-// be silently ignored, or the reader is told their configuration does not exist.
-func TestChainWithParentsConfiguredSaysWhatItCannotDo(t *testing.T) {
+// TestChainWithAnUnresolvableParentDegradesRatherThanFails. A configured
+// parent dira cannot locate (no such directory — the shape a private parent
+// takes in a public clone) is named in the notice and contributes nothing:
+// there is no ledger there to read, so the brief says so and moves on rather
+// than failing the whole command over one bad or absent declaration.
+func TestChainWithAnUnresolvableParentDegradesRatherThanFails(t *testing.T) {
 	t.Parallel()
 
 	root := briefLedger(t, "[parents]\nsire = { path = \"../sire\" }\n")
@@ -367,9 +369,155 @@ func TestChainWithParentsConfiguredSaysWhatItCannotDo(t *testing.T) {
 	if code != exitOK {
 		t.Fatalf("exit code = %d, want %d", code, exitOK)
 	}
-	if !strings.Contains(stdout, "sire") || !strings.Contains(stdout, "not in this release") {
-		t.Errorf("a configured parent is neither resolved nor mentioned:\n%s", stdout)
+	if !strings.Contains(stdout, "sire") {
+		t.Errorf("a configured parent is not mentioned:\n%s", stdout)
 	}
+	if strings.Contains(stdout, "not in this release") {
+		t.Errorf("--chain still claims resolution is not in this release, which E5-L4 supersedes:\n%s", stdout)
+	}
+}
+
+// TestBriefChain is E5-L4-T1's acceptance line: `--chain` prints content from
+// all three tiers under the same ceiling, an ancestor the ceiling cuts is
+// named in the footer by namespace, and an unreadable ancestor's title never
+// appears.
+func TestBriefChain(t *testing.T) {
+	t.Parallel()
+
+	root := chainFixture(t)
+	code, stdout, stderr := exerciseBrief(t, "-C", filepath.Join(root, "repo"), "--context", "--chain")
+	if code != exitOK {
+		t.Fatalf("exit code = %d, want %d\nstderr: %s", code, exitOK, stderr)
+	}
+
+	for _, want := range []string{"repo-own-intent", "sire:int-0001", "sire's own bet", "me:int-0001", "me's own direction"} {
+		if !strings.Contains(stdout, want) {
+			t.Errorf("the brief is missing %q:\n%s", want, stdout)
+		}
+	}
+}
+
+// TestBriefChainStaysUnderTheSharedCeiling is cst-0001's unconditional
+// clause: the ceiling applies to the chain, not just the local brief.
+func TestBriefChainStaysUnderTheSharedCeiling(t *testing.T) {
+	t.Parallel()
+
+	root := chainFixtureOversized(t)
+	code, stdout, stderr := exerciseBrief(t, "-C", filepath.Join(root, "repo"), "--chain")
+	if code != exitOK {
+		t.Fatalf("exit code = %d, want %d\nstderr: %s", code, exitOK, stderr)
+	}
+	if got := brief.Tokens(stdout); got > brief.DefaultMaxTokens {
+		t.Errorf("--chain produced %d tokens against a %d ceiling", got, brief.DefaultMaxTokens)
+	}
+	if !strings.Contains(stdout, "omitted") || !strings.Contains(stdout, "sire") {
+		t.Errorf("the footer does not name a dropped chain section by namespace:\n%s", stdout)
+	}
+}
+
+// TestBriefChainNeverRendersAnUnreadableAncestorsText proves the withheld
+// discipline holds at the brief layer too: an ancestor the ceiling never even
+// reaches, because it could not be opened at all, contributes no title.
+func TestBriefChainNeverRendersAnUnreadableAncestorsText(t *testing.T) {
+	t.Parallel()
+
+	root := chainFixture(t)
+	if err := os.Chmod(filepath.Join(root, "me", ".dira"), 0o000); err != nil {
+		t.Fatalf("chmod: %v", err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(filepath.Join(root, "me", ".dira"), 0o755) })
+
+	code, stdout, stderr := exerciseBrief(t, "-C", filepath.Join(root, "repo"), "--chain")
+	if code != exitOK {
+		t.Fatalf("exit code = %d, want %d\nstderr: %s", code, exitOK, stderr)
+	}
+	if strings.Contains(stdout, "me's own direction") {
+		t.Errorf("the brief rendered text from an unreadable ancestor:\n%s", stdout)
+	}
+}
+
+// chainFixture builds repo -> sire (workspace, bets) -> me (person,
+// directions), a small three-tier fixture sized to fit comfortably under the
+// default ceiling.
+func chainFixture(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+
+	writeChainLedger(t, filepath.Join(root, "me"), "[ledger]\nname = \"me\"\ntier = \"person\"\n",
+		map[string]string{"int-0001": chainEntry("int-0001", "intent", "me's own direction for the quarter")})
+
+	writeChainLedger(t, filepath.Join(root, "sire"),
+		"[ledger]\nname = \"sire\"\ntier = \"workspace\"\n\n[parents]\nme = { path = \"../../me\" }\n",
+		map[string]string{"int-0001": chainEntry("int-0001", "intent", "sire's own bet for the quarter")})
+
+	writeChainLedger(t, filepath.Join(root, "repo"),
+		"[ledger]\nname = \"repo\"\ntier = \"repo\"\n\n[parents]\nsire = { path = \"../../sire\" }\n",
+		map[string]string{"int-0001": chainEntry("int-0001", "intent", "repo-own-intent for this checkout")})
+
+	return root
+}
+
+// chainFixtureOversized is chainFixture with sire holding enough active bets
+// that the combined local-plus-chain content exceeds 1500 tokens unbudgeted —
+// proving the in-budget clause is not vacuously true of a fixture too small
+// to test it.
+func chainFixtureOversized(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+
+	writeChainLedger(t, filepath.Join(root, "me"), "[ledger]\nname = \"me\"\ntier = \"person\"\n",
+		map[string]string{"int-0001": chainEntry("int-0001", "intent", "me's own direction for the quarter")})
+
+	sireEntries := map[string]string{}
+	for i := 1; i <= 150; i++ {
+		id := fmt.Sprintf("int-%04d", i)
+		// entry.schema.json caps a title at 120 characters; this is 92,
+		// which is long enough that 150 of them add up to real tokens
+		// without failing validation and being silently skipped.
+		sireEntries[id] = chainEntry(id, "intent",
+			fmt.Sprintf("sire's bet number %04d, worded long enough to cost real tokens once rendered in the brief", i))
+	}
+	writeChainLedger(t, filepath.Join(root, "sire"),
+		"[ledger]\nname = \"sire\"\ntier = \"workspace\"\n\n[parents]\nme = { path = \"../../me\" }\n",
+		sireEntries)
+
+	writeChainLedger(t, filepath.Join(root, "repo"),
+		"[ledger]\nname = \"repo\"\ntier = \"repo\"\n\n[parents]\nsire = { path = \"../../sire\" }\n",
+		map[string]string{"int-0001": chainEntry("int-0001", "intent", "repo-own-intent for this checkout")})
+
+	// The raw, unbudgeted size check: sire's own content alone has to
+	// exceed the ceiling for the in-budget clause below to mean anything.
+	var raw strings.Builder
+	for _, body := range sireEntries {
+		raw.WriteString(body)
+	}
+	if brief.Tokens(raw.String()) <= brief.DefaultMaxTokens {
+		t.Fatalf("the oversized fixture's own sire content is only %d tokens; it does not exceed the %d ceiling unbudgeted",
+			brief.Tokens(raw.String()), brief.DefaultMaxTokens)
+	}
+
+	return root
+}
+
+func writeChainLedger(t *testing.T, dir, config string, entries map[string]string) {
+	t.Helper()
+	diraDir := filepath.Join(dir, ".dira")
+	if err := os.MkdirAll(filepath.Join(diraDir, "entries"), 0o755); err != nil {
+		t.Fatalf("creating %s: %v", diraDir, err)
+	}
+	if err := os.WriteFile(filepath.Join(diraDir, "config.toml"), []byte(config), 0o644); err != nil {
+		t.Fatalf("writing config.toml: %v", err)
+	}
+	for id, body := range entries {
+		if err := os.WriteFile(filepath.Join(diraDir, "entries", id+".md"), []byte(body), 0o644); err != nil {
+			t.Fatalf("writing %s: %v", id, err)
+		}
+	}
+}
+
+func chainEntry(id, kind, title string) string {
+	return "---\nid: " + id + "\nkind: " + kind + "\ntitle: " + title + "\nstate: active\n" +
+		"created: \"2026-06-01T09:00:00Z\"\n---\n\nfixture body.\n"
 }
 
 // ---------------------------------------------------------------------------

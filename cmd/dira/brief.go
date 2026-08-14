@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/brief"
+	chainpkg "github.com/kazi-org/dira/internal/chain"
 	"github.com/kazi-org/dira/internal/config"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/ledger/local"
@@ -80,6 +81,12 @@ func runBrief(a *app, args []string) error {
 		Now:     a.now(),
 		Context: *asContext,
 		Chain:   *chain,
+		// A real ancestor source, walked lazily: brief.fillChain only
+		// calls this when --chain was actually asked for, so a plain
+		// `dira brief` never opens a parent ledger it will not render.
+		ChainSource: func(ctx context.Context) ([]chainpkg.Ancestor, error) {
+			return chainpkg.Walk(ctx, diraDir)
+		},
 	}
 
 	// The config is read before the index, because a ledger whose config
