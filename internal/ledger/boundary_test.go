@@ -71,6 +71,15 @@ var allowed = map[string][]string{
 	// is the same restructuring internal/nomodel made for the same rule.
 	// Reading a file is a filesystem concern; parsing its contents is not.
 	"internal/skill/skilltest": {"os", "path/filepath"},
+
+	// The design-mockup ground-truth probe (E6-L3-T1). It renders one served
+	// page over the fixture ledger and prints the HTML to stdout, so
+	// docs/design/scripts/fixture-check.mjs can diff a mockup against the
+	// real render instead of a hand-typed copy of what the template should
+	// produce. A throwaway harness under docs/design/, in the same class as
+	// indextest and skilltest above: it needs a temp directory for the read
+	// cache and os.Stdout to print to, and it ships in no binary dira builds.
+	"docs/design/scripts/lib/renderprobe": {"os"},
 }
 
 // TestNoFilesystemImportsAboveTheBackend is E1-L1's acceptance line (c).

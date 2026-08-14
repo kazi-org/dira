@@ -128,20 +128,20 @@
   <a class="wordmark" href="#">di<b>ra</b></a>
   <nav class="crumb" aria-label="Breadcrumb">kazi-org/dira · ledger</nav>
   <span class="spacer"></span>
-  <span class="crumb">22 entries · updated 29 Jul</span>
+  <span class="crumb">18 entries · updated 2026-07-29</span>
 </header>
 
 <main class="wrap">
 
   <section class="bearing">
     <div class="dial">
-      <svg viewBox="0 0 120 120" role="img" aria-label="Of 14 tracked items: 6 converged, 4 in motion, 4 to be planned">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Of 18 tracked entries: 9 settled, 5 active, 2 staged, 2 open questions">
         <circle cx="60" cy="60" r="50" fill="none" stroke="var(--sunk)" stroke-width="10"/>
         <!-- r=50 -> circumference 314.16 -->
         <circle cx="60" cy="60" r="50" fill="none" stroke="var(--converged)" stroke-width="10"
-                stroke-dasharray="134.6 179.5" transform="rotate(-90 60 60)"/>
+                stroke-dasharray="157.1 157.1" transform="rotate(-90 60 60)"/>
         <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bearing)" stroke-width="10"
-                stroke-dasharray="89.8 224.4" transform="rotate(64 60 60)"/>
+                stroke-dasharray="87.3 226.9" transform="rotate(90 60 60)"/>
         <!-- the needle: points at the current focus intent. It rides just
              inside the ring band so it never crosses the centre readout. -->
         <g transform="rotate(28 60 60)">
@@ -149,18 +149,19 @@
           <circle cx="60" cy="34" r="2" fill="var(--bearing-lift)"/>
         </g>
       </svg>
-      <div class="read" aria-hidden="true"><div><div class="n">43%</div><div class="l">converged</div></div></div>
+      <div class="read" aria-hidden="true"><div><div class="n">50%</div><div class="l">settled</div></div></div>
     </div>
     <div class="claim">
       <h1>Why this codebase is the way it is.</h1>
       <p class="sub">Every decision, the alternatives that lost, and the reasoning — kept as
         the work happened, not written up afterwards.</p>
       <div class="legend">
-        <span><i class="dot" style="background:var(--converged)"></i>6 converged</span>
-        <span><i class="dot" style="background:var(--bearing)"></i>4 in motion</span>
-        <span><i class="dot" style="background:transparent;box-shadow:inset 0 0 0 2px var(--ink-low)"></i>4 to be planned</span>
-        <span><i class="dot" style="background:var(--ink-low)"></i>4 open questions</span>
+        <span><i class="dot" style="background:var(--converged)"></i>9 settled</span>
+        <span><i class="dot" style="background:var(--bearing)"></i>5 active</span>
+        <span><i class="dot" style="background:transparent;box-shadow:inset 0 0 0 2px var(--ink-low)"></i>2 staged</span>
+        <span><i class="dot" style="background:var(--ink-low)"></i>2 open questions</span>
       </div>
+      <p class="sub">Execution status is a join with kazi and is derived at read time, never stored. No kazi join is available here, so these are the ledger's own states.</p>
     </div>
   </section>
 
@@ -169,7 +170,7 @@
     <span class="k"><b>dec-</b>a decision, with the alternatives it ruled out</span>
     <span class="k"><b>qst-</b>an open question, which can block work</span>
     <span class="k"><b>cst-</b>a standing constraint</span>
-    <span class="k"><b>converged</b>proven done by tests, not asserted</span>
+    <span class="k"><b>note-</b>a thought not yet any of the other four</span>
   </div>
 
   <div class="tree">
@@ -178,12 +179,12 @@
       <div class="head">
         <span class="iid">int-0001</span>
         <span class="ititle">The why survives the session that made it</span>
-        <span class="roll"><b class="d">2 converged</b><b class="r">1 in motion</b></span>
+        <span class="roll"><b class="d">1 settled</b><b class="r">2 in motion</b></span>
       </div>
       <div class="kids">
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0009</span><span class="k-t">ADRs are mirrored exhaust; the entry is the record</span><span class="k-s done">converged</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0006</span><span class="k-t">Tiers are fractal — one model at every level</span><span class="k-s done">converged</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">cst-0001</span><span class="k-t">The brief never exceeds 1,500 tokens</span><span class="k-s">in motion</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">cst-0001</span><span class="k-t">The brief never exceeds 1,500 tokens</span><span class="k-s">active</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0006</span><span class="k-t">Tiers are fractal — one model at every level</span><span class="k-s gap">blocked by a question</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0009</span><span class="k-t">ADRs are mirrored exhaust; the entry is the record</span><span class="k-s done">accepted · to be planned</span></a>
       </div>
     </section>
 
@@ -191,13 +192,13 @@
       <div class="head">
         <span class="iid">int-0002</span>
         <span class="ititle">Zero-ceremony operation — one binary, no daemon</span>
-        <span class="roll"><b class="d">3 converged</b><b class="r">1 in motion</b></span>
+        <span class="roll"><b class="d">4 settled</b></span>
       </div>
       <div class="kids">
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0001</span><span class="k-t">Go, not Elixir/OTP, despite kazi&rsquo;s stack</span><span class="k-s done">converged</span></a>
-        <a class="kid" href="s1-decision-long.html"><span class="k-id">dec-0002</span><span class="k-t">Entries are markdown files, not rows in a database</span><span class="k-s done">converged</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0003</span><span class="k-t">No model client in the binary</span><span class="k-s done">converged</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0005</span><span class="k-t">A storage interface before the first surface</span><span class="k-s">in motion</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0001</span><span class="k-t">Go, not Elixir/OTP, despite kazi&rsquo;s stack</span><span class="k-s done">accepted</span></a>
+        <a class="kid" href="s1-decision-long.html"><span class="k-id">dec-0002</span><span class="k-t">Entries are markdown files, not rows in a database</span><span class="k-s done">accepted · to be planned</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0003</span><span class="k-t">No model client in the binary</span><span class="k-s done">accepted · to be planned</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0005</span><span class="k-t">A storage interface before the first surface</span><span class="k-s done">accepted · to be planned</span></a>
       </div>
     </section>
 
@@ -205,13 +206,37 @@
       <div class="head">
         <span class="iid">int-0003</span>
         <span class="ititle">Replace the tool pile</span>
-        <span class="roll"><b class="d">1 converged</b><b>2 to be planned</b></span>
+        <span class="roll"><b class="d">2 settled</b><b class="r">4 in motion</b></span>
       </div>
       <div class="kids">
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0004</span><span class="k-t">Status is derived from kazi, never stored</span><span class="k-s done">converged</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0010</span><span class="k-t">A public ledger renderer is the growth engine</span><span class="k-s gap">to be planned</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0007</span><span class="k-t">OSS free; individuals buy once; teams subscribe</span><span class="k-s gap">to be planned</span></a>
-        <a class="kid" href="s1-decision.html"><span class="k-id">qst-0003</span><span class="k-t">Does importing an ADR corpus help, or make a second pile?</span><span class="k-s">blocks this</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0004</span><span class="k-t">Status is derived from kazi, never stored</span><span class="k-s done">accepted · to be planned</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0007</span><span class="k-t">OSS free; individuals buy once; teams subscribe</span><span class="k-s done">accepted · to be planned</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">dec-0010</span><span class="k-t">A public ledger renderer is the growth engine</span><span class="k-s gap">blocked by a question</span></a>
+        <a class="kid" href="s3-distill.html"><span class="k-id">dec-0011</span><span class="k-t">Status is read from kazi at query time, never written into an entry</span><span class="k-s gap">staged</span></a>
+        <a class="kid" href="s3-distill.html"><span class="k-id">dec-0012</span><span class="k-t">Ship the public ledger renderer ahead of the paid apps</span><span class="k-s gap">staged</span></a>
+        <a class="kid" href="s1-decision.html"><span class="k-id">qst-0003</span><span class="k-t">Does importing an ADR corpus help, or make a second pile?</span><span class="k-s">open</span></a>
+      </div>
+    </section>
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">int-0004</span>
+        <span class="ititle">Ship a hosted team dashboard</span>
+        <span class="roll"></span>
+      </div>
+      <div class="kids">
+        <a class="kid" href="s1-decision.html"><span class="k-id">int-0004</span><span class="k-t">nothing arises from this yet</span><span class="k-s gap">no children</span></a>
+      </div>
+    </section>
+
+    <section class="intent">
+      <div class="head">
+        <span class="iid">—</span>
+        <span class="ititle">Not arising from an intent in this ledger</span>
+        <span class="roll"><b>1 entries</b></span>
+      </div>
+      <div class="kids">
+        <a class="kid" href="s1-decision.html"><span class="k-id">qst-0006</span><span class="k-t">Should the brief inherit personal focus into a public repo session?</span><span class="k-s">open</span></a>
       </div>
     </section>
 
@@ -219,9 +244,10 @@
 
   <div class="drift">
     <span class="label">⚠ Drift</span>
-    <p><b>One active intent has no parent.</b> Work with no stated purpose is visible here by
-      construction — <a href="#">int-0004</a> serves nothing recorded. Either link it upward, or
-      ask why it exists.</p>
+    <p><b>4 active intents have no parent.</b> Work with no stated purpose is visible here by
+      construction — <a href="#">int-0001</a>, <a href="#">int-0002</a>, <a href="#">int-0003</a>, <a href="#">int-0004</a>
+      serve nothing recorded. Either link them upward, or
+      ask why they exist.</p>
   </div>
 
   <div class="take">

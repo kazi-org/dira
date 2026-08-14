@@ -5,12 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
-<title>Distill — 3 staged · dira</title>
+<title>Distill — 2 staged · dira</title>
 <link rel="stylesheet" href="../tokens.css">
 <style>
 /* S3 — THE DISTILL QUEUE. Agents propose, you dispose. Taps, not typing.
    The BECAUSE gets top billing over the title, because the because is what
-   is actually being approved. At mobile width this becomes the swipe deck. */
+   is actually being approved. At mobile width this becomes the swipe deck.
+
+   RENDERED (E6-L3-T1), not illustrated: the two cards below are exactly what
+   internal/distill.Staged returns for the fixture ledger — Awaiting() first
+   (dec-0012, the one card with no confirmed_by and a regex-tier source, so it
+   is genuinely actionable), then PendingExtraction() (dec-0011, confirmed by
+   an agent and awaiting a human's `y`). A third card for qst-0006 used to sit
+   here; Staged only ever returns `state: staged` entries (dec-0021), so a
+   route built on it cannot show a question, and the card is gone rather than
+   asserting a queue this package cannot produce. Checked by a Go test,
+   TestDistillMockupMatchesTheQueue (internal/ui), against the `data-id`
+   attributes below — not by a human recount. */
 
 .wrap { max-width: 760px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
 
@@ -117,47 +128,48 @@ kbd {
 <body>
 
 <header class="topbar">
-  <a class="wordmark" href="#">di<b>ra</b></a>
+  <a class="wordmark" href="s2-index.html">di<b>ra</b></a>
   <nav class="crumb" aria-label="Breadcrumb">kazi-org/dira · distill</nav>
   <span class="spacer"></span>
-  <span class="crumb">3 staged</span>
+  <span class="crumb">2 staged</span>
 </header>
 
 <main class="wrap">
 
   <div class="head">
-    <h1>Three decisions from yesterday.</h1>
+    <h1>Two decisions from yesterday.</h1>
     <p class="sub">Captured from your sessions. Confirm the reasoning, or reject it — that is the whole job.</p>
-    <div class="progress" role="img" aria-label="1 of 3 reviewed">
-      <i class="done"></i><i class="now"></i><i></i>
+    <div class="progress" role="img" aria-label="1 of 2">
+      <i class="now"></i><i></i>
     </div>
   </div>
 
   <div class="deck">
 
-    <!-- the actionable card -->
-    <article class="stage">
+    <!-- the actionable card: internal/distill.Staged's Awaiting() — no
+         confirmed_by, a regex-tier source, nobody has looked at it yet. -->
+    <article class="stage" data-id="dec-0012">
       <div class="meta">
-        <span class="chip chip-id">dec-0011</span>
+        <span class="chip chip-id">dec-0012</span>
         <span class="chip chip-staged">◆ staged</span>
-        <span class="src">PreCompact · 14:22 · semantic</span>
+        <span class="src">Stop · regex</span>
       </div>
 
-      <p class="because">Because a hand-entered status field is exactly what went stale in
-        Obsidian and Linear — a derived view cannot lie.</p>
+      <p class="because">Because the renderer is read-only and stores nothing, so the
+        no-servers promise survives it.</p>
 
       <div class="titleline">
         <span class="k">Decides</span>
-        <span>Status is read from kazi at query time, never written into an entry</span>
+        <span>Ship the public ledger renderer ahead of the paid apps</span>
       </div>
 
       <div class="against">
         <span class="m">✗</span>
-        <span><s>Store planned/in-progress/done as a field on each entry</s> — correct at the
-          moment of writing and wrong within a day, and the wrongness is invisible.</span>
+        <span><s>Ship the paid apps first</s> — the renderer is what a stranger sees;
+          shipping it last means the acquisition loop never closes.</span>
       </div>
 
-      <p class="edge">derives_from <a href="#">int-0003</a> · mirrors to <a href="#">adr/0011</a></p>
+      <p class="edge">derives_from <a href="#">int-0003</a></p>
 
       <div class="actions">
         <button class="btn btn-primary" type="button">Confirm</button>
@@ -173,27 +185,17 @@ kbd {
       <p class="swipe-note">swipe right to confirm · left to reject</p>
     </article>
 
-    <!-- what is behind it, dimmed and non-actionable -->
-    <article class="stage next" aria-label="Next in queue">
+    <!-- what is behind it, dimmed and non-actionable: Staged's
+         PendingExtraction() — confirmed by the agent, awaiting a human `y`. -->
+    <article class="stage next" data-id="dec-0011" aria-label="Next in queue">
       <div class="meta">
-        <span class="chip chip-id">dec-0012</span>
+        <span class="chip chip-id">dec-0011</span>
         <span class="chip chip-staged">◆ staged</span>
-        <span class="src">Stop · 16:05 · regex</span>
+        <span class="src">PreCompact · semantic</span>
       </div>
-      <p class="because">Because the renderer is read-only and stores nothing, so the
-        no-servers promise survives it.</p>
-      <div class="titleline"><span class="k">Decides</span><span>Ship the public ledger renderer ahead of the paid apps</span></div>
-    </article>
-
-    <article class="stage next" aria-label="Next in queue">
-      <div class="meta">
-        <span class="chip chip-id">qst-0006</span>
-        <span class="chip chip-open">◆ open question</span>
-        <span class="src">Stop · 16:41 · regex</span>
-      </div>
-      <p class="because">Unresolved: should the brief inherit personal focus into a public
-        repo session, or only reference it?</p>
-      <div class="titleline"><span class="k">Blocks</span><span>dec-0006 — the fractal tier design</span></div>
+      <p class="because">Because a hand-entered status field is exactly what went stale in
+        Obsidian and Linear — a derived view cannot lie.</p>
+      <div class="titleline"><span class="k">Decides</span><span>Status is read from kazi at query time, never written into an entry</span></div>
     </article>
 
   </div>
