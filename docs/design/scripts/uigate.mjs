@@ -43,11 +43,15 @@ const KEEP = process.argv.includes('--keep');
 const VIEWPORTS = { mobile: [390, 844], laptop: [1024, 768], wide: [1440, 900] };
 const SCHEMES = ['light', 'dark'];
 
-// The two routes this lane serves, each paired with the mockup it was built
-// from. A route with no mockup would be a page nothing measures.
+// The three routes this lane serves, each paired with the mockup it was built
+// from. A route with no mockup would be a page nothing measures. s3-distill
+// is E6-L3-T8: with T1's mockups regenerated as renders and T2-T5's route
+// built, this is the pair the founder decision's stated consequence is
+// checked against, not asserted.
 const ROUTES = [
   { name: 's2-index', served: '/', mockup: '/docs/design/screens/s2-index.html' },
   { name: 's1-decision', served: '/e/dec-0001', mockup: '/docs/design/screens/s1-decision.html' },
+  { name: 's3-distill', served: '/distill', mockup: '/docs/design/screens/s3-distill.html' },
 ];
 
 const die = (code, msg) => { console.error(msg); process.exit(code); };

@@ -107,10 +107,20 @@
    pixel-identical whether the reader's browser is looking at this file or
    at the served /distill with these rules applied to real forms. */
 .actions .dispose { display: contents; }
-.edit-disclosure { display: contents; }
+/* .edit-disclosure is NOT display: contents, unlike .dispose above — a
+   <details> is not an ordinary container (it natively collapses its
+   non-summary children to nothing when closed, independent of any
+   stylesheet rule), and .dispose's trick is for elements that need one.
+   Left as a normal block-level flex item, a closed <details> lays out as
+   just its <summary>'s box. The [open] scope on the rule below is
+   necessary regardless: an unscoped "display: flex" would force the form
+   flex-visible even while closed (measured: 152px of extra, always-present
+   height) — a distinct defect from whatever a bare <details> does on its
+   own, and the one uigate.mjs's mechanical gate can actually observe on
+   the served page, since a mockup file never executes this rule at all. */
 .edit-disclosure summary { list-style: none; cursor: pointer; }
 .edit-disclosure summary::-webkit-details-marker { display: none; }
-.edit-disclosure form {
+.edit-disclosure[open] form {
   flex-basis: 100%; margin-top: var(--s3); display: flex; flex-direction: column; gap: var(--s2);
 }
 .edit-disclosure textarea {
