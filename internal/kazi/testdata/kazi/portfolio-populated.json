@@ -1,0 +1,1153 @@
+{
+  "blocked": [
+    {
+      "blocker": "blocked: cap-early-return-precedes-work red 1 iterations, cap-empty-digest-zero-intents red 1 iterations, cap-ledger-row red 1 iterations, cap-legacy-scenarios-not-vacuous red 1 iterations, cap-nonempty-digest-one-per-principal red 1 iterations, guard-workspace-identity red 1 iterations, landed red 1 iterations",
+      "cause": "stuck",
+      "goal_ref": "t1-8-empty-digest",
+      "red_predicates": [
+        {
+          "id": "cap-early-return-precedes-work",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-empty-digest-zero-intents",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-ledger-row",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-legacy-scenarios-not-vacuous",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-nonempty-digest-one-per-principal",
+          "red_iterations": 1
+        },
+        {
+          "id": "guard-workspace-identity",
+          "red_iterations": 1
+        },
+        {
+          "id": "landed",
+          "red_iterations": 1
+        }
+      ],
+      "run_id": "26be053c-d3ef-4352-bc46-2d95cfe785dc",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: cap-no-orphan-running-run red 1 iterations, cap-no-progress-stalled red 1 iterations, cap-planner-error-terminates red 1 iterations, cap-reserved-step-id-recorded red 1 iterations, cap-stalled-status-surfaced red 1 iterations, guard-workspace-identity red 1 iterations, landed red 1 iterations",
+      "cause": "stuck",
+      "goal_ref": "t1-6-runs-terminate",
+      "red_predicates": [
+        {
+          "id": "cap-no-orphan-running-run",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-no-progress-stalled",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-planner-error-terminates",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-reserved-step-id-recorded",
+          "red_iterations": 1
+        },
+        {
+          "id": "cap-stalled-status-surfaced",
+          "red_iterations": 1
+        },
+        {
+          "id": "guard-workspace-identity",
+          "red_iterations": 1
+        },
+        {
+          "id": "landed",
+          "red_iterations": 1
+        }
+      ],
+      "run_id": "52f1cdbd-521a-44b1-b2fc-d0b51e36b07c",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: committed red 4 iterations",
+      "cause": "stuck",
+      "goal_ref": "warnings-clean",
+      "red_predicates": [
+        {
+          "id": "committed",
+          "red_iterations": 4
+        }
+      ],
+      "run_id": "81b4c6f1-85a3-4cd6-94da-c503d6a885a5",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: 2/1 iterations",
+      "cap": 1,
+      "cause": "over_budget",
+      "goal_ref": "diag-cwd",
+      "iterations": 2,
+      "run_id": "4cabe3cf-a814-43d7-92c9-a61d6f77c4be",
+      "status": "over_budget"
+    },
+    {
+      "blocker": "blocked: landed red 4 iterations",
+      "cause": "stuck",
+      "goal_ref": "convergence-report-table",
+      "red_predicates": [
+        {
+          "id": "landed",
+          "red_iterations": 4
+        }
+      ],
+      "run_id": "1cdfb7ad-7731-4b3e-a474-51d1ba6ecda2",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: stuck (no recorded vector)",
+      "cause": "stuck",
+      "goal_ref": "daemon-cross-machine-nats",
+      "red_predicates": [],
+      "run_id": "a0eef8c0-3df3-4e19-81ab-96a91798fae8",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: stuck (no recorded vector)",
+      "cause": "stuck",
+      "goal_ref": "dashboard-json-api",
+      "red_predicates": [],
+      "run_id": "b9e9e9c5-aa00-40f8-9712-479b5a861da0",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: landed red 5 iterations",
+      "cause": "stuck",
+      "goal_ref": "gist-adr-004-miss-telemetry",
+      "red_predicates": [
+        {
+          "id": "landed",
+          "red_iterations": 5
+        }
+      ],
+      "run_id": "b1ce5968-a339-49f5-ac20-9ea8ae7ff699",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: stuck (no recorded vector)",
+      "cause": "stuck",
+      "goal_ref": "bus-cli-contract",
+      "red_predicates": [],
+      "run_id": "e7884cee-bbad-4dc6-978c-17658cd25719",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: stuck (no recorded vector)",
+      "cause": "stuck",
+      "goal_ref": "upgrade-lifecycle-hardening",
+      "red_predicates": [],
+      "run_id": "8651f939-1327-479e-9874-7e2ec22a6408",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: teardown-isolated red 4 iterations",
+      "cause": "stuck",
+      "goal_ref": "fleet-teardown-hardening",
+      "red_predicates": [
+        {
+          "id": "teardown-isolated",
+          "red_iterations": 4
+        }
+      ],
+      "run_id": "b94f4be5-4be2-4951-b836-837162d9ba69",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: builds red 2 iterations, full-suite-guard red 2 iterations, go-vet-clean red 2 iterations, shutdown-reaps-parked-sessions red 2 iterations",
+      "cause": "stuck",
+      "goal_ref": "valyrium-issue-8-shutdown-session-leak",
+      "red_predicates": [
+        {
+          "id": "builds",
+          "red_iterations": 2
+        },
+        {
+          "id": "full-suite-guard",
+          "red_iterations": 2
+        },
+        {
+          "id": "go-vet-clean",
+          "red_iterations": 2
+        },
+        {
+          "id": "shutdown-reaps-parked-sessions",
+          "red_iterations": 2
+        }
+      ],
+      "run_id": "e65034df-1f70-4a20-9c68-7f9a89d57f5f",
+      "status": "stuck"
+    },
+    {
+      "blocker": "blocked: landed red 5 iterations",
+      "cause": "stuck",
+      "goal_ref": "ci-daemon-nats-green",
+      "red_predicates": [
+        {
+          "id": "landed",
+          "red_iterations": 5
+        }
+      ],
+      "run_id": "8ebadfc3-3392-44f0-a635-d9358ee02724",
+      "status": "stuck"
+    }
+  ],
+  "by_repo": {
+    "../wt-batch-0031-0034": {
+      "stuck": [
+        {
+          "goal_ref": "convergence-report-table",
+          "run_id": "1cdfb7ad-7731-4b3e-a474-51d1ba6ecda2",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "full-suite-deflake",
+          "run_id": "6703d797-4b21-4b85-850d-ab509679d73a",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "cache-economics-observability",
+          "run_id": "2bcd6796-120e-4abf-81d3-150de4aa52de",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "scoped-commit-guard",
+          "run_id": "13e00b09-9c74-4ea5-aefb-83413fe11f63",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-301bba235bccfcc8-1c7c3af3-e0a9171c": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-16-home-composer-honest-gap",
+          "run_id": "affc9ae9-3362-462e-9670-2eb41ccae6ef",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-498124be31ace5e1-74961f30-1fa58a00": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-2-org-mutation-enumeration",
+          "run_id": "87fa0c36-5bbb-45fe-868a-f0af4bdbc1d5",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-4af175edf75c7611-7dbdcd11-bce14189": {
+      "in_progress": [
+        {
+          "goal_ref": "t16-1-oath-asset-catalog",
+          "run_id": "53835ea2-1d2f-47ad-bd95-b77ea569e87a",
+          "status": "running"
+        }
+      ]
+    },
+    "kazi-worktrees/p-4af175edf75c7611-7dbdcd11-fa2d44d1": {
+      "in_progress": [
+        {
+          "goal_ref": "t16-1-oath-asset-catalog",
+          "run_id": "e6bb0787-5305-49a3-ad61-ee67fa353384",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-522a26a0674e1b09-8e3808b6-b0540380": {
+      "stuck": [
+        {
+          "goal_ref": "t1-5-idle-static-guard",
+          "run_id": "c107ded6-8dba-43a6-87e9-1c30012cf5bc",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-522a26a0674e1b09-8e3808b6-e2c4c477": {
+      "complete": [
+        {
+          "goal_ref": "t1-5-idle-static-guard",
+          "run_id": "e11ad79c-0a0c-4a84-878e-1a811095a6f8",
+          "status": "converged"
+        }
+      ]
+    },
+    "kazi-worktrees/p-785443b644a58e50-c9d867c6-ee92e081": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-2-org-mutation-enumeration-r2",
+          "run_id": "ccb5d58b-373d-4af6-85e4-ea630b60641c",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-95341385653447c7-44146486-c2c73f81": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-3-tenant-default-calibration",
+          "run_id": "63ea4e41-068e-4b37-aa30-2ff499b4bb99",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-9ea6febfce51de21-e6a02b62-c803567b": {
+      "in_progress": [
+        {
+          "goal_ref": "t0-1-dispatch-policy-error-terminates",
+          "run_id": "f42859b3-acc0-4018-9aac-72aac85c8dda",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-be3d4a7a703bbd00-e98f5268-527adb47": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-2-org-mutation-enumeration-r3",
+          "run_id": "38459f00-85d0-45c8-8764-b00e7074d8b8",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-bus-cli-contract-1": {
+      "stuck": [
+        {
+          "goal_ref": "bus-cli-contract",
+          "run_id": "e7884cee-bbad-4dc6-978c-17658cd25719",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-c0be9394d466a6e0-2e40b49f-3a15dafa": {
+      "in_progress": [
+        {
+          "goal_ref": "t41-4-init-discover",
+          "run_id": "1062ca37-463f-467f-9f91-1de7d1a483b1",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-cache-economics--2": {
+      "in_progress": [
+        {
+          "goal_ref": "cache-economics-observability",
+          "run_id": "a51287b4-a39c-477b-ba6c-db98322579fb",
+          "status": "abandoned"
+        }
+      ]
+    },
+    "kazi-worktrees/p-cache-economics--6": {
+      "stuck": [
+        {
+          "goal_ref": "cache-economics-observability",
+          "run_id": "adf446c1-c7a0-49bb-92be-d5e8f94ea80f",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-ci-daemon-nats-g-1": {
+      "stuck": [
+        {
+          "goal_ref": "ci-daemon-nats-green",
+          "run_id": "8ebadfc3-3392-44f0-a635-d9358ee02724",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "ci-daemon-nats-green",
+          "run_id": "dd028fd3-c2f6-4dd4-82e1-5074d9dd5ba1",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "ci-daemon-nats-green",
+          "run_id": "b010f7e2-9156-4993-a8a3-fc8ecd53e695",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-convergence-repo-7": {
+      "stuck": [
+        {
+          "goal_ref": "convergence-report-table",
+          "run_id": "97cf6674-532a-4495-b540-0a8d805f3096",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-daemon-cross-mac-9": {
+      "stuck": [
+        {
+          "goal_ref": "daemon-cross-machine-nats",
+          "run_id": "a0eef8c0-3df3-4e19-81ab-96a91798fae8",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-dashboard-json-a-8": {
+      "stuck": [
+        {
+          "goal_ref": "dashboard-json-api",
+          "run_id": "b9e9e9c5-aa00-40f8-9712-479b5a861da0",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-diag-cwd-30f8dc57-142a8d2d": {
+      "stuck": [
+        {
+          "goal_ref": "diag-cwd",
+          "run_id": "f565056f-fe77-479f-bc9f-1b836f5a4e2f",
+          "status": "over_budget"
+        }
+      ]
+    },
+    "kazi-worktrees/p-diag-cwd-30f8dc57-ff6b533e": {
+      "stuck": [
+        {
+          "goal_ref": "diag-cwd",
+          "run_id": "4cabe3cf-a814-43d7-92c9-a61d6f77c4be",
+          "status": "over_budget"
+        }
+      ]
+    },
+    "kazi-worktrees/p-e9683734e50bea0f-fe70a123-7398f0f3": {
+      "in_progress": [
+        {
+          "goal_ref": "t0-2-ratchet-apply-honest",
+          "run_id": "1c22424a-bc84-4373-82a3-749fddb4874d",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-e9683734e50bea0f-fe70a123-97a57203": {
+      "in_progress": [
+        {
+          "goal_ref": "t0-2-ratchet-apply-honest",
+          "run_id": "cfa56a0a-2c14-4b02-926e-7bacc753333b",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-exit-decouple-14-add70204-07a05f02": {
+      "in_progress": [
+        {
+          "goal_ref": "exit-decouple-1407",
+          "run_id": "2a456f53-4a91-43b0-9157-2551186c515d",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-exit-decouple-14-add70204-a1a7ded6": {
+      "in_progress": [
+        {
+          "goal_ref": "exit-decouple-1407",
+          "run_id": "59cf6c88-fbac-41ff-9e22-02e7919bc52a",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-exit-decouple-14-add70204-b2a364b7": {
+      "in_progress": [
+        {
+          "goal_ref": "exit-decouple-1407",
+          "run_id": "15918ea1-4698-4ea3-95f6-c5379c38943a",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-fix-issue-1617-i-37b6f116-347726e1": {
+      "in_progress": [
+        {
+          "goal_ref": "fix-issue-1617-in-lib-kazi",
+          "run_id": "396d7ca2-cb68-4622-b9eb-3d597671a97c",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-fleet-teardown-h-3": {
+      "stuck": [
+        {
+          "goal_ref": "fleet-teardown-hardening",
+          "run_id": "b94f4be5-4be2-4951-b836-837162d9ba69",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-full-suite-defla-1": {
+      "in_progress": [
+        {
+          "goal_ref": "full-suite-deflake",
+          "run_id": "0e91669e-a0b4-46dc-8422-e11e114741a8",
+          "status": "abandoned"
+        }
+      ]
+    },
+    "kazi-worktrees/p-full-suite-defla-5": {
+      "stuck": [
+        {
+          "goal_ref": "full-suite-deflake",
+          "run_id": "15e3c905-b450-4a55-bb31-c4d95fe73fcb",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-gist-adr-004-mis-1": {
+      "stuck": [
+        {
+          "goal_ref": "gist-adr-004-miss-telemetry",
+          "run_id": "b1ce5968-a339-49f5-ac20-9ea8ae7ff699",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "gist-adr-004-miss-telemetry",
+          "run_id": "dc209915-2f16-4140-9be6-18d24e7d2997",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-gist-adr-005-sup-1": {
+      "complete": [
+        {
+          "goal_ref": "gist-adr-005-supersession",
+          "run_id": "409950dd-4908-4af4-a449-3cc63edf4024",
+          "status": "converged"
+        }
+      ]
+    },
+    "kazi-worktrees/p-gist-adr-006-pre-1": {
+      "complete": [
+        {
+          "goal_ref": "gist-adr-006-prep-query-expansion",
+          "run_id": "c35ec0c5-7eb3-4432-9ccc-93b34eb0fc15",
+          "status": "converged"
+        }
+      ]
+    },
+    "kazi-worktrees/p-goal-drift-guard-90206f30-c611569a": {
+      "in_progress": [
+        {
+          "goal_ref": "goal-drift-guard-1415",
+          "run_id": "b6593bd4-fcb7-44a7-a4a6-87e2171b2b8e",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-goal-drift-guard-90206f30-d5a8d7c7": {
+      "in_progress": [
+        {
+          "goal_ref": "goal-drift-guard-1415",
+          "run_id": "5b17a0b8-886d-4724-991b-ad63ec63fb95",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-runtime-gherkin--87099de7-05028373": {
+      "stuck": [
+        {
+          "goal_ref": "runtime-gherkin-provider-adr-0071-loader",
+          "run_id": "67dcbe95-5ddb-43d6-841d-d8c30484a994",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-runtime-gherkin--87099de7-f25377e2": {
+      "stuck": [
+        {
+          "goal_ref": "runtime-gherkin-provider-adr-0071-loader",
+          "run_id": "1e3206d4-3e0a-421e-a09c-ce799a237bcd",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-scoped-commit-gu-3": {
+      "in_progress": [
+        {
+          "goal_ref": "scoped-commit-guard",
+          "run_id": "ebf908da-a7cb-4194-9094-31ebcd81183d",
+          "status": "abandoned"
+        }
+      ]
+    },
+    "kazi-worktrees/p-scoped-commit-gu-4": {
+      "stuck": [
+        {
+          "goal_ref": "scoped-commit-guard",
+          "run_id": "0b23edaa-e51d-4d86-a906-af48e9239b8f",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-swift-test-provi-6083f480-fb4f742a": {
+      "in_progress": [
+        {
+          "goal_ref": "swift-test-provider-1406",
+          "run_id": "9271112e-a24d-4189-9e49-09cbcc0ee9e1",
+          "status": "terminated"
+        }
+      ]
+    },
+    "kazi-worktrees/p-upgrade-lifecycl-2": {
+      "stuck": [
+        {
+          "goal_ref": "upgrade-lifecycle-hardening",
+          "run_id": "8651f939-1327-479e-9874-7e2ec22a6408",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-dashboa-1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-dashboard",
+          "run_id": "a1e1cd3c-3b16-42b5-bba6-358fa7c030b2",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-dashboard",
+          "run_id": "1b704cdf-891c-41b0-b76c-470aa32508a8",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-issue-1-1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-issue-15-reasoning-content",
+          "run_id": "92a09477-c214-4606-a47c-1a59142b6932",
+          "status": "converged"
+        },
+        {
+          "goal_ref": "valyrium-issue-14-reap-superseded-sessions",
+          "run_id": "4f71fbc5-63b6-45cb-835b-966087405f9b",
+          "status": "converged"
+        },
+        {
+          "goal_ref": "valyrium-issue-13-session-resume-continuity",
+          "run_id": "c10fc295-780d-45f5-a377-e1fc2c17a436",
+          "status": "converged"
+        },
+        {
+          "goal_ref": "valyrium-issue-12-cached-tokens-usage",
+          "run_id": "9c9fbd32-b2b7-4708-84d6-bc10be75545e",
+          "status": "converged"
+        },
+        {
+          "goal_ref": "valyrium-issue-11-openrouter-reasoning-object",
+          "run_id": "6b249af4-5ccb-4e96-998e-7cba94faaae7",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-issue-12-cached-tokens-usage",
+          "run_id": "521668e2-6c81-437d-b185-436c3b035f5f",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-issue-5-1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-issue-5-model-context-length",
+          "run_id": "9f094ba4-2e5d-4847-b97d-b60c18f98c42",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-issue-5-model-context-length",
+          "run_id": "067f5647-63c1-4710-9e8f-f0b3f62dd76c",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-issue-6-1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-issue-6-streaming-finish-reason",
+          "run_id": "e73f99fd-46f7-41f0-9c69-723ece01ff3b",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-issue-6-streaming-finish-reason",
+          "run_id": "7f33fc75-4ada-448f-9666-e56e6d29c3d8",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-issue-7-1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-issue-7-random-completion-id",
+          "run_id": "3b5d2414-1d69-4949-8c78-115b8afc48c2",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-issue-7-random-completion-id",
+          "run_id": "2fcd04ac-fb4f-4247-95d5-340900e5ec46",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-issue-8-1": {
+      "stuck": [
+        {
+          "goal_ref": "valyrium-issue-8-shutdown-session-leak",
+          "run_id": "e65034df-1f70-4a20-9c68-7f9a89d57f5f",
+          "status": "stuck"
+        },
+        {
+          "goal_ref": "valyrium-issue-8-shutdown-session-leak",
+          "run_id": "8775ee6b-4cf8-4040-a30e-aa29b6109cf3",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-issue-9-1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-issue-9-response-format",
+          "run_id": "f2bcc804-310e-423d-8d27-2bea44b77211",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-issue-9-response-format",
+          "run_id": "5f708d69-3042-473e-be23-49b4469c8023",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-valyrium-tunnel--1": {
+      "complete": [
+        {
+          "goal_ref": "valyrium-tunnel-relay",
+          "run_id": "8a813477-0c6b-4dff-9a29-4330d85f8821",
+          "status": "converged"
+        }
+      ],
+      "stuck": [
+        {
+          "goal_ref": "valyrium-tunnel-relay",
+          "run_id": "5a34859d-78b3-4064-b257-93d8700405dd",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-warnings-clean-9479baf7-0d640548": {
+      "stuck": [
+        {
+          "goal_ref": "warnings-clean",
+          "run_id": "24611ad7-3e00-41b1-afd2-c59855bdeccc",
+          "status": "over_budget"
+        }
+      ]
+    },
+    "kazi-worktrees/p-warnings-clean-9479baf7-881356f0": {
+      "stuck": [
+        {
+          "goal_ref": "warnings-clean",
+          "run_id": "81b4c6f1-85a3-4cd6-94da-c503d6a885a5",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-warnings-clean-9479baf7-937e0e03": {
+      "stuck": [
+        {
+          "goal_ref": "warnings-clean",
+          "run_id": "5e969ba5-dfc5-4e47-9d90-aacf98a628ea",
+          "status": "stuck"
+        }
+      ]
+    },
+    "kazi-worktrees/p-warnings-clean-9479baf7-d10209c1": {
+      "stuck": [
+        {
+          "goal_ref": "warnings-clean",
+          "run_id": "3dd9cff3-434b-4e46-9793-9ec1b9f84225",
+          "status": "stuck"
+        }
+      ]
+    },
+    "scratchpad/gherkin-provider": {
+      "in_progress": [
+        {
+          "goal_ref": "runtime-gherkin-provider-adr-0071-loader",
+          "run_id": "56eeb89a-f818-40db-a4f5-44005790e1a1",
+          "status": "abandoned"
+        }
+      ]
+    },
+    "sirerun/sire": {
+      "stuck": [
+        {
+          "goal_ref": "t1-8-empty-digest",
+          "run_id": "26be053c-d3ef-4352-bc46-2d95cfe785dc",
+          "status": "stuck"
+        }
+      ]
+    },
+    "sirerun/wt-T0.1": {
+      "complete": [
+        {
+          "goal_ref": "t0-1-dispatch-policy-error-terminates",
+          "run_id": "50099055-8454-496f-8356-69fce807a9b2",
+          "status": "converged"
+        }
+      ]
+    },
+    "sirerun/wt-T1.2": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-2-org-mutation-enumeration-r4",
+          "run_id": "6fed1d79-5e2e-4d40-a88d-6407cde71dc8",
+          "status": "terminated"
+        }
+      ]
+    },
+    "sirerun/wt-T1.6": {
+      "stuck": [
+        {
+          "goal_ref": "t1-6-runs-terminate",
+          "run_id": "52f1cdbd-521a-44b1-b2fc-d0b51e36b07c",
+          "status": "stuck"
+        }
+      ]
+    },
+    "sirerun/wt-T1.9": {
+      "in_progress": [
+        {
+          "goal_ref": "t1-9-owner-anchor",
+          "run_id": "c142de3d-2f7b-4f57-9792-c2ab6b7eeb6e",
+          "status": "terminated"
+        },
+        {
+          "goal_ref": "t1-9-owner-anchor",
+          "run_id": "3215e460-18b9-405c-9aae-fa780e8a12cd",
+          "status": "terminated"
+        }
+      ]
+    }
+  },
+  "fleet_remote": [],
+  "kind": "portfolio",
+  "planned": [
+    {
+      "goal_id": "e45",
+      "idea": "E45 — one system: plan-as-generated-view + exit proof",
+      "proposal_ref": "prop-e45",
+      "status": "proposed"
+    },
+    {
+      "goal_id": "e67",
+      "idea": "E67 — dashboard velocity surface",
+      "proposal_ref": "prop-e67",
+      "status": "proposed"
+    },
+    {
+      "goal_id": "e25",
+      "idea": "E25 — content-marketing refocus + launch",
+      "proposal_ref": "prop-e25",
+      "status": "proposed"
+    },
+    {
+      "goal_id": "e66",
+      "idea": "E66 — release-binary boot correctness",
+      "proposal_ref": "prop-e66",
+      "status": "proposed"
+    },
+    {
+      "goal_id": "t1-2-org-mutation-enumeration-r4",
+      "idea": "Promote all four sub-sections of the S5/S6 design's section 3 to docs/org-mutations.md and ship scripts/check-org-invariant.sh plus its selftest, so guarantee G3 rests on an exhaustive, mechanically-kept-fresh list of org-mutating operations.",
+      "proposal_ref": "prop-t1-2-org-mutation-enumeration-r4",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-8-empty-digest",
+      "idea": "T1.8 (docs/plan.md, verifies G2): api.DigestDeliveryJob.Run must return early when the composed digest is 0 decided and 0 pending, so a scheduled digest for a tenant with nothing to report dispatches zero email:relay/send intents, while a tenant with a pending approval still gets exactly one intent per opted-in principal.",
+      "proposal_ref": "prop-t1-8-empty-digest",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-2-org-mutation-enumeration-r3",
+      "idea": "Promote all four sub-sections of the S5/S6 design's section 3 to docs/org-mutations.md and ship scripts/check-org-invariant.sh plus its selftest, so guarantee G3 rests on an exhaustive, mechanically-kept-fresh list of org-mutating operations.",
+      "proposal_ref": "prop-t1-2-org-mutation-enumeration-r3",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-9-owner-anchor",
+      "idea": "workers.tenantHuman must anchor the escalation ceiling on the tenant's owner-roled human, falling back to the oldest human only when nobody holds 'owner' (G3, ADR 0068 §4)",
+      "proposal_ref": "prop-t1-9-owner-anchor",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-2-org-mutation-enumeration-r2",
+      "idea": "Promote all four sub-sections of the S5/S6 design's section 3 to docs/org-mutations.md and ship scripts/check-org-invariant.sh plus its selftest, so guarantee G3 rests on an exhaustive, mechanically-kept-fresh list of org-mutating operations.",
+      "proposal_ref": "prop-t1-2-org-mutation-enumeration-r2",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-6-runs-terminate",
+      "idea": "engine/drive() has three silent exits that leave a run at status='running' forever; each must append a reason-coded core.StepError and set a terminal status, adding the new 'stalled' status for no_progress (guarantee G4, runs end).",
+      "proposal_ref": "prop-t1-6-runs-terminate",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-5-idle-static-guard",
+      "idea": "Defend guarantee G2 (idle costs nothing) with a static guard that fails the moment a wake tick, an undeclared timer, or a busy poll loop re-enters the tree.",
+      "proposal_ref": "prop-t1-5-idle-static-guard",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-3-tenant-default-calibration",
+      "idea": "Make a tenant with zero policy rules accumulate decision evidence: drop recordDecisionEvent's a.Policy != nil early return, record the tenant-default decision under a non-empty, class-distinguishing scope, and replace the literal approve/deny recommendation filter with a persisted RecommendedVerb the gate populates from the policy verdict.",
+      "proposal_ref": "prop-t1-3-tenant-default-calibration",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-2-org-mutation-enumeration",
+      "idea": "Promote all four sub-sections of the S5/S6 design's section 3 to docs/org-mutations.md and ship scripts/check-org-invariant.sh plus its selftest, so guarantee G3 rests on an exhaustive, mechanically-kept-fresh list of org-mutating operations.",
+      "proposal_ref": "prop-t1-2-org-mutation-enumeration",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t0-2-ratchet-apply-honest",
+      "idea": "Fix the autonomy-ratchet apply path's two wrong answers: sire-mcp/lane.go returns a fabricated success for a non-money proposal instead of an error, and api/handlers_skills_onboarding_autonomy.go silently tightens the learned boundary to $0.00 on direction=lower. The money path must keep working.",
+      "proposal_ref": "prop-t0-2-ratchet-apply-honest",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t0-1-dispatch-policy-error-terminates",
+      "idea": "dispatch/gate.go's policy-evaluation error path returns a bare error: no audit leaf, empty Outcome, and dedup.finish is never called after begin() already wrote 'inflight' -- so every retry answers ErrEffectPendingReplay forever. Terminate it: write a policy_error leaf, set OutcomeDenied, call dedup.finish, return the wrapped error. The invoke-error path must NOT change: there the external call is genuinely in doubt, so the row must stay inflight.",
+      "proposal_ref": "prop-t0-1-dispatch-policy-error-terminates",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t16-5-type-floor-dynamic-type",
+      "idea": "T16.5: enforce the SIGNAL-V2 12pt type floor and Dynamic Type semantic styles across ios/App, with an AX-XL UI test proving no clipped or overlapping text on Home and Decide (E16 iOS Signal v2 wave 1).",
+      "proposal_ref": "prop-t16-5-type-floor-dynamic-type",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t16-1-oath-asset-catalog",
+      "idea": "T16.1: add the 17 Oath semantic color sets to the iOS asset catalog, retire the lime/cyan legacy tokens, and let the app follow system appearance (E16 iOS Signal v2 wave 1).",
+      "proposal_ref": "prop-t16-1-oath-asset-catalog",
+      "status": "approved"
+    },
+    {
+      "goal_id": "fix-issue-1617-in-lib-kazi",
+      "idea": "Fix issue #1617: in lib/kazi/cli.ex the @flag_docs entry for the --project flag describes it as \"bus who only\", but --project is also the roadmap-persistence flag for kazi plan (kazi plan --project persists a roadmap as linked proposals). Correct the --project @flag_docs description so it documents BOTH uses (plan roadmap-persistence and bus who filtering), and add or update an ExUnit test that pins the corrected description so help --json cannot regress.",
+      "proposal_ref": "prop-fix-issue-1617-in-lib-kazi-0bb6840ab58f",
+      "status": "approved"
+    },
+    {
+      "goal_id": "t1-16-home-composer-honest-gap",
+      "idea": "T1.16 (docs/plans/E1-w75-recovery.md): Home's 'Ask Sire or run a command' bar looks interactive but has zero input semantics (no onClick/onKeyDown/onSubmit, no ⌘K handler) and zero backend to wire to -- scoping (Explore agent, 2026-07-19) confirmed NO composer/assistant ABI exists anywhere in api/, and the existing /composer route (console/src/app/composer/page.tsx) already establishes the project's honest pattern for this exact situation: a visibly-disabled input with a 'not wired -- no ABI endpoint' label, not a silently-dead-looking interactive element. Track as a known gap per the plan's own framing, applying that same honest-disabled convention to Home's bar instead of leaving it deceptively decorative.",
+      "proposal_ref": "prop-t1-16-home-composer-honest-gap",
+      "status": "approved"
+    },
+    {
+      "goal_id": "swift-test-provider-1406",
+      "idea": "swift_test provider: first-class Swift/XCTest predicates, 0-tests-matched is red (#1406)",
+      "proposal_ref": "prop-swift-test-provider-1406",
+      "status": "approved"
+    },
+    {
+      "goal_id": "exit-decouple-1407",
+      "idea": "convergence owns the exit code; landing failure is surfaced, not masking (#1407)",
+      "proposal_ref": "prop-exit-decouple-1407",
+      "status": "approved"
+    },
+    {
+      "goal_id": "goal-drift-guard-1415",
+      "idea": "goal-file drift guard: detect+surface mid-run predicate edits (#1415)",
+      "proposal_ref": "prop-goal-drift-guard-1415",
+      "status": "approved"
+    },
+    {
+      "goal_id": "caller-supplied-predicates",
+      "idea": "caller-supplied predicates",
+      "proposal_ref": "prop-caller-supplied-predicates-2b66f3dbd894",
+      "status": "approved"
+    },
+    {
+      "goal_id": "runtime-gherkin-provider-adr-0071-loader",
+      "idea": "caller-supplied predicates",
+      "proposal_ref": "prop-runtime-gherkin-provider-adr-0071-loader-1519fa62cd3c",
+      "status": "approved"
+    },
+    {
+      "goal_id": "cross-machine-bus-client",
+      "idea": "Fix #1101 (CLI bus client honors the daemon nats host/token instead of hardcoded 127.0.0.1/no-token) and #1102 (bus who exposes the machine field)",
+      "proposal_ref": "prop-cross-machine-bus-client",
+      "status": "approved"
+    },
+    {
+      "goal_id": "gist-adr-006-prep-query-expansion",
+      "idea": "Implement the cheap lexical remedies named in ADR 006's gate: identifier splitting and multi-term expansion, before any embedding work",
+      "proposal_ref": "prop-gist-adr-006-prep-query-expansion",
+      "status": "approved"
+    },
+    {
+      "goal_id": "gist-adr-005-supersession",
+      "idea": "Implement source supersession, TTL expiry, and opt-in per-source half-life decay per docs/adr/005-supersession-ttl-recency.md",
+      "proposal_ref": "prop-gist-adr-005-supersession",
+      "status": "approved"
+    },
+    {
+      "goal_id": "gist-adr-004-miss-telemetry",
+      "idea": "Implement local-only retrieval miss telemetry per docs/adr/004-miss-telemetry.md",
+      "proposal_ref": "prop-gist-adr-004-miss-telemetry",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-13-session-resume-continuity",
+      "idea": "Opt-in cross-request continuity for the plain (non-tool) conversational path: fingerprint the conversation prefix, resume the CLI's own session when it matches, fall back to today's flatten-and-replay otherwise",
+      "proposal_ref": "prop-valyrium-issue-13-session-resume-continuity",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-15-reasoning-content",
+      "idea": "Relay the CLI's extended-thinking stream blocks as OpenAI-style reasoning_content, behind an opt-in flag, default unchanged",
+      "proposal_ref": "prop-valyrium-issue-15-reasoning-content",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-14-reap-superseded-sessions",
+      "idea": "Detect a request that supersedes a parked session's conversation (shares its prefix but does not carry its pending tool results) and reap that session immediately instead of waiting for the idle timeout",
+      "proposal_ref": "prop-valyrium-issue-14-reap-superseded-sessions",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-9-response-format",
+      "idea": "Decode response_format and steer the model via a system-prompt instruction, with a one-shot validation retry on the non-streaming path",
+      "proposal_ref": "prop-valyrium-issue-9-response-format",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-11-openrouter-reasoning-object",
+      "idea": "Decode a top-level `reasoning: {enabled, effort}` request field and map it to --effort when reasoning_effort is absent",
+      "proposal_ref": "prop-valyrium-issue-11-openrouter-reasoning-object",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-12-cached-tokens-usage",
+      "idea": "Add usage.prompt_tokens_details.cached_tokens to OpenAIUsage, populated from the CLI's cache-read count, without changing existing prompt_tokens/total_tokens semantics",
+      "proposal_ref": "prop-valyrium-issue-12-cached-tokens-usage",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-5-model-context-length",
+      "idea": "Add a context_length field to each GET /v1/models entry, with a static per-model default map and a global env-var override",
+      "proposal_ref": "prop-valyrium-issue-5-model-context-length",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-8-shutdown-session-leak",
+      "idea": "Call SessionManager.Close() from Server.Shutdown so parked tool-calling CLI processes are reaped on shutdown",
+      "proposal_ref": "prop-valyrium-issue-8-shutdown-session-leak",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-6-streaming-finish-reason",
+      "idea": "Set finish_reason on the terminal chunk of the non-tool streaming path in handleStreamingResponse",
+      "proposal_ref": "prop-valyrium-issue-6-streaming-finish-reason",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-issue-7-random-completion-id",
+      "idea": "Fix newCompletionID/randomHex (internal/gateway/server.go) to actually use crypto/rand instead of a deterministic index-based loop",
+      "proposal_ref": "prop-valyrium-issue-7-random-completion-id",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-dashboard",
+      "idea": "Implement the finished Reactor dashboard design plus the bbolt-backed usage store it depends on, per docs/adr/0003-embedded-dashboard.md and docs/adr/0004-usage-persistence.md",
+      "proposal_ref": "prop-valyrium-dashboard",
+      "status": "approved"
+    },
+    {
+      "goal_id": "valyrium-tunnel-relay",
+      "idea": "Self-hosted reverse tunnel + relay so cloud services can reach a local valyrium instance, per docs/adr/0002-tunnel-relay.md",
+      "proposal_ref": "prop-valyrium-tunnel-relay",
+      "status": "approved"
+    }
+  ],
+  "rate": {
+    "delta": 37,
+    "empty?": false,
+    "green": 71,
+    "total": 136
+  },
+  "schema_version": 2,
+  "todo": [
+    {
+      "goal_id": "t16-5-type-floor-dynamic-type",
+      "idea": "T16.5: enforce the SIGNAL-V2 12pt type floor and Dynamic Type semantic styles across ios/App, with an AX-XL UI test proving no clipped or overlapping text on Home and Decide (E16 iOS Signal v2 wave 1).",
+      "proposal_ref": "prop-t16-5-type-floor-dynamic-type",
+      "status": "approved"
+    },
+    {
+      "goal_id": "caller-supplied-predicates",
+      "idea": "caller-supplied predicates",
+      "proposal_ref": "prop-caller-supplied-predicates-2b66f3dbd894",
+      "status": "approved"
+    },
+    {
+      "goal_id": "cross-machine-bus-client",
+      "idea": "Fix #1101 (CLI bus client honors the daemon nats host/token instead of hardcoded 127.0.0.1/no-token) and #1102 (bus who exposes the machine field)",
+      "proposal_ref": "prop-cross-machine-bus-client",
+      "status": "approved"
+    }
+  ],
+  "totals": {
+    "base": 53,
+    "empty": false,
+    "rows": [
+      {
+        "bucket": "done",
+        "count": 15,
+        "pct": 28
+      },
+      {
+        "bucket": "running",
+        "count": 18,
+        "pct": 34
+      },
+      {
+        "bucket": "blocked",
+        "count": 13,
+        "pct": 24
+      },
+      {
+        "bucket": "todo",
+        "count": 3,
+        "pct": 6
+      },
+      {
+        "bucket": "planned",
+        "count": 4,
+        "pct": 8
+      }
+    ]
+  }
+}
