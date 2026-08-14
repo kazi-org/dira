@@ -1,0 +1,66 @@
+# .goreleaser.yaml — E0-L4's release pipeline.
+#
+# Two targets, one build entry per target: darwin/arm64 (int-0002's primary
+# user platform) and linux/amd64. CGO_ENABLED=0 on both, matching go.mod's
+# own choice of modernc.org/sqlite (pure Go) over mattn/go-sqlite3 — this
+# file states a constraint the module graph already made true, rather than
+# introducing one. Two separate build stanzas, rather than one stanza with a
+# goos/goarch matrix and an ignore list, so the target set is exactly what is
+# written here and not the product of a matrix minus exclusions.
+#
+# ldflags points at cmd/dira/build_test.go's TestVersionIsSetByLdflags, the
+# exact mechanism this pipeline depends on: `-X main.version=...` on the
+# github.com/kazi-org/dira/cmd/dira package. {{.Version}} is goreleaser's own
+# template variable and already strips the tag's leading `v`, so
+# `dira --version` for tag v0.0.1-rc.1 prints exactly `0.0.1-rc.1`.
+#
+# Not vendored, not installed globally: run via
+# `go run github.com/goreleaser/goreleaser/v2@<pinned> ...` so the tool
+# version is pinned without adding a module dependency (see
+# docs/plan/tasks/E0-L4.md's "already known" section).
+version: 2
+
+project_name: dira
+
+builds:
+  - id: dira-darwin-arm64
+    main: ./cmd/dira
+    binary: dira
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    ldflags:
+      - -X main.version={{.Version}}
+
+  - id: dira-linux-amd64
+    main: ./cmd/dira
+    binary: dira
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      - -X main.version={{.Version}}
+
+archives:
+  - id: dira
+    ids:
+      - dira-darwin-arm64
+      - dira-linux-amd64
+    formats: [tar.gz]
+    files:
+      - LICENSE*
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  github:
+    owner: kazi-org
+    name: dira
