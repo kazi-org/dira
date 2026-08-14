@@ -74,16 +74,25 @@ func runMap(a *app, args []string) error {
 	}
 	defer func() { _ = ix.Close() }()
 
-	// Every other read command (brief, why) treats an index notice as
-	// something to print and carry on past — a partial answer beats none.
-	// dira map refuses instead: E4-L4-T2's whole point is that no entry
-	// silently vanishes from the tree (count conservation), and an entry
-	// the index could not even read would vanish with no trace beyond a
-	// line other commands are free to let a reader skim past. One line on
-	// stderr, naming the file, and exit 1 — not a panic, not a silent
+	// index.Notice() carries two unrelated kinds of message under one
+	// string, and this command treats them differently. A degraded CACHE
+	// (index.go's degradedNotice — SQLite unusable, read-only directory,
+	// whatever) costs nothing but time: index.Open already fell back to
+	// reading straight from the entry files, so every entry is still in
+	// the tree and E4-L5-T3's own read-only-.dira proof depends on this
+	// path being a notice, not a refusal. Print and carry on, exactly like
+	// brief/why. An UNREADABLE ENTRY (sync.go's "entry file(s) could not
+	// be read") is different: E4-L4-T2's whole point is that no entry
+	// silently vanishes from the tree, and an entry the index could not
+	// even read would vanish with no trace beyond a line other commands
+	// are free to let a reader skim past. That one is fatal — one line on
+	// stderr naming the file, exit 1 — not a panic, not a silent
 	// incomplete tree.
 	if notice := ix.Notice(); notice != "" {
-		return fmt.Errorf("%s", strings.TrimPrefix(notice, "dira: "))
+		if strings.Contains(notice, "could not be read") {
+			return fmt.Errorf("%s", strings.TrimPrefix(notice, "dira: "))
+		}
+		_, _ = io.WriteString(a.stderr, notice+"\n")
 	}
 
 	snapCtx, cancelSnap := context.WithTimeout(ctx, kaziCallTimeout)
