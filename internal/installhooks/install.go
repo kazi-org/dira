@@ -51,6 +51,10 @@ const (
 	// nil: the caller writes nothing at all, and the file's bytes -- and its
 	// sha256 -- are untouched.
 	Unchanged Outcome = "UNCHANGED"
+
+	// Removed means Uninstall computed a removal -- either bytes with dira's
+	// spans spliced out, or (see UninstallResult.DeleteFile) the whole file.
+	Removed Outcome = "REMOVED"
 )
 
 // An InstallResult is what Install decided. Data is meaningful only when
@@ -156,6 +160,23 @@ func anyEntryOwnedByPrefix(data []byte, entries []*Node, prefix string) bool {
 		}
 	}
 	return false
+}
+
+// entryWhollyOwnedByPrefix reports whether EVERY command in entry starts with
+// prefix, and there is at least one -- kazi's wholly_kazi_entry?/2. Uninstall
+// (T5) removes an entry only when this holds: one mixing an operator's own
+// command with dira's is never removed.
+func entryWhollyOwnedByPrefix(data []byte, entry *Node, prefix string) bool {
+	commands := entryCommands(data, entry)
+	if len(commands) == 0 {
+		return false
+	}
+	for _, command := range commands {
+		if !strings.HasPrefix(command, prefix) {
+			return false
+		}
+	}
+	return true
 }
 
 // entryCommands returns the command strings inside one event-array element --
