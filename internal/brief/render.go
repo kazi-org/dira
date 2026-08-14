@@ -3,9 +3,11 @@ package brief
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/kazi-org/dira/internal/chain"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/render"
@@ -96,6 +98,10 @@ sections:
 			pending = ""
 			result.Sections[i].Kept++
 		}
+	}
+
+	if filling && opts.Chain && opts.ChainSource != nil {
+		fillChain(ctx, opts, result, add)
 	}
 
 	// Make room for the footer by giving entries back, cheapest-priority
@@ -191,27 +197,135 @@ func preamble(opts Options) []string {
 	return blocks
 }
 
-// chainNotice is `--chain`'s whole behaviour in E1.
+// chainNotice is `--chain`'s lead-in line: which case this run is in — no
+// parent configured, or a chain whose content (if any survived the ceiling)
+// follows below it — so the reader is oriented before the chain's own
+// content appears.
 //
-// Tier resolution is E5 and is blocked on qst-0001, but
-// hooks/settings.example.json already ships `dira brief --context --chain` — so
-// this flag has to be a defined degradation rather than a stub
-// (docs/plan/lanes/E1.md, pinned interpretation 3). It exits 0 and says what it
-// did not do.
-//
-// The two cases are told apart deliberately. "No parent ledger is configured" is
-// a fact about this repository; "parents are configured and this release cannot
-// resolve them" is a fact about dira, and a reader who wrote a [parents] section
-// would otherwise be told their configuration does not exist.
+// The two cases are told apart deliberately. "No parent ledger is configured"
+// is a fact about this repository; "parents are configured" is followed by
+// their content, and a reader who wrote a [parents] section is shown what
+// dira found there rather than told it cannot look (E5-L2 resolved
+// qst-0001: dec-0011).
 func chainNotice(opts Options) string {
 	if len(opts.Parents) == 0 {
 		return "chain: no parent ledger is configured ([parents] in .dira/config.toml is empty), " +
 			"so this brief is this repository's ledger alone."
 	}
-	return fmt.Sprintf("chain: %s configured as %s, but resolving a parent ledger is not in this release, "+
-		"so this brief is this repository's ledger alone.",
+	return fmt.Sprintf("chain: %s configured as %s.",
 		plural(len(opts.Parents), "one parent ledger is", fmt.Sprintf("%d parent ledgers are", len(opts.Parents))),
 		strings.Join(opts.Parents, ", "))
+}
+
+// fillChain resolves the ledger's parent chain and spends what is left of the
+// shared ceiling on each ancestor's own active intents — bets for a
+// workspace-tier ancestor, directions for a person-tier one (docs/design.md
+// §8's mix per tier; both are the same entry kind, so this needs no new one).
+//
+// It is the chain's whole contribution to compose's budget: every ancestor's
+// content goes through the same add closure the local sections use, so
+// cst-0001's ceiling is unconditional — the constraint's own text, "the
+// ceiling applies to the chain, not just the local brief" — and whatever it
+// cuts is named in the footer by that ancestor's namespace, because
+// result.Sections carries no distinction between a local section and a
+// chain one.
+//
+// An ancestor chain.Walk could not open (Store == nil — declared but
+// unreadable) contributes nothing: there is no ref to a specific entry to
+// cite here, only the namespace chainNotice already named, so there is
+// nothing this function could render even by ref. That is the same
+// discipline internal/drift's Render holds for a withheld classification,
+// arrived at the same way — by never having text to print in the first
+// place, rather than by redacting it after the fact.
+func fillChain(ctx context.Context, opts Options, result *Result, add func(string, int) bool) {
+	ancestors, err := opts.ChainSource(ctx)
+	if err != nil {
+		return
+	}
+	for _, a := range ancestors {
+		if ctx.Err() != nil {
+			return
+		}
+		entries := activeIntents(ctx, a)
+
+		secIdx := len(result.Sections)
+		result.Sections = append(result.Sections, SectionResult{Name: a.Namespace, Total: len(entries)})
+		if len(entries) == 0 {
+			continue
+		}
+
+		heading := "\n" + chainLabel(a) + "\n" + capWarning(a.Namespace, len(entries))
+		pending := heading
+		for _, e := range entries {
+			if !add(pending+chainItem(opts, a.Namespace, e), secIdx) {
+				return
+			}
+			pending = ""
+			result.Sections[secIdx].Kept++
+		}
+	}
+}
+
+// activeIntents reads one ancestor's active intents directly through its
+// Store — chain.Ancestor's Store is always ledger.ReadOnly, at every depth
+// (E5-L2-T3) — sorted by id, the same total order internal/enforcer.Inherit
+// already holds its own inherited units to.
+//
+// An ancestor with no Store (unreachable) has nothing to list; a List or Get
+// failure mid-read degrades to "nothing from this ancestor" rather than
+// failing the whole brief, matching cst-0001's own promise that a bad ledger
+// degrades to a brief that says so rather than no brief at all.
+func activeIntents(ctx context.Context, a chain.Ancestor) []*ledger.Entry {
+	if a.Store == nil {
+		return nil
+	}
+	infos, err := a.Store.List(ctx)
+	if err != nil {
+		return nil
+	}
+	var out []*ledger.Entry
+	for _, info := range infos {
+		prefix, _, ok := strings.Cut(info.ID, "-")
+		if !ok {
+			continue
+		}
+		kind, known := ledger.KindForPrefix(prefix)
+		if !known || kind != ledger.KindIntent {
+			continue
+		}
+		e, err := a.Store.Get(ctx, info.ID)
+		if err != nil || e.Kind != ledger.KindIntent || e.State != ledger.StateActive {
+			continue
+		}
+		out = append(out, e)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// chainLabel is one ancestor's section heading: its namespace and, per
+// docs/design.md §8's mix, what its tier calls an active intent.
+func chainLabel(a chain.Ancestor) string {
+	switch a.Tier {
+	case "workspace":
+		return a.Namespace + " — bets"
+	case "person":
+		return a.Namespace + " — directions"
+	default:
+		return a.Namespace + " — active intents"
+	}
+}
+
+// chainItem paints one ancestor's entry, the chain's counterpart to item():
+// a namespaced id (dec-0011 — `sire:int-0002`, the only form a ref to a
+// parent's own entry may take), title (or the private/withheld placeholder —
+// title() already covers that), state and date. It reads nothing further;
+// every field it prints came from the *ledger.Entry activeIntents already
+// fetched.
+func chainItem(opts Options, namespace string, e *ledger.Entry) string {
+	p := painter(opts)
+	p.EntryRow(itemIndent, itemIndent, namespace+":"+e.ID, title(e), status(e))
+	return p.String()
 }
 
 // item paints one entry: its id, its title, its state and date, and — for an

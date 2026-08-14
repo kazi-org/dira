@@ -47,6 +47,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kazi-org/dira/internal/chain"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/render"
@@ -113,16 +114,24 @@ type Options struct {
 	// heading and no instructions to a model.
 	Context bool
 
-	// Chain asks for the tier chain. In E1 there is no parent resolution
-	// (E5, blocked on qst-0001), so this states what it cannot do rather
-	// than failing or silently doing nothing — see docs/plan/lanes/E1.md,
-	// pinned interpretation 3.
+	// Chain asks for the tier chain: each parent ledger's own active bets
+	// (workspace tier) or directions (person tier), rendered inside the
+	// same token ceiling as the local brief (cst-0001 — the ceiling applies
+	// to the chain, not just the local ledger). Resolution is
+	// internal/chain (E5); this package turns what it finds into content.
 	Chain bool
 
 	// Parents are the namespaces declared under [parents] in
 	// .dira/config.toml, so --chain can tell "none configured" from
-	// "configured but not resolvable in this release".
+	// "configured, and its content follows below".
 	Parents []string
+
+	// ChainSource resolves the ledger's full parent chain (chain.Walk) when
+	// Chain is set. It is a func rather than an already-resolved slice so a
+	// caller that did not ask for --chain never pays for a walk it will not
+	// use — the same laziness Source.Select buys for the local ledger. Nil
+	// is treated as no parents configured.
+	ChainSource func(ctx context.Context) ([]chain.Ancestor, error)
 
 	// Notices are things the caller already knows and the reader should:
 	// an unusable cache, entry files that could not be parsed. They are in
