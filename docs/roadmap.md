@@ -2,7 +2,7 @@
 
 Living document. Updated on every merge, lane claim, new blocker, and decision.
 
-**Last updated:** 2026-07-29 · **Owner:** maintainer
+**Last updated:** 2026-08-14 · **Owner:** maintainer
 
 > **Nothing is forgotten by construction.** `python3 scripts/coverage.py` extracts
 > every obligation mechanically from `.dira/entries/`, `DESIGN.md`, this file, and
@@ -214,6 +214,45 @@ makes every report carry a caveat.
 
 > **Session ended 2026-08-11.** Handover notes: `docs/handover.md`. No handover
 > branch — nothing existed outside `origin/main`. Claims released, worktrees removed.
+
+## STATUS 2026-08-14 · fable-orchestrator · for the seat
+
+Founder-directed run (David, 2026-08-14): drive dira to code complete via
+parallel headless Sonnet workers; this session plans, dispatches, merges only.
+
+**Merged today, PRs #1–#9, all CI-green.** The whole remaining plan tree is at
+task fidelity (E0 tail, E2-L7 importer, E4 ×5 lanes, E5 ×4, E6-L3, E8 ×3);
+T-DEBT.1 closed by a full 12-combination run — every tolerance value
+byte-identical, the last measured-by-argument item now measured by run; the CI
+perf gate carries dec-0029's minimum-discriminator (plus three wrappers fixed
+that would have hard-failed a legitimate skip); and **E2-L3 is complete — PR #9,
+M-hooks: `dira install-hooks` shipped with T3–T8, every task's gate proved both
+ways.** E5-L1 closed with zero work: qst-0001 was already answered by dec-0011.
+
+**Founder decisions, 2026-08-14 (via AskUserQuestion, recorded here):**
+1. E4 builds against kazi's EMITTED `portfolio --json` contract (lockstep
+   schema_version 2, verified in kazi source), version-pinned, degrading
+   gracefully on drift and on kazi-absent. Supersedes "wait for #1681".
+2. E6 mockups become RENDERS of the fixture ledger, not illustrations — the
+   fidelity gate measures what ships.
+Also applied, defaulted per the 30-minute rule (routed 2026-08-11):
+install-skill stays in E2; the no-clobber refusal keeps exit 0; the CI perf
+gate gained the discriminator (merged as PR #7).
+
+**In flight:** headless workers on E2-L7 (importer), E0-L4/L5, E8-L3, E5-L2..L5,
+E6-L3, E4-L1, E4-L2. E4-L3→L4→L5 dispatch when L1/L2 merge; E8-L4/L6 when their
+deps land. Two worker deaths (ended turn "waiting" on backgrounded checks —
+headless sessions have no next turn) were caught by commit-graph inspection and
+relaunched; the worker brief now forbids backgrounding.
+
+**Watch items:** internal/index TestTheCacheIsGitignored flakes red under
+concurrent-session load even on main (pre-existing; confirmed by the E2-L3
+lane); the checkout's installed pre-commit hook is stale vs tracked
+hooks/pre-commit. Both to be swept before this run closes.
+
+**Founder-gated remainders:** minting HOMEBREW_TAP_TOKEN (E0-L5's live
+release half); any actual external publishing in E8 (artifacts stop at
+"ready + locally verified").
 
 ## STATUS 2026-08-11 · dira-integrator · for the seat
 
