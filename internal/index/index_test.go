@@ -422,7 +422,26 @@ func TestTheCacheIsGitignored(t *testing.T) {
 	if err != nil {
 		t.Skipf("no git on PATH: %v", err)
 	}
-	root, err := exec.Command(git, "rev-parse", "--show-toplevel").Output()
+
+	// This repository's own pre-commit hook runs exactly this suite, and a
+	// git hook's subprocess environment carries GIT_DIR (and friends,
+	// GIT_INDEX_FILE among them) — see `env | grep ^GIT_` from inside
+	// hooks/pre-commit. Inherited here, that makes `git rev-parse
+	// --show-toplevel` skip its normal upward discovery from cwd and, with
+	// no GIT_WORK_TREE set and cwd sitting in a package subdirectory
+	// (internal/index, where `go test` actually runs this binary from),
+	// misreport the CURRENT directory as the top level instead of the real
+	// repository root. `-C <that wrong root> check-ignore` then evaluates
+	// the target path against a work tree that does not contain the real
+	// .gitignore at all, and reports it not ignored — a false red with
+	// nothing wrong in the tree. Stripping the discovery-affecting GIT_*
+	// vars reproduces ordinary, non-hook discovery every time. See
+	// docs/lore.md.
+	env := stripGitDiscoveryEnv(os.Environ())
+
+	revParse := exec.Command(git, "rev-parse", "--show-toplevel")
+	revParse.Env = env
+	root, err := revParse.Output()
 	if err != nil {
 		t.Skipf("not in a git work tree: %v", err)
 	}
@@ -435,6 +454,7 @@ func TestTheCacheIsGitignored(t *testing.T) {
 	}
 
 	cmd := exec.Command(git, "-C", repo, "check-ignore", "-q", target)
+	cmd.Env = env
 	if err := cmd.Run(); err != nil {
 		t.Errorf("git check-ignore %s exited non-zero (%v): git would commit the derived cache.\n"+
 			"cst-0003 makes that a security bug, not a housekeeping one — the cache holds the titles of "+
@@ -443,9 +463,36 @@ func TestTheCacheIsGitignored(t *testing.T) {
 
 	// A rule that ignores everything would pass the check above without
 	// meaning anything.
-	if err := exec.Command(git, "-C", repo, "check-ignore", "-q", filepath.Join(".dira", "entries", "dec-0002.md")).Run(); err == nil {
+	notIgnored := exec.Command(git, "-C", repo, "check-ignore", "-q", filepath.Join(".dira", "entries", "dec-0002.md"))
+	notIgnored.Env = env
+	if err := notIgnored.Run(); err == nil {
 		t.Error("git also ignores .dira/entries/dec-0002.md; the ignore rule is too broad to be evidence of anything")
 	}
+}
+
+// stripGitDiscoveryEnv returns env with the GIT_* variables that override
+// git's normal repository/work-tree discovery removed, so a git subprocess
+// launched from within an already-running git hook (which sets several of
+// these for its own children) discovers a git command's target repository
+// from the given working directory exactly as it would outside any hook.
+func stripGitDiscoveryEnv(env []string) []string {
+	blocked := map[string]bool{
+		"GIT_DIR":                 true,
+		"GIT_WORK_TREE":           true,
+		"GIT_INDEX_FILE":          true,
+		"GIT_COMMON_DIR":          true,
+		"GIT_CEILING_DIRECTORIES": true,
+		"GIT_PREFIX":              true,
+	}
+	out := make([]string, 0, len(env))
+	for _, kv := range env {
+		name, _, ok := strings.Cut(kv, "=")
+		if ok && blocked[name] {
+			continue
+		}
+		out = append(out, kv)
+	}
+	return out
 }
 
 // ---------------------------------------------------------------------------

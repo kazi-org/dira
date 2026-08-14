@@ -579,3 +579,44 @@ first version reported `dira ui` as unregistered on exactly that.
 is committed but must be referenced to work — see L-0025 for the font case, which is
 the same defect in a different medium: decided, committed, never wired.
 
+## L-0028: A `git`-spawning test inherits a hook's `GIT_DIR` and stops finding the repo it means
+
+**Tags:** #ci #hook #git #critical
+**Date:** 2026-08-14
+**Repo:** kazi-org/dira
+
+**Rule:** A test that shells out to `git` to discover the repository it is in
+(`git rev-parse --show-toplevel` and similar) must strip `GIT_DIR`,
+`GIT_WORK_TREE`, `GIT_INDEX_FILE`, `GIT_COMMON_DIR`, `GIT_CEILING_DIRECTORIES` and
+`GIT_PREFIX` from the child's environment first, whenever it might run from inside
+a git hook.
+**Why:** `hooks/pre-commit` runs `go test ./...`, and git exports `GIT_DIR` (a
+worktree's own `.git/worktrees/<name>` path) plus `GIT_INDEX_FILE` into every hook
+subprocess's environment — confirmed directly: `env | grep ^GIT_` inside a
+`pre-commit` hook. `go test` runs each package's test BINARY with its cwd set to
+that PACKAGE's own directory, not the repo root. Put those two facts together and
+`internal/index`'s `TestTheCacheIsGitignored` broke deterministically, every single
+time, only when invoked through the pre-commit hook: `git rev-parse --show-toplevel`,
+run from `internal/index/` with `GIT_DIR` set but no `GIT_WORK_TREE`, does not walk
+up looking for `.git` — with `GIT_DIR` given explicitly, git skips that discovery
+entirely — and falls back to treating CWD itself as the top level. The test then ran
+`git -C internal/index check-ignore -q .dira/cache/index.db`, which evaluates the
+target against a work tree that does not contain the real `.gitignore` at all (it is
+one level up, now "outside" what git thinks is the worktree), and reports it not
+ignored. Every clause of the test still ran and every value looked plausible; the
+verdict was simply about the wrong directory. Proven directly: a scratch
+`core.hooksPath` pointed at a hook that dumps `env | grep ^GIT_` then runs `go test
+./internal/index/... -run TestTheCacheIsGitignored -v` reproduces the failure 100%
+of the time outside of any load or timing, and stops reproducing the moment the
+child processes' environment has those `GIT_*` keys removed before the `git`
+subprocess is spawned.
+**Trigger:** Any test that shells out to `git rev-parse`, `git check-ignore`, or
+anything else that depends on git's own repo/work-tree discovery, if that test
+might ever run under `go test ./...` from inside a git hook — which this repo's own
+pre-commit hook does on every commit that touches a `.go` file. Symptom: the test
+passes 100% of the time run standalone (`go test ./pkg/... -run TestName`) and
+fails 100% of the time run via `git commit` — a signature easy to misdiagnose as
+"contention from other worktrees on this machine" (plausible on a machine running
+several parallel Claude sessions, and the wrong lead for a good while before the
+env-var reproduction above ruled it out) rather than as deterministic.
+
