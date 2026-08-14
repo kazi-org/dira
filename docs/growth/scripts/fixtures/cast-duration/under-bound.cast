@@ -1,0 +1,4 @@
+{"version": 2, "width": 92, "height": 14, "timestamp": 0}
+[0.05, "o", "$ dira check \"add a background daemon to track run state\"\r\n"]
+[0.4, "o", "✗ conflicts with dec-0060 (accepted 2026-07-03)\r\n"]
+[19.9, "o", "→ supersede dec-0060, or revise the plan\r\n"]
