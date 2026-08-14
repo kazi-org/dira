@@ -201,13 +201,18 @@ type BlockedEntry struct {
 	Blocker string `json:"blocker"`
 }
 
-// Snapshot is the decoded portfolio. ContractDrift is set, not returned as an
-// error, when SchemaVersion != PinnedSchemaVersion (T5) — the snapshot is
-// still populated best-effort. decodeSnapshot itself never inspects
-// SchemaVersion for this purpose: that comparison belongs to Snapshot() (T4,
-// T5), so the decode layer is correct regardless of which kazi release
-// produced the bytes.
-type Snapshot struct {
+// Portfolio is the decoded portfolio — Snapshot()'s return type. Named
+// Portfolio rather than Snapshot because Go does not allow a type and a
+// function to share one identifier in the same package, and the function
+// name (`func Snapshot(ctx) (*Portfolio, error)`) is the half the lane doc
+// fixes as unrenegotiable; the payload type's name is not, so it is the one
+// that moved. ContractDrift is set, not returned as an error, when
+// SchemaVersion != PinnedSchemaVersion (T5) — the snapshot is still
+// populated best-effort. decodeSnapshot itself never inspects SchemaVersion
+// for this purpose: that comparison belongs to Snapshot() (T4, T5), so the
+// decode layer is correct regardless of which kazi release produced the
+// bytes.
+type Portfolio struct {
 	SchemaVersion int
 	ContractDrift bool
 
@@ -253,7 +258,7 @@ type rawRate struct {
 	Delta int  `json:"delta"`
 }
 
-// decodeSnapshot decodes a `kazi portfolio --json` document into a Snapshot.
+// decodeSnapshot decodes a `kazi portfolio --json` document into a Portfolio.
 //
 // It is kind- and version-agnostic on purpose: whether the bytes came from a
 // `kind: "portfolio"` document and whether schema_version is the pinned one
@@ -261,7 +266,7 @@ type rawRate struct {
 // all; T5 sets ContractDrift by comparing SchemaVersion after this returns),
 // because a decode layer that refused an unpinned version could not support
 // T5's best-effort promise.
-func decodeSnapshot(data []byte) (*Snapshot, error) {
+func decodeSnapshot(data []byte) (*Portfolio, error) {
 	var raw rawPortfolio
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, fmt.Errorf("kazi: decoding portfolio: %w", err)
@@ -283,7 +288,7 @@ func decodeSnapshot(data []byte) (*Snapshot, error) {
 		byRepo[repo] = converted
 	}
 
-	return &Snapshot{
+	return &Portfolio{
 		SchemaVersion: raw.SchemaVersion,
 		Planned:       raw.Planned,
 		ByRepo:        byRepo,
