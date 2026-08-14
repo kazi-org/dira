@@ -53,6 +53,23 @@ None.
 
 ---
 
+## GTM
+
+One line per E8 lane, per `docs/plan/tasks/E8-L6.md`. Links to the plan rather than
+restating status the sections above already own — this section exists so a reader can
+see the whole go-to-market lane's shape in one place, not to duplicate it.
+
+| Lane | What | Owner | PR |
+|---|---|---|---|
+| [E8-L1](plan/tasks/E8-L1.md) | Channel plan — 19 channels rated, 3 inner-ring, pre-registered thresholds | @maintainer | no PR yet |
+| [E8-L2](plan/tasks/E8-L2.md) | Landing page, gated on the same honest-limits/no-hype rules as the drafts | @maintainer | no PR yet |
+| [E8-L3](plan/tasks/E8-L3.md) | Demo fixture, recording harnesses, positioning-doc checkers | @maintainer | #10 |
+| [E8-L4](plan/tasks/E8-L4.md) | Demo clips (`check.cast`, `init.cast`) and their probes | @maintainer | #19 |
+| [E8-L5](plan/tasks/E8-L5.md) | Draft frontmatter contract, marketplace/awesome-list/directory drafts, `check-drafts.mjs` | @maintainer | no PR yet |
+| [E8-L6](plan/tasks/E8-L6.md) | `launch.md`, Show HN/Reddit/X drafts, the pre-send accuracy gate, the launch-readiness checker | @maintainer | no PR yet |
+
+---
+
 ## Planned
 
 **Found by building the readers, 2026-07-31 — both on the stranger path, which is the growth engine (`note-0001`):**
