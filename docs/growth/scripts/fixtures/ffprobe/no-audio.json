@@ -1,0 +1,12 @@
+{
+  "streams": [
+    {
+      "index": 0,
+      "codec_name": "gif",
+      "codec_type": "video",
+      "width": 920,
+      "height": 140,
+      "avg_frame_rate": "10/1"
+    }
+  ]
+}
