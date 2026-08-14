@@ -39,6 +39,16 @@ asciinema rec assets/demo/check.cast \
 no narration. This is deliberately the single most compressed clip in the
 product: "it caught me" has to land in one frame.
 
+**Social cut (`E8-L4-T6`):** `check.gif`, a direct GIF encode of `check.cast`
+via `agg` (`agg 1.9.0`), no re-timing or trimming:
+
+```sh
+agg assets/demo/check.cast assets/demo/check.gif
+```
+
+`check.gif` is 15,681 bytes — well under the 3 MiB (3,145,728 byte) HN/X
+link-preview ceiling — and carries zero audio streams (`check-no-audio.mjs`).
+
 ### Secondary — `dira init`, via `record-init.sh`
 
 Reproduces `dira init` on a real repo with existing history, rendering the
