@@ -1,0 +1,5 @@
+{"version":2,"width":92,"height":20,"timestamp":1786746652,"command":"./assets/demo/record-init.sh","env":{"SHELL":"/bin/zsh"}}
+[2.623708, "o", "\u001b[3J\u001b[H\u001b[2J"]
+[2.624927, "o", "$ dira import bbc-tams-adrs --yes\r\n"]
+[2.978043, "o", "49 documents scanned\r\n47 record a rejected option with a reason\r\n231 reasons found\r\nImport the 47 entries that carry a reason?\r\n"]
+[3.312906, "x", "0"]
