@@ -61,6 +61,13 @@ const GATES = [
     is: 'the design fixture ledger renders the mockups\' content byte for byte, so a pixel diff measures layout and not prose',
     cmd: ['fixture-check.mjs'] },
 
+  { id: 'fixture-schema', browser: false, expect: 'pass',
+    is: 'all 18 design fixture entries validate against entry.schema.json (go test ./internal/ui -run TestDesignFixturesValidate)',
+    cmd: ['fixture-schema.mjs'] },
+  { id: 'fixture-schema:control', browser: false, expect: 'control',
+    is: 'a copy of the fixtures with one entry\'s title: stripped must be refused, and named, not silently accepted',
+    cmd: ['fixture-schema.mjs', '--probe-invalid'] },
+
   { id: 'coherence', browser: false, expect: 'pass',
     is: 'README, product-marketing.md and the landing page still state the canonical strings verbatim',
     cmd: ['check-coherence.mjs'] },
