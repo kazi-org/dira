@@ -1,0 +1,6 @@
+[ledger]
+name = "repo"
+tier = "repo"
+
+[parents]
+sire = { path = "../../sire" }

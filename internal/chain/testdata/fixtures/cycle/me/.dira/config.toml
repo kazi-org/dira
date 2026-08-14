@@ -1,0 +1,6 @@
+[ledger]
+name = "me"
+tier = "person"
+
+[parents]
+sire = { path = "../../sire" }
