@@ -215,6 +215,49 @@ makes every report carry a caveat.
 > **Session ended 2026-08-11.** Handover notes: `docs/handover.md`. No handover
 > branch — nothing existed outside `origin/main`. Claims released, worktrees removed.
 
+## STATUS 2026-08-14 (close) · fable-orchestrator · CODE COMPLETE
+
+**The run is finished: 22 PRs merged, zero open, zero red, all 40 lanes closed
+or founder-gated.** One orchestrator (planning/merging only) drove ~20 headless
+Sonnet worker sessions across three waves plus targeted fixes. Everything below
+was verified by observation, not worker claims.
+
+**Landed today beyond the morning block:** E5 complete (tiers, attention drift
+under dec-0027's three conditions, `dira init --interview`); E2-L7 (`dira
+import`, measure-first per dec-0028, 47-entry real-corpus proof); E0-L4/L5
+(release scaffolding: goreleaser config, release workflow + structural gates,
+tap formula generator — live halves BLOCKED on founder, below); E6-L3 (distill
+web surface; three real bugs found and fixed); E4 complete (contract layer on
+the emitted kazi schema, join groundwork, and the L3→L5 `dira map` chain —
+runs against this repo's real ledger, degrades gracefully with kazi absent);
+E8-L3/L4/L6 (demo fixture + real asciinema recordings + launch kit with a
+readiness checker that honestly fails until a release exists); the README
+rewritten from the real 15-verb binary; the **dira.sire.run website** (PR #17,
+per docs/plan/website.md — deploy exists but cannot fire until activated); and
+the design-fidelity system fully green for the first time: 18/18 pixel pairs,
+13/13 gates, coherence gate re-pointed at sentences that are true.
+
+**Defect classes found and closed by the run itself:** headless workers dying
+by "waiting" on backgrounded checks (brief hardened; two lanes resumed from
+commit-graph inspection); a rebase that would have silently reverted the README
+rewrite (caught at conflict); a fixture whose `sleep` outlived its killed shell
+(`exec`); goreleaser's go-floor vs CI's pinned toolchain; a ledger-id collision
+between two open PRs (renumbered with its coverage rows); `GIT_DIR` poisoning
+the gitignore test under pre-commit (fixed; verified under a poisoned env);
+`.btn` centering on `<button>` but not `<summary>` (2px height delta, measured
+not guessed).
+
+**FOUNDER — the only remaining actions, none code:**
+1. Mint `HOMEBREW_TAP_TOKEN` (fine-grained PAT, contents:write on
+   kazi-org/homebrew-tap) → unblocks E0-L5's live publish tasks.
+2. Push the first release tag (exercises E0-L4-T4's live half; also swaps the
+   site's version badge off "pre-release").
+3. Activate dira.sire.run: `docs/growth/site-activation.md` is the one-sitting
+   runbook (DNS CNAME, Pages custom domain, environment approval, deploy).
+4. Launch itself: `docs/growth/launch.md` is T0-relative;
+   `check-launch-readiness.mjs` fails until a stranger can install dira —
+   i.e. until 1–3 are done.
+
 ## STATUS 2026-08-14 · fable-orchestrator · for the seat
 
 Founder-directed run (David, 2026-08-14): drive dira to code complete via
