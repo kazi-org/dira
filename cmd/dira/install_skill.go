@@ -203,6 +203,18 @@ func (c claudeRoot) ReadFile(name string) ([]byte, bool, error) {
 	return data, true, nil
 }
 
+// Remove deletes name from the root. It exists for install-hooks (T5): an
+// uninstall whose bytes equal exactly what a fresh install produced deletes
+// the file entirely rather than writing empty content over it. install-skill
+// has no use for it -- skill.Root is deliberately left at two methods, one
+// per capability the installer that needs it actually has.
+func (c claudeRoot) Remove(name string) error {
+	if err := c.root.Remove(name); err != nil {
+		return fmt.Errorf("removing %s: %w", name, err)
+	}
+	return nil
+}
+
 func (c claudeRoot) WriteFile(name string, data []byte) error {
 	// name is slash-separated by contract — it is a name inside a root, the
 	// way io/fs uses the word — so its parent is everything before the last
