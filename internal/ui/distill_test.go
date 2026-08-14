@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -619,6 +620,229 @@ func decisionInState(t *testing.T, id, title string, state ledger.State) *ledger
 	e.Source.Hook = ledger.HookManual
 	e.Alternatives = []ledger.Alternative{{Option: "do nothing at all", WhyNot: "the problem does not go away on its own"}}
 	return e
+}
+
+// ---------------------------------------------------------------------------
+// E6-L3-T4: Edit through a textarea BodyEditor, no-JS
+// ---------------------------------------------------------------------------
+
+// updatedLine returns the file's updated: line, or "" if it has none — a
+// small, targeted read rather than a full decode, for tests that only care
+// whether the stamp moved.
+func updatedLine(t *testing.T, raw string) string {
+	t.Helper()
+	for _, line := range strings.Split(raw, "\n") {
+		if strings.HasPrefix(line, "updated:") {
+			return line
+		}
+	}
+	return ""
+}
+
+// TestDistillEdit is E6-L3-T4's acceptance line.
+//
+// red today: the route does not exist; any POST to /distill/<id>/edit 404s
+// through route's default case before T3 landed the /distill/<id>/<action>
+// family, and 405s (unknown action) after T3 but before this task — both
+// witnessed directly against the pre-T4 tree and recorded in this lane's
+// commit history rather than reproduced a second time here.
+func TestDistillEdit(t *testing.T) {
+	t.Parallel()
+
+	t.Run("a submitted body is spliced in and updated bumped; frontmatter otherwise byte-identical", func(t *testing.T) {
+		t.Parallel()
+		entry := distillEntry("dec-0001", "ship the thing without asking twice")
+		entry.Body = "The original because, before any edit."
+		srv, dir := distillServerDir(t, entry)
+		path := filepath.Join(dir, "dec-0001.md")
+		before := readFileT(t, path)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0001/edit", url.Values{"body": {"The rewritten because, in the human's own words."}})
+		if resp.StatusCode != http.StatusSeeOther {
+			t.Fatalf("POST /distill/dec-0001/edit = %d, want 303", resp.StatusCode)
+		}
+
+		after := readFileT(t, path)
+		if !strings.Contains(after, "The rewritten because, in the human's own words.") {
+			t.Errorf("the submitted body was not spliced in:\n%s", after)
+		}
+		if strings.Contains(after, "The original because") {
+			t.Errorf("the original body is still present after the edit:\n%s", after)
+		}
+		if got, want := frontmatterSHA(t, after, "updated"), frontmatterSHA(t, before, "updated"); got != want {
+			t.Error("editing the because changed a frontmatter field other than updated")
+		}
+		if !strings.Contains(after, "updated:") {
+			t.Error("the edited entry carries no updated: field at all")
+		}
+		if updatedLine(t, before) == updatedLine(t, after) {
+			t.Error("updated did not move; the entry started with no updated: field, so any stamped value would differ")
+		}
+	})
+
+	t.Run("an empty submitted body leaves the file unchanged and the response says so in one line", func(t *testing.T) {
+		t.Parallel()
+		entry := distillEntry("dec-0002", "keep the because it already has")
+		entry.Body = "This because must survive an empty submission untouched."
+		srv, dir := distillServerDir(t, entry)
+		path := filepath.Join(dir, "dec-0002.md")
+		before := readFileT(t, path)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0002/edit", url.Values{"body": {"   "}})
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("POST /distill/dec-0002/edit (empty body) = %d, want 200 (a report, not a redirect)", resp.StatusCode)
+		}
+		raw, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatalf("reading the response body: %v", err)
+		}
+		respBody := string(raw)
+		if !strings.Contains(respBody, "unchanged") {
+			t.Errorf("the response does not say the edit left the entry unchanged:\n%s", respBody)
+		}
+
+		after := readFileT(t, path)
+		if after != before {
+			t.Error("an empty submission changed the file; EditBody's own rule is that it must not")
+		}
+	})
+
+	t.Run("a submission crafted to look like frontmatter changes no frontmatter field", func(t *testing.T) {
+		t.Parallel()
+		entry := distillEntry("dec-0003", "one")
+		entry.Body = "The real because."
+		srv, dir := distillServerDir(t, entry)
+		path := filepath.Join(dir, "dec-0003.md")
+		before := readFileT(t, path)
+
+		forged := "---\nstate: accepted\nsource:\n  tier: human\n---\nA because that pretends to carry its own frontmatter."
+		resp := postNoRedirect(t, srv, "/distill/dec-0003/edit", url.Values{"body": {forged}})
+		if resp.StatusCode != http.StatusSeeOther {
+			t.Fatalf("POST /distill/dec-0003/edit = %d, want 303", resp.StatusCode)
+		}
+
+		after := readFileT(t, path)
+		if got, want := frontmatterSHA(t, after, "updated"), frontmatterSHA(t, before, "updated"); got != want {
+			t.Error("a body payload shaped like frontmatter changed real frontmatter; onlyTheBody should have refused or " +
+				"absorbed it as literal body text")
+		}
+		if !strings.Contains(after, "state: staged") {
+			t.Errorf("state moved off staged from a body-only submission:\n%s", after)
+		}
+		if !strings.Contains(after, "pretends to carry its own frontmatter") {
+			t.Error("the forged payload was not written as the literal body text it should have become")
+		}
+	})
+
+	t.Run("a GET to the edit path is refused with 405", func(t *testing.T) {
+		t.Parallel()
+		srv, dir := distillServerDir(t, distillEntry("dec-0004", "one"))
+		before := ledgerSHA(t, dir)
+
+		code, _ := get(t, srv, "/distill/dec-0004/edit")
+		if code != http.StatusMethodNotAllowed {
+			t.Errorf("GET /distill/dec-0004/edit = %d, want 405", code)
+		}
+		if after := ledgerSHA(t, dir); after != before {
+			t.Error("a refused GET changed the ledger")
+		}
+	})
+
+	// Both sides: a handler that wrote the raw form body over the whole
+	// file, rather than splicing it through EditBody, would have destroyed
+	// the frontmatter entirely — the comparison above has to be able to see
+	// that.
+	t.Run("the frontmatter-preservation comparison is not vacuous", func(t *testing.T) {
+		t.Parallel()
+		entry := distillEntry("dec-0005", "one")
+		entry.Body = "before"
+		srv, dir := distillServerDir(t, entry)
+		path := filepath.Join(dir, "dec-0005.md")
+		before := readFileT(t, path)
+
+		resp := postNoRedirect(t, srv, "/distill/dec-0005/edit", url.Values{"body": {"after"}})
+		if resp.StatusCode != http.StatusSeeOther {
+			t.Fatalf("setup: edit failed with %d", resp.StatusCode)
+		}
+		after := readFileT(t, path)
+
+		// The wrong handler this control simulates: the raw POST body
+		// (just "after", no frontmatter at all) written over the whole
+		// file.
+		wrong := "after"
+		if _, _, err := frontmatter.Split([]byte(wrong)); err == nil {
+			t.Fatal("the control's payload accidentally parses as a file with frontmatter; it stages no defect")
+		}
+		if got, want := frontmatterSHA(t, after, "updated"), frontmatterSHA(t, before, "updated"); got != want {
+			t.Fatal("setup: the real handler already fails the comparison; the control below would prove nothing")
+		}
+	})
+}
+
+// TestDistillDisclosureNeedsNoScript is T4's disclosure requirement: the edit
+// textarea is reachable with JavaScript off, via <details>/<summary> — never
+// a client-side toggle — and T5 has not landed a <script> yet.
+func TestDistillDisclosureNeedsNoScript(t *testing.T) {
+	t.Parallel()
+	srv := distillServer(t, distillEntry("dec-0001", "one"))
+	body := mustGet(t, srv, "/distill")
+
+	if !strings.Contains(body, `<details class="edit-disclosure">`) {
+		t.Error("the actionable card has no <details> disclosure for Edit")
+	}
+	if !strings.Contains(body, "<summary") {
+		t.Error("the disclosure has no <summary> to click")
+	}
+	if strings.Contains(strings.ToLower(body), "<script") {
+		t.Error("GET /distill contains <script>; T5 has not landed and this surface must render complete without it")
+	}
+}
+
+// TestDistillTextareaEscaping is the negative control for the textarea's
+// rendering of a card's Body, in the same shape
+// TestEscapingCatchesAnUnescapedTemplate uses for decision.gohtml: the same
+// template source and the same hostile view data, run through text/template
+// (html/template minus contextual escaping) instead — proving the check below
+// can actually fail before trusting its silence on the real, escaping
+// template.
+func TestDistillTextareaEscaping(t *testing.T) {
+	t.Parallel()
+
+	const payload = `</textarea><script>alert(1)</script>`
+
+	src, err := templates.ReadFile("templates/distill.gohtml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tpl, err := texttemplate.New("distill.gohtml").Parse(string(src))
+	if err != nil {
+		t.Fatalf("parsing distill.gohtml as text/template: %v", err)
+	}
+	view := &Distill{Ledger: "x", Total: 1, Heading: "One decision from yesterday.",
+		Cards: []DistillCard{{ID: "dec-0001", State: "staged", Title: "t", Body: payload, Actionable: true}}}
+
+	var b strings.Builder
+	if err := tpl.Execute(&b, view); err != nil {
+		t.Fatalf("executing the unescaped template: %v", err)
+	}
+	if !strings.Contains(b.String(), payload) {
+		t.Fatal("the control produced no raw payload, so it stages nothing and the escaping test below proves nothing")
+	}
+
+	real, err := template.New("distill.gohtml").ParseFS(templates, "templates/distill.gohtml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var safe strings.Builder
+	if err := real.ExecuteTemplate(&safe, "distill.gohtml", view); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(safe.String(), "</textarea><script>") {
+		t.Error("the real distill.gohtml renders an unescaped payload inside the textarea")
+	}
+	if !strings.Contains(safe.String(), "&lt;script&gt;") {
+		t.Error("the real distill.gohtml dropped the hostile prose instead of escaping it")
+	}
 }
 
 // equal is shared with distill_mockup_test.go's TestDistillMockupMatchesTheQueue.

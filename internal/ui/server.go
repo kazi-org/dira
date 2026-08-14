@@ -151,15 +151,15 @@ func (s *Server) distill(w http.ResponseWriter, r *http.Request) {
 	s.render(w, r, "distill.gohtml", view)
 }
 
-// distillAction is the write half of the deck: confirm and discard, both
-// POST-only (T4 adds edit). It refuses a GET the same way the read routes
-// refuse a POST — a 405, not a silent success — because the point of a form
-// POST is that a page reload never resubmits it, and that only holds if the
-// method is enforced.
+// distillAction is the write half of the deck: confirm, discard and edit,
+// all POST-only. It refuses a GET the same way the read routes refuse a
+// POST — a 405, not a silent success — because the point of a form POST is
+// that a page reload never resubmits it, and that only holds if the method
+// is enforced.
 func (s *Server) distillAction(w http.ResponseWriter, r *http.Request, action, id string) {
 	if r.Method != http.MethodPost {
 		s.fail(w, r, http.StatusMethodNotAllowed, "This action takes a form POST.",
-			"Confirm and reject each answer a POST from the deck's own forms; nothing here answers a GET.")
+			"Confirm, reject and edit each answer a POST from the deck's own forms; nothing here answers a GET.")
 		return
 	}
 	if !ledger.ValidID(id) {
@@ -172,9 +172,11 @@ func (s *Server) distillAction(w http.ResponseWriter, r *http.Request, action, i
 		s.distillConfirm(w, r, id)
 	case "discard":
 		s.distillDiscard(w, r, id)
+	case "edit":
+		s.distillEdit(w, r, id)
 	default:
 		s.fail(w, r, http.StatusNotFound, "No such action.",
-			"The distill queue offers confirm and reject.")
+			"The distill queue offers confirm, discard and edit.")
 	}
 }
 
@@ -222,6 +224,48 @@ func (s *Server) distillDiscard(w http.ResponseWriter, r *http.Request, id strin
 	}
 	http.Redirect(w, r, "/distill", http.StatusSeeOther)
 }
+
+// distillEdit is `e`: POST /distill/<id>/edit. The submitted textarea value
+// becomes the new body verbatim — formBodyEditor is the BodyEditor
+// internal/distill/edit.go's package comment names E6's web surface as
+// supplying.
+func (s *Server) distillEdit(w http.ResponseWriter, r *http.Request, id string) {
+	if err := r.ParseForm(); err != nil {
+		s.fail(w, r, http.StatusBadRequest, "That form could not be read.", err.Error())
+		return
+	}
+	entry, ok := s.distillEntry(w, r, id)
+	if !ok {
+		return
+	}
+	editor := formBodyEditor{text: r.FormValue("body")}
+	result, err := distill.EditBody(r.Context(), s.store, entry, editor, time.Now())
+	if err != nil {
+		s.fail(w, r, http.StatusBadRequest, "That edit could not be applied.", err.Error())
+		return
+	}
+	if !result.Wrote() {
+		// Not a failure — EditBody's own rule for an editor that came back
+		// empty or unchanged is a Note, not an error, and this is that rule
+		// re-stated at the boundary where the text entered from a textarea
+		// instead of $EDITOR. One line, no button, mirroring
+		// s3-distill.html's empty-queue rule: say what happened rather than
+		// silently redirecting as if a write occurred.
+		w.Header().Set("content-type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		_, _ = fmt.Fprintf(w, "<!doctype html><title>Unchanged</title><p>%s</p><p><a href=\"/distill\">Back to the queue</a></p>",
+			template.HTMLEscapeString(result.Note))
+		return
+	}
+	http.Redirect(w, r, "/distill", http.StatusSeeOther)
+}
+
+// formBodyEditor hands back exactly the text a POST body carried — the
+// textarea's own contents, unmodified. internal/distill/edit.go's package
+// comment names this shape: "E6's web surface hands in a textarea."
+type formBodyEditor struct{ text string }
+
+func (f formBodyEditor) Edit(_ context.Context, _ string) (string, error) { return f.text, nil }
 
 func (s *Server) decision(w http.ResponseWriter, r *http.Request, id string) {
 	if id == "" || !ledger.ValidID(id) {
