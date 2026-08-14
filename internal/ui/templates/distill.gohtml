@@ -3,10 +3,10 @@ S3 — THE DISTILL QUEUE, served. The markup mirrors
 docs/design/screens/s3-distill.html element for element and class for class;
 the stylesheet is the same file, served from the binary (E6-L3-T2).
 
-This is the read half only. Every button here is inert (type="button", no
-form, no fetch) — T3 wires Confirm/Reject through a POST form, T4 wires Edit
-through a textarea, T5 layers `y`/`n`/`e` on top of the forms T3/T4 build. No
-<script> until T5 lands.
+Confirm and Reject are real POST forms (T3). Edit the because is still inert
+(type="button", no form) — T4 wires it through a textarea disclosure. T5
+layers `y`/`n`/`e` on top of the forms T3/T4 build, as a <script> served only
+on this route. No <script> until T5 lands.
 
 dec-0019 governs every field the same way it governs the decision page: drawn
 when the entry recorded it, omitted rather than invented when it did not. A
@@ -78,8 +78,12 @@ else — renders no .because, no .against and no mirrors line.
       <p class="edge">{{ if .DerivesFrom }}derives_from <a href="/e/{{ .DerivesFrom }}">{{ .DerivesFrom }}</a>{{ end }}{{ if .ADR }} · mirrors to {{ .ADR }}{{ end }}</p>
 {{- end }}
       <div class="actions">
-        <button class="btn btn-primary" type="button">Confirm</button>
-        <button class="btn" type="button">Reject</button>
+        <form class="dispose" method="post" action="/distill/{{ .ID }}/confirm">
+          <button class="btn btn-primary" type="submit">Confirm</button>
+        </form>
+        <form class="dispose" method="post" action="/distill/{{ .ID }}/discard">
+          <button class="btn" type="submit">Reject</button>
+        </form>
         <button class="btn btn-quiet" type="button">Edit the because</button>
         <span class="grow"></span>
       </div>

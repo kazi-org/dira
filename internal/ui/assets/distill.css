@@ -88,6 +88,15 @@
   flex-wrap: wrap;
 }
 .actions .grow { flex: 1; }
+
+/* E6-L3-T3: the served page's Confirm/Reject are real no-JS forms — a
+   <form class="dispose"> around each button. It contributes no box of its
+   own: the flex row still sizes on the button alone, exactly as it did when
+   these were bare buttons, so this screen's markup (illustrative, unwired)
+   stays pixel-identical whether the reader's browser is looking at this
+   file or at /distill with these rules applied to real forms. */
+.actions .dispose { display: contents; }
+
 .hint { font-family: var(--mono); font-size: var(--t-label); color: var(--ink-low); }
 kbd {
   font-family: var(--mono); font-size: var(--t-label); padding: 1px 5px;
