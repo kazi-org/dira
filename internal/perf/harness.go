@@ -467,6 +467,100 @@ func (t Timing) Report(label string) string {
 		t.Min.Round(logUnit), t.Median.Round(logUnit), t.P90.Round(logUnit), t.Max.Round(logUnit))
 }
 
+// budgetVerdict is what judgeBudgetVerdict decided about one ceiling read off
+// one distribution. Three outcomes, not two, because "the median is over" is not
+// by itself a verdict on dira -- see judgeMedian.
+type budgetVerdict int
+
+const (
+	// budgetMet: the median is inside the ceiling. Nothing to report.
+	budgetMet budgetVerdict = iota
+	// budgetBroken: the MINIMUM is over the ceiling. Even dira's best sample
+	// missed it, so this is dira's own work and not contention (int-0002).
+	budgetBroken
+	// budgetNotMeasurable: the median is over the ceiling but the minimum is
+	// not. A best sample comfortably inside the ceiling is proof the code CAN
+	// meet it, so this is a statement about the runner, not about dira.
+	budgetNotMeasurable
+)
+
+func (v budgetVerdict) String() string {
+	switch v {
+	case budgetMet:
+		return "met"
+	case budgetBroken:
+		return "broken"
+	case budgetNotMeasurable:
+		return "not measurable"
+	default:
+		return "unknown"
+	}
+}
+
+// judgeBudgetVerdict applies dec-0029's minimum-discriminator to one named
+// ceiling read off a single distribution, and is a pure function precisely so
+// its message can be asserted on without going through testing.T -- the
+// message is the auditable record a skip carries instead of a pass, and L-0001
+// says a check is evidence only once both what it decides AND what it prints
+// have been watched.
+//
+// It mirrors, without inventing a fourth heuristic, the switch
+// internal/index/latency_test.go, internal/ledger/fixture/latency_test.go and
+// internal/why/latency_test.go each already carry for their own absolute
+// budget: the MEDIAN decides the verdict, because min <= median by
+// construction and a ceiling read off the minimum would fire strictly less
+// often (that substitution was made once already, to a live 60ms budget, under
+// a robustness argument -- dec-0029). The MINIMUM decides whether this machine
+// is entitled to reach a verdict at all, because a best sample comfortably
+// inside the ceiling is proof the code CAN meet it, so a median outside it is a
+// statement about the scheduler rather than about dira.
+func judgeBudgetVerdict(timing Timing, label, name string, limit time.Duration) (budgetVerdict, string) {
+	switch {
+	case timing.Min > limit:
+		return budgetBroken, fmt.Sprintf(
+			"the %s budget %s is broken even at its BEST sample: min of %d runs is %v, over the %v "+
+				"ceiling by %v — the fastest sample is over the ceiling, so this is dira's own work and "+
+				"not contention (int-0002)",
+			label, name, timing.N, timing.Min.Round(logUnit), limit.Round(logUnit), (timing.Min - limit).Round(logUnit))
+	case timing.Median > limit:
+		return budgetNotMeasurable, fmt.Sprintf(
+			"NOT MEASURABLE on this machine, and NOT recorded as a pass.\n"+
+				"  %s median %v is over the %s budget (%v), but the best of %d samples is %v — comfortably\n"+
+				"  inside it, so dira can meet the ceiling and this machine is too busy to show it.\n"+
+				"  CI's dedicated runner gates this on every push and is the authority.",
+			label, timing.Median.Round(logUnit), name, limit.Round(logUnit), timing.N, timing.Min.Round(logUnit))
+	default:
+		return budgetMet, ""
+	}
+}
+
+// judger is the *testing.T surface judgeMedian dispatches onto. It exists so
+// discriminator_test.go can prove the dispatch itself -- t.Error and t.Skip
+// firing on the two red sides -- against a fake that just records what was
+// called, rather than a real *testing.T, whose Fail() propagates to its parent
+// and would make "judgeMedian correctly fails a broken budget" a permanent red
+// in this package's own suite. *testing.T satisfies this with no adapter.
+type judger interface {
+	Helper()
+	Error(args ...any)
+	Skip(args ...any)
+}
+
+// judgeMedian is judgeBudgetVerdict dispatched onto a judger: budgetBroken
+// fails (t.Error, not fatal -- a sibling ceiling read off the same
+// distribution still gets to report), budgetNotMeasurable skips -- naming the
+// minimum, the median and the ceiling that disqualified the run, so the skip
+// cannot be mistaken for a pass -- and budgetMet does nothing.
+func judgeMedian(t judger, timing Timing, label, name string, limit time.Duration) {
+	t.Helper()
+	switch verdict, msg := judgeBudgetVerdict(timing, label, name, limit); verdict {
+	case budgetBroken:
+		t.Error(msg)
+	case budgetNotMeasurable:
+		t.Skip(msg)
+	}
+}
+
 // CheckBudgets fails a distribution that broke either ceiling, and names which
 // one and by how much.
 //

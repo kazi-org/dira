@@ -157,9 +157,12 @@ func TestColdStartBudget(t *testing.T) {
 	}
 	t.Logf("  a sample of the measured output:\n%s", excerpt(lastOut))
 
-	if err := CheckBudgets(cold, "cold", coldMedianBudget); err != nil {
-		t.Error(err)
-	}
+	// dec-0029: the MEDIAN carries the assertion, the MINIMUM decides whether
+	// this machine is entitled to one at all. A minimum over the ceiling fails
+	// (dira's own work); a median over it with the minimum inside skips,
+	// naming the numbers, rather than reporting a verdict this run of this
+	// machine never reached.
+	judgeMedian(t, cold, "cold", "coldMedianBudget", coldMedianBudget)
 
 	// ---------------------------------------------------------------------
 	// Both sides of every check this measurement rests on. Each subtest

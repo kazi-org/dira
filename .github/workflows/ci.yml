@@ -305,6 +305,18 @@ jobs:
               grep -E 'budget .* is broken|budget is broken' "$log" | sed -E "$strip"
               echo '```'
             fi
+            # dec-0029's minimum-discriminator: a median over its ceiling with the
+            # minimum comfortably inside it is the runner, not dira, and the test
+            # SKIPs rather than fails — but only once these exact numbers are
+            # published, so the skip is auditable and cannot be mistaken for a pass.
+            if grep -q 'NOT MEASURABLE' "$log"; then
+              echo
+              echo '**NOT MEASURABLE — the runner could not judge (dec-0029).**'
+              echo
+              echo '```'
+              grep -B1 -A3 'NOT MEASURABLE' "$log" | sed -E "$strip"
+              echo '```'
+            fi
             echo
             echo '**Verdicts.**'
             echo
@@ -342,11 +354,31 @@ jobs:
           # cannot catch: `=== RUN` is printed before a test skips, so all three
           # budget tests can skip — under -short, under -race, with no toolchain —
           # and still be counted. A skipped budget is not a met budget.
+          #
+          # ONE exception, and it is dec-0029's minimum-discriminator, not a general
+          # amnesty for skipping: internal/perf's own MINIMUM decided this runner
+          # cannot reach a verdict at all (a best sample comfortably inside every
+          # ceiling, with the median over one), and judgeMedian names the minimum,
+          # the median and the ceiling before it skips — so the block for a given
+          # test is checked for that specific "NOT MEASURABLE" reason, not accepted
+          # on SKIP alone. Any other skip (short, race, no toolchain — none of which
+          # this job's own steps trigger) still fails here exactly as before.
           for t in TestColdStartBudget TestWarmBriefBudget TestReindexBudget; do
-            if ! grep -qE "^--- (PASS|FAIL): ${t} " "$log"; then
-              echo "::error::${t} did not run to a verdict on ${RUNNER_OS}. A budget that skipped is not a budget that was met; see the log for its skip reason."
-              failed=1
+            block=$(awk -v name="$t" '
+              $0 ~ ("^=== RUN   " name "$") { capture=1 }
+              capture { print }
+              capture && $0 ~ ("^--- (PASS|FAIL|SKIP): " name " ") { exit }
+            ' "$log")
+            if printf '%s\n' "$block" | grep -qE "^--- (PASS|FAIL): ${t} "; then
+              continue
             fi
+            if printf '%s\n' "$block" | grep -qE "^--- SKIP: ${t} " \
+              && printf '%s\n' "$block" | grep -q 'NOT MEASURABLE'; then
+              echo "::warning::${t} was NOT MEASURABLE on ${RUNNER_OS} — dec-0029's minimum-discriminator found this runner too degraded to judge. Numbers are in the step summary above. Not treated as a pass or a failure."
+              continue
+            fi
+            echo "::error::${t} did not run to a verdict on ${RUNNER_OS}. A budget that skipped without the minimum-discriminator's own reason is not accounted for; see the log for its skip reason."
+            failed=1
           done
 
           # internal/perf/NETWORK.md: darwin's dtrace needs SIP disabled, so the

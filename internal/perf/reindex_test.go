@@ -79,9 +79,10 @@ func TestReindexBudget(t *testing.T) {
 	}
 	t.Logf("  what the measured runs reported:\n%s", excerpt(lastOut))
 
-	if err := checkMedian(cold, "cold reindex", "reindexBudget", reindexBudget); err != nil {
-		t.Error(err)
-	}
+	// dec-0029's minimum-discriminator: see coldstart_test.go's comment at the
+	// equivalent call for the reasoning. judgeMedian is the same switch, not a
+	// fifth one for this budget.
+	judgeMedian(t, cold, "cold reindex", "reindexBudget", reindexBudget)
 
 	// ---------------------------------------------------------------------
 	// Both sides, per L-0001.

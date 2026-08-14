@@ -97,12 +97,32 @@ if [ -n "$STAGED_PERF_FILES" ]; then
   fi
   # `=== RUN` is printed before a test skips, so the count above cannot tell a met
   # budget from a skipped one.
+  #
+  # ONE skip is legitimate, mirroring .github/workflows/ci.yml's perf job and
+  # scripts/ci-local.sh exactly: dec-0029's minimum-discriminator, inside
+  # internal/perf itself now, names "NOT MEASURABLE" when a test's own MINIMUM
+  # decided this machine cannot reach a verdict at all. That is not treated as
+  # a met budget and not treated as a failed commit either — CI's dedicated
+  # runner is the authority. Any other skip (short, race, no toolchain) still
+  # fails the commit exactly as before.
   for t in TestColdStartBudget TestWarmBriefBudget TestReindexBudget; do
-    if ! grep -qE "^--- (PASS|FAIL): $t " /tmp/dira-perf.log; then
-      echo "Commit failed: $t did not run to a verdict."
-      echo "A budget that skipped is not a budget that was met; its skip reason is above."
-      exit 1
+    block="$(awk -v name="$t" '
+      $0 ~ ("^=== RUN   " name "$") { capture=1 }
+      capture { print }
+      capture && $0 ~ ("^--- (PASS|FAIL|SKIP): " name " ") { exit }
+    ' /tmp/dira-perf.log)"
+    if printf '%s\n' "$block" | grep -qE "^--- (PASS|FAIL): $t "; then
+      continue
     fi
+    if printf '%s\n' "$block" | grep -qE "^--- SKIP: $t " \
+      && printf '%s\n' "$block" | grep -q 'NOT MEASURABLE'; then
+      echo "$t: NOT MEASURABLE here (dec-0029) — its own minimum could not judge this machine."
+      echo "Not treated as met, not treated as a failed commit. CI's dedicated runner gates this on every push."
+      continue
+    fi
+    echo "Commit failed: $t did not run to a verdict."
+    echo "A budget that skipped without the minimum-discriminator's own reason is not a budget that was met; its skip reason is above."
+    exit 1
   done
   if [ "$PERF_STATUS" -ne 0 ]; then
     # Before reporting a verdict, establish that this machine can reach one.

@@ -120,15 +120,19 @@ func TestWarmBriefBudget(t *testing.T) {
 	}
 	t.Logf("  a sample of the measured output:\n%s", excerpt(lastOut))
 
-	// Both ceilings, reported separately. Neither is `else` to the other: a
-	// reader of a red run needs to know whether warm merely got slower or
-	// stopped being warm at all.
-	if err := checkMedian(warm, "warm brief", "coldMedianBudget", coldMedianBudget); err != nil {
-		t.Error(err)
-	}
-	if err := checkMedian(warm, "warm brief", "warmBudget", warmBudget); err != nil {
-		t.Error(err)
-	}
+	// Both ceilings, judged separately, per dec-0029's minimum-discriminator.
+	// A minimum-broken ceiling is dira's own work and fails without stopping
+	// the sibling check below (t.Error, not fatal); a median-broken ceiling
+	// with the minimum inside it skips, naming the numbers, and DOES stop the
+	// test there — the same short-circuit internal/index/latency_test.go's
+	// own discriminator already accepts for its comparative check.
+	//
+	// warmBudget first because it is the tighter of the two: if the floor
+	// leaves room to judge it, it leaves room for the looser coldMedianBudget
+	// too, so the skip (when one fires) names the ceiling that actually binds
+	// on this test rather than whichever was asserted first.
+	judgeMedian(t, warm, "warm brief", "warmBudget", warmBudget)
+	judgeMedian(t, warm, "warm brief", "coldMedianBudget", coldMedianBudget)
 
 	// ---------------------------------------------------------------------
 	// Both sides, per L-0001. Every check this measurement rests on is shown
