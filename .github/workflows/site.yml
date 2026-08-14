@@ -1,0 +1,81 @@
+name: Site
+
+# W2-T5 (docs/plan/website.md): build the Astro site in site/ and, only on a
+# manual dispatch, deploy it to GitHub Pages.
+#
+# Deploy safety is absolute here (docs/plan/website.md, dec-0030): there is
+# deliberately NO `push` trigger. The only triggers are `pull_request` (build
+# only — a PR touching site/ gets a green/red signal before merge) and
+# `workflow_dispatch` (build, then deploy IF the pages-live environment
+# approves it). A push to main can never reach the deploy job, because a push
+# to main can never start this workflow at all. The founder activation
+# runbook (docs/growth/site-activation.md, W2-T8) is the only place the
+# pages-live environment gets configured to require approval, and the only
+# place `workflow_dispatch` gets run for real.
+
+on:
+  pull_request:
+    paths:
+      - "site/**"
+      - "README.md"
+      - ".github/workflows/site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: dira-site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Install Go (for the dira binary the build embeds — W1-T3/T4)
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: README <-> website coherence check (W2-T7)
+        run: npm run check:coherence
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: site/dist
+
+  # Runs ONLY on workflow_dispatch (see the trigger comment above), and even
+  # then only after the pages-live environment's protection rules allow it —
+  # the founder wires that approval gate as part of docs/growth/site-activation.md.
+  # Absent from every pull_request run: `if:` below is what makes that literal.
+  deploy:
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment:
+      name: pages-live
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
