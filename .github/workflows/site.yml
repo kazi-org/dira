@@ -3,7 +3,7 @@ name: Site
 # W2-T5 (docs/plan/website.md): build the Astro site in site/ and, only on a
 # manual dispatch, deploy it to GitHub Pages.
 #
-# Deploy safety is absolute here (docs/plan/website.md, dec-0030): there is
+# Deploy safety is absolute here (docs/plan/website.md, dec-0031): there is
 # deliberately NO `push` trigger. The only triggers are `pull_request` (build
 # only — a PR touching site/ gets a green/red signal before merge) and
 # `workflow_dispatch` (build, then deploy IF the pages-live environment

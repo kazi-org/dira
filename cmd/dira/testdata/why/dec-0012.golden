@@ -49,6 +49,10 @@ edges
                            dec-0012 settled that the surfaces are
                            server-rendered templates; this settles what those
                            templates are allowed to emit
+               dec-0031  Mirror kazi's Astro + GitHub Pages site architecture
+                         for dira.sire.run
+                           the site is static output only, no dira-operated
+                           host, per this constraint
   informed by  dec-0016  Self-host TeX Gyre Pagella; the system-font stack was
                          silently broken on Linux
                            narrows the no-webfont reading only. dec-0012 is not
