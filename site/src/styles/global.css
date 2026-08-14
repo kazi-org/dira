@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* Brand tokens, values copied from docs/design/tokens.css (dira's "Bearing"
+   design system — warm paper, one serif, one accent hue) so the marketing
+   pages and the /why snapshots of `dira ui` read as one product instead of
+   two different tools bolted together. Copied, not imported: tokens.css is
+   dira's own served asset (embedded in the binary, read by internal/ui), not
+   a file this site build depends on — see docs/lore.md L-0025 on why that
+   file's relative font URL only resolves from specific roots. This site
+   states its own absolute font paths instead. */
+@font-face {
+  font-family: "TeX Gyre Pagella";
+  src: url("/assets/fonts/pagella-regular.core.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TeX Gyre Pagella";
+  src: url("/assets/fonts/pagella-italic.core.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TeX Gyre Pagella";
+  src: url("/assets/fonts/pagella-bold.core.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+  --bearing: #8a5f18;
+  --bearing-lift: #6d4a12;
+  --converged: #1f6d5b;
+  --caught: #a83828;
+  --ground: #f7f4ed;
+  --panel: #fffdf8;
+  --sunk: #ece7db;
+  --rule: #ddd7c8;
+  --ink: #23211d;
+  --ink-mid: #55514a;
+  --ink-low: #645f55;
+  --serif: "TeX Gyre Pagella", "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --ui: system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bearing: #d6a544;
+    --bearing-lift: #e6bd6c;
+    --converged: #4fae95;
+    --caught: #e08066;
+    --ground: #14110b;
+    --panel: #1b170f;
+    --sunk: #221d13;
+    --rule: #362e1d;
+    --ink: #f3ede0;
+    --ink-mid: #cabfa8;
+    --ink-low: #a89c81;
+  }
+}
+
+body.page-shell {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui);
+}
+
+.dira-serif { font-family: var(--serif); }
+.dira-mono { font-family: var(--mono); }
+
+.ui-strong { color: var(--ink); }
+.ui-body { color: var(--ink-mid); }
+.ui-muted { color: var(--ink-low); }
+.ui-link { color: var(--bearing); text-decoration: underline; text-underline-offset: 3px; }
+.ui-link:hover, .ui-link:focus-visible { color: var(--bearing-lift); }
+.ui-card { background: var(--panel); border-color: var(--rule); }
+.ui-chip { background: var(--sunk); border-color: var(--rule); color: var(--ink-mid); }
+.ui-outline { border-color: var(--rule); color: var(--ink); }
+.ui-hairline { border-color: var(--rule); }
+.ui-code { background: var(--sunk); border-color: var(--rule); color: var(--ink); }
+.dira-text { color: var(--bearing); }
+.dira-gradient {
+  background: radial-gradient(circle, var(--bearing) 0%, transparent 70%);
+}

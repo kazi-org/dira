@@ -15,6 +15,12 @@
 *.test
 *.out
 
+# Astro build output and its dev cache (site/, docs/plan/website.md) — the
+# gitignored /dist/ above is anchored at the repo root, so it does not reach
+# site/dist; node_modules below is unanchored and already covers site/.
+site/dist/
+site/.astro/
+
 # Editor / OS
 .DS_Store
 *.swp
