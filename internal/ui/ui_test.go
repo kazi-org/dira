@@ -45,7 +45,7 @@ func serve(t *testing.T, diraDir, name string) *httptest.Server {
 	}
 	t.Cleanup(func() { _ = ix.Close() })
 
-	s, err := NewServer(ix, name)
+	s, err := NewServer(ix, store, name)
 	if err != nil {
 		t.Fatalf("building the server: %v", err)
 	}
@@ -897,7 +897,7 @@ func TestServedFromEmbedFS(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() { _ = ix.Close() }()
-	s, err := NewServer(ix, "kazi-org/dira")
+	s, err := NewServer(ix, store, "kazi-org/dira")
 	if err != nil {
 		t.Fatal(err)
 	}

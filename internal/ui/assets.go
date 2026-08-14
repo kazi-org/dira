@@ -78,6 +78,11 @@ var AssetSources = map[string]string{
 	// are the same bytes either way.
 	"assets/index.css": "docs/design/screens/s2-index.html#style",
 
+	// distill.css is the same shape as index.css: s3-distill.html carries its
+	// screen-specific rules in an inline <style> block rather than a file of
+	// its own, because it is one screen (E6-L3-T2).
+	"assets/distill.css": "docs/design/screens/s3-distill.html#style",
+
 	// The fonts. Left of the arrow is a path inside this package; right of it
 	// is a path from the repository root, and they read alike only because
 	// the repository's font directory and the package's are named the same

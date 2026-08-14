@@ -25,26 +25,33 @@ var templates embed.FS
 // read verb that mutated the ledger is how a derived-status product acquires
 // stored status by accident.
 type Server struct {
-	src  Source
-	name string
-	tpl  *template.Template
-	mux  *http.ServeMux
+	src   Source
+	store ledger.Store
+	name  string
+	tpl   *template.Template
+	mux   *http.ServeMux
 }
 
 // NewServer builds the handler. name is what the ledger is called on the page —
-// the repository the .dira/ directory sits in.
-func NewServer(src Source, name string) (*Server, error) {
+// the repository the .dira/ directory sits in. store is the raw ledger the read
+// surfaces (Source) cannot reach through: /distill calls internal/distill.Staged
+// directly, and Staged takes a ledger.Store rather than an *index.Index
+// (internal/index/index.go does not expose one — the index answers "which
+// entries", never "read me this ledger raw", and the distill queue's whole job
+// needs the second question).
+func NewServer(src Source, store ledger.Store, name string) (*Server, error) {
 	tpl, err := template.ParseFS(templates, "templates/*.gohtml")
 	if err != nil {
 		return nil, fmt.Errorf("ui: parsing templates: %w", err)
 	}
-	s := &Server{src: src, name: name, tpl: tpl, mux: http.NewServeMux()}
+	s := &Server{src: src, store: store, name: name, tpl: tpl, mux: http.NewServeMux()}
 
 	s.mux.HandleFunc("/", s.route)
 	for _, a := range []struct{ path, file string }{
 		{"/tokens.css", "assets/tokens.css"},
 		{"/decision.css", "assets/decision.css"},
 		{"/index.css", "assets/index.css"},
+		{"/distill.css", "assets/distill.css"},
 	} {
 		s.mux.HandleFunc(a.path, s.static(a.file, "text/css; charset=utf-8"))
 	}
@@ -73,7 +80,7 @@ func NewServer(src Source, name string) (*Server, error) {
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) { s.mux.ServeHTTP(w, r) }
 
-// route dispatches the two page routes. It is hand-written rather than a
+// route dispatches the page routes. It is hand-written rather than a
 // third-party router for the same reason main.go's subcommand dispatch is:
 // nothing in the command path may cost int-0002's budget, and this is one
 // prefix test.
@@ -86,11 +93,13 @@ func (s *Server) route(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.URL.Path == "/":
 		s.index(w, r)
+	case r.URL.Path == "/distill":
+		s.distill(w, r)
 	case strings.HasPrefix(r.URL.Path, "/e/"):
 		s.decision(w, r, strings.TrimPrefix(r.URL.Path, "/e/"))
 	default:
 		s.fail(w, r, http.StatusNotFound, "No such page.",
-			"The two surfaces are the ledger index at / and a decision at /e/<id>.")
+			"The surfaces are the ledger index at /, a decision at /e/<id>, and the distill queue at /distill.")
 	}
 }
 
@@ -101,6 +110,17 @@ func (s *Server) index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.render(w, r, "index.gohtml", view)
+}
+
+// distill renders the deck. It is the read half only — no form action does
+// anything yet; T3 and T4 wire those, over the same store this reads from.
+func (s *Server) distill(w http.ResponseWriter, r *http.Request) {
+	view, err := BuildDistill(r.Context(), s.store, s.name)
+	if err != nil {
+		s.oops(w, r, err)
+		return
+	}
+	s.render(w, r, "distill.gohtml", view)
 }
 
 func (s *Server) decision(w http.ResponseWriter, r *http.Request, id string) {
