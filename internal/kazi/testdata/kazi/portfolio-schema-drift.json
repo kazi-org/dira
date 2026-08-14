@@ -1098,7 +1098,7 @@
     "green": 71,
     "total": 136
   },
-  "schema_version": 3,
+  "schema_version": 5,
   "todo": [
     {
       "goal_id": "t16-5-type-floor-dynamic-type",

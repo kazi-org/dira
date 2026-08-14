@@ -100,5 +100,14 @@ func Snapshot(ctx context.Context) (*Portfolio, error) {
 	if err != nil {
 		return nil, &Unavailable{Reason: ReasonMalformedJSON, Detail: err.Error()}
 	}
+
+	// schema_version is lockstep across kazi's whole --json surface
+	// (kazi's lib/kazi/cli.ex:95), so it will bump for reasons unrelated
+	// to portfolio specifically. The founder decision this package pins
+	// against treats that as contract drift, not absence: dira keeps
+	// working and says so, rather than blanking a snapshot it could still
+	// mostly trust. decodeSnapshot already decoded best-effort regardless
+	// of version; this is the one place that comparison happens.
+	snap.ContractDrift = snap.SchemaVersion != PinnedSchemaVersion
 	return snap, nil
 }

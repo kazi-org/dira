@@ -83,8 +83,13 @@ before the addition).
   clause.
 
 - **`portfolio-schema-drift.json`** — byte-identical to
-  `portfolio-populated.json` except `schema_version: 3` in place of `2`.
-  Used by T5.
+  `portfolio-populated.json` except `schema_version: 5` in place of `2`. Not
+  `3` (`PinnedSchemaVersion + 1`): T5's own test also drifts an inline copy
+  to exactly `PinnedSchemaVersion + 1`, and if this file used the same
+  number a build that checked `schema_version == 3` instead of genuinely
+  comparing to `PinnedSchemaVersion` would pass both cases — found while
+  writing that test, which is why the two now disagree on purpose. Used by
+  T5.
 
 ## Format
 
