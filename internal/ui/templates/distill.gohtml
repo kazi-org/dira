@@ -1,0 +1,112 @@
+{{- /*
+S3 — THE DISTILL QUEUE, served. The markup mirrors
+docs/design/screens/s3-distill.html element for element and class for class;
+the stylesheet is the same file, served from the binary (E6-L3-T2).
+
+This is the read half only. Every button here is inert (type="button", no
+form, no fetch) — T3 wires Confirm/Reject through a POST form, T4 wires Edit
+through a textarea, T5 layers `y`/`n`/`e` on top of the forms T3/T4 build. No
+<script> until T5 lands.
+
+dec-0019 governs every field the same way it governs the decision page: drawn
+when the entry recorded it, omitted rather than invented when it did not. A
+card built from the shape `dira sniff` actually writes — a title and nothing
+else — renders no .because, no .against and no mirrors line.
+*/ -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)">
+<title>Distill — {{ .Total }} staged · dira</title>
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/distill.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="/">di<b>ra</b></a>
+  <nav class="crumb" aria-label="Breadcrumb">{{ .Ledger }} · distill</nav>
+  <span class="spacer"></span>
+  <span class="crumb">{{ .Total }} staged</span>
+</header>
+
+<main class="wrap">
+
+  <div class="head">
+{{- if .Empty }}
+    <h1>Nothing waiting on you.</h1>
+    <p class="sub">{{ .EmptyMessage }}</p>
+{{- else }}
+    <h1>{{ .Heading }}</h1>
+    <p class="sub">Captured from your sessions. Confirm the reasoning, or reject it — that is the whole job.</p>
+    <div class="progress" role="img" aria-label="1 of {{ .Total }}">
+      <i class="now"></i>{{ range .RestSegments }}<i></i>{{ end }}
+    </div>
+{{- end }}
+  </div>
+
+{{- if not .Empty }}
+
+  <div class="deck">
+{{- range .Cards }}
+{{- if .Actionable }}
+    <article class="stage" data-id="{{ .ID }}">
+      <div class="meta">
+        <span class="chip chip-id">{{ .ID }}</span>
+        <span class="chip chip-staged">◆ {{ .State }}</span>
+{{- if .Src }}
+        <span class="src">{{ .Src }}</span>
+{{- end }}
+      </div>
+{{- range .Because }}
+      <p class="because">{{ if .Heading }}<b>{{ .Text }}</b>{{ else }}{{ .Text }}{{ end }}</p>
+{{- end }}
+      <div class="titleline">
+        <span class="k">Decides</span>
+        <span>{{ .Title }}</span>
+      </div>
+{{- if .Against }}
+      <div class="against">
+        <span class="m">✗</span>
+        <span><s>{{ .Against.Option }}</s> — {{ .Against.WhyNot }}</span>
+      </div>
+{{- end }}
+{{- if or .DerivesFrom .ADR }}
+      <p class="edge">{{ if .DerivesFrom }}derives_from <a href="/e/{{ .DerivesFrom }}">{{ .DerivesFrom }}</a>{{ end }}{{ if .ADR }} · mirrors to {{ .ADR }}{{ end }}</p>
+{{- end }}
+      <div class="actions">
+        <button class="btn btn-primary" type="button">Confirm</button>
+        <button class="btn" type="button">Reject</button>
+        <button class="btn btn-quiet" type="button">Edit the because</button>
+        <span class="grow"></span>
+      </div>
+      <p class="swipe-note">swipe right to confirm · left to reject</p>
+    </article>
+{{- else }}
+    <article class="stage next" data-id="{{ .ID }}" aria-label="Next in queue">
+      <div class="meta">
+        <span class="chip chip-id">{{ .ID }}</span>
+        <span class="chip chip-staged">◆ {{ .State }}</span>
+{{- if .Src }}
+        <span class="src">{{ .Src }}</span>
+{{- end }}
+      </div>
+{{- range .Because }}
+      <p class="because">{{ if .Heading }}<b>{{ .Text }}</b>{{ else }}{{ .Text }}{{ end }}</p>
+{{- end }}
+      <div class="titleline"><span class="k">Decides</span><span>{{ .Title }}</span></div>
+    </article>
+{{- end }}
+{{- end }}
+  </div>
+{{- end }}
+
+  <footer class="made">
+    <span><a href="https://github.com/kazi-org/dira" rel="noopener">dira</a> · staged by hooks, disposed by you</span>
+  </footer>
+</main>
+</body>
+</html>

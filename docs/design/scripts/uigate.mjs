@@ -111,7 +111,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer func() { _ = ix.Close() }()
-	srv, err := ui.NewServer(ix, filepath.Base(filepath.Dir(diraDir)))
+	srv, err := ui.NewServer(ix, store, filepath.Base(filepath.Dir(diraDir)))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

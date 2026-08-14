@@ -80,7 +80,7 @@ func runUI(a *app, args []string) error {
 		_, _ = fmt.Fprintln(a.stderr, notice)
 	}
 
-	server, err := ui.NewServer(ix, local.Name(diraDir))
+	server, err := ui.NewServer(ix, store, local.Name(diraDir))
 	if err != nil {
 		return err
 	}
@@ -108,10 +108,11 @@ func writeUIUsage(w io.Writer) {
 
 	b.WriteString("dira ui - serve the ledger index and the decision pages on localhost.\n\n")
 	b.WriteString("usage:\n\n\tdira ui [-C dir] [-addr 127.0.0.1:port]\n\n")
-	b.WriteString("Two read-only surfaces, server-rendered from the binary:\n\n")
+	b.WriteString("Server-rendered from the binary:\n\n")
 	b.WriteString("\t/          the ledger index, grouped by the intent each entry serves\n")
-	b.WriteString("\t/e/<id>    one entry: its chain, its ruling, and the roads it refused\n\n")
-	b.WriteString("Both render completely with JavaScript disabled, and no page fetches\n")
+	b.WriteString("\t/e/<id>    one entry: its chain, its ruling, and the roads it refused\n")
+	b.WriteString("\t/distill   the staged queue: confirm, reject, or edit the because\n\n")
+	b.WriteString("Every page renders completely with JavaScript disabled, and no page fetches\n")
 	b.WriteString("anything from any host. It binds loopback only: a ledger reachable from\n")
 	b.WriteString("the LAN is a ledger published by accident (cst-0004).\n\n")
 
