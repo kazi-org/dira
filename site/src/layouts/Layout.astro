@@ -1,0 +1,47 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogType?: string;
+}
+
+const {
+  title = "dira — decision memory for AI coding agents",
+  description = "Your coding agent has amnesia. dira is a git-native ledger of the intents, decisions, rejected alternatives, and open questions behind your codebase, captured automatically as you work with Claude Code.",
+  ogType = "website",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#14110b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="dira" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- No analytics, no trackers (dec-0012, cst-0004): this site is static
+         output with no dira-operated host and no telemetry endpoint. -->
+    <slot name="head" />
+  </head>
+  <body class="page-shell min-h-screen antialiased">
+    <slot />
+  </body>
+</html>
