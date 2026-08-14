@@ -145,9 +145,9 @@ func TestDistillRoute(t *testing.T) {
 		t.Errorf("dimmed cards = %v, want %v", got, want)
 	}
 
-	if strings.Contains(strings.ToLower(body), "<script") {
-		t.Error("GET /distill contains <script>; T5 has not landed and this surface must render complete without it")
-	}
+	// The read itself renders complete regardless of T5's <script> — every
+	// card here is a plain <form>. TestDistillHasExactlyOneScript is what
+	// pins the script's own shape.
 }
 
 // TestDistillCardOmitsWhatTheEntryDidNotRecord covers the sniff shape: a
@@ -780,8 +780,10 @@ func TestDistillEdit(t *testing.T) {
 }
 
 // TestDistillDisclosureNeedsNoScript is T4's disclosure requirement: the edit
-// textarea is reachable with JavaScript off, via <details>/<summary> — never
-// a client-side toggle — and T5 has not landed a <script> yet.
+// textarea is reachable via <details>/<summary> — a native toggle the
+// browser opens with no script running at all, never a client-side one that
+// would stop working if T5's <script> (present on this page since T5
+// landed) were stripped out or failed to load.
 func TestDistillDisclosureNeedsNoScript(t *testing.T) {
 	t.Parallel()
 	srv := distillServer(t, distillEntry("dec-0001", "one"))
@@ -793,8 +795,8 @@ func TestDistillDisclosureNeedsNoScript(t *testing.T) {
 	if !strings.Contains(body, "<summary") {
 		t.Error("the disclosure has no <summary> to click")
 	}
-	if strings.Contains(strings.ToLower(body), "<script") {
-		t.Error("GET /distill contains <script>; T5 has not landed and this surface must render complete without it")
+	if strings.Contains(body, `onclick=`) || strings.Contains(body, `onload=`) {
+		t.Error("the disclosure carries an inline event handler; <details>/<summary> needs none")
 	}
 }
 

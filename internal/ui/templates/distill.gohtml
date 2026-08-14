@@ -3,10 +3,14 @@ S3 — THE DISTILL QUEUE, served. The markup mirrors
 docs/design/screens/s3-distill.html element for element and class for class;
 the stylesheet is the same file, served from the binary (E6-L3-T2).
 
-Confirm, Reject and Edit are real POST forms (T3, T4) — Edit through a
-<details>/<summary> disclosure reachable with no script. T5 layers
-`y`/`n`/`e` on top of the forms T3/T4 build, as a <script> served only on
-this route. No <script> until T5 lands.
+Confirm, Reject and Edit are real POST forms (T3, T4) that work with no
+script at all — Edit through a <details>/<summary> disclosure. `y`/`n`/`e`
+(T5) are a layer on top of those same forms, not a second way to write:
+every keydown calls form.requestSubmit() on the form a click already
+submits, so the fetch() in this file's one <script> block is the only
+network call either path makes. This is the one dira route licensed to
+carry a <script> at all — internal/ui/assets.go's package comment names why
+(a localhost app view, not the crawlable public renderer dec-0012 covers).
 
 dec-0019 governs every field the same way it governs the decision page: drawn
 when the entry recorded it, omitted rather than invented when it did not. A
@@ -118,5 +122,73 @@ else — renders no .because, no .against and no mirrors line.
     <span><a href="https://github.com/kazi-org/dira" rel="noopener">dira</a> · staged by hooks, disposed by you</span>
   </footer>
 </main>
+{{- /*
+E6-L3-T5: `y`/`n`/`e` as progressive enhancement, this route only. The
+keydown handlers never build a request of their own — they call
+form.requestSubmit() on the same <form> a click already submits, so the one
+"submit" listener below is the only place a network request is made either
+way. Nothing here reaches off loopback: every fetch() target is a
+document-relative path this same origin already serves.
+*/ -}}
+<script>
+(function () {
+  "use strict";
+
+  function isEditable(el) {
+    return !!el && (el.tagName === "TEXTAREA" || el.tagName === "INPUT");
+  }
+
+  async function refreshDeck() {
+    var resp = await fetch("/distill", { method: "GET", credentials: "same-origin" });
+    var html = await resp.text();
+    var next = new DOMParser().parseFromString(html, "text/html").querySelector("main.wrap");
+    var cur = document.querySelector("main.wrap");
+    if (next && cur) cur.replaceWith(next);
+  }
+
+  document.addEventListener("submit", function (ev) {
+    var form = ev.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.method.toUpperCase() !== "POST") return;
+    ev.preventDefault();
+    // application/x-www-form-urlencoded, matching what the same <form>
+    // would send natively (no enctype is set, and the browser default is
+    // urlencoded, not multipart) — the server's r.ParseForm() only reads
+    // urlencoded bodies, so a fetch that sent FormData directly (multipart)
+    // would silently write nothing: r.FormValue would find no "body" field
+    // and EditBody would see an empty submission and refuse, which is
+    // indistinguishable from success at the HTTP layer (both are 200s) and
+    // was only caught by distill-keys.mjs comparing the file on disk.
+    fetch(form.getAttribute("action"), {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(new FormData(form)).toString(),
+    }).then(function (resp) {
+      if (resp.ok) return refreshDeck();
+    });
+  });
+
+  document.addEventListener("keydown", function (ev) {
+    if (isEditable(document.activeElement)) return;
+    var card = document.querySelector(".stage:not(.next)");
+    if (!card) return;
+    if (ev.key === "y" || ev.key === "Y") {
+      var confirmForm = card.querySelector('form[action$="/confirm"]');
+      if (confirmForm) confirmForm.requestSubmit();
+    } else if (ev.key === "n" || ev.key === "N") {
+      var discardForm = card.querySelector('form[action$="/discard"]');
+      if (discardForm) discardForm.requestSubmit();
+    } else if (ev.key === "e" || ev.key === "E") {
+      var disclosure = card.querySelector(".edit-disclosure");
+      if (disclosure) {
+        disclosure.open = true;
+        var textarea = disclosure.querySelector("textarea");
+        if (textarea) textarea.focus();
+      }
+    }
+  });
+})();
+</script>
 </body>
 </html>

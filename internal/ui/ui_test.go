@@ -226,9 +226,15 @@ func TestOnlyTheTwoSanctionedHexLiteralsAreServed(t *testing.T) {
 	}
 }
 
-// TestNoScriptOnAnySurface is dec-0012 as a test rather than as a promise: the
-// pages are crawlable because there is nothing to run, not because a runtime
-// happens to be fast.
+// TestNoScriptOnAnySurface is dec-0012 as a test rather than as a promise:
+// the crawlable pages are crawlable because there is nothing to run, not
+// because a runtime happens to be fast. Explicitly the two surfaces
+// dec-0012's crawler argument covers — / and /e/<id> — and not /distill,
+// which E6-L3-T5 licenses to carry a <script> for the reasons
+// TestDistillHasExactlyOneScript checks. Narrowed rather than renamed:
+// "on any surface" already only ever named these two, since /distill did
+// not exist when this test was written; this comment states the boundary
+// the test enforced by construction all along.
 func TestNoScriptOnAnySurface(t *testing.T) {
 	t.Parallel()
 	srv := realLedger(t)
@@ -242,6 +248,77 @@ func TestNoScriptOnAnySurface(t *testing.T) {
 				t.Errorf("GET %s contains %q; every surface must render complete with JavaScript disabled (dec-0012)", path, b)
 			}
 		}
+	}
+}
+
+// TestDistillHasExactlyOneScript is /distill's counterpart: the one
+// dira route licensed to carry a <script> (E6-L3-T5) carries exactly one,
+// and it reaches nowhere but this same origin.
+//
+// Both sides: the "exactly one script, /distill only" claim is proven able
+// to fail by TestASecondScriptOnTheDecisionPageIsCaught below, which patches
+// a SECOND inline <script> onto decision.gohtml's own source and asserts
+// TestNoScriptOnAnySurface's own check (the substring scan this test reuses)
+// would catch it — before trusting that scan's silence on the real pages.
+func TestDistillHasExactlyOneScript(t *testing.T) {
+	t.Parallel()
+	srv := distillServer(t, distillEntry("dec-0001", "one"))
+	body := mustGet(t, srv, "/distill")
+
+	if got := strings.Count(strings.ToLower(body), "<script"); got != 1 {
+		t.Fatalf("GET /distill contains %d <script> tags, want exactly 1", got)
+	}
+	scriptStart := strings.Index(strings.ToLower(body), "<script")
+	scriptEnd := strings.Index(strings.ToLower(body[scriptStart:]), "</script>")
+	if scriptEnd < 0 {
+		t.Fatal("the <script> block is never closed")
+	}
+	block := body[scriptStart : scriptStart+scriptEnd]
+
+	for _, banned := range []string{"http://", "https://"} {
+		if strings.Contains(block, banned) {
+			t.Errorf("the script block contains %q; every fetch() target must be same-origin and loopback-relative (cst-0004)", banned)
+		}
+	}
+	for _, banned := range []string{"document.cookie", "authorization", "cors", "no-cors"} {
+		if strings.Contains(strings.ToLower(block), banned) {
+			t.Errorf("the script block contains %q; the fetch calls must carry no cookie, no auth header and no cross-origin request (cst-0004)", banned)
+		}
+	}
+}
+
+// TestASecondScriptOnTheDecisionPageIsCaught is
+// TestNoScriptOnAnySurface's negative control: it patches a second, harmless
+// inline <script> onto a COPY of decision.gohtml's source (never the real
+// file), renders it, and asserts the same substring scan that test uses
+// would flag it — the narrowed test's own teeth, checked directly rather
+// than assumed from the real pages' silence.
+func TestASecondScriptOnTheDecisionPageIsCaught(t *testing.T) {
+	t.Parallel()
+
+	src, err := templates.ReadFile("templates/decision.gohtml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(src), "</body>") {
+		t.Fatal("decision.gohtml has no </body>; update this control to match its current shape")
+	}
+	patched := strings.Replace(string(src), "</body>", "<script>1;</script></body>", 1)
+	if patched == string(src) {
+		t.Fatal("the patch did not change anything; the control stages no defect")
+	}
+
+	tpl, err := template.New("decision.gohtml").Parse(patched)
+	if err != nil {
+		t.Fatalf("parsing the patched template: %v", err)
+	}
+	view := &Decision{Title: "t", Ruling: "r", ID: "dec-0001"}
+	var b strings.Builder
+	if err := tpl.Execute(&b, view); err != nil {
+		t.Fatalf("executing the patched template: %v", err)
+	}
+	if !strings.Contains(strings.ToLower(b.String()), "<script") {
+		t.Fatal("the patched template does not stage a <script> tag; the control is broken")
 	}
 }
 
