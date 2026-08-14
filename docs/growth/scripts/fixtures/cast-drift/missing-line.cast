@@ -1,0 +1,6 @@
+{"version": 2, "width": 92, "height": 14, "timestamp": 0}
+[0.1, "o", "$ dira check \"add a background daemon to track run state\"\r\n"]
+[0.5, "o", "✗ conflicts with dec-0060 (accepted 2026-07-03)\r\n"]
+[0.6, "o", "    why_not: violates the single-binary intent (int-0002)\r\n"]
+[0.7, "o", "    revisit_if: cold-start latency stops being the binding constraint\r\n"]
+[0.8, "o", "→ supersede dec-0060, or revise the plan\r\n"]
