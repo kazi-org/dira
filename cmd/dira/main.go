@@ -96,6 +96,7 @@ func newApp(stdout, stderr io.Writer) *app {
 		{name: "supersede", summary: supersedeSummary, run: runSupersede, usage: writeSupersedeUsage},
 		{name: "ui", summary: uiSummary, run: runUI, usage: writeUIUsage},
 		{name: installSkillName, summary: installSkillSummary, run: runInstallSkill, usage: writeInstallSkillUsage},
+		{name: installHooksName, summary: installHooksSummary, run: runInstallHooks, usage: writeInstallHooksUsage},
 		{name: "reindex", summary: "rebuild the derived read cache from the entry files", run: runReindex},
 		{name: "version", summary: "print the dira version", run: runVersion},
 	}
