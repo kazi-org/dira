@@ -97,6 +97,7 @@ func newApp(stdout, stderr io.Writer) *app {
 		{name: "ui", summary: uiSummary, run: runUI, usage: writeUIUsage},
 		{name: installSkillName, summary: installSkillSummary, run: runInstallSkill, usage: writeInstallSkillUsage},
 		{name: "reindex", summary: "rebuild the derived read cache from the entry files", run: runReindex},
+		{name: importName, summary: importSummary, run: runImport, usage: writeImportUsage},
 		{name: "version", summary: "print the dira version", run: runVersion},
 	}
 	return a

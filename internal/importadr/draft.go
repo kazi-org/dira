@@ -2,6 +2,7 @@ package importadr
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/kazi-org/dira/internal/ledger"
 )
@@ -125,14 +126,41 @@ func draftTitle(d ScannedDocument) string {
 // excerptMaxRunes is entry.schema.json's own ceiling on source.excerpt.
 const excerptMaxRunes = 1000
 
+// excerptPrefix opens every excerpt this policy writes. importExcerptRe reads
+// it back.
+const excerptPrefix = "imported from "
+
+// importExcerptRe recovers a draft's source DocumentKey from the excerpt
+// draftExcerpt wrote. No entry field exists for "which document produced
+// this" (cst-0002 closes the set), so the excerpt — already free text, not
+// schema-constrained beyond length — is where this policy records it. T6
+// reads it back across runs to reconstruct the alreadyImported set straight
+// from the ledger itself, rather than keeping a second, parallel record of
+// what has been imported.
+var importExcerptRe = regexp.MustCompile(`^` + regexp.QuoteMeta(excerptPrefix) + `(.+) \(sha256:([0-9a-f]{64})\)$`)
+
 // draftExcerpt is the evidence a reviewer sees for where this entry came
-// from: the document's own path, so `dira distill` can point back at the
-// source file without this policy inventing commentary about it.
+// from, and the round-trippable identity T6 reads back on a later run: the
+// document's path and content hash, so `dira distill` can point back at the
+// source file and a re-import can recognise it without this policy inventing
+// commentary about it.
 func draftExcerpt(d ScannedDocument) string {
-	excerpt := "imported from " + d.Path
+	excerpt := fmt.Sprintf("%s%s (sha256:%s)", excerptPrefix, d.Path, d.SHA256)
 	runes := []rune(excerpt)
 	if len(runes) > excerptMaxRunes {
 		runes = runes[:excerptMaxRunes]
 	}
 	return string(runes)
+}
+
+// ParseImportExcerpt recovers the DocumentKey draftExcerpt encoded, and
+// whether excerpt was actually one of this policy's own — a hand-written or
+// otherwise-sourced entry's excerpt does not match and returns ok=false
+// rather than a guess.
+func ParseImportExcerpt(excerpt string) (key DocumentKey, ok bool) {
+	m := importExcerptRe.FindStringSubmatch(excerpt)
+	if m == nil {
+		return DocumentKey{}, false
+	}
+	return DocumentKey{Path: m[1], SHA256: m[2]}, true
 }

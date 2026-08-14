@@ -33,10 +33,16 @@ var allowed = map[string][]string{
 	// The filesystem backend. This is the point of the exercise.
 	"internal/ledger/local": filesystemPackages,
 
-	// The command itself, for os.Stdout, os.Stderr, os.Args and os.Exit.
-	// Not path/filepath: locating a ledger on disk is a filesystem concern
-	// and belongs in the backend, not in argument parsing.
-	"cmd/dira": {"os"},
+	// The command itself, for os.Stdout, os.Stderr, os.Args and os.Exit, and
+	// — since E2-L7 — path/filepath. `dira import <dir>` is the first command
+	// in this repository that reads a directory the *user* names rather than
+	// one dira owns (dec-0005 governs a ledger's own storage, not an
+	// arbitrary corpus a human points the importer at), and walking it needs
+	// to join a directory name with the entries os.ReadDir returns.
+	// internal/importadr itself still imports neither: every function in it
+	// takes bytes or another function's structured output, and cmd/dira is
+	// the only thing in that lane that ever names a path.
+	"cmd/dira": {"os", "path/filepath"},
 
 	// The derived read cache (E1-L3). It is not a second ledger backend and
 	// it never reads an entry: every entry it holds arrives through
