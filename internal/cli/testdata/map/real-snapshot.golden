@@ -1,0 +1,59 @@
+cst-0001  The session brief never exceeds 1,500 tokens  1 to be planned
+  dec-0020  A "token" in brief.max_tokens is dira's own conservative estimate, not a model's tokenizer  → to be planned (no goal yet)
+dec-0002  One file per entry, not an append-only JSONL ledger  1 to be planned
+  dec-0015  The derived cache stays honest by content hash, not by modification time  → to be planned (no goal yet)
+dec-0003  No model client in the binary — semantic extraction is delegated to the live session  4 to be planned
+  dec-0014  Lexical matching in the binary drives conflict detection; no model, no agent, ever gates the exit code  → to be planned (no goal yet)
+  dec-0021  The regex tier stages decisions only, and `alternatives` is required except when staged  → to be planned (no goal yet)
+  dec-0023  The tier-2 handoff cannot ride PreCompact stdout, which reaches only the compaction summariser  → to be planned (no goal yet)
+  dec-0024  `n` disposes of the capture, not the option; a decision against something is still a `y`  → to be planned (no goal yet)
+dec-0004  Execution status is derived from kazi at read time, never stored in the ledger  1 blocks this
+  dec-0008  dira integrates with kazi only through kazi's existing --json contract and hooks  → blocked by qst-0005
+dec-0006  Tiers are fractal — one entry model, one join rule, one drift flag, at every level  1 to be planned
+  cst-0003  Inheritance is one-way and read-time only — private context never lands in a public ledger
+  dec-0011  Cross-boundary parent refs publish opaquely, and resolution reports three states  → to be planned (no goal yet)
+dec-0011  Cross-boundary parent refs publish opaquely, and resolution reports three states  1 to be planned
+  dec-0018  Withheld is a declared first-class state, marked in the instrument hue  → to be planned (no goal yet)
+dec-0012  Surfaces are server-rendered Go templates and static output — no SPA, no dira-operated host  1 to be planned
+  dec-0019  The upheld option is the ruling, not an alternative — the renderer derives, never invents  → to be planned (no goal yet)
+dec-0021  The regex tier stages decisions only, and `alternatives` is required except when staged  2 to be planned
+  dec-0022  Confirming a regex-staged decision promotes it to the semantic tier; it does not accept it  → to be planned (no goal yet)
+  dec-0025  Confirm writes `confirmed_by: human` and nothing else; the entry stays `staged` until extraction fills it  → to be planned (no goal yet)
+int-0001  The why of a decision survives the session that made it  3 to be planned
+  cst-0001  The session brief never exceeds 1,500 tokens
+  dec-0006  Tiers are fractal — one entry model, one join rule, one drift flag, at every level  → to be planned (no goal yet)
+  dec-0009  ADRs are mirrored exhaust; the ledger entry is the record  → to be planned (no goal yet)
+  dec-0017  Long decisions use a summary/detail split; every refusal stays visible with its grounds  → to be planned (no goal yet)
+int-0002  Zero-ceremony operation — one binary, no server, no daemon  8 to be planned
+  cst-0004  dira never requires a network service, an account, or a hosted tier to function
+  dec-0001  Go, not Elixir/OTP, despite kazi's stack  → to be planned (no goal yet)
+  dec-0002  One file per entry, not an append-only JSONL ledger  → to be planned (no goal yet)
+  dec-0003  No model client in the binary — semantic extraction is delegated to the live session  → to be planned (no goal yet)
+  dec-0005  A storage interface (local FS | GitHub API) is committed to before the first surface ships  → to be planned (no goal yet)
+  dec-0012  Surfaces are server-rendered Go templates and static output — no SPA, no dira-operated host  → to be planned (no goal yet)
+  dec-0016  Self-host TeX Gyre Pagella; the system-font stack was silently broken on Linux  → to be planned (no goal yet)
+  dec-0026  The cold-start budget is a median, not a maximum; the single-run ceiling is dropped  → to be planned (no goal yet)
+  dec-0029  The cold-start budget is measured on a spawned binary, asserted on the median, gated by the minimum  → to be planned (no goal yet)
+int-0003  Replace the tool pile — kazi + dira + a subset of skills is the whole stack  3 to be planned
+  cst-0002  The entry set is closed at five kinds
+  dec-0004  Execution status is derived from kazi at read time, never stored in the ledger  → to be planned (no goal yet)
+  dec-0010  A public read-only ledger renderer is the growth engine, and ships before the paid apps  → to be planned (no goal yet)
+  dec-0013  The /sitrep skill is dira's validated query-surface spec, and its first replacement target  → to be planned (no goal yet)
+qst-0002  Is attention drift derived from ledger writes only, or from session metadata?  1 to be planned
+  dec-0027  dira reads session metadata to derive attention drift, locally and never transmitted  → to be planned (no goal yet)
+qst-0003  Does bulk-importing an existing ADR corpus produce a useful ledger, or a second pile?  1 to be planned
+  dec-0028  Import measures a corpus before importing it, and offers indexing when the yield is nothing  → to be planned (no goal yet)
+qst-0005  Will kazi accept the two upstream additions dira's seams still depend on?  1 to be planned
+  dec-0030  Pin kazi's emitted portfolio/status contract now, instead of waiting on qst-0005  → to be planned (no goal yet)
+unparented
+  dec-0007  OSS core free forever; individuals buy the apps once; teams subscribe; hosted never required  → to be planned (no goal yet)
+  int-0001  The why of a decision survives the session that made it  → to be planned (no goal yet)
+  int-0002  Zero-ceremony operation — one binary, no server, no daemon  → to be planned (no goal yet)
+  int-0003  Replace the tool pile — kazi + dira + a subset of skills is the whole stack  → to be planned (no goal yet)
+  note-0001  Two fidelity gaps found by running `dira why` against the real ledger
+  qst-0001  How does a public repo ledger resolve a parent ref that lives in a private ledger?
+  qst-0002  Is attention drift derived from ledger writes only, or from session metadata?
+  qst-0003  Does bulk-importing an existing ADR corpus produce a useful ledger, or a second pile?  ⛔ blocks int-0003
+  qst-0004  Is the name "dira" clear of collisions on the channels that matter?
+  qst-0005  Will kazi accept the two upstream additions dira's seams still depend on?  ⛔ blocks dec-0008
+  qst-0006  The edge set has no way to say "narrows without replacing", so authors reach for supersedes
