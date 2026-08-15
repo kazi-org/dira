@@ -40,6 +40,7 @@ export const DESCRIPTIONS = {
   brief: "Print the session brief: what is blocked, the current focus, what was decided recently.",
   why: "Print the chain behind an entry — what it arises from, and every alternative it refused.",
   supersede: "Retire an entry in favour of the one that replaces it.",
+  map: "Join the ledger to kazi's execution status at read time — what is planned, running, blocked, or done.",
   ui: "Serve the ledger index and the decision pages on localhost, read-only.",
   "install-skill": "Write dira's capture skill into ~/.claude for Claude Code to load.",
   "install-hooks": "Merge dira's SessionStart / Stop / PreCompact hook registrations into a settings file.",
