@@ -248,10 +248,17 @@ the gitignore test under pre-commit (fixed; verified under a poisoned env);
 not guessed).
 
 **FOUNDER — the only remaining actions, none code:**
-1. Mint `HOMEBREW_TAP_TOKEN` (fine-grained PAT, contents:write on
-   kazi-org/homebrew-tap) → unblocks E0-L5's live publish tasks.
-2. Push the first release tag (exercises E0-L4-T4's live half; also swaps the
-   site's version badge off "pre-release").
+1. ~~Mint `HOMEBREW_TAP_TOKEN`~~ **CORRECTED 2026-08-14:** the token already
+   exists as a kazi-org **org-level secret with visibility "all"** (minted
+   2026-06-23 for kazi's own release flow), so dira's release.yml resolves
+   `secrets.HOMEBREW_TAP_TOKEN` with zero setup. The E0 lane checked only
+   repo-level secrets and reported it missing; the orchestrator relayed that
+   without an org-level check. Residual unknowns only a real run can prove:
+   the PAT's expiry and that its fine-grained grant covers
+   kazi-org/homebrew-tap — both exercised by the first release.
+2. Push the first release tag (exercises E0-L4-T4's live half, including the
+   tap publish via the org token; also swaps the site's version badge off
+   "pre-release").
 3. Activate dira.sire.run: `docs/growth/site-activation.md` is the one-sitting
    runbook (DNS CNAME, Pages custom domain, environment approval, deploy).
 4. Launch itself: `docs/growth/launch.md` is T0-relative;
