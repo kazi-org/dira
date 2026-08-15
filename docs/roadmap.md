@@ -259,8 +259,13 @@ not guessed).
 2. Push the first release tag (exercises E0-L4-T4's live half, including the
    tap publish via the org token; also swaps the site's version badge off
    "pre-release").
-3. Activate dira.sire.run: `docs/growth/site-activation.md` is the one-sitting
-   runbook (DNS CNAME, Pages custom domain, environment approval, deploy).
+3. ~~Activate dira.sire.run~~ **DONE 2026-08-15, founder-directed, verified
+   live:** DNS applied as IaC (sirerun/foundation#156, scoped `--target`
+   production deploy, record confirmed on public resolvers), Pages custom
+   domain set, first Site deploy green (after its own completeness gate
+   correctly caught the missing `map` verb — fixed as PR #23), and observed
+   serving: `https://dira.sire.run/` 200 with the strapline, `/why/dec-0001/`
+   rendering the real rejection content, `https_enforced: true`.
 4. Launch itself: `docs/growth/launch.md` is T0-relative;
    `check-launch-readiness.mjs` fails until a stranger can install dira —
    i.e. until 1–3 are done.
