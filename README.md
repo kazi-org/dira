@@ -270,9 +270,10 @@ Full rationale: [dec-0002](.dira/entries/dec-0002.md).
 
 ## Install from a Release
 
-Each tagged release publishes a darwin-arm64 archive, a linux-amd64 archive, and a
-`checksums.txt`, built by [`.goreleaser.yaml`](.goreleaser.yaml) with
-`CGO_ENABLED=0` and no account needed to fetch them:
+Each tagged release publishes a darwin-arm64 archive, a linux-amd64 archive, a
+linux-arm64 archive, and a `checksums.txt`, built by
+[`.goreleaser.yaml`](.goreleaser.yaml) with `CGO_ENABLED=0` and no account
+needed to fetch them:
 
 ```
 VERSION=0.0.1-rc.1  # the released tag, without the leading v
@@ -284,7 +285,7 @@ tar -xzf "dira_${VERSION}_darwin_arm64.tar.gz"
 ```
 
 Swap `dira_${VERSION}_darwin_arm64.tar.gz` for `dira_${VERSION}_linux_amd64.tar.gz` on
-linux-amd64.
+linux-amd64, or `dira_${VERSION}_linux_arm64.tar.gz` on linux-arm64 (e.g. the DGX).
 
 ## Build from source
 
