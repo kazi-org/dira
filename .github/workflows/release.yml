@@ -1,6 +1,7 @@
 # release.yml — E0-L4's live half: a pushed tag becomes a GitHub Release
-# carrying a darwin-arm64 archive, a linux-amd64 archive and a checksums
-# file (docs/plan/lanes/E0.md's acc: line for E0-L4).
+# carrying a darwin-arm64 archive, a linux-amd64 archive, a linux-arm64
+# archive and a checksums file (docs/plan/lanes/E0.md's acc: line for E0-L4;
+# linux-arm64 added founder decision 2026-08-17 for the DGX).
 #
 # Every `uses:` is pinned to a 40-character commit SHA, the same convention
 # ci.yml already established — see that file's header for why. The pins
@@ -15,11 +16,11 @@
 #
 # The smoke test runs BEFORE the publish step, on a native Apple-Silicon
 # runner (macos-14 — macos-13 is Intel and cannot execute a darwin-arm64
-# binary). CGO_ENABLED=0 makes cross-COMPILING both targets from one runner
-# free; it does not make cross-EXECUTING them free, so only the darwin-arm64
-# binary can be smoke-tested here, and it must be, before anything is
-# published — a Release with a broken version stamp is worse than no
-# Release, and this step is what stands between the two.
+# binary). CGO_ENABLED=0 makes cross-COMPILING all three targets from one
+# runner free; it does not make cross-EXECUTING them free, so only the
+# darwin-arm64 binary can be smoke-tested here, and it must be, before
+# anything is published — a Release with a broken version stamp is worse than
+# no Release, and this step is what stands between the two.
 #
 # `permissions:` is scoped to the one job that needs to write — contents:
 # write to create the Release — matching E0-L3's own risk note about a
@@ -112,8 +113,8 @@ jobs:
       - name: goreleaser check
         run: go run github.com/goreleaser/goreleaser/v2@${GORELEASER_VERSION} check -f .goreleaser.yaml
 
-      # Builds both targets, archives them, writes checksums.txt, creates the
-      # GitHub Release for the tag resolved above, and uploads all three
+      # Builds all three targets, archives them, writes checksums.txt, creates
+      # the GitHub Release for the tag resolved above, and uploads all four
       # assets to it. This is the step that creates/uploads the Release —
       # internal/relwf's structural test asserts it comes after the smoke
       # test step above by array index, not by string search.
