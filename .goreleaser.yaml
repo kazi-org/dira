@@ -1,14 +1,17 @@
 # .goreleaser.yaml — E0-L4's release pipeline.
 #
-# Three targets, one build entry per target: darwin/arm64 (int-0002's primary
-# user platform), linux/amd64, and linux/arm64 (founder decision 2026-08-17:
-# the DGX — NVIDIA GB10, aarch64 — is one of the three install targets).
-# CGO_ENABLED=0 on all three, matching go.mod's own choice of
-# modernc.org/sqlite (pure Go) over mattn/go-sqlite3 — this file states a
-# constraint the module graph already made true, rather than introducing one.
-# Separate build stanzas per target, rather than one stanza with a goos/goarch
-# matrix and an ignore list, so the target set is exactly what is written here
-# and not the product of a matrix minus exclusions.
+# Four targets, one build entry per target: darwin/arm64 (int-0002's primary
+# user platform), darwin/amd64 (v0.1.0's first real `brew install` failed with
+# "bad CPU type in executable" on the founder's own Intel MacBook — this repo
+# shipped no Intel mac build at all until that report), linux/amd64, and
+# linux/arm64 (founder decision 2026-08-17: the DGX — NVIDIA GB10, aarch64 —
+# is one of the install targets). CGO_ENABLED=0 on all four, matching
+# go.mod's own choice of modernc.org/sqlite (pure Go) over mattn/go-sqlite3 —
+# this file states a constraint the module graph already made true, rather
+# than introducing one. Separate build stanzas per target, rather than one
+# stanza with a goos/goarch matrix and an ignore list, so the target set is
+# exactly what is written here and not the product of a matrix minus
+# exclusions.
 #
 # ldflags points at cmd/dira/build_test.go's TestVersionIsSetByLdflags, the
 # exact mechanism this pipeline depends on: `-X main.version=...` on the
@@ -34,6 +37,18 @@ builds:
       - darwin
     goarch:
       - arm64
+    ldflags:
+      - -X main.version={{.Version}}
+
+  - id: dira-darwin-amd64
+    main: ./cmd/dira
+    binary: dira
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
     ldflags:
       - -X main.version={{.Version}}
 
@@ -65,6 +80,7 @@ archives:
   - id: dira
     ids:
       - dira-darwin-arm64
+      - dira-darwin-amd64
       - dira-linux-amd64
       - dira-linux-arm64
     formats: [tar.gz]

@@ -107,15 +107,16 @@ func parseGoreleaserConfig(t *testing.T, raw []byte) goreleaserConfig {
 	return cfg
 }
 
-// validateThreeTargets returns an error unless cfg declares exactly three
+// validateFourTargets returns an error unless cfg declares exactly four
 // builds entries whose (goos, goarch) pairs are (darwin, arm64),
-// (linux, amd64) and (linux, arm64), and no others.
-func validateThreeTargets(cfg goreleaserConfig) error {
-	if len(cfg.Builds) != 3 {
-		return errf("expected exactly 3 builds entries, got %d", len(cfg.Builds))
+// (darwin, amd64), (linux, amd64) and (linux, arm64), and no others.
+func validateFourTargets(cfg goreleaserConfig) error {
+	if len(cfg.Builds) != 4 {
+		return errf("expected exactly 4 builds entries, got %d", len(cfg.Builds))
 	}
 	want := map[[2]string]bool{
 		{"darwin", "arm64"}: false,
+		{"darwin", "amd64"}: false,
 		{"linux", "amd64"}:  false,
 		{"linux", "arm64"}:  false,
 	}
@@ -175,25 +176,25 @@ func TestGoreleaserConfig(t *testing.T) {
 		}
 	})
 
-	t.Run("exactly three build targets: darwin/arm64, linux/amd64 and linux/arm64", func(t *testing.T) {
-		if err := validateThreeTargets(cfg); err != nil {
+	t.Run("exactly four build targets: darwin/arm64, darwin/amd64, linux/amd64 and linux/arm64", func(t *testing.T) {
+		if err := validateFourTargets(cfg); err != nil {
 			t.Error(err)
 		}
 	})
 
-	t.Run("both sides: three-target assertion fails on a copy with fewer builds entries", func(t *testing.T) {
+	t.Run("both sides: four-target assertion fails on a copy with fewer builds entries", func(t *testing.T) {
 		// This copy is schema-valid (goreleaser check alone would accept a
-		// two-target config), so it exercises this test's own count check
+		// three-target config), so it exercises this test's own count check
 		// specifically, not goreleaser's.
-		fewerTargets := goreleaserConfig{Builds: cfg.Builds[:2]}
-		if err := validateThreeTargets(fewerTargets); err == nil {
-			t.Fatal("expected validateThreeTargets to reject a config with only two builds entries, got nil")
+		fewerTargets := goreleaserConfig{Builds: cfg.Builds[:3]}
+		if err := validateFourTargets(fewerTargets); err == nil {
+			t.Fatal("expected validateFourTargets to reject a config with only three builds entries, got nil")
 		}
-		// And the real, three-target config must still pass — proven in the
+		// And the real, four-target config must still pass — proven in the
 		// same run so this negative case is checked against a positive
 		// baseline, not in isolation.
-		if err := validateThreeTargets(cfg); err != nil {
-			t.Fatalf("validateThreeTargets rejected the real three-target config: %v", err)
+		if err := validateFourTargets(cfg); err != nil {
+			t.Fatalf("validateFourTargets rejected the real four-target config: %v", err)
 		}
 	})
 
