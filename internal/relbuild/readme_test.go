@@ -59,10 +59,10 @@ func assetNamePattern(goos, goarch string) *regexp.Regexp {
 
 // realArchiveNames runs goreleaser's full snapshot pipeline (build, archive,
 // checksum — `build` alone, which E0-L4-T2 uses, never reaches the archive
-// step) into an isolated temp dist/ and returns the three archive basenames it
+// step) into an isolated temp dist/ and returns the four archive basenames it
 // wrote, located by walking rather than a hardcoded path, same as
 // snapshot_test.go's own binaries.
-func realArchiveNames(t *testing.T, root, cfgPath string) (darwin, linuxAmd64, linuxArm64 string) {
+func realArchiveNames(t *testing.T, root, cfgPath string) (darwinArm64, darwinAmd64, linuxAmd64, linuxArm64 string) {
 	t.Helper()
 	dist := t.TempDir()
 	mutatedCfg := configWithDist(t, cfgPath, dist)
@@ -71,7 +71,8 @@ func realArchiveNames(t *testing.T, root, cfgPath string) (darwin, linuxAmd64, l
 		t.Fatalf("goreleaser release --snapshot --clean: %v\n%s", err, out)
 	}
 
-	darwinRe := assetNamePattern("darwin", "arm64")
+	darwinArm64Re := assetNamePattern("darwin", "arm64")
+	darwinAmd64Re := assetNamePattern("darwin", "amd64")
 	linuxAmd64Re := assetNamePattern("linux", "amd64")
 	linuxArm64Re := assetNamePattern("linux", "arm64")
 
@@ -81,18 +82,20 @@ func realArchiveNames(t *testing.T, root, cfgPath string) (darwin, linuxAmd64, l
 	}
 	for _, e := range entries {
 		switch {
-		case darwinRe.MatchString(e.Name()):
-			darwin = e.Name()
+		case darwinArm64Re.MatchString(e.Name()):
+			darwinArm64 = e.Name()
+		case darwinAmd64Re.MatchString(e.Name()):
+			darwinAmd64 = e.Name()
 		case linuxAmd64Re.MatchString(e.Name()):
 			linuxAmd64 = e.Name()
 		case linuxArm64Re.MatchString(e.Name()):
 			linuxArm64 = e.Name()
 		}
 	}
-	if darwin == "" || linuxAmd64 == "" || linuxArm64 == "" {
-		t.Fatalf("did not find all three archive names under %s (darwin=%q, linux_amd64=%q, linux_arm64=%q); entries: %v", dist, darwin, linuxAmd64, linuxArm64, entries)
+	if darwinArm64 == "" || darwinAmd64 == "" || linuxAmd64 == "" || linuxArm64 == "" {
+		t.Fatalf("did not find all four archive names under %s (darwin_arm64=%q, darwin_amd64=%q, linux_amd64=%q, linux_arm64=%q); entries: %v", dist, darwinArm64, darwinAmd64, linuxAmd64, linuxArm64, entries)
 	}
-	return darwin, linuxAmd64, linuxArm64
+	return darwinArm64, darwinAmd64, linuxAmd64, linuxArm64
 }
 
 // TestReadmeMatchesArchiveNaming is E0-L4-T5's acceptance line.
@@ -103,8 +106,8 @@ func TestReadmeMatchesArchiveNaming(t *testing.T) {
 	root := moduleRoot(t)
 	cfgPath := filepath.Join(root, ".goreleaser.yaml")
 
-	darwinName, linuxAmd64Name, linuxArm64Name := realArchiveNames(t, root, cfgPath)
-	t.Logf("real snapshot archive names: darwin=%s linux_amd64=%s linux_arm64=%s", darwinName, linuxAmd64Name, linuxArm64Name)
+	darwinArm64Name, darwinAmd64Name, linuxAmd64Name, linuxArm64Name := realArchiveNames(t, root, cfgPath)
+	t.Logf("real snapshot archive names: darwin_arm64=%s darwin_amd64=%s linux_amd64=%s linux_arm64=%s", darwinArm64Name, darwinAmd64Name, linuxAmd64Name, linuxArm64Name)
 
 	readme, err := os.ReadFile(filepath.Join(root, "README.md"))
 	if err != nil {
@@ -112,7 +115,7 @@ func TestReadmeMatchesArchiveNaming(t *testing.T) {
 	}
 
 	t.Run("the real archive names match the shared naming pattern", func(t *testing.T) {
-		if err := validateArchiveNaming(darwinName, linuxAmd64Name, linuxArm64Name); err != nil {
+		if err := validateArchiveNaming(darwinArm64Name, darwinAmd64Name, linuxAmd64Name, linuxArm64Name); err != nil {
 			t.Fatalf("the actual snapshot archive names do not match this test's own pattern: %v", err)
 		}
 	})
@@ -142,9 +145,12 @@ func TestReadmeMatchesArchiveNaming(t *testing.T) {
 	})
 }
 
-func validateArchiveNaming(darwinName, linuxAmd64Name, linuxArm64Name string) error {
-	if !assetNamePattern("darwin", "arm64").MatchString(darwinName) {
-		return errf("darwin archive name %q does not match the expected pattern", darwinName)
+func validateArchiveNaming(darwinArm64Name, darwinAmd64Name, linuxAmd64Name, linuxArm64Name string) error {
+	if !assetNamePattern("darwin", "arm64").MatchString(darwinArm64Name) {
+		return errf("darwin/arm64 archive name %q does not match the expected pattern", darwinArm64Name)
+	}
+	if !assetNamePattern("darwin", "amd64").MatchString(darwinAmd64Name) {
+		return errf("darwin/amd64 archive name %q does not match the expected pattern", darwinAmd64Name)
 	}
 	if !assetNamePattern("linux", "amd64").MatchString(linuxAmd64Name) {
 		return errf("linux/amd64 archive name %q does not match the expected pattern", linuxAmd64Name)
@@ -158,6 +164,9 @@ func validateArchiveNaming(darwinName, linuxAmd64Name, linuxArm64Name string) er
 func validateReadmeAssetNaming(readme string) error {
 	if !assetNamePattern("darwin", "arm64").MatchString(readme) {
 		return errf("README.md has no darwin/arm64 asset filename matching the goreleaser naming pattern (dira_<version>_darwin_arm64.tar.gz)")
+	}
+	if !assetNamePattern("darwin", "amd64").MatchString(readme) {
+		return errf("README.md has no darwin/amd64 asset filename matching the goreleaser naming pattern (dira_<version>_darwin_amd64.tar.gz)")
 	}
 	if !assetNamePattern("linux", "amd64").MatchString(readme) {
 		return errf("README.md has no linux/amd64 asset filename matching the goreleaser naming pattern (dira_<version>_linux_amd64.tar.gz)")
