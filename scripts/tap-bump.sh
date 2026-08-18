@@ -15,6 +15,7 @@
 #   HOMEBREW_TAP_TOKEN=<pat> scripts/tap-bump.sh \
 #     --version <version> \
 #     --darwin-arm64-url <url> --darwin-arm64-sha256 <sha256> \
+#     --darwin-amd64-url <url> --darwin-amd64-sha256 <sha256> \
 #     --linux-amd64-url  <url> --linux-amd64-sha256  <sha256> \
 #     --remote <git-remote-url-or-path>
 #
@@ -26,8 +27,10 @@
 set -euo pipefail
 
 version=""
-darwin_url=""
-darwin_sha256=""
+darwin_arm64_url=""
+darwin_arm64_sha256=""
+darwin_amd64_url=""
+darwin_amd64_sha256=""
 linux_url=""
 linux_sha256=""
 remote=""
@@ -35,8 +38,10 @@ remote=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --version) version="$2"; shift 2 ;;
-    --darwin-arm64-url) darwin_url="$2"; shift 2 ;;
-    --darwin-arm64-sha256) darwin_sha256="$2"; shift 2 ;;
+    --darwin-arm64-url) darwin_arm64_url="$2"; shift 2 ;;
+    --darwin-arm64-sha256) darwin_arm64_sha256="$2"; shift 2 ;;
+    --darwin-amd64-url) darwin_amd64_url="$2"; shift 2 ;;
+    --darwin-amd64-sha256) darwin_amd64_sha256="$2"; shift 2 ;;
     --linux-amd64-url) linux_url="$2"; shift 2 ;;
     --linux-amd64-sha256) linux_sha256="$2"; shift 2 ;;
     --remote) remote="$2"; shift 2 ;;
@@ -44,7 +49,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-for pair in "version:$version" "darwin-arm64-url:$darwin_url" "darwin-arm64-sha256:$darwin_sha256" \
+for pair in "version:$version" "darwin-arm64-url:$darwin_arm64_url" "darwin-arm64-sha256:$darwin_arm64_sha256" \
+            "darwin-amd64-url:$darwin_amd64_url" "darwin-amd64-sha256:$darwin_amd64_sha256" \
             "linux-amd64-url:$linux_url" "linux-amd64-sha256:$linux_sha256" "remote:$remote"; do
   name="${pair%%:*}"
   val="${pair#*:}"
@@ -78,7 +84,8 @@ git clone --quiet "$remote" "$workdir/tap"
 
 formula="$(cd "$repo_root" && go run ./internal/tapformula/gen \
   --version "$version" \
-  --darwin-arm64-url "$darwin_url" --darwin-arm64-sha256 "$darwin_sha256" \
+  --darwin-arm64-url "$darwin_arm64_url" --darwin-arm64-sha256 "$darwin_arm64_sha256" \
+  --darwin-amd64-url "$darwin_amd64_url" --darwin-amd64-sha256 "$darwin_amd64_sha256" \
   --linux-amd64-url "$linux_url" --linux-amd64-sha256 "$linux_sha256")"
 
 mkdir -p "$workdir/tap/Formula"

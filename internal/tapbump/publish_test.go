@@ -126,25 +126,29 @@ func newFixtureTap(t *testing.T) (bareRepo string, kaziBytes []byte) {
 // fixtureInputs is the version and per-target url/sha256 pair every test in
 // this file publishes with, unless it says otherwise.
 type fixtureInputs struct {
-	version                 string
-	darwinURL, darwinSHA256 string
-	linuxURL, linuxSHA256   string
+	version                           string
+	darwinArm64URL, darwinArm64SHA256 string
+	darwinAmd64URL, darwinAmd64SHA256 string
+	linuxURL, linuxSHA256             string
 }
 
 func defaultFixtureInputs() fixtureInputs {
 	return fixtureInputs{
-		version:      "1.2.3",
-		darwinURL:    "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_darwin_arm64.tar.gz",
-		darwinSHA256: "1111111111111111111111111111111111111111111111111111111111111111",
-		linuxURL:     "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_linux_amd64.tar.gz",
-		linuxSHA256:  "2222222222222222222222222222222222222222222222222222222222222222",
+		version:           "1.2.3",
+		darwinArm64URL:    "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_darwin_arm64.tar.gz",
+		darwinArm64SHA256: "1111111111111111111111111111111111111111111111111111111111111111",
+		darwinAmd64URL:    "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_darwin_amd64.tar.gz",
+		darwinAmd64SHA256: "3333333333333333333333333333333333333333333333333333333333333333",
+		linuxURL:          "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_linux_amd64.tar.gz",
+		linuxSHA256:       "2222222222222222222222222222222222222222222222222222222222222222",
 	}
 }
 
 func (in fixtureInputs) args(remote string) []string {
 	return []string{
 		"--version", in.version,
-		"--darwin-arm64-url", in.darwinURL, "--darwin-arm64-sha256", in.darwinSHA256,
+		"--darwin-arm64-url", in.darwinArm64URL, "--darwin-arm64-sha256", in.darwinArm64SHA256,
+		"--darwin-amd64-url", in.darwinAmd64URL, "--darwin-amd64-sha256", in.darwinAmd64SHA256,
 		"--linux-amd64-url", in.linuxURL, "--linux-amd64-sha256", in.linuxSHA256,
 		"--remote", remote,
 	}
@@ -157,7 +161,8 @@ func generatorOutput(t *testing.T, in fixtureInputs) []byte {
 	t.Helper()
 	cmd := exec.Command(goTool(t), "run", "./internal/tapformula/gen",
 		"--version", in.version,
-		"--darwin-arm64-url", in.darwinURL, "--darwin-arm64-sha256", in.darwinSHA256,
+		"--darwin-arm64-url", in.darwinArm64URL, "--darwin-arm64-sha256", in.darwinArm64SHA256,
+		"--darwin-amd64-url", in.darwinAmd64URL, "--darwin-amd64-sha256", in.darwinAmd64SHA256,
 		"--linux-amd64-url", in.linuxURL, "--linux-amd64-sha256", in.linuxSHA256,
 	)
 	cmd.Dir = moduleRoot(t)
