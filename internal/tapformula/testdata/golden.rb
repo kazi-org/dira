@@ -6,13 +6,21 @@ class Dira < Formula
   license "Apache-2.0"
 
   on_macos do
-    url "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_darwin_arm64.tar.gz"
-    sha256 "1111111111111111111111111111111111111111111111111111111111111111"
+    on_arm do
+      url "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_darwin_arm64.tar.gz"
+      sha256 "1111111111111111111111111111111111111111111111111111111111111111"
+    end
+    on_intel do
+      url "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_darwin_amd64.tar.gz"
+      sha256 "3333333333333333333333333333333333333333333333333333333333333333"
+    end
   end
 
   on_linux do
-    url "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_linux_amd64.tar.gz"
-    sha256 "2222222222222222222222222222222222222222222222222222222222222222"
+    on_intel do
+      url "https://github.com/kazi-org/dira/releases/download/v1.2.3/dira_linux_amd64.tar.gz"
+      sha256 "2222222222222222222222222222222222222222222222222222222222222222"
+    end
   end
 
   def install

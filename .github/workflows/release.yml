@@ -1,7 +1,10 @@
 # release.yml — E0-L4's live half: a pushed tag becomes a GitHub Release
-# carrying a darwin-arm64 archive, a linux-amd64 archive, a linux-arm64
-# archive and a checksums file (docs/plan/lanes/E0.md's acc: line for E0-L4;
-# linux-arm64 added founder decision 2026-08-17 for the DGX).
+# carrying a darwin-arm64 archive, a darwin-amd64 archive, a linux-amd64
+# archive, a linux-arm64 archive and a checksums file (docs/plan/lanes/E0.md's
+# acc: line for E0-L4; linux-arm64 added founder decision 2026-08-17 for the
+# DGX; darwin-amd64 added after v0.1.0's first real `brew install` failed
+# with "bad CPU type in executable" on the founder's own Intel MacBook —
+# this repo had shipped no Intel mac build at all).
 #
 # Every `uses:` is pinned to a 40-character commit SHA, the same convention
 # ci.yml already established — see that file's header for why. The pins
@@ -16,7 +19,7 @@
 #
 # The smoke test runs BEFORE the publish step, on a native Apple-Silicon
 # runner (macos-14 — macos-13 is Intel and cannot execute a darwin-arm64
-# binary). CGO_ENABLED=0 makes cross-COMPILING all three targets from one
+# binary). CGO_ENABLED=0 makes cross-COMPILING all four targets from one
 # runner free; it does not make cross-EXECUTING them free, so only the
 # darwin-arm64 binary can be smoke-tested here, and it must be, before
 # anything is published — a Release with a broken version stamp is worse than
@@ -113,8 +116,8 @@ jobs:
       - name: goreleaser check
         run: go run github.com/goreleaser/goreleaser/v2@${GORELEASER_VERSION} check -f .goreleaser.yaml
 
-      # Builds all three targets, archives them, writes checksums.txt, creates
-      # the GitHub Release for the tag resolved above, and uploads all four
+      # Builds all four targets, archives them, writes checksums.txt, creates
+      # the GitHub Release for the tag resolved above, and uploads all five
       # assets to it. This is the step that creates/uploads the Release —
       # internal/relwf's structural test asserts it comes after the smoke
       # test step above by array index, not by string search.
@@ -158,16 +161,29 @@ jobs:
           version="${RELEASE_TAG#v}"
           base="https://github.com/kazi-org/dira/releases/download/${RELEASE_TAG}"
           checksums="$(curl -fsSL "${base}/checksums.txt")"
-          darwin_line="$(printf '%s\n' "${checksums}" | grep 'darwin_arm64')"
-          linux_line="$(printf '%s\n' "${checksums}" | grep 'linux_amd64')"
-          darwin_sha="$(printf '%s\n' "${darwin_line}" | awk '{print $1}')"
-          darwin_asset="$(printf '%s\n' "${darwin_line}" | awk '{print $2}')"
+          # Anchored on the full asset filename (leading underscore through
+          # the trailing extension) so darwin_arm64 and darwin_amd64 -- which
+          # differ by exactly the arch token -- cannot cross-match each
+          # other's line, and so a filename that only happens to contain one
+          # of these tokens as a substring elsewhere in the line can't match
+          # either. linux/arm64 (the DGX) is deliberately not extracted here:
+          # brew never serves it, and the formula names only the archives it
+          # pins.
+          darwin_arm64_line="$(printf '%s\n' "${checksums}" | grep -E '_darwin_arm64\.tar\.gz$')"
+          darwin_amd64_line="$(printf '%s\n' "${checksums}" | grep -E '_darwin_amd64\.tar\.gz$')"
+          linux_line="$(printf '%s\n' "${checksums}" | grep -E '_linux_amd64\.tar\.gz$')"
+          darwin_arm64_sha="$(printf '%s\n' "${darwin_arm64_line}" | awk '{print $1}')"
+          darwin_arm64_asset="$(printf '%s\n' "${darwin_arm64_line}" | awk '{print $2}')"
+          darwin_amd64_sha="$(printf '%s\n' "${darwin_amd64_line}" | awk '{print $1}')"
+          darwin_amd64_asset="$(printf '%s\n' "${darwin_amd64_line}" | awk '{print $2}')"
           linux_sha="$(printf '%s\n' "${linux_line}" | awk '{print $1}')"
           linux_asset="$(printf '%s\n' "${linux_line}" | awk '{print $2}')"
           scripts/tap-bump.sh \
             --version "${version}" \
-            --darwin-arm64-url "${base}/${darwin_asset}" \
-            --darwin-arm64-sha256 "${darwin_sha}" \
+            --darwin-arm64-url "${base}/${darwin_arm64_asset}" \
+            --darwin-arm64-sha256 "${darwin_arm64_sha}" \
+            --darwin-amd64-url "${base}/${darwin_amd64_asset}" \
+            --darwin-amd64-sha256 "${darwin_amd64_sha}" \
             --linux-amd64-url "${base}/${linux_asset}" \
             --linux-amd64-sha256 "${linux_sha}" \
             --remote "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/kazi-org/homebrew-tap.git"

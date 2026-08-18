@@ -1,5 +1,5 @@
 // Command gen is tapformula's thin invocation surface: it takes the same
-// five fields Generate needs as flags and prints the rendered formula bytes
+// seven fields Generate needs as flags and prints the rendered formula bytes
 // to stdout. scripts/tap-bump.sh runs it via `go run` rather than
 // re-implementing formula rendering in shell (docs/plan/tasks/E0-L5.md's
 // E0-L5-T2 note: "the generator package decides its own invocation
@@ -25,8 +25,10 @@ import (
 
 func main() {
 	version := flag.String("version", "", "formula version, no leading v")
-	darwinURL := flag.String("darwin-arm64-url", "", "darwin/arm64 archive URL")
-	darwinSHA256 := flag.String("darwin-arm64-sha256", "", "darwin/arm64 archive sha256")
+	darwinArm64URL := flag.String("darwin-arm64-url", "", "darwin/arm64 archive URL")
+	darwinArm64SHA256 := flag.String("darwin-arm64-sha256", "", "darwin/arm64 archive sha256")
+	darwinAmd64URL := flag.String("darwin-amd64-url", "", "darwin/amd64 archive URL")
+	darwinAmd64SHA256 := flag.String("darwin-amd64-sha256", "", "darwin/amd64 archive sha256")
 	linuxURL := flag.String("linux-amd64-url", "", "linux/amd64 archive URL")
 	linuxSHA256 := flag.String("linux-amd64-sha256", "", "linux/amd64 archive sha256")
 	flag.Parse()
@@ -34,8 +36,12 @@ func main() {
 	out, err := tapformula.Generate(tapformula.Input{
 		Version: *version,
 		DarwinArm64: tapformula.Target{
-			URL:    *darwinURL,
-			SHA256: *darwinSHA256,
+			URL:    *darwinArm64URL,
+			SHA256: *darwinArm64SHA256,
+		},
+		DarwinAmd64: tapformula.Target{
+			URL:    *darwinAmd64URL,
+			SHA256: *darwinAmd64SHA256,
 		},
 		LinuxAmd64: tapformula.Target{
 			URL:    *linuxURL,
