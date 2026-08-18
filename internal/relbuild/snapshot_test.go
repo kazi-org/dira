@@ -115,30 +115,38 @@ func TestSnapshotBuildProducesBothTargets(t *testing.T) {
 	bins := buildInfoBinaries(t, goBin, distDir)
 
 	darwinBin := binaryFor(t, bins, "darwin", "arm64")
-	linuxBin := binaryFor(t, bins, "linux", "amd64")
+	linuxAmd64Bin := binaryFor(t, bins, "linux", "amd64")
+	linuxArm64Bin := binaryFor(t, bins, "linux", "arm64")
 
-	t.Run("CGO_ENABLED=0 is baked into both binaries", func(t *testing.T) {
+	t.Run("CGO_ENABLED=0 is baked into all three binaries", func(t *testing.T) {
 		if darwinBin.CGOEnabled != "0" {
 			t.Errorf("darwin/arm64 binary %s: CGO_ENABLED=%q, want \"0\"", darwinBin.Path, darwinBin.CGOEnabled)
 		}
-		if linuxBin.CGOEnabled != "0" {
-			t.Errorf("linux/amd64 binary %s: CGO_ENABLED=%q, want \"0\"", linuxBin.Path, linuxBin.CGOEnabled)
+		if linuxAmd64Bin.CGOEnabled != "0" {
+			t.Errorf("linux/amd64 binary %s: CGO_ENABLED=%q, want \"0\"", linuxAmd64Bin.Path, linuxAmd64Bin.CGOEnabled)
+		}
+		if linuxArm64Bin.CGOEnabled != "0" {
+			t.Errorf("linux/arm64 binary %s: CGO_ENABLED=%q, want \"0\"", linuxArm64Bin.Path, linuxArm64Bin.CGOEnabled)
 		}
 	})
 
-	t.Run("idempotent: deleting dist/ and rebuilding produces the same two-file set", func(t *testing.T) {
+	t.Run("idempotent: deleting dist/ and rebuilding produces the same three-file set", func(t *testing.T) {
 		if err := os.RemoveAll(distDir); err != nil {
 			t.Fatalf("removing dist/: %v", err)
 		}
 		runSnapshotBuild(t, root, cfgPath)
 		rebuilt := buildInfoBinaries(t, goBin, distDir)
 		darwinAgain := binaryFor(t, rebuilt, "darwin", "arm64")
-		linuxAgain := binaryFor(t, rebuilt, "linux", "amd64")
+		linuxAmd64Again := binaryFor(t, rebuilt, "linux", "amd64")
+		linuxArm64Again := binaryFor(t, rebuilt, "linux", "arm64")
 		if filepath.Base(darwinAgain.Path) != filepath.Base(darwinBin.Path) {
 			t.Errorf("darwin/arm64 binary filename changed across a clean rebuild: %q vs %q", darwinBin.Path, darwinAgain.Path)
 		}
-		if filepath.Base(linuxAgain.Path) != filepath.Base(linuxBin.Path) {
-			t.Errorf("linux/amd64 binary filename changed across a clean rebuild: %q vs %q", linuxBin.Path, linuxAgain.Path)
+		if filepath.Base(linuxAmd64Again.Path) != filepath.Base(linuxAmd64Bin.Path) {
+			t.Errorf("linux/amd64 binary filename changed across a clean rebuild: %q vs %q", linuxAmd64Bin.Path, linuxAmd64Again.Path)
+		}
+		if filepath.Base(linuxArm64Again.Path) != filepath.Base(linuxArm64Bin.Path) {
+			t.Errorf("linux/arm64 binary filename changed across a clean rebuild: %q vs %q", linuxArm64Bin.Path, linuxArm64Again.Path)
 		}
 	})
 
@@ -148,12 +156,16 @@ func TestSnapshotBuildProducesBothTargets(t *testing.T) {
 		runSnapshotBuild(t, root, mutatedCfgPath)
 		mutatedBins := buildInfoBinaries(t, goBin, mutatedDist)
 		mutatedDarwin := binaryFor(t, mutatedBins, "darwin", "arm64")
-		mutatedLinux := binaryFor(t, mutatedBins, "linux", "amd64")
+		mutatedLinuxAmd64 := binaryFor(t, mutatedBins, "linux", "amd64")
+		mutatedLinuxArm64 := binaryFor(t, mutatedBins, "linux", "arm64")
 		if mutatedDarwin.CGOEnabled == "0" {
 			t.Fatalf("expected the mutated config's darwin/arm64 binary to NOT report CGO_ENABLED=0 (config set it to 1), got %q — the assertion cannot fail", mutatedDarwin.CGOEnabled)
 		}
-		if mutatedLinux.CGOEnabled != "0" {
-			t.Errorf("mutated config's linux/amd64 binary: CGO_ENABLED=%q, want \"0\" (only darwin's build was mutated)", mutatedLinux.CGOEnabled)
+		if mutatedLinuxAmd64.CGOEnabled != "0" {
+			t.Errorf("mutated config's linux/amd64 binary: CGO_ENABLED=%q, want \"0\" (only darwin's build was mutated)", mutatedLinuxAmd64.CGOEnabled)
+		}
+		if mutatedLinuxArm64.CGOEnabled != "0" {
+			t.Errorf("mutated config's linux/arm64 binary: CGO_ENABLED=%q, want \"0\" (only darwin's build was mutated)", mutatedLinuxArm64.CGOEnabled)
 		}
 	})
 }
