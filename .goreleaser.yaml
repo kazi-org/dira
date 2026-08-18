@@ -1,12 +1,14 @@
 # .goreleaser.yaml — E0-L4's release pipeline.
 #
-# Two targets, one build entry per target: darwin/arm64 (int-0002's primary
-# user platform) and linux/amd64. CGO_ENABLED=0 on both, matching go.mod's
-# own choice of modernc.org/sqlite (pure Go) over mattn/go-sqlite3 — this
-# file states a constraint the module graph already made true, rather than
-# introducing one. Two separate build stanzas, rather than one stanza with a
-# goos/goarch matrix and an ignore list, so the target set is exactly what is
-# written here and not the product of a matrix minus exclusions.
+# Three targets, one build entry per target: darwin/arm64 (int-0002's primary
+# user platform), linux/amd64, and linux/arm64 (founder decision 2026-08-17:
+# the DGX — NVIDIA GB10, aarch64 — is one of the three install targets).
+# CGO_ENABLED=0 on all three, matching go.mod's own choice of
+# modernc.org/sqlite (pure Go) over mattn/go-sqlite3 — this file states a
+# constraint the module graph already made true, rather than introducing one.
+# Separate build stanzas per target, rather than one stanza with a goos/goarch
+# matrix and an ignore list, so the target set is exactly what is written here
+# and not the product of a matrix minus exclusions.
 #
 # ldflags points at cmd/dira/build_test.go's TestVersionIsSetByLdflags, the
 # exact mechanism this pipeline depends on: `-X main.version=...` on the
@@ -47,11 +49,24 @@ builds:
     ldflags:
       - -X main.version={{.Version}}
 
+  - id: dira-linux-arm64
+    main: ./cmd/dira
+    binary: dira
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - arm64
+    ldflags:
+      - -X main.version={{.Version}}
+
 archives:
   - id: dira
     ids:
       - dira-darwin-arm64
       - dira-linux-amd64
+      - dira-linux-arm64
     formats: [tar.gz]
     files:
       - LICENSE*
