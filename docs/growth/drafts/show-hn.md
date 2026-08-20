@@ -89,8 +89,8 @@ itself.
   a per-seat team tier is planned but not built (`dec-0007`). If you need shared review
   queues or an org dashboard today, dira isn't that yet.
 
-Repo: https://github.com/kazi-org/dira — Apache 2.0, `go build ./cmd/dira` and go, no
-`brew install` yet. Happy to answer anything.
+Repo: https://github.com/kazi-org/dira — Apache 2.0, `brew install kazi-org/tap/dira`
+(or `go build ./cmd/dira` from source). Happy to answer anything.
 
 <!-- honest-limits:start -->
 This buys compounding organic distribution, not virality — there's no invite mechanic,

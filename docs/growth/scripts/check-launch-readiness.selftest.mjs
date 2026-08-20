@@ -13,12 +13,15 @@
 //   2. The channel-orphan gate: a fixture launch.md naming a channel absent from
 //      experiments.md flips that gate to a named failure, before the real files are
 //      shown to pass.
-//   3. The aggregate-level two-sided proof T7's own acc demands: with no dira on
-//      PATH (today's real state), the checker exits 1, first line naming the binary
-//      gate. With a stub dira added to PATH -- nothing else in the repo touched -- it
+//   3. The aggregate-level two-sided proof T7's own acc demands: with PATH pointed at
+//      an empty directory (forcing "no dira found" regardless of what is actually
+//      installed on the machine running this test -- dira is a real, released
+//      brew-installable binary now, so the host's own PATH can no longer be trusted to
+//      exercise the red case), the checker exits 1, first line naming the binary gate.
+//      With a stub dira added to PATH instead -- nothing else in the repo touched -- it
 //      exits 0, printing every gate as passed or honestly skipped in order. This
-//      proves the checker is not structurally stuck red regardless of what else is
-//      true.
+//      proves the checker is not structurally stuck red or green regardless of what
+//      else is true.
 //
 // Usage: node check-launch-readiness.selftest.mjs
 
@@ -104,20 +107,31 @@ const BAD_LAUNCH_MD = `## Phase 0
 // --- 4. the aggregate checker itself, red then green --------------------------------
 
 {
-  const redRun = spawnSync(process.execPath, [SCRIPT_PATH], { encoding: 'utf8' });
-  const redFirstLine = redRun.stdout.split('\n')[0];
-  const redOk =
-    redRun.status === 1 && redFirstLine === 'FAIL: no dira binary found on PATH — E0–E3 have not shipped';
-  report('aggregate checker: RED today (no dira on PATH), exit 1, exact first line', redOk, redFirstLine);
-
-  const tmpDir = mkdtempSync(join(tmpdir(), 'dira-stub-'));
-  const stubPath = join(tmpDir, 'dira');
+  const emptyDir = mkdtempSync(join(tmpdir(), 'dira-empty-path-'));
+  const stubDir = mkdtempSync(join(tmpdir(), 'dira-stub-'));
   try {
+    // Red case: PATH replaced entirely with an empty directory, so this gate is
+    // forced FAIL regardless of whether the machine actually running this selftest
+    // has a real dira installed (it does, once released -- brew or a from-source
+    // build both put one on the ambient PATH, which would otherwise silently flip
+    // this case green and stop proving anything).
+    const redRun = spawnSync(process.execPath, [SCRIPT_PATH], {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: emptyDir },
+    });
+    const redFirstLine = redRun.stdout.split('\n')[0];
+    const redOk =
+      redRun.status === 1 && redFirstLine === 'FAIL: no dira binary found on PATH — E0–E3 have not shipped';
+    report('aggregate checker: RED with PATH forced empty, exit 1, exact first line', redOk, redFirstLine);
+
+    // Green case: same forced-empty PATH, plus a stub dira prepended -- nothing else
+    // in the repo touched.
+    const stubPath = join(stubDir, 'dira');
     writeFileSync(stubPath, '#!/bin/sh\necho "stub dira -- selftest only, not a real build"\n');
     chmodSync(stubPath, 0o755);
     const greenRun = spawnSync(process.execPath, [SCRIPT_PATH], {
       encoding: 'utf8',
-      env: { ...process.env, PATH: `${tmpDir}${delimiter}${process.env.PATH ?? ''}` },
+      env: { ...process.env, PATH: `${stubDir}${delimiter}${emptyDir}` },
     });
     const firstLineIsPass = greenRun.stdout.split('\n')[0].startsWith('PASS:');
     report(
@@ -126,7 +140,8 @@ const BAD_LAUNCH_MD = `## Phase 0
       greenRun.stdout.split('\n').join(' | '),
     );
   } finally {
-    rmSync(tmpDir, { recursive: true, force: true });
+    rmSync(emptyDir, { recursive: true, force: true });
+    rmSync(stubDir, { recursive: true, force: true });
   }
 }
 

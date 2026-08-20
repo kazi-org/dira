@@ -66,7 +66,7 @@ see the whole go-to-market lane's shape in one place, not to duplicate it.
 | [E8-L3](plan/tasks/E8-L3.md) | Demo fixture, recording harnesses, positioning-doc checkers | @maintainer | #10 |
 | [E8-L4](plan/tasks/E8-L4.md) | Demo clips (`check.cast`, `init.cast`) and their probes | @maintainer | #19 |
 | [E8-L5](plan/tasks/E8-L5.md) | Draft frontmatter contract, marketplace/awesome-list/directory drafts, `check-drafts.mjs` | @maintainer | no PR yet |
-| [E8-L6](plan/tasks/E8-L6.md) | `launch.md`, Show HN/Reddit/X drafts, the pre-send accuracy gate, the launch-readiness checker | @maintainer | no PR yet |
+| [E8-L6](plan/tasks/E8-L6.md) | `launch.md`, Show HN/Reddit/X drafts, the pre-send accuracy gate, the launch-readiness checker | @maintainer | #20 |
 
 ---
 
