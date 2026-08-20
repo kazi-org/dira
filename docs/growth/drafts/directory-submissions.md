@@ -8,11 +8,11 @@ owner: E8-L5
 
 # Directory submissions — draft
 
-**Do not submit.** Every directory below is gated on `E0` shipping a real,
-installable binary — several of them explicitly require a live demo or a
-working install command, which dira does not have yet. Submitting a listing
-for software that does not exist is the exact failure this lane's absolute
-#3 forbids.
+**Do not submit yet.** `E0`'s gate is cleared — dira v0.1.1 is released,
+`brew install kazi-org/tap/dira` is a real, working install command. What
+still blocks submission is launch sequencing (`E8-L6`'s job, not this
+lane's): these are outward-facing posts, and posting them is a maintainer
+action gated on the launch decision, not on the binary existing.
 
 Selected using the `/distribution` skill's channel framework and the
 `directory-submissions` reference tiers — no new channel taxonomy invented.
@@ -23,11 +23,10 @@ dev-specific angle were cut.
 ## Explicitly excluded, named rather than silently dropped
 
 - **Product Hunt.** Per `/distribution`: PH rewards a live demo video,
-  screenshots, and warm-audience momentum in the first two hours — none of
-  which exist for a CLI with no binary, and PH's own algorithm penalizes
-  exactly the kind of pre-launch listing this would be. Wrong fit at this
-  stage; revisit only after `E0` ships and only alongside a real launch
-  sequence (`E8-L6`'s job, not this lane's).
+  screenshots, and warm-audience momentum in the first two hours. `E0` has
+  now shipped, but a PH launch is still a real launch event that needs its
+  own sequencing (`E8-L6`'s job, not this lane's) — not something to fire
+  off incidentally while fixing stale copy elsewhere.
 - **Show HN, Reddit, X/Bluesky.** These are `E8-L6`'s deliverables
   (`docs/growth/lanes/E8.md`), not this lane's — listing them here would
   duplicate ownership. Not omitted by oversight; out of scope by design.
@@ -38,15 +37,15 @@ dev-specific angle were cut.
   misrepresent what the product is. If that scope ever changes, this section
   should be revisited, not silently backfilled.
 
-## Directories worth the time, once E0 ships
+## Directories worth the time — E0's binary gate is now clear
 
 | Directory | DR (approx.) | Dofollow | Dev-audience fit | Gate |
 |---|---|---|---|---|
-| **DevHunt** | ~35 | Yes | Dev-tool-specific launch directory; best fit of the launch-style directories for a CLI. | E0 (needs a real install command to demo) |
-| **SourceForge** | 92 | Yes | Legacy but still high DR; trivial company/project listing, no demo required. | E0 (listing should link a real repo/release, not a plan) |
-| **Slashdot** | ~88 | Yes | Legacy high-DR, dev-heavy audience; company/project profile submission. | E0 |
-| **Stackshare** | ~60 | Yes | Dev-centric "what's in your stack" profile — fits a CLI tool better than a general SaaS directory. | E0 |
-| **GitHub topics** (not a directory, same spirit) | n/a | n/a | Free, immediate, zero submission process — just repo metadata. | **None** — this one needs no binary, only a public repo, which already exists. See note below. |
+| **DevHunt** | ~35 | Yes | Dev-tool-specific launch directory; best fit of the launch-style directories for a CLI. | Launch sequencing (`E8-L6`) |
+| **SourceForge** | 92 | Yes | Legacy but still high DR; trivial company/project listing, no demo required. | Launch sequencing (`E8-L6`) |
+| **Slashdot** | ~88 | Yes | Legacy high-DR, dev-heavy audience; company/project profile submission. | Launch sequencing (`E8-L6`) |
+| **Stackshare** | ~60 | Yes | Dev-centric "what's in your stack" profile — fits a CLI tool better than a general SaaS directory. | Launch sequencing (`E8-L6`) |
+| **GitHub topics** (not a directory, same spirit) | n/a | n/a | Free, immediate, zero submission process — just repo metadata. | **None** — needs no binary, only a public repo, which already exists. See note below. |
 
 **AlternativeTo — flagged, not recommended by default.** AlternativeTo works
 by submitting "X is an alternative to Y," which requires picking an
@@ -81,10 +80,12 @@ organic distribution," not spray-and-pray).
 
 ## Gate, stated once more plainly
 
-Every row above except GitHub topics requires `E0` to have shipped a real,
-installable binary first. `docs/growth/scripts/check-drafts.mjs` does not
-itself enforce this gate mechanically (it checks the draft-approval contract
-and the deny-list, not whether E0 is done) — that check belongs to
-`E8-L6`'s `check-launch-readiness.mjs`, which already exists to fail loudly
-naming the missing binary. This file's gate is asserted in prose here and
-should be read alongside that mechanical one, not instead of it.
+`E0`'s binary gate is clear — dira v0.1.1 is released and `brew install
+kazi-org/tap/dira` works. What still gates every row above (except GitHub
+topics) is launch sequencing, not the binary. `docs/growth/scripts/check-drafts.mjs`
+does not enforce that gate mechanically (it checks the draft-approval
+contract and the deny-list, not launch readiness) — that belongs to
+`E8-L6`'s `check-launch-readiness.mjs`, which does not exist in this repo yet
+(only planned in `docs/plan/tasks/E8-L6.md`). This file's gate is asserted in
+prose here; there is no mechanical check to read it alongside until that
+script is built.
