@@ -240,6 +240,13 @@ makes every report carry a caveat.
   2h20m). Site badge showed "pre-release" post-tag because the Pages
   checkout was shallow/tagless — fetch-tags fix in PR #32.
 
+**Post-release truth sweep (2026-08-20, PRs #32/#33, verified live):** the
+site now shows the v0.1.1 badge and leads with `brew install kazi-org/tap/dira`
+(the "no brew install yet" claim is gone from every surface — README, landing,
+canonical coherence strings, growth drafts); the badge renders from git
+describe with a tag-fetching checkout. The dira plugin is live in real
+sessions — its skill appears in the session skill list on this machine.
+
 Remaining founder item: the launch itself (docs/growth/launch.md, T0 can now
 be scheduled — `check-launch-readiness.mjs` should flip green with the tap
 live; run it to confirm). Upstream kazi#1681 remains unanswered; E4's
