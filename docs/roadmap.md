@@ -215,6 +215,36 @@ makes every report carry a caveat.
 > **Session ended 2026-08-11.** Handover notes: `docs/handover.md`. No handover
 > branch — nothing existed outside `origin/main`. Claims released, worktrees removed.
 
+## STATUS 2026-08-20 · fable-orchestrator · RELEASED, PUBLISHED, INSTALLED
+
+**dira is released and in use on all three of the founder's machines.**
+
+- **v0.1.0** (2026-08-17): first live run of the whole release pipeline —
+  Release + checksums + tap publish all green. Its first REAL `brew install`
+  then failed on the founder's own MacBook ("bad CPU type"): the machine is
+  an Intel x86_64, the release had no darwin-amd64 target, and the generated
+  formula served arm64 to every Mac unconditionally. Fixtures could never
+  catch this; the live install did.
+- **v0.1.1** (2026-08-18): four targets (darwin arm64+amd64, linux
+  amd64+arm64 — the linux-arm64 added for the DGX by founder decision),
+  arch-conditional `on_arm`/`on_intel` formula blocks, exact-token checksum
+  greps (darwin_arm64 vs darwin_amd64 differ by one character). Verified by
+  real installs, not assertion.
+- **Plugin published**: kazi-org/claude-plugins now carries dira (manifest
+  with the three hooks + the skill), second entry beside kazi.
+- **Installed and verified on all 3 machines**: Intel MBP (brew, 0.1.1,
+  `brief` renders), Mac mini (ssh: brew + plugin), DGX aitopatom (ssh as
+  ndungu: linux-arm64 archive checksum-verified into ~/.local/bin + plugin).
+- **Ops notes**: two wedged Site/CI Chromium-contrast runs cancelled per
+  standing authorization (32094702954, 32094725254 — a ~2-min job stuck
+  2h20m). Site badge showed "pre-release" post-tag because the Pages
+  checkout was shallow/tagless — fetch-tags fix in PR #32.
+
+Remaining founder item: the launch itself (docs/growth/launch.md, T0 can now
+be scheduled — `check-launch-readiness.mjs` should flip green with the tap
+live; run it to confirm). Upstream kazi#1681 remains unanswered; E4's
+emitted-contract fallback unaffected.
+
 ## STATUS 2026-08-14 (close) · fable-orchestrator · CODE COMPLETE
 
 **The run is finished: 22 PRs merged, zero open, zero red, all 40 lanes closed
