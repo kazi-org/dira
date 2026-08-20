@@ -22,12 +22,13 @@
    .take carries the one restrained conversion block. .card, .chip, .drift,
    .btn, .made are the shared tokens.css components, used unmodified.
 
-   What this page deliberately does NOT contain: an install command that
-   works (there is no `brew install` yet — see .status below), and the
-   `dira init` import/retrospective clip. That clip answers qst-0003 (does
-   importing an existing ADR corpus produce a useful ledger, or a second
-   pile?), which is open and unowned. Leading with it would assert a value
-   this project has not yet earned the right to claim. */
+   What this page deliberately does NOT contain: the `dira init`
+   import/retrospective clip. That clip answers qst-0003 (does importing an
+   existing ADR corpus produce a useful ledger, or a second pile?), which is
+   open and unowned. Leading with it would assert a value this project has
+   not yet earned the right to claim. The install command below DOES work —
+   `brew install kazi-org/tap/dira`, verified by real installs (see
+   .status). */
 
 .wrap { max-width: 920px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
 
@@ -243,17 +244,17 @@ section.block:last-of-type { border-bottom: 0; }
   <section class="block">
     <h2 class="seclabel">Status</h2>
     <div class="card status">
-      <p><b>Working, pre-release.</b> 14 verbs are real and tested against this repo's own
+      <p><b>Released.</b> 14 verbs are real and tested against this repo's own
         43-entry ledger — capture, review, enforcement, cross-project tiers, ADR import,
         and a read-only web surface all run today. The tool's first user is itself: its
-        own ledger lives under <code>.dira/</code> in this repo. Build it from source;
-        there is no brew install yet. <code>brew install kazi-org/tap/dira</code> fails
-        until that ships.</p>
+        own ledger lives under <code>.dira/</code> in this repo.
+        <code>brew install kazi-org/tap/dira</code> works today; build from source if
+        you'd rather.</p>
     </div>
 
     <div class="take">
-      <p><b>Nothing to install yet.</b> Watching the repo is the whole ask while this
-        ships.</p>
+      <p><b>brew install kazi-org/tap/dira</b> — one line, no account, verified on
+        darwin-arm64, darwin-amd64, and linux-amd64.</p>
       <a class="cta" href="https://github.com/kazi-org/dira">★ Star kazi-org/dira →</a>
     </div>
   </section>

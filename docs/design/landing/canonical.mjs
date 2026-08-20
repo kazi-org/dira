@@ -41,15 +41,15 @@ export const TAGLINE = 'Never explain the same decision twice.';
 export const NO_BINARY =
   "14 verbs are real and tested against this repo's own 43-entry ledger — capture, review, enforcement, cross-project tiers, ADR import, and a read-only web surface all run today.";
 
-// The install-line admission. Was "brew install is not a thing yet." — still
-// true (there's no tap yet), but README dropped that exact phrasing in the
-// 2026-08-14 rewrite in favor of naming the actual path (build from source).
-// Retargeted to the sentence that is both true today and the one that would
-// actually catch drift: if `brew install` ships, this line stops appearing
-// and the gate fails until the page is told about it. Backtick-free because
-// both normalizers (normalizeMarkdown, normalizeHtml) strip backticks/tags
-// before comparing — a canonical string that still has them can never match.
-export const INSTALL_LINE = 'there is no brew install yet.';
+// The install-line admission. Was "there is no brew install yet." — true
+// until v0.1.1 shipped a real Homebrew tap (kazi-org/homebrew-tap) on
+// 2026-08-18. Retargeted to the command itself: the sentence that is both
+// true today and the one that would catch drift the other direction — if the
+// tap is ever pulled or renamed, this line stops appearing and the gate
+// fails until the page is told. Backtick-free because both normalizers
+// (normalizeMarkdown, normalizeHtml) strip backticks/tags before comparing —
+// a canonical string that still has them can never match.
+export const INSTALL_LINE = 'brew install kazi-org/tap/dira';
 
 // The category bet (product-marketing.md §1). README never uses these words
 // — it describes the product instead of naming its shelf — so this is
