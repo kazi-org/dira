@@ -264,10 +264,19 @@ canonical coherence strings, growth drafts); the badge renders from git
 describe with a tag-fetching checkout. The dira plugin is live in real
 sessions — its skill appears in the session skill list on this machine.
 
-Remaining founder item: the launch itself (docs/growth/launch.md, T0 can now
-be scheduled — `check-launch-readiness.mjs` should flip green with the tap
-live; run it to confirm). Upstream kazi#1681 remains unanswered; E4's
-emitted-contract fallback unaffected.
+**Correction (2026-08-20), mine:** two merges reported on 08-15/08-17 had
+silently failed (gh output piped to tail, chain ran past the failure) — the
+launch kit (PR #20) and the manifest bump (PR #24) were still open. #24 closed
+as superseded by the truth sweep; #20 rebased against the released reality
+(its readiness selftest also assumed a dira-free host — fixed deterministic)
+and is now VERIFIABLY merged, state queried not inferred.
+
+**Launch readiness, observed 2026-08-20:** `check-launch-readiness.mjs` →
+**READY** — all 8 gates pass (binary on PATH via tap, T0-relative plan,
+registered thresholds, drafts accurate vs README, demo cast in bound, GTM
+section complete, zero hype terms). The launch is now purely the founder's
+T0 call. Upstream kazi#1681 remains unanswered; E4's emitted-contract
+fallback unaffected.
 
 ## STATUS 2026-08-14 (close) · fable-orchestrator · CODE COMPLETE
 
