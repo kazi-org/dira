@@ -26,14 +26,17 @@ const REPO = "https://github.com/kazi-org/dira";
   </header>
 
   <main class="mx-auto max-w-3xl px-6 pb-24">
-    <h1 class="dira-serif ui-strong mt-6 text-4xl font-bold">Install from source</h1>
+    <h1 class="dira-serif ui-strong mt-6 text-4xl font-bold">Install</h1>
     <p class="ui-body mt-4">
-      There is no <code class="ui-code rounded px-1.5 py-0.5">brew install</code> yet — the
-      release pipeline that would cut and pin a tap formula hasn't shipped (see the
-      <a href="/" class="ui-link">status note</a> on the home page). Go only; nothing else to
-      install.
+      <code class="ui-code rounded px-1.5 py-0.5">brew install kazi-org/tap/dira</code> is
+      the fastest path in — no account needed, covers darwin-arm64, darwin-amd64, and
+      linux-amd64. Build from source (Go only) if you'd rather, or if you're on
+      linux-arm64.
     </p>
-    <pre class="ui-code mt-4 overflow-x-auto rounded-xl border p-4 font-mono text-sm"><code>git clone {REPO}
+    <pre class="ui-code mt-4 overflow-x-auto rounded-xl border p-4 font-mono text-sm"><code>brew install kazi-org/tap/dira
+dira --version</code></pre>
+    <p class="ui-muted mt-3 text-sm">Or from source:</p>
+    <pre class="ui-code mt-2 overflow-x-auto rounded-xl border p-4 font-mono text-sm"><code>git clone {REPO}
 cd dira
 go build ./cmd/dira
 ./dira --help</code></pre>
