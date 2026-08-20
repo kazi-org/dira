@@ -48,7 +48,7 @@ Honest limits, since I'd rather say them than have someone else find them:
 - No team tier yet — single-player today.
 
 **5/**
-Apache 2.0, `go build ./cmd/dira`, no `brew install` yet:
+Apache 2.0, `brew install kazi-org/tap/dira`:
 https://github.com/kazi-org/dira
 
 <!-- honest-limits:start -->

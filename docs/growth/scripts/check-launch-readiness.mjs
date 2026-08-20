@@ -3,13 +3,16 @@
 //
 // Lane E8-L6-T7. Zero third-party dependencies.
 //
-// The ordered launch-readiness aggregation checker. It will be RED for months --
-// dira has no binary on PATH, no release, and no recorded demo clip on this branch
-// today -- and a checker that is only useful once everything passes is not a
-// checklist, it's a single "not ready" line. So every gate below runs and reports in
-// FIXED ORDER, every time, regardless of whether an earlier gate failed: the first
-// unmet gate is what blocks launch, but the full ordered list is what makes the
-// checker useful while red.
+// The ordered launch-readiness aggregation checker. Authored when dira had no binary
+// on PATH, no release, and no recorded demo clip -- and a checker that is only useful
+// once everything passes is not a checklist, it's a single "not ready" line. So every
+// gate below runs and reports in FIXED ORDER, every time, regardless of whether an
+// earlier gate failed: the first unmet gate is what blocks launch, but the full
+// ordered list is what makes the checker useful whether red or green. (dira v0.1.1 has
+// since released -- `brew install kazi-org/tap/dira` works -- so gate 1 below now
+// PASSes on a machine with the tap installed; gate 1's FAIL wording stays as the exact
+// string this lane's own acc line and check-launch-readiness.selftest.mjs assert, for
+// the case where it's run somewhere dira genuinely isn't on PATH.)
 //
 // Composes its siblings rather than re-implementing them:
 //   - launch.md's T0-offset/no-absolute-date rule (this file's own scanLaunchMd,
@@ -65,7 +68,9 @@ function gateBinary() {
   const found = findDiraOnPath();
   if (!found) {
     // Exact wording asserted by this lane's own top-level acc line — first gate,
-    // first printed line, true by construction until E0-E3 ship.
+    // first printed line. E0-E3 have since shipped (v0.1.1, brew install works), so
+    // this string only prints on a machine where dira genuinely isn't on PATH; kept
+    // exact because check-launch-readiness.selftest.mjs asserts it verbatim.
     return { name: 'dira binary on PATH', status: 'FAIL', reason: 'no dira binary found on PATH — E0–E3 have not shipped' };
   }
   return { name: 'dira binary on PATH', status: 'PASS', reason: `found at ${found}` };
