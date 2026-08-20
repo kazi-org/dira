@@ -22,10 +22,11 @@
 
 ---
 
-> **Status: working, pre-release.** 14 verbs are real and tested against this repo's
+> **Status: released (v0.1.1).** 14 verbs are real and tested against this repo's
 > own 43-entry ledger — capture, review, enforcement, cross-project tiers, ADR
-> import, and a read-only web surface all run today. Build it from source (below);
-> there is no `brew install` yet. Stars and issues welcome.
+> import, and a read-only web surface all run today. `brew install
+> kazi-org/tap/dira` is the fastest way in — see [Install](#install) below, or
+> build from source. Stars and issues welcome.
 
 ## What dira is
 
@@ -268,15 +269,28 @@ is already the sync layer; it was already paid for.
 
 Full rationale: [dec-0002](.dira/entries/dec-0002.md).
 
-## Install from a Release
-
-Each tagged release publishes a darwin-arm64 archive, a darwin-amd64 archive, a
-linux-amd64 archive, a linux-arm64 archive, and a `checksums.txt`, built by
-[`.goreleaser.yaml`](.goreleaser.yaml) with `CGO_ENABLED=0` and no account
-needed to fetch them:
+## Install
 
 ```
-VERSION=0.0.1-rc.1  # the released tag, without the leading v
+brew install kazi-org/tap/dira
+dira --version
+```
+
+Published to [`kazi-org/homebrew-tap`](https://github.com/kazi-org/homebrew-tap)
+by [`.goreleaser.yaml`](.goreleaser.yaml) on every tagged release, with an
+arch-conditional formula — no account needed. Covers darwin-arm64,
+darwin-amd64, and linux-amd64. linux-arm64 (e.g. the DGX) has no tap formula
+yet; use the archive below instead.
+
+## Install from a Release
+
+Each tagged release also publishes a darwin-arm64 archive, a darwin-amd64
+archive, a linux-amd64 archive, a linux-arm64 archive, and a `checksums.txt`,
+built by [`.goreleaser.yaml`](.goreleaser.yaml) with `CGO_ENABLED=0` and no
+account needed to fetch them:
+
+```
+VERSION=0.1.1  # the released tag, without the leading v
 curl -LO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/dira_${VERSION}_darwin_arm64.tar.gz"
 curl -LO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/checksums.txt"
 sha256sum --ignore-missing -c checksums.txt
@@ -332,15 +346,15 @@ hook while you wait for a prompt ([int-0002](.dira/entries/int-0002.md),
 
 ## Status
 
-**Working, pre-release.** All 14 verbs above are shipped, tested, and enforced
-against this repo's own ledger — `go test ./...` is green. What that status means
-concretely:
+**Released.** All 14 verbs above are shipped, tested, and enforced against this
+repo's own ledger — `go test ./...` is green. What that status means concretely:
 
-- No `brew install`. `docs/plan/tasks/E0-L5.md` (the Homebrew tap lane) is
-  decomposed but **not executed** — there is no `Formula/dira.rb` anywhere yet.
-  Build from source (above) until that lands.
-- `dira --version` reports `dev` on a plain build; release builds stamp a tag in
-  at link time (above). No tag has shipped yet.
+- `brew install kazi-org/tap/dira` works today, verified by real installs on
+  darwin-arm64, darwin-amd64, and linux-amd64 — see [Install](#install) above.
+  linux-arm64 (e.g. the DGX) ships as a plain archive; see
+  [Install from a Release](#install-from-a-release).
+- `dira --version` reports the tag a release build was stamped with — `0.1.1` as
+  of the latest release (above). A plain `go build` still prints `dev`.
 - Detail beyond this line — what's in progress, what's next, what's blocked —
   lives in [`docs/roadmap.md`](docs/roadmap.md) and [`docs/plan.md`](docs/plan.md),
   which this README does not duplicate on purpose: a status table copied into two
