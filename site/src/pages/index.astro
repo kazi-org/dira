@@ -3,6 +3,11 @@ import Layout from "../layouts/Layout.astro";
 import { STRAPLINE, INSTALL_CMD } from "../canonical.mjs";
 
 const REPO = "https://github.com/kazi-org/dira";
+const BREW_CMD = "brew install kazi-org/tap/dira";
+// __DIRA_VERSION__ is `git describe --tags` at build time (astro.config.mjs)
+// — "pre-release" on a tagless checkout, the real tag otherwise. Rendered in
+// the hero so a visitor can see which release the page describes.
+const VERSION = __DIRA_VERSION__;
 
 // Copy sourced from docs/design/landing/index.html (E8-L2's gated landing
 // page — docs/plan/website.md cites docs/growth/drafts/ as the source, but
@@ -73,7 +78,9 @@ const objections = [
       >
       </div>
       <div class="mx-auto max-w-3xl px-6 pb-12 pt-16 text-center sm:pt-24">
-        <p class="dira-mono ui-muted text-xs uppercase tracking-[0.14em]">dira</p>
+        <p class="dira-mono ui-muted text-xs uppercase tracking-[0.14em]">
+          dira <span class="ui-chip rounded px-1.5 py-0.5">{VERSION}</span>
+        </p>
         <h1
           id="hero-heading"
           class="dira-serif ui-strong mt-4 text-balance text-4xl font-normal tracking-tight sm:text-5xl"
@@ -175,19 +182,23 @@ const objections = [
       </h2>
       <div class="ui-card mt-6 rounded-2xl border p-6">
         <p class="ui-body text-sm leading-relaxed">
-          <b class="ui-strong">Pre-release, buildable from source today.</b> There is no
-          <code class="ui-code rounded px-1 py-0.5">brew install</code> yet — see
+          <b class="ui-strong">Released.</b> <code class="ui-code rounded px-1 py-0.5">brew install</code>
+          is the fastest way in — see
           <a href="/docs/" class="ui-link">the docs page</a> for the full command tour, generated
           from this build so it cannot go stale.
         </p>
-        <pre class="ui-code dira-mono mt-3 overflow-x-auto rounded-xl border p-3 text-xs"><code>git clone {REPO}
+        <pre class="ui-code dira-mono mt-3 overflow-x-auto rounded-xl border p-3 text-xs"><code>{BREW_CMD}</code></pre>
+        <p class="ui-muted mt-3 text-xs">
+          Or build from source:
+        </p>
+        <pre class="ui-code dira-mono mt-1 overflow-x-auto rounded-xl border p-3 text-xs"><code>git clone {REPO}
 cd dira
 {INSTALL_CMD}</code></pre>
       </div>
       <div class="ui-card mt-4 flex flex-wrap items-center gap-4 rounded-2xl border p-5">
         <p class="dira-serif ui-body flex-1 text-sm leading-relaxed">
-          <b class="ui-strong">Nothing to install yet.</b> Watching the repo is the whole ask
-          while this ships.
+          <b class="ui-strong">{BREW_CMD}</b> — one line, no account, verified on
+          darwin-arm64, darwin-amd64, and linux-amd64.
         </p>
         <a
           href={REPO}
