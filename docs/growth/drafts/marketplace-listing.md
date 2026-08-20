@@ -8,11 +8,14 @@ owner: E8-L5
 
 # Marketplace listing draft — dira
 
-**Do not submit.** No `dira` binary exists (`E0` unbuilt), so this plugin has
-nothing to install yet. This draft exists so the copy is ready the day E0 and
-E2 ship and the release pipeline can pin a real version into
-`.claude-plugin/plugin.json` — see `.claude-plugin/BUNDLE.md` for the
-versioning contract this listing depends on.
+**Superseded by the real listing.** `dira` released v0.1.1 (2026-08-18,
+`brew install kazi-org/tap/dira` live) and the plugin is already published in
+`kazi-org/claude-plugins` (second entry beside kazi). This draft's job — copy
+ready for the day E0/E2 shipped — is done; kept as historical reference and
+as the starting point if the listing ever needs a rewrite, not as a pending
+submission. `posted` stays `false` here because this file itself was never
+what got submitted — the marketplace repo's own manifest was — and a
+maintainer, not this draft, owns that repo's copy going forward.
 
 ## Marketplace entry fields
 
@@ -39,8 +42,8 @@ versioning contract this listing depends on.
 > hooks that keep the ledger current at zero effort, and nothing else — no
 > account, no hosted service, no network call required to function.
 >
-> **Status: pre-release.** There is no installable `dira` binary yet. This
-> listing will go live once one exists.
+> **Status: released.** `brew install kazi-org/tap/dira` installs the binary
+> this plugin depends on.
 
 **Category:** Memory & Context Persistence (matching the category
 `hesreallyhim/awesome-claude-code` uses for this kind of tool — see
@@ -51,16 +54,15 @@ versioning contract this listing depends on.
 **Author:** kazi-org · **License:** Apache-2.0 · **Repository:**
 `https://github.com/kazi-org/dira`
 
-**Install line** (do not publish until true):
+**Install line** (matches the real, published entry):
 ```
 /plugin marketplace add kazi-org/claude-plugins
 /plugin install dira@kazi
 ```
 This mirrors kazi's own install line (`kazi/README.md` "Install via the Claude
-Code plugin"). It is aspirational copy — `kazi-org/claude-plugins` does not
-yet carry a `dira` entry, and creating that entry is out of this lane's scope
-(a separate repo plus a release-pipeline hook in `E0`, not a file this
-checkout can produce).
+Code plugin"). `kazi-org/claude-plugins` now carries a `dira` entry
+(`.claude-plugin/marketplace.json` in that repo) — this file's copy is no
+longer aspirational, it describes what is live.
 
 ## Banned-lexicon check (manual, until this listing is wired into a shared
 coherence gate)
@@ -70,12 +72,17 @@ above (`.agents/product-marketing.md` §10). No virality or growth-rate claim.
 No claim that the hosted renderer is required (`cst-0004`) — none is
 mentioned because none exists yet to misrepresent.
 
-## What must be true before this is postable
+## What was true before this went postable — all now satisfied
 
-1. `E0` ships a binary a stranger can install.
-2. `E2` ships the skill referenced above.
-3. The release pipeline (`E0`'s scope) can render and pin
-   `.claude-plugin/plugin.json`'s `version` to the release tag, per
-   `.claude-plugin/BUNDLE.md`.
-4. A maintainer reviews this copy, flips `posted` here to reflect reality
-   *after* actually submitting it by hand, and edits `status` accordingly.
+1. ~~`E0` ships a binary a stranger can install.~~ Done — v0.1.1, released
+   2026-08-18.
+2. ~~`E2` ships the skill referenced above.~~ Done — `skills/dira/SKILL.md`
+   ships in this repo and in the plugin bundle.
+3. ~~The release pipeline can render and pin `.claude-plugin/plugin.json`'s
+   `version` to the release tag.~~ Not built in this checkout's pipeline
+   (`.claude-plugin/BUNDLE.md`) — the marketplace repo's own manifest carries
+   its own version instead, hand-maintained there.
+4. A maintainer submitted the real listing to `kazi-org/claude-plugins`
+   directly — this draft was reference copy, not the thing that got posted,
+   which is why `posted` here stays `false` rather than being flipped to
+   describe a submission this file never made.

@@ -8,11 +8,12 @@ owner: E8-L5
 
 # Awesome-list and hook-showcase submissions — draft
 
-**Do not submit.** No `dira` binary exists. Every list below requires a
-working, public repository behind the entry; submitting now would be a
-vaporware claim to an audience that checks (`.agents/product-marketing.md`
-§9, "does my private strategy leak" table's sibling concern about honesty).
-Gate: **E0's release actually exists**, not merely planned.
+**Do not submit yet.** `E0`'s release gate is clear: dira v0.1.1 is released,
+`brew install kazi-org/tap/dira` is a real, working install command — a
+submission today would no longer be a vaporware claim. What still gates
+these is launch sequencing (`E8-L6`, not this lane): a submission is a
+one-shot, hard-to-undo outward-facing action, so it waits for the maintainer's
+launch call rather than firing the moment a gate clears.
 
 Each target's submission rules were read from the live repository, not
 assumed, per the lane prompt's instruction not to invent a channel framework.
@@ -137,9 +138,8 @@ plugin that cannot be installed. This is the strictest of the three gates.
 ## What was deliberately not included
 
 **Product Hunt** and general startup-launch directories are out of scope for
-this file by design — they belong to `directory-submissions.md`, and per
-`/distribution`, are a poor fit for a CLI with no binary regardless. See that
-file for the reasoning.
+this file by design — they belong to `directory-submissions.md`. See that
+file for the current reasoning (launch sequencing, not a missing binary).
 
 ## Common failure mode across all three
 
