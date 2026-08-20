@@ -66,11 +66,13 @@ Otherwise the marketplace bundle can lag the binary and a user ends up with a
 skill or hook referencing a flag the installed binary doesn't have yet.
 
 `"version": "0.0.0-unreleased"` in `plugin.json` today is a placeholder, not a
-claim. There is no `dira` binary (`E0` is unbuilt) and no release pipeline to
-pin this to a real tag. **Do not treat this file's presence as evidence the
-plugin is installable.** When E0 ships a release pipeline, it needs a
-rendering/pinning step analogous to `mix kazi.plugin` — reading this same
-manifest shape and stamping in the release tag — rather than a human editing
-`version` by hand. That step, and the actual publish to a `kazi-org/claude-plugins`-style marketplace repo, is out of scope for this lane: it lives in a
-second repo (`kazi-org/claude-plugins` is a separate checkout from `kazi-org/kazi`)
-plus a release-pipeline hook in `E0`, not a file this checkout can produce.
+claim about this repo's own state — `dira` released v0.1.1 (2026-08-18, brew
+install live) and the plugin is published in `kazi-org/claude-plugins`
+(second entry beside kazi, `.claude-plugin/marketplace.json` there pins its
+own `version`). **This file's `version` field is not that pin and never has
+been** — the rendering/pinning step analogous to `mix kazi.plugin` (reading
+this manifest shape and stamping in the release tag on every publish) still
+does not exist in this checkout's release pipeline, so `plugin.json` here
+stays a hand-maintained source the marketplace repo's own entry is cut from,
+not a live mirror of it. Do not treat this field as evidence of what version
+is actually installable — read the marketplace repo's own manifest for that.

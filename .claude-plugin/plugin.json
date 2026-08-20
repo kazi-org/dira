@@ -3,7 +3,7 @@
   "name": "dira",
   "displayName": "dira",
   "version": "0.0.0-unreleased",
-  "description": "dira gives your AI coding agent a memory for why. A git-native decision ledger, captured by hooks and read back at the start of every session. This bundle is scaffolding: no dira binary has shipped, and this manifest has never been published to a marketplace. See .claude-plugin/BUNDLE.md.",
+  "description": "dira gives your AI coding agent a memory for why. A git-native decision ledger, captured by hooks and read back at the start of every session. Requires the dira binary (brew install kazi-org/tap/dira). This file's own `version` stays a pipeline-managed placeholder — the live, versioned entry is published in kazi-org/claude-plugins; see .claude-plugin/BUNDLE.md.",
   "author": { "name": "kazi-org", "url": "https://github.com/kazi-org/dira" },
   "homepage": "https://github.com/kazi-org/dira",
   "repository": "https://github.com/kazi-org/dira",
@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "dira sniff --deep --stage 2>/dev/null || true",
+            "command": "dira sniff --deep --stage --all 2>/dev/null || true",
             "timeout": 60
           }
         ]
