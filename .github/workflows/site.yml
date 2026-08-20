@@ -38,6 +38,13 @@ jobs:
         working-directory: site
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          # The version badge is `git describe --tags` (site/astro.config.mjs);
+          # a shallow, tagless checkout silently falls back to "pre-release"
+          # forever — which is exactly what shipped on the first post-tag
+          # deploy. Full history + tags so the badge can see releases.
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Install Go (for the dira binary the build embeds — W1-T3/T4)
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
