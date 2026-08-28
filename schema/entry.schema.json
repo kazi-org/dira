@@ -91,6 +91,11 @@
       "type": "boolean",
       "default": false,
       "description": "Marks an entry as never-exportable. Enforced at read time by the inheritance rule (cst-0003): a private entry may be injected into a local session brief but must never be written into, or quoted into, a downstream public ledger."
+    },
+
+    "applies_when": {
+      "$ref": "#/$defs/appliesWhen",
+      "description": "Optional structured trigger clause: an action name plus free-form parameters, most useful on constraint entries as the machine-checkable condition under which the constraint is live. dira takes no position on the action vocabulary or parameter shape -- that belongs to whatever tool consumes the ledger. Absent means the entry carries no machine-checkable trigger, the case for every entry before this field existed and for every entry kind other than constraint."
     }
   },
 
@@ -133,7 +138,7 @@
       "if": { "properties": { "kind": { "const": "constraint" } }, "required": ["kind"] },
       "then": {
         "properties": { "state": { "enum": ["active", "superseded"] } },
-        "description": "Constraints inherit downward through derives_from and are evaluated by every `dira check` in every descendant ledger."
+        "description": "Constraints inherit downward through derives_from and are evaluated by every `dira check` in every descendant ledger. May carry an optional applies_when clause naming the structured condition under which it is live."
       }
     },
     {
@@ -194,6 +199,24 @@
           "type": "string",
           "description": "The condition that would legitimately reopen this. Distinguishes a closed door from a locked one, and gives `dira check` something better to say than 'no'.",
           "examples": ["cold-start latency stops being the binding constraint"]
+        }
+      }
+    },
+
+    "appliesWhen": {
+      "type": "object",
+      "description": "A structured trigger condition: an action name plus optional parameters. Deliberately unopinionated about the action vocabulary or parameter shape -- that closed set belongs to the tool consuming the ledger (e.g. a small fixed action list one project's constraints guard), not to dira.",
+      "required": ["action"],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "The name of the guarded action, in whatever vocabulary the consuming tool defines. dira does not validate this against any set.",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object",
+          "description": "Free-form parameters compared against the actual action at check time. Shape and comparison semantics (equality, thresholds, etc.) are the consuming tool's contract, not dira's."
         }
       }
     },
