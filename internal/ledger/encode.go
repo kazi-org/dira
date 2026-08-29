@@ -24,8 +24,8 @@ const wrapWidth = 82
 // The key order below is not arbitrary and is not remembered per file. Every one
 // of the six key orderings in this repo's own ledger is a subsequence of it, so
 // writing in this order reproduces all 26 hand-written entries without the codec
-// carrying an ordering per file. adr and private appear in no entry yet; they sit
-// after confirmed_by with the other disposition metadata.
+// carrying an ordering per file. adr, private, and applies_when appear in no
+// entry yet; they sit after confirmed_by with the other disposition metadata.
 func Encode(e *Entry) ([]byte, error) {
 	if err := e.Validate(); err != nil {
 		return nil, fmt.Errorf("refusing to encode entry %s: %w", e.ID, err)
@@ -86,6 +86,10 @@ func Encode(e *Entry) ([]byte, error) {
 	}
 	if e.Private {
 		w.buf.WriteString("private: true\n")
+	}
+	if e.AppliesWhen != nil {
+		w.buf.WriteString("applies_when:\n")
+		w.appliesWhen(e.AppliesWhen)
 	}
 
 	w.buf.WriteString("---\n")
@@ -200,6 +204,41 @@ func (w *writer) writeBlockLines(indent int, lines []string) {
 			continue
 		}
 		w.buf.WriteString(pad)
+		w.buf.WriteString(line)
+		w.buf.WriteString("\n")
+	}
+}
+
+// appliesWhen writes the applies_when mapping's two lines. Its params value
+// is a free-form map[string]any rather than a string scalar the style-memo
+// machinery above already knows how to reproduce byte for byte, so this
+// method delegates to yaml.v3's own encoder instead of stretching
+// writeCanonical/keyValue to a type they were never asked to model. That
+// means a hand-formatted params map does not round-trip its original
+// layout, only its values -- the same tradeoff params (decode.go) documents
+// on the read side, and an open question for review rather than something
+// papered over.
+func (w *writer) appliesWhen(a *AppliesWhen) {
+	out, err := yaml.Marshal(struct {
+		Action string         `yaml:"action"`
+		Params map[string]any `yaml:"params,omitempty"`
+	}{a.Action, a.Params})
+	if err != nil {
+		// Action is a plain string and Params came from a decoded YAML
+		// mapping (or was built by a caller from JSON-safe values); yaml.v3
+		// only fails to marshal types it cannot represent, so this path is
+		// unreached in practice. Kept so a future Params value this codec
+		// was not written for fails loudly on the entry it belongs to,
+		// rather than silently dropping the clause.
+		w.buf.WriteString(fmt.Sprintf("  action: %s\n", doubleQuote(a.Action)))
+		return
+	}
+	for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
+		if line == "" {
+			w.buf.WriteString("\n")
+			continue
+		}
+		w.buf.WriteString("  ")
 		w.buf.WriteString(line)
 		w.buf.WriteString("\n")
 	}

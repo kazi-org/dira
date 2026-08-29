@@ -179,6 +179,16 @@ type Source struct {
 	Tier    Tier
 }
 
+// An AppliesWhen is an optional, structured trigger clause: an action name
+// plus free-form parameters. dira takes no position on what either means --
+// the action vocabulary and the shape of Params belong to whichever tool
+// consumes the ledger, most naturally on a constraint entry as the condition
+// under which it is live.
+type AppliesWhen struct {
+	Action string
+	Params map[string]any
+}
+
 // An Entry is one ledger entry: the YAML frontmatter fields plus the markdown
 // body that follows them.
 //
@@ -202,6 +212,7 @@ type Entry struct {
 	ConfirmedBy  string
 	ADR          string
 	Private      bool
+	AppliesWhen  *AppliesWhen
 
 	// Body is everything after the closing frontmatter delimiter, byte for
 	// byte including trailing newlines. It is the entry's prose "because",
@@ -335,6 +346,10 @@ func (e *Entry) Validate() error {
 			return fmt.Errorf("tags[%d]: %q is a duplicate", i, tag)
 		}
 		seen[tag] = true
+	}
+
+	if e.AppliesWhen != nil && e.AppliesWhen.Action == "" {
+		return fmt.Errorf("applies_when.action is required")
 	}
 
 	if e.Source != nil {

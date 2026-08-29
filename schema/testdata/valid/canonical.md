@@ -27,6 +27,11 @@ source:
 confirmed_by: human
 adr: docs/adr/9001-canonical-fixture.md
 private: false
+applies_when:
+  action: fixture_action
+  params:
+    threshold: 500
+    currency: usd
 ---
 
 The positive control. If this file ever fails validation, the validator has

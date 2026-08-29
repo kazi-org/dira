@@ -88,6 +88,7 @@ func decodeEntry(data []byte) (*Entry, error) {
 		"edges":        func(n *yaml.Node) error { return d.edges(n, &e.Edges) },
 		"alternatives": func(n *yaml.Node) error { return d.alternatives(n, &e.Alternatives) },
 		"source":       func(n *yaml.Node) error { return d.source(n, &e.Source) },
+		"applies_when": func(n *yaml.Node) error { return d.appliesWhen(n, &e.AppliesWhen) },
 	}); err != nil {
 		return nil, err
 	}
@@ -359,6 +360,46 @@ func (d *decoder) alternatives(n *yaml.Node, dst *[]Alternative) error {
 		alts = append(alts, alt)
 	}
 	*dst = alts
+	return nil
+}
+
+func (d *decoder) appliesWhen(n *yaml.Node, dst **AppliesWhen) error {
+	if n.Kind != yaml.MappingNode {
+		return fmt.Errorf("line %d: applies_when is %s, want a mapping", n.Line, nodeKind(n))
+	}
+	var a AppliesWhen
+	err := d.mapping(n, "applies_when", map[string]func(*yaml.Node) error{
+		"action": func(v *yaml.Node) error { return d.str(v, "applies_when.action", &a.Action) },
+		"params": func(v *yaml.Node) error { return d.params(v, &a.Params) },
+	})
+	if err != nil {
+		return err
+	}
+	*dst = &a
+	return nil
+}
+
+// params decodes applies_when's free-form parameter map with yaml.v3's own
+// generic Decode. Every other field in this file is read scalar by scalar so
+// its exact source style can be recorded (see scalar) and reproduced on
+// re-encode; params deliberately opts out of that, because its values are
+// open-ended -- numbers, bools, nested maps -- rather than the closed,
+// string-typed vocabulary the rest of this schema restricts itself to. A
+// params map therefore re-serializes in a canonical style rather than
+// reproducing whatever formatting a human gave it; see encode.go's
+// appliesWhen for the write side of that same tradeoff. Flagging this rather
+// than quietly forcing it into the style-memo machinery is deliberate -- it
+// is exactly the kind of decision that should be made by whoever owns this
+// codec, not by whoever happens to add the second freeform field.
+func (d *decoder) params(n *yaml.Node, dst *map[string]any) error {
+	if n.Kind != yaml.MappingNode {
+		return fmt.Errorf("line %d: applies_when.params is %s, want a mapping", n.Line, nodeKind(n))
+	}
+	var params map[string]any
+	if err := n.Decode(&params); err != nil {
+		return fmt.Errorf("line %d: applies_when.params: %w", n.Line, err)
+	}
+	*dst = params
 	return nil
 }
 
