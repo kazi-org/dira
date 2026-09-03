@@ -10,7 +10,7 @@ L1  docs/plan/lanes/<id>.md   lanes        (written by an L1 agent per epic)
 L2  docs/plan/tasks/<id>.md   tasks        (written by an L2 agent per lane)
 ```
 
-**Last updated:** 2026-08-10 · **Owner:** maintainer
+**Last updated:** 2026-09-02 · **Owner:** maintainer
 
 > **Why this tree is bounded.** dira exists because nobody re-reads files
 > (`int-0001`). A plan tree large enough to become unreadable would reproduce the
@@ -33,96 +33,105 @@ coding agent rather than by the human.** The problem: a decision made with an ag
 on Monday is gone by Friday, so a new session proposes the option already rejected
 and the argument is had again. Multiply by a dozen parallel sessions.
 
-**What works today**, all merged and CI-green against dira's own 44-entry ledger:
+**All 40 original lanes are shipped, released and launched.** v0.1.1 is installed
+on all three of the founder's machines via `brew install kazi-org/tap/dira`, the
+Claude Code plugin is live, `dira.sire.run` serves the public renderer, and
+`check-launch-readiness.mjs` reports READY. Full history: `docs/roadmap.md`. E7
+(the paid apps) stays deliberately parked — `dec-0007` sequences it to ship only
+when teams pull for it.
 
-| verb | what it does |
-|---|---|
-| `dira sniff` | reads the session transcript and **stages** decisions; may never accept one |
-| `dira distill` | the review screen: one keystroke per staged capture, with undo |
-| `dira why` | prints the chain — what a decision arose from, every option refused, and why |
-| `dira check` | refuses a plan contradicting a settled decision, quoting the original reason |
-| `dira brief` | prints what is blocked and what was decided, for injection at session start |
-| `dira supersede` | retires an entry in favour of its replacement, writing both sides |
-| `dira log`, `ui`, `reindex`, `install-skill`, `version` | write by hand, browse, rebuild cache, install the skill |
-
-**23 of 40 lanes are shipped.** This document is now scoped to **what remains**.
-
-### The finish line, and the order
-
-**Founder decision, 2026-08-09: all 40 lanes.** Order: *make it real on this machine
-first* — dira used daily by its author, with everything else built against what
-annoys him. Recorded in `docs/roadmap.md`.
-
-### Founder decisions that create new work
-
-- **`dec-0027`** — dira reads session metadata to derive attention drift, locally,
-  never transmitted. **Taken against the recommendation** in `qst-0002` and against
-  mine; recorded as such so it is not re-litigated as an oversight. It makes
-  `cst-0003` and `cst-0004` load-bearing and adds three ship conditions: opt-in and
-  off by default, the derived answer retained rather than a session timeline, and
-  deletable in one documented command. **Scope for E5.**
-- **`dec-0028`** — import measures a corpus before importing it and offers indexing
-  when the yield is nothing. Evidence: five real ADR corpora, reasoned-alternative
-  rates of 90%, 76%, 65%, 11% and **zero**. **New lane in E2.**
-- **`dec-0026` + `dec-0029`** — the cold-start budget is a median, gated by the
-  minimum. Closed E1-L6.
-- **Notion portfolio mirror dropped** for this repo. `docs/roadmap.md` is the single
-  progress surface.
+**This plan is now scoped to the post-release backlog: bugs found by using dira on
+real ledgers.** Eight GitHub issues (`kazi-org/dira#27` through `#37`) were filed
+between 2026-08-19 and 2026-09-02, all from dogfooding — none are hypothetical.
+Triaged 2026-09-02; see Discovery Summary.
 
 ---
 
 ## Discovery Summary
 
-Five execution waves ran since the last plan, 30 pool tasks merged. Discovery for
-this pass is the evidence those waves produced.
+**This pass's discovery was source-reading against the shipped binary, not
+speculation from the issue text.** Three findings changed the shape of the backlog
+from what the issues, read alone, would suggest.
 
-**The dominant finding, now at nine instances: a check that reports a verdict it
-never reached.** Newly found and fixed this pass:
+**1. The exclusive-create fix issue #27 asks for is already shipped, and predates
+every reported occurrence.** `internal/ledger/local/local.go`'s `Store.Create` uses
+`os.Link` (atomic, fails if the target exists — the create half already does what
+`O_CREAT|O_EXCL` would); `internal/ledger/write.go`'s `Add` retries correctly on
+`ErrExists`, marking the id taken and advancing. Both `dira log` and the `dira
+sniff` auto-capture hook route through this same `Add`. This has been true since
+commit `4b7a0d9`/`b7c2f61` (2026-07-30) — before v0.1.0/v0.1.1 and before every
+occurrence in the issue thread (2026-08-19 through 2026-09-02).
 
-1. A command built, tested and merged but absent from `newApp`'s registry answers
-   "unknown command" while its whole suite passes — `dira sniff` (dead for weeks
-   while a hook installed it), `dira why`, `dira install-skill`.
-2. A font committed, licensed and documented but referenced nowhere — `dec-0016`
-   was `accepted` for weeks while nine design gates passed, because every one
-   measures mockups that use the system stack.
-3. `gates.mjs` scored a control that crashed at `import` as CONTROL TRIPPED. The
-   harness built to catch blind gates was itself blind.
-4. A contract corpus whose summary line hardcoded "0 problems" and printed it while
-   failing with one — caught by its own author.
+**2. macbook-chief's git archaeology on hq's ledger (the incident #27 cites) rules
+out a cross-branch merge collision and best fits a single shared working tree.**
+`dec-0542` has exactly one commit, already holding the winning content, no merge,
+no discarded parent anywhere in history or reflog — a merge/rebase landing one side
+of two independently-created files would leave a two-parent commit or a reachable
+loser; neither exists. `dec-0544`'s second commit is a routine explicit-id
+amendment, not a second collision. hq's own CLAUDE.md confirms direct-commit on one
+shared checkout for exactly this kind of write, which fits the evidence.
 
-All four now have structural guards: `cmd/dira/registered_test.go`,
-`docs/design/scripts/fonts.mjs`, the control's own marker requirement, and four
-independent emptiness floors.
+**3. Given (1) and (2), the best-supported mechanism is issue #35's bug, not a live
+`Add`-vs-`Add` race: an entry was created (successfully, atomically) but never
+committed, then deleted before commit — freeing its number — and a later session's
+`Add` legitimately (per today's code) reused it for unrelated content.** This is
+not provable from git alone (the deletion, if it happened, left no trace by
+construction), so it is recorded as the working hypothesis, not a closed case —
+`T-BUG1.1` below is a stress test designed to positively confirm or refute a
+residual live-race gap in `Add` itself, independent of the hypothesis.
 
-**The second finding is about me.** Four figures I relayed in agent briefs were
-unverified, and every one was caught by the lane I gave it to — including a
-"correction" to `dec-0026` that mixed two platforms' medians into one list. The
-operating rule that follows: **a figure quoted in a brief must be traced to its log
-first.**
+**Two staged decisions came out of this and are recorded in the ledger, not just
+this document**, per `int-0001` — `dira` capturing its own reasoning is the point:
 
-**Latency is settled and no longer a risk.** CI medians are ~39ms (ubuntu) and
-~55ms (macOS) against a 100ms ceiling. The developer machine cannot certify any of
-it — `dira version`, which opens no ledger, measures 95–355ms depending on load —
-so four absolute budgets now carry both statistics: the median asserts, the minimum
-decides whether the machine can judge at all.
+- `dec-0032` — persist a monotonic id counter; `Add` allocates from it instead of a
+  directory scan. Closes issue #35 (id reuse after deletion) unconditionally
+  regardless of which hypothesis above is right, and as a side effect turns two
+  sessions independently advancing the same counter into a loud git merge conflict
+  on the counter file instead of a silent duplicate id.
+- `dec-0033` — add a reject/tombstone disposition that retains an entry's id.
+  Closes issues #35 and #36 together: today deleting a bad auto-capture is the only
+  retirement path, and it is exactly the mechanism that frees an id for reuse.
 
----
+**Both are `state: staged`** — proposed by this planning pass, not self-confirmed.
+Confirm or reject via `dira distill` before `T-BUG1.2`/`T-BUG1.3` land; each is
+tagged `blocked:` in the work breakdown below until then. `dira check` was run
+against this plan's direction before writing it (`int-0001`'s own tool, used on
+itself): **no conflict with 35 enforced entries.**
 
-## Use Case Summary
+**4. Issues #28, #29, #30 and #31 share one confirmed root cause**, verified
+directly in `internal/index/sync.go`: when `ix.store.Get` fails to decode or
+validate an entry, only the id is appended to the `invalid` list — the real error
+`Get` returned is discarded before the notice string is built. `ledger.Decode` and
+`Entry.Validate` already produce exactly the field-level detail issue #31's repro
+table shows by hand (a `ledger.Decode` harness, cloned and built locally); the gap
+is that no CLI command threads it through. All six consumers (`brief`, `check`,
+`map`, `reindex`, `ui`, `why`) read the same notice string, so one fix point covers
+all of them. **Issue #29's specific case (a colon inside a properly double-quoted
+title) is not yet confirmed to be the same mechanism** — `Decode` first calls a
+separate `internal/frontmatter` boundary-splitter before `yaml.v3` ever sees the
+text, and that splitter's behavior on a quoted colon has not been read. `T-BUG2.0`
+below diagnoses this before `T-BUG2.1` assumes it.
+
+**5. Issue #37 (a decision rejected with "must record at least one alternative"
+after four earlier identical-shaped calls succeeded) could not be root-caused from
+the issue text alone.** The reported error comes directly from
+`entry.ValidateDraft()`, and the positional-id-misdetection hypothesis in the issue
+does not hold for the one invocation shape that can be inferred (`runLog` only
+inspects `args[0]`, and a `--kind`-first invocation never sets `id`). The actual
+failing command was not preserved. `--dry-run` (the issue's own request) is the
+right next step rather than guessing further.
 
 Manifest: `.claude/scratch/usecases-manifest.json`. Engineering tasks carry
-`verifies:` naming the ledger entries they discharge — this repo has no `UC-`
-register, and entry ids are what `scripts/coverage.py` keys on.
+`verifies:` naming the ledger entries or GitHub issues they discharge — this repo
+has no `UC-` register, and entry ids are what `scripts/coverage.py` keys on.
 
 ---
 
 ## Scope and Deliverables
 
-**In scope:** the 17 remaining lanes, plus two created by founder decisions (the
-importer, attention drift) and one measurement debt. **E7's five lanes are parked
-rather than remaining** — see the epic index for the trigger that revives them.
-
-**Out of scope, deliberately:** anything in "Epics deliberately absent" below.
+**In scope:** the four bug clusters above (`T-BUG1` through `T-BUG3`), covering all
+eight open GitHub issues. **Out of scope:** anything in "Epics deliberately absent"
+below, and E7 (still parked on `dec-0007`'s trigger, unchanged by this pass).
 
 ---
 
@@ -130,52 +139,55 @@ rather than remaining** — see the epic index for the trigger that revives them
 
 Every epic is named here whether or not it has remaining work. **This section is
 load-bearing:** `scripts/coverage.py` extracts one obligation per epic from these
-headings, and rewriting the plan without them orphaned ten register rows — which is
-how the E7 omission below was caught rather than shipped.
+headings, and rewriting the plan without them orphaned ten register rows once
+already — which is how that failure mode was caught rather than shipped.
+
+**E0 through E9 are SHIPPED.** Full history in `docs/roadmap.md`; no epic below
+carries open work. Headings and the em dash after each id are kept verbatim —
+`scripts/coverage.py`'s extractor is a literal regex on this exact shape, and
+changing it silently orphans the epic's `lanes:` row in `docs/coverage.md`.
 
 ### E0 — Foundations
-Binary, schema, CI, gates. **Shipped except E0-L4 and E0-L5**, both outlined below.
+SHIPPED. Binary, schema, CI, gates, release pipeline (goreleaser, tap formula),
+all four live targets installed and verified on three machines.
 
 ### E1 — The ledger
-Storage, `log`, `why`, `brief`, `reindex`, the cold-start budget. **Complete.**
+SHIPPED. Storage, `log`, `why`, `brief`, `reindex`, the cold-start budget.
 
 ### E2 — Capture
-`sniff`, the semantic tier, the skill, `install-hooks`, the review queue.
-**E2-L3 is the frontier**; the importer (`dec-0028`) is a new outline lane.
+SHIPPED. `sniff`, the semantic tier, the skill, `install-hooks`, `install-skill`,
+the review queue, the ADR importer.
 
 ### E3 — The enforcer
-`check`, `supersede`, constraint inheritance across ledger boundaries. **Complete.**
+SHIPPED. `check`, `supersede`, constraint inheritance across ledger boundaries.
 
 ### E4 — Derived status
-The kazi execution join, `dira map`, decision-blocked detection. **Outline.**
+SHIPPED. The kazi execution join (against kazi's emitted `portfolio --json`,
+version-pinned, degrading gracefully on drift or kazi-absent), `dira map`.
 
 ### E5 — Tiers
-Personal and workspace ledgers, orphan drift, attention drift (`dec-0027`). **Outline.**
+SHIPPED. Personal and workspace ledgers, orphan drift, attention drift (`dec-0027`,
+its three ship conditions all met).
 
 ### E6 — Surfaces
-The public renderer and the distill web surface. **E6-L3 remains, outlined.**
+SHIPPED. The public renderer, `dira ui`, the distill web surface.
 
 ### E7 — Apps
-The GitHub storage backend, OAuth device flow, the PWA, the paid bundle.
-**PARKED, and this is a decision rather than a backlog.** `dec-0007` sequences the
-paid apps deliberately: the team tier ships *when teams pull for it, not before*,
-because the apps are bought by people who already use dira and therefore cannot
-create the audience that produces those people.
-
-**Revival trigger:** E7-L1 encodes the start gate as an enforceable ledger entry.
-Until that entry exists and its condition is met, E7 is not decomposed and no L2
-prompts are written for it. Five lanes are named in `docs/plan/lanes/E7.md` at lane
-level only.
+**PARKED, and this remains a decision rather than a backlog.** `dec-0007` sequences
+the paid apps deliberately: the team tier ships *when teams pull for it, not
+before*. Unchanged by this pass — see `docs/plan/lanes/E7.md` for the five
+lane-level-only descriptions and the revival trigger.
 
 - [ ] T-E7.0 PLAN: encode the E7 start gate as a ledger entry, then expand E7 · `kind: plan` · deps: [the gate's own condition, not a task]
 
 ### E8 — Go to market
-Channels, launch surfaces, distribution. **E8-L3, E8-L4, E8-L6 remain, outlined.**
+SHIPPED. Channels, launch surfaces, distribution. `check-launch-readiness.mjs`
+reports READY; launch itself is the founder's T0 call.
 
 ### E9 — Upstream kazi
-Both asks filed as `kazi-org/kazi#1681` and `#1682`. **Complete** on our side;
-whether kazi accepts them is not ours to close, and E4 depends on the answer to
-#1681.
+**Complete on our side; not ours to close.** Both asks filed as
+`kazi-org/kazi#1681` and `#1682`, both still open upstream. `dec-0030` unblocked
+E4 in the meantime by building against kazi's emitted (if undocumented) contract.
 
 ---
 
@@ -183,146 +195,84 @@ whether kazi accepts them is not ours to close, and E4 depends on the answer to
 
 ### Frontier — executable now
 
-#### E2-L3 — `dira install-hooks` · `fidelity: executable` · 6 of 8 tasks open
+The post-release bug backlog. All eight open GitHub issues, triaged into three
+clusters by shared root cause. `kazi` is on PATH — every task below carries an
+`acc:` line; `/apply`'s kazi lane derives the goal from it just-in-time at
+dispatch.
 
-Tasks live in `docs/plan/tasks/E2-L3.md`. This is the **"fires automatically"** half
-of the founder's stated priority and the only lane with a decomposed breakdown.
+#### T-BUG1 — Ledger id integrity · `verifies: [dec-0032, dec-0033]` · gh: #27, #35, #36
 
-- [x] E2-L3-T1 — the contract corpus, 14 cases over 12 fixtures, four emptiness floors
-- [x] E2-L3-T2 — the shipped example IS the registrations, by embedding it
-- [x] E2-L3-T3 — the byte-span JSON scanner and splicer · deps: [T1]
-- [x] E2-L3-T4 — install: merge-never-clobber, idempotent, ownership by prefix · deps: [T2, T3]
-- [x] E2-L3-T5 — uninstall: the exact inverse, including the deletion decision · deps: [T4]
-- [x] E2-L3-T6 — the CLI with `--local`, `--dir`, `--uninstall`, confined root · deps: [T4, T5]
-- [x] E2-L3-T7 — every command string the installer writes is accepted by the binary · deps: [T2, T6]
-- [x] E2-L3-T8 — the installed strings fail open, with the failure path observed firing · deps: [T6]
+- [ ] T-BUG1.1 Add a concurrency stress test for `ledger.Add`, positively confirming or refuting a live create-vs-create race · Owner: TBD · Est: 1h · deps: [] · kind: agent · verifies: [dec-0032] · acc: [a test spawning N goroutines calling ledger.Add against one shared local.Store, each with distinct content, asserts N distinct ids exist on disk with zero ErrExists-driven silent overwrites, and fails loudly — not silently — if any two goroutines' entries ever land on the same final id]
+- [ ] T-BUG1.2 Persist a monotonic id counter; `Add` allocates from it instead of a directory scan · Owner: TBD · Est: 1.5h · deps: [T-BUG1.1] · kind: agent · verifies: [dec-0032] · blocked: awaiting confirmation of dec-0032 via `dira distill` (currently staged) · acc: [deleting a confirmed entry and then calling ledger.Add for the same kind never reissues the deleted entry's number; two ledgers independently advancing the same counter file, then merged with git, produce a merge conflict on the counter file rather than two entries sharing one id]
+- [ ] T-BUG1.3 Add a reject/tombstone distill disposition that retains the id · Owner: TBD · Est: 1.5h · deps: [] · kind: agent · verifies: [dec-0033] · blocked: awaiting confirmation of dec-0033 via `dira distill` (currently staged) · acc: [dira distill's reject disposition on a staged entry leaves the entry's file and id in place, marks it disposed/rejected, and a subsequent ledger.Add call for the same kind never reallocates that id]
+- [ ] T-BUG1.4 `dira supersede`: name the actual precondition instead of the current cryptic error · Owner: TBD · Est: 45m · deps: [] · kind: agent · verifies: [dec-0033] · acc: [dira supersede against a target whose state is staged prints a message naming the field and required state — e.g. "dec-NNNN is staged; supersede requires a confirmed entry" — instead of "answer and 1 is never a verdict", and exits 2, not 1]
 
-**Two hazards recorded in the task file, not to be rediscovered.** Ownership must
-match by **command prefix, not whole string** — `--all` was added to the installed
-sniff command after the fact, so a whole-string matcher would not recognise an
-already-installed pre-`--all` entry, would add a second, and would run capture twice
-per compaction. And "prints nothing to stdout" is satisfiable only by a fake `dira`
-that prints nothing — stdout is the payload, since it carries the brief.
+**Both are `state: staged` in the ledger; do not implement T-BUG1.2 or T-BUG1.3
+ahead of David confirming the underlying decision via `dira distill`.** T-BUG1.1
+and T-BUG1.4 have no such gate and can run immediately.
 
-#### T-DEBT.1 — re-derive the pixel tolerance · `verifies: [dec-0016]` · `lane: agent`
+#### T-BUG2 — Unreadable-entry diagnostics · `verifies: [gh-28, gh-29, gh-30, gh-31]` · gh: #28, #29, #30, #31
 
-`acc: [node docs/design/scripts/measure-tolerance.mjs --write leaves tolerance.json byte-identical, or the diff is explained in DESIGN.md]`
+- [ ] T-BUG2.0 Diagnose issue #29: does a colon inside a double-quoted title fail at the `internal/frontmatter` boundary-splitter, or at `yaml.v3`/`Entry.Validate`? · Owner: TBD · Est: 45m · deps: [] · kind: agent · lane: agent · acc: [a written report (as a devlog entry or task comment) states, with the exact failing line and function cited, which of the two layers rejects the repro from issue #29 — this determines whether T-BUG2.1's fix covers it for free or needs its own patch to internal/frontmatter]
+- [ ] T-BUG2.1 Thread the per-file decode/validate error into the index's unreadable-entry notice · Owner: TBD · Est: 1.5h · deps: [T-BUG2.0] · kind: agent · acc: [reindex, why, check, brief, map and ui, run against a ledger containing one entry with an over-long edges[].note, one with an unknown edges[].type, and (if T-BUG2.0 finds the same layer at fault) one with a colon inside a quoted title, each print the real decode/validate error text — field name plus limit or enum, matching ledger.Decode/Validate's existing message shape — alongside the id, not just a bare id count]
+- [ ] T-BUG2.2 `dira lint [id...]`: a verb that validates entries and prints field-level errors on demand · Owner: TBD · Est: 2h · deps: [T-BUG2.1] · kind: agent · acc: [dira lint run against a ledger with N unreadable entries exits non-zero and prints one line per entry naming the field, the offending value, and the limit or enum, at the same detail level as issue #31's own repro table; dira lint against a clean ledger exits 0 and prints a one-line summary]
 
-The one item currently **measured by argument rather than by run**. After the font
-change, `tolerance.json` was not re-derived; the reasoning (an unchanged capture
-height is an unchanged pixel-count denominator) is in `DESIGN.md`. A 45-minute run
-reached 7 of 12 combinations before being killed. Needs an idle machine.
+#### T-BUG3 — `dira log` diagnosability · `verifies: [gh-37]` · gh: #37
 
----
+- [ ] T-BUG3.1 Add `dira log --dry-run`: show how arguments were parsed, without writing · Owner: TBD · Est: 1h · deps: [] · kind: agent · acc: [dira log --dry-run --kind decision --title T --alternative A --why-not W prints the assembled entry (or the exact ValidateDraft error) to stdout, writes no file, allocates no id, and exits 0 on a valid draft or 2 on an invalid one — matching the exit code the non-dry-run path would have used]
 
-### Beyond the frontier — outline epics
-
-Per the rolling-wave rule, these are **not** decomposed. Each carries one planning
-task that expands it when its trigger completes. Decomposing them now would be waste:
-it would be replanned once the frontier's learnings exist.
-
-#### E2-L7 — the ADR importer · `fidelity: outline`
-
-**Intent.** `dira import <dir>` measures a corpus and reports what it found before
-writing anything, offering to index rather than import where the yield is nothing
-(`dec-0028`).
-
-**Exit criterion.** Against `nulib/meadow` (31 documents, zero recorded rejections)
-it imports nothing and offers indexing; against `bbc/tams` (49 documents, 237
-reasons) it reports the count and imports on confirmation.
-
-- [ ] T-E2-L7.0 PLAN: expand E2-L7 to executable fidelity · `kind: plan` · deps: [E2-L3-T8]
-
-#### E0 tail — E0-L4, E0-L5 · `fidelity: outline`
-
-**Intent.** The two remaining foundation lanes. Read `docs/plan/lanes/E0.md`; they
-predate five waves of learning and their acceptance lines need re-reading against
-what now exists before being decomposed.
-
-- [ ] T-E0.0 PLAN: expand E0-L4 and E0-L5, re-checking their acc: lines against the current tree · `kind: plan` · deps: [E2-L3-T8]
-
-#### E4 — the kazi execution join · `fidelity: outline` · 5 lanes
-
-**Intent.** `dira map` joins the ledger to kazi's execution status at read time, so
-"decided but never planned" and "blocked on an unanswered question" become visible.
-Status is never stored (`dec-0004`).
-
-**Exit criterion.** `dira map` matches reality with zero hand-entered status and
-distinguishes execution-blocked from decision-blocked.
-
-**Known input risk, already measured:** kazi's `portfolio --json` is emitted and
-versioned but absent from its documented schema registry — filed upstream as
-`kazi-org/kazi#1681`, unanswered. E4 depends on a contract kazi has not published.
-
-- [ ] T-E4.0 PLAN: expand E4 to lanes and tasks · `kind: plan` · deps: [E2-L3-T8]
-
-#### E5 — personal and workspace tiers · `fidelity: outline` · 5 lanes
-
-**Intent.** The fractal model above one repo: a personal ledger and a workspace
-ledger, with constraints inherited downward and private context never leaking. Now
-also carries attention drift (`dec-0027`).
-
-**Exit criterion.** "What are we actually doing on this venture?" is answered by a
-derived report rather than reconstructed from memory.
-
-**The privacy work is the hard part and it is now larger.** `dec-0027` puts session
-metadata inside dira. Three conditions must hold before any of it ships: opt-in and
-off by default; the **derived answer** retained, never a session timeline that could
-reconstruct a working day; deletable in one documented command.
-
-- [ ] T-E5.0 PLAN: expand E5 to lanes and tasks, with dec-0027's three conditions as acceptance · `kind: plan` · deps: [E4 milestone]
-
-#### E6-L3 — the distill web surface · `fidelity: outline`
-
-**Intent.** Serve the review queue over `dira ui`, keyboard and no-JS alike.
-
-**Blocking finding, already recorded:** E6-L2's pixel clause fails because the
-mockups are illustrations rather than renders of the fixture ledger, and the
-execution statuses they show are kazi joins E4 has not built. That is a content
-decision, not a rendering bug.
-
-- [ ] T-E6-L3.0 PLAN: expand E6-L3, resolving the illustration-vs-render question first · `kind: plan` · deps: [E2-L3-T8]
-
-#### E8 — go to market · `fidelity: outline` · E8-L3, E8-L4, E8-L6
-
-**Intent.** The public renderer is the growth engine (`dec-0010`): a stranger lands
-on a decision page from a link and wants it for their own repo.
-
-**Exit criterion.** A dira-rendered decision page is reachable from a link, and the
-launch surfaces are live.
-
-- [ ] T-E8.0 PLAN: expand E8-L3, E8-L4 and E8-L6 · `kind: plan` · deps: [E6-L3 milestone]
+**Root cause of #37's rejection is not established** (Discovery Summary, finding
+5). `--dry-run` is the diagnostic tool the next occurrence needs, not a claimed
+fix. If a repro command surfaces (via the GitHub issue), add a task then rather
+than guessing at a fix now.
 
 ---
 
 ## Parallel Work
 
-**Pool mode, claimed through `/claim` with a `T-` prefix.** Two landmines are
-recorded in `docs/lore.md` and both cost a wave to learn: the claim script rejects
-this repo's `E1-L6-T1` id shape outright — **claim as `T-E1-L6-T1`** — and each
+**Pool mode, claimed through `/claim`.** `docs/lore.md` L-0021: `claim.sh` accepts
+the `T-*` id shape directly, and this backlog's task ids (`T-BUG1.1`, `T-BUG2.0`,
+...) already carry it — no prefix rewriting needed, unlike the epic-lane-task ids
+used elsewhere in this plan (`E1-L6-T1` had to be claimed as `T-E1-L6-T1`). Each
 claim costs a network round trip of one to two minutes, so **claim in batches of
-three or fewer** or a timeout leaves the wave half-claimed, which is worse than
-unclaimed.
+three or fewer** or a timeout leaves the wave half-claimed.
 
-**Wave sizing is currently disk-bound, not agent-bound.** Free space has been
-15–16 GiB at 97% full; below ~20 GiB, parallel builds fail, retry, and write more.
-Remove worktrees immediately after merging.
+**Wave sizing is disk-bound, not agent-bound**, per prior waves: check free space
+before spawning and remove worktrees immediately after merging.
 
-**A wave boundary does not prevent a name collision.** Two lanes once declared
-`Editor` in one package without sharing a file. Brief each agent with the
-identifiers its neighbours are introducing.
+### Waves
+
+```
+Wave 1: Diagnose + independent fixes (5 agents)
+- [ ] T-BUG1.1  verifies: [dec-0032]
+- [ ] T-BUG1.3  verifies: [dec-0033]   (blocked pending dec-0033 confirmation)
+- [ ] T-BUG1.4  verifies: [dec-0033]
+- [ ] T-BUG2.0  verifies: [gh-29]      (lane: agent)
+- [ ] T-BUG3.1  verifies: [gh-37]
+
+Wave 2: Depends on Wave 1 findings (2 agents)
+- [ ] T-BUG1.2  deps: [T-BUG1.1]   (blocked pending dec-0032 confirmation)
+- [ ] T-BUG2.1  deps: [T-BUG2.0]
+
+Wave 3: Depends on Wave 2 (1 agent)
+- [ ] T-BUG2.2  deps: [T-BUG2.1]
+```
+
+Nine tasks total, at most 5 concurrent. No two tasks in one wave own the same
+package: `T-BUG1.*` is confined to `internal/ledger` and `internal/distill`;
+`T-BUG2.*` to `internal/index`, `internal/frontmatter` and a new `cmd/dira/lint.go`;
+`T-BUG3.1` to `cmd/dira/log.go`.
 
 ---
 
 ## Timeline and Milestones
 
-| milestone | what it means | gated on |
-|---|---|---|
-| **M-hooks** | dira captures automatically; the founder is its first daily user | E2-L3-T8 |
-| **M-import** | a repo with history can be read without producing a second pile | E2-L7 |
-| **M-join** | execution status is derived, never stored | E4, and kazi answering #1681 |
-| **M-tiers** | the fractal model works above one repo, privately | E5 |
-| **M-public** | a stranger can land on a decision page and want it | E6-L3, E8 |
+**All of M1 through M6 from `docs/roadmap.md` are achieved** — the ledger, capture,
+the enforcer, derived status, tiers, and the public renderer are shipped and
+launch-ready. M7 (apps) stays parked on `dec-0007`. This plan adds no new
+milestone: the backlog above is hardening against the shipped surface, not new
+capability, and is sized to close within one pool wave (see Waves above). Full
+milestone detail and exit criteria: `docs/roadmap.md`.
 
 ---
 
@@ -330,11 +280,11 @@ identifiers its neighbours are introducing.
 
 | risk | evidence | mitigation |
 |---|---|---|
-| **A decision is recorded and never wired.** | Three commands and one font shipped unreferenced. | Structural guards now exist for both classes. Any new "decided, committed" artefact needs its own census gate. |
-| **E4 depends on an unpublished kazi contract.** | `portfolio --json` is emitted but absent from the schema registry; `kazi-org/kazi#1681` is open and unanswered. | Do not decompose E4 until the issue is answered or a fallback is chosen. The planning task is gated accordingly. |
-| **`dec-0027` puts behavioural data in a tool holding private strategy.** | The founder chose this against the recommendation. | Three ship conditions are acceptance criteria, not guidance. |
-| **Disk pressure silently degrades every gate.** | 15 GiB free at 97%; a timing gate measured `dira version` at 355ms under load. | Check free space before a wave; remove worktrees on merge. |
-| **A figure quoted in a brief is not verified.** | Four instances this pass, all caught by the receiving lane. | Trace to the log before quoting. |
+| **A residual live-race gap in `ledger.Add` is unconfirmed either way.** | Source reading shows the exclusive-create+retry logic is correct as written; git archaeology on the one available incident is consistent with a different mechanism (id reuse after deletion) but does not conclusively rule out a race. | `T-BUG1.1`'s stress test is designed to be dispositive. If it finds a real collision, `dec-0032`'s `revisit_if` fires and the fix must also touch `Add`, not only allocation. |
+| **Two load-bearing fixes are gated on staged decisions David has not yet confirmed.** | `dec-0032` and `dec-0033` are `state: staged`, not `accepted`. | `T-BUG1.2` and `T-BUG1.3` are marked `blocked:` in the work breakdown; `/apply --pool` should not claim them until `dira distill` confirms the underlying decision. |
+| **Issue #29's root cause may differ from #28/#30/#31's confirmed one.** | The shared fix point (`internal/index/sync.go`) is verified for #28/#30/#31; #29's failure may originate one layer earlier, in `internal/frontmatter`. | `T-BUG2.0` diagnoses before `T-BUG2.1` assumes; the acc: line is conditional on the finding. |
+| **Issue #37 has no confirmed repro.** | The reporter's own hypothesis (positional-id misdetection) does not hold against the code as read. | `T-BUG3.1` ships the diagnostic tool the issue itself asked for rather than a guessed fix; a real fix task is added only once a repro exists. |
+| **Disk pressure silently degrades every gate.** | Prior waves measured `dira version` at 355ms under load against 15-16 GiB free at 97% full. | Check free space before a wave; remove worktrees on merge — unchanged guidance from the prior plan. |
 
 ---
 
@@ -342,13 +292,18 @@ identifiers its neighbours are introducing.
 
 1. `/apply --pool` claims and dispatches. Claim ids take the `T-` prefix.
 2. A lane may not edit `cmd/dira/main.go`; it reports the registry line and the
-   integrator adds it. `cmd/dira/registered_test.go` now makes forgetting it loud.
+   integrator adds it. `cmd/dira/registered_test.go` makes forgetting it loud.
 3. Every gate must be proved **both ways** — red on a false premise and green on the
    correct case. `docs/lore.md` L-0001. The green side is the one that gets skipped.
 4. An `acc:` line is never edited by its own implementer. If it looks unpassable,
-   report it. That has happened four times and each honest report was correct.
-5. Tick the checkboxes on merge. They have gone stale three times because lane
-   agents are correctly forbidden from editing the files they are graded against.
+   report it.
+5. Tick the checkboxes on merge.
+6. Before `T-BUG1.2` or `T-BUG1.3` starts, confirm `dec-0032`/`dec-0033` via
+   `dira distill` — do not implement ahead of the ledger's own disposition flow.
+7. `python3 scripts/coverage.py` must stay green. A new ledger entry with a
+   `revisit_if` field creates a new `trigger:` obligation immediately — register its
+   disposition in `docs/coverage.md` in the same change that adds the entry, not
+   after.
 
 ---
 
@@ -361,14 +316,13 @@ the binary, no analytics. See `docs/design.md` and `cst-0004`.
 
 ## Progress Log
 
-- **2026-08-10** — Rescoped to what remains. The first draft dropped E7 entirely;
-  `scripts/coverage.py` caught it by orphaning ten `lanes:` rows, because the epic
-  headings it extracts from had been rewritten away. The epic index is restored and
-  now says so in its own text.
-- **2026-08-10** — Rescoped to what remains. 23 of 40 lanes shipped; four lanes
-  completed this session (E1-L6, E2-L2, E2-L4, E3-L3) and were ticked. E2-L3 is the
-  only executable epic; six outline epics carry planning tasks. Added T-DEBT.1
-  (tolerance re-derivation) and E2-L7 (the importer, from `dec-0028`). No ADRs
-  created — this repo records decisions as ledger entries under `.dira/entries/`,
-  not as `docs/adr/` files, and `dec-0026` through `dec-0029` already carry this
-  pass's decisions.
+- **2026-09-02** — Backlog refined and all 8 open GitHub issues (#27-#37) triaged.
+  Trimmed: E0-E9's completed lane detail (all shipped; full history now lives only
+  in `docs/roadmap.md` and the already-existing `docs/plan/lanes/*.md` /
+  `docs/plan/tasks/*.md` files, which stay as the append-only record). Added three
+  bug clusters at executable fidelity (T-BUG1, T-BUG2, T-BUG3) covering all eight
+  issues. Two ledger decisions logged as `staged` (`dec-0032`, `dec-0033`) rather
+  than self-confirmed. No new ADRs — this repo records decisions as ledger entries
+  under `.dira/entries/`, not `docs/adr/` files. `docs/coverage.md` updated for the
+  two new `trigger:` obligations the staged entries' `revisit_if` fields created;
+  `python3 scripts/coverage.py` verified green after the edit.

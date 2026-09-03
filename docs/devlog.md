@@ -5,6 +5,59 @@ Session narrative and operational findings, newest first. Invariants belong in
 
 ---
 
+## 2026-09-02 — backlog triage: a fix already shipped, and a bug misdiagnosed as its opposite
+
+**What ran.** `/plan` to refine the backlog and triage all 8 open GitHub issues
+(`#27` through `#37`). No code changed; `docs/plan.md`, `docs/roadmap.md` and
+`docs/coverage.md` did, plus two staged ledger entries (`dec-0032`, `dec-0033`).
+
+**The finding worth keeping.** Issue #27's own comment thread records that David
+and three reviewers already decided the fix: make `dira log`'s creation path
+exclusive-create, refuse if the id exists. Reading `internal/ledger/local/local.go`
+and `internal/ledger/write.go` directly shows that fix already shipped —
+`Store.Create` uses `os.Link` (atomic, fails on an existing target) and `Add`
+retries correctly on `ErrExists`, marking the id taken and advancing. Both `dira
+log` and the `sniff` auto-capture hook route through the same `Add`. Git blame
+puts this at commit `4b7a0d9`/`b7c2f61`, 2026-07-30 — one day into the project,
+before v0.1.0/v0.1.1, before every reported occurrence (2026-08-19 through
+2026-09-02). A decision reached by reasoning about a bug can be correct about the
+fix and wrong about whether it is still needed; nobody had re-read the source
+since deciding.
+
+**How the real mechanism was pinned down.** A peer session (macbook-chief) did the
+git archaeology the local repo couldn't: hq's `dec-0542` has exactly one commit,
+already holding the winning content, no merge, no discarded parent anywhere in
+history or reflog. A merge/rebase landing one side of two independently-created
+files at the same path would leave a two-parent commit or a reachable loser;
+neither exists. That rules out a cross-branch merge collision (the first
+alternative hypothesis raised) and best fits issue #35's bug instead — the entry
+was created once, successfully and atomically, then deleted before it was
+committed, freeing its number for a later session's legitimate reuse. This is not
+fully provable (a pre-commit deletion leaves no trace by construction), which is
+why the plan adds a stress test (`T-BUG1.1`) rather than closing the question by
+assertion.
+
+**Second, smaller finding.** Issues #28, #29, #30 and #31 all report the same
+generic "N entry file(s) could not be read" notice with no field-level detail.
+`internal/index/sync.go` confirmed as the single point of loss: `ix.store.Get`'s
+error is checked (`errors.Is(err, ledger.ErrNotFound)`) and then discarded — only
+the id is kept. `ledger.Decode`/`Entry.Validate` already produce the exact
+field-and-limit detail issue #31's reporter extracted by hand with a throwaway
+harness; the fix is threading it through, not writing new validation. One
+exception noted rather than assumed: issue #29's colon-in-a-quoted-title case
+passes through a separate `internal/frontmatter` boundary-splitter before
+`yaml.v3` ever runs, and that layer's behavior on this input has not been read —
+flagged as a diagnose-first task instead of folding it into the same fix
+unverified.
+
+**Process note.** Two design decisions from this pass went into the ledger as
+`state: staged`, not self-confirmed by the planning session — `dira distill` is
+where David disposes them, matching the tool's own designed workflow rather than
+an agent asserting a decision on his behalf. `dira check` was run against the
+plan's direction before writing anything: no conflict with 35 enforced entries.
+
+---
+
 ## 2026-08-11 — six execution waves, and one defect found nine times
 
 **What ran.** Six pool waves as coordinator, 30 tasks merged, 23 of 40 lanes

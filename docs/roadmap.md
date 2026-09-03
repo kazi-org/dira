@@ -278,6 +278,52 @@ section complete, zero hype terms). The launch is now purely the founder's
 T0 call. Upstream kazi#1681 remains unanswered; E4's emitted-contract
 fallback unaffected.
 
+## STATUS 2026-09-02 · dira (self-triage) · BACKLOG TRIAGED, 2 DECISIONS STAGED
+
+**All 8 open GitHub issues (`#27`-`#37`) triaged and folded into `docs/plan.md`'s
+new frontier: three bug clusters, `T-BUG1`/`T-BUG2`/`T-BUG3`, all at executable
+fidelity.** No new epic — this is hardening on the shipped surface, not new
+capability, matching the T-DEBT.1 precedent (a bounded debt item, not a lane).
+
+**Correction to issue #27's own premise, verified in source.** The exclusive-create
+fix its comment thread already decided on (`os.Link`, refuse-if-exists) is already
+shipped — `internal/ledger/local/local.go` and `internal/ledger/write.go`, live
+since 2026-07-30, before every reported occurrence. macbook-chief's git
+archaeology on the cited incident (hq's `dec-0542`/`dec-0544`) rules out a
+cross-branch merge collision (one linear commit, no discarded parent anywhere) and
+best fits issue #35's bug instead — an uncommitted entry deleted before commit,
+freeing its number for later legitimate reuse — not a live `Add`-vs-`Add` race.
+Not provable from git alone, so `T-BUG1.1` adds a stress test to settle it
+either way rather than resting on the hypothesis.
+
+**Two ledger decisions staged from this pass, awaiting confirmation via `dira
+distill`, not self-confirmed:** `dec-0032` (persist a monotonic id counter, closes
+#35 unconditionally and turns a cross-session double-allocation into a loud git
+merge conflict instead of a silent duplicate id) and `dec-0033` (a reject/tombstone
+disposition that retains an entry's id, closing #35 and #36 together). `dira
+check` run against the plan direction first: no conflict with 35 enforced entries.
+
+**Second confirmed root cause: issues #28/#29/#30/#31 share one fix point.**
+`internal/index/sync.go` discards the real decode/validate error and reports only
+an id count; `ledger.Decode`/`Entry.Validate` already produce the field-level
+detail issue #31's own repro table shows by hand. One fix (`T-BUG2.1`) covers
+`brief`, `check`, `map`, `reindex`, `ui` and `why` at once. Issue #29's specific
+case is not yet confirmed to be the same layer — `T-BUG2.0` diagnoses first.
+
+**Issue #37 has no confirmed repro** — the reporter's own hypothesis does not hold
+against the code as read. `T-BUG3.1` ships the `--dry-run` flag the issue itself
+asked for; a real fix waits on an actual repro command.
+
+**GitHub labeling and comment drafts:** see `docs/plan.md`'s Discovery Summary for
+full citations. Applying `bug` labels to all 8 issues and posting the #27
+correction as a comment are pending David's go-ahead (public repo, visible action).
+
+**Next:** David confirms or rejects `dec-0032`/`dec-0033` via `dira distill`
+(`T-BUG1.2`/`T-BUG1.3` are `blocked:` on this); `/apply --pool` the three waves in
+`docs/plan.md` once unblocked.
+
+---
+
 ## STATUS 2026-08-14 (close) · fable-orchestrator · CODE COMPLETE
 
 **The run is finished: 22 PRs merged, zero open, zero red, all 40 lanes closed
