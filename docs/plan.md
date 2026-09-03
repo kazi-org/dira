@@ -213,8 +213,8 @@ and T-BUG1.4 have no such gate and can run immediately.
 
 #### T-BUG2 — Unreadable-entry diagnostics · `verifies: [gh-28, gh-29, gh-30, gh-31]` · gh: #28, #29, #30, #31
 
-- [ ] T-BUG2.0 Diagnose issue #29: does a colon inside a double-quoted title fail at the `internal/frontmatter` boundary-splitter, or at `yaml.v3`/`Entry.Validate`? · Owner: TBD · Est: 45m · deps: [] · kind: agent · lane: agent · acc: [a written report (as a devlog entry or task comment) states, with the exact failing line and function cited, which of the two layers rejects the repro from issue #29 — this determines whether T-BUG2.1's fix covers it for free or needs its own patch to internal/frontmatter]
-- [ ] T-BUG2.1 Thread the per-file decode/validate error into the index's unreadable-entry notice · Owner: TBD · Est: 1.5h · deps: [T-BUG2.0] · kind: agent · acc: [reindex, why, check, brief, map and ui, run against a ledger containing one entry with an over-long edges[].note, one with an unknown edges[].type, and (if T-BUG2.0 finds the same layer at fault) one with a colon inside a quoted title, each print the real decode/validate error text — field name plus limit or enum, matching ledger.Decode/Validate's existing message shape — alongside the id, not just a bare id count]
+- [x] T-BUG2.0 Diagnose issue #29: does a colon inside a double-quoted title fail at the `internal/frontmatter` boundary-splitter, or at `yaml.v3`/`Entry.Validate`? · Owner: TBD · Est: 45m · deps: [] · kind: agent · lane: agent · acc: [a written report (as a devlog entry or task comment) states, with the exact failing line and function cited, which of the two layers rejects the repro from issue #29 — this determines whether T-BUG2.1's fix covers it for free or needs its own patch to internal/frontmatter] · Done: 2026-09-03, PR #38
+- [ ] T-BUG2.1 Thread the per-file decode/validate error into the index's unreadable-entry notice · Owner: TBD · Est: 1.5h · deps: [T-BUG2.0] · kind: agent · acc: [reindex, why, check, brief, map and ui, run against a ledger containing one entry with an over-long edges[].note, one with an unknown edges[].type, and (if T-BUG2.0 finds the same layer at fault) one with a colon inside a quoted title, each print the real decode/validate error text — field name plus limit or enum, matching ledger.Decode/Validate's existing message shape — alongside the id, not just a bare id count] · Note (T-BUG2.0, PR #38): issue #29's own repro (a colon inside a *properly straight-double-quoted* title) does not reproduce and is not the frontmatter splitter's fault — it decodes cleanly. The failure only reproduces for an unquoted colon or a smart/curly-quoted title, and both fail at `yaml.v3` in `internal/ledger/decode.go:62`, the same layer #28/#30/#31 already share. No `internal/frontmatter` patch is needed; T-BUG2.1's existing acc: line (unchanged here) should cover #29 once its ledger fixture uses one of the shapes that actually reproduces.
 - [ ] T-BUG2.2 `dira lint [id...]`: a verb that validates entries and prints field-level errors on demand · Owner: TBD · Est: 2h · deps: [T-BUG2.1] · kind: agent · acc: [dira lint run against a ledger with N unreadable entries exits non-zero and prints one line per entry naming the field, the offending value, and the limit or enum, at the same detail level as issue #31's own repro table; dira lint against a clean ledger exits 0 and prints a one-line summary]
 
 #### T-BUG3 — `dira log` diagnosability · `verifies: [gh-37]` · gh: #37
@@ -247,7 +247,7 @@ Wave 1: Diagnose + independent fixes (5 agents)
 - [ ] T-BUG1.1  verifies: [dec-0032]
 - [ ] T-BUG1.3  verifies: [dec-0033]   (blocked pending dec-0033 confirmation)
 - [ ] T-BUG1.4  verifies: [dec-0033]
-- [ ] T-BUG2.0  verifies: [gh-29]      (lane: agent)
+- [x] T-BUG2.0  verifies: [gh-29]      (lane: agent) — PR #38
 - [ ] T-BUG3.1  verifies: [gh-37]
 
 Wave 2: Depends on Wave 1 findings (2 agents)
