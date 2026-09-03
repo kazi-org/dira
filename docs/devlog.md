@@ -5,6 +5,79 @@ Session narrative and operational findings, newest first. Invariants belong in
 
 ---
 
+## 2026-09-03 — T-BUG2.0: issue #29 does not reproduce as written; the frontmatter splitter is not the fault
+
+**What ran.** Diagnosis only, per `docs/plan.md`'s Discovery Summary finding 4:
+does issue #29's colon-in-a-quoted-title repro fail at the `internal/frontmatter`
+boundary-splitter, or downstream at `yaml.v3`/`Entry.Validate`? No production code
+changed.
+
+**What was read.** `internal/frontmatter/frontmatter.go`'s `Split` (lines 39-61)
+locates the two `---` delimiter lines with a literal line-by-line scan and returns
+everything between them as opaque bytes. It never inspects that content for
+colons, quotes, or any YAML syntax — its only failure modes are `ErrMissing` (no
+opening `---`) and an unclosed block. It is not a naive colon-based splitter; it
+does not parse frontmatter at all, only its boundary.
+
+**The finding.** Issue #29's repro, copied byte for byte from the issue body
+(confirmed via `gh issue view 29 --json body` piped through `od -c`: the quotes
+around both example titles are plain ASCII `"`, `0x22`, not curly) does not
+reproduce. Built the binary and ran it against this repo's real ledger:
+`dira why dec-0032` renders cleanly and `dira reindex` reports zero invalid
+entries across all 48 — `dec-0032`'s own title,
+`"Ledger ids: persist a monotonic counter instead of allocating from a directory
+scan"`, already carries exactly the reported shape. A throwaway `go test`
+against `ledger.Decode` (`internal/ledger/decode.go`) with the issue's literal
+title text, plus bisected variants (colon immediately after a word, colon+space
+mid-title, colon at the very end, nested double quotes), all decoded without
+error.
+
+The failure does reproduce, but only for two input shapes, neither of which is
+"a colon inside a properly double-quoted title":
+
+1. An unquoted title containing `: ` (colon-space) — a bare YAML syntax error.
+2. A title quoted with Unicode "smart" typographic quotes (`“`/`”`,
+   `“ ”`) instead of straight ASCII `"` — YAML does not recognize curly quotes as
+   a quoting mechanism, so the value parses as an unquoted plain scalar and hits
+   the same error.
+
+Both fail identically, at the same call site: `yaml.Unmarshal(front, &doc)` in
+`decodeEntry`, **`internal/ledger/decode.go:62`** (inside `func decodeEntry`,
+declared at `decode.go:55`) — with the error `yaml: line 3: mapping values are
+not allowed in this context`. This is inside `yaml.v3` itself, reached
+immediately after `frontmatter.Split` returns successfully (`decode.go:56`) and
+strictly before `Entry.Validate` ever runs (only reached from `Decode` at
+`decode.go:44-45`, which neither failing case gets to). `internal/frontmatter`'s
+boundary-splitter is not implicated in either failure mode: it hands `yaml.v3`
+the identical bytes whether the colon is safely quoted or not, because it has no
+opinion on the content between the two `---` lines.
+
+**Implication for T-BUG2.1.** The Discovery Summary's finding-4 fix — threading
+`ix.store.Get`'s real error through `internal/index/sync.go` (the discard is at
+line 120, `invalid = append(invalid, info.ID)`, dropping the `err` inspected at
+line 104) — covers issue #29 for free, once the underlying file matches a shape
+that actually reproduces (unquoted colon, or smart-quoted title). **No
+`internal/frontmatter` patch is needed**: the boundary-splitter behaved correctly
+on every input tried. The `yaml.v3` message once surfaced is genuinely useful (it
+names the line and the syntax problem), though it won't itself say "you used
+curly quotes" — a UX nicety, not a correctness gap, and out of scope here.
+
+**Open question, not resolved here.** The issue's own repro text, as literally
+written by its author, does not reproduce with the shipped code. Most likely
+explanation: a copy/paste transcription that lost the actual failing bytes
+(smart quotes are the leading suspect — the same paragraph's em dash in the
+"parses" example suggests text that passed through a typography-substituting
+editor before it reached the entry file). Recommend, if this recurs: capture the
+exact file bytes (`od -c` or `git show`) rather than a re-typed example, so the
+next diagnosis starts from ground truth instead of a plausible-looking retype.
+
+**Verdict.** `yaml.v3` rejects it, not the frontmatter splitter —
+`internal/ledger/decode.go:62` in `func decodeEntry`. The issue as literally
+written does not reproduce; the real trigger is an unquoted colon or
+smart/curly quotes around the title.
+
+---
+
 ## 2026-09-02 — backlog triage: a fix already shipped, and a bug misdiagnosed as its opposite
 
 **What ran.** `/plan` to refine the backlog and triage all 8 open GitHub issues
