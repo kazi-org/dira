@@ -54,7 +54,7 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 | task | what | lane | status |
 |---|---|---|---|
 | T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | **merged, PR #39** — already satisfied by pre-existing code (`b7c2f61`, 2026-07-30); dec-0032's `revisit_if` does not fire, no live race |
-| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight — was told about the T-BUG2.1 --parallel/kazi#1073 workaround, awaiting reply |
+| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight — original agent stalled 2.5h+, killed and redispatched; retry found the REAL root cause (a correctness bug: `checkStates` never checked the *target*'s state, only `--with`'s — a staged target with alternatives present silently superseded, exit 0) and fixed it directly, bypassing the kazi lane; sent back through kazi's S2b check-only gate before PR, per process |
 | T-BUG2.0 | diagnose issue #29 (frontmatter vs yaml.v3 layer) | agent | **merged, PR #38** |
 | T-BUG2.1 | thread decode/validate errors into 6 consumers | kazi | in flight — proposal approved, t0 RED confirmed (all 6 capability predicates), hit kazi infra crash (`kazi-org/kazi#1073`, `--parallel` on a flat/ungrouped goal), retrying serial |
 | T-BUG3.1 | `dira log --dry-run` | kazi | in flight — was told about the T-BUG2.1 --parallel/kazi#1073 workaround, awaiting reply |
