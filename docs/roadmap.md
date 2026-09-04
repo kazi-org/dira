@@ -51,14 +51,21 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 **Wave 1 dispatched 2026-09-03** (`/apply --pool`, post-release bug backlog, `docs/plan.md`):
 
-| task | what | lane | owner |
+| task | what | lane | status |
 |---|---|---|---|
-| T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | pool |
-| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | pool |
-| T-BUG2.0 | diagnose issue #29 (frontmatter vs yaml.v3 layer) | agent | pool |
-| T-BUG3.1 | `dira log --dry-run` | kazi | pool |
+| T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | in flight |
+| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight |
+| T-BUG2.0 | diagnose issue #29 (frontmatter vs yaml.v3 layer) | agent | **merged, PR #38** |
+| T-BUG3.1 | `dira log --dry-run` | kazi | in flight |
 
 T-BUG1.3 stays `blocked:` pending David confirming `dec-0033` via `dira distill`.
+
+**T-BUG2.0 verdict (PR #38, merged):** issue #29's own repro (a colon inside a
+properly straight-quoted title) does not reproduce — it decodes cleanly. The
+failure only reproduces for an unquoted colon or smart/curly quotes, and both
+fail at `yaml.v3` in `internal/ledger/decode.go:62`, the same layer #28/#30/#31
+already share. No `internal/frontmatter` patch needed; T-BUG2.1 covers it once
+its fixture uses a shape that actually reproduces.
 
 ---
 
