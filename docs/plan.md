@@ -202,7 +202,7 @@ dispatch.
 
 #### T-BUG1 — Ledger id integrity · `verifies: [dec-0032, dec-0033]` · gh: #27, #35, #36
 
-- [ ] T-BUG1.1 Add a concurrency stress test for `ledger.Add`, positively confirming or refuting a live create-vs-create race · Owner: TBD · Est: 1h · deps: [] · kind: agent · verifies: [dec-0032] · acc: [a test spawning N goroutines calling ledger.Add against one shared local.Store, each with distinct content, asserts N distinct ids exist on disk with zero ErrExists-driven silent overwrites, and fails loudly — not silently — if any two goroutines' entries ever land on the same final id]
+- [x] T-BUG1.1 Add a concurrency stress test for `ledger.Add`, positively confirming or refuting a live create-vs-create race · Owner: TBD · Est: 1h · deps: [] · kind: agent · verifies: [dec-0032] · acc: [a test spawning N goroutines calling ledger.Add against one shared local.Store, each with distinct content, asserts N distinct ids exist on disk with zero ErrExists-driven silent overwrites, and fails loudly — not silently — if any two goroutines' entries ever land on the same final id] · **Done 2026-09-03: satisfied by pre-existing code, no new implementation.** `TestThirtyTwoConcurrentAddsProduceThirtyTwoDistinctIDs` (`internal/ledger/write_test.go`, commit `b7c2f61`, 2026-07-30) already meets this acc verbatim. Verified independently: 5x green under `-race`, and proved dispositive by fault-injecting the retry logic (test then failed loudly on both backends) and reverting. No race found; `dec-0032`'s `revisit_if` does not fire.
 - [ ] T-BUG1.2 Persist a monotonic id counter; `Add` allocates from it instead of a directory scan · Owner: TBD · Est: 1.5h · deps: [T-BUG1.1] · kind: agent · verifies: [dec-0032] · blocked: awaiting confirmation of dec-0032 via `dira distill` (currently staged) · acc: [deleting a confirmed entry and then calling ledger.Add for the same kind never reissues the deleted entry's number; two ledgers independently advancing the same counter file, then merged with git, produce a merge conflict on the counter file rather than two entries sharing one id]
 - [ ] T-BUG1.3 Add a reject/tombstone distill disposition that retains the id · Owner: TBD · Est: 1.5h · deps: [] · kind: agent · verifies: [dec-0033] · blocked: awaiting confirmation of dec-0033 via `dira distill` (currently staged) · acc: [dira distill's reject disposition on a staged entry leaves the entry's file and id in place, marks it disposed/rejected, and a subsequent ledger.Add call for the same kind never reallocates that id]
 - [ ] T-BUG1.4 `dira supersede`: name the actual precondition instead of the current cryptic error · Owner: TBD · Est: 45m · deps: [] · kind: agent · verifies: [dec-0033] · acc: [dira supersede against a target whose state is staged prints a message naming the field and required state — e.g. "dec-NNNN is staged; supersede requires a confirmed entry" — instead of "answer and 1 is never a verdict", and exits 2, not 1]
@@ -244,7 +244,7 @@ before spawning and remove worktrees immediately after merging.
 
 ```
 Wave 1: Diagnose + independent fixes (5 agents)
-- [ ] T-BUG1.1  verifies: [dec-0032]
+- [x] T-BUG1.1  verifies: [dec-0032]   — satisfied by pre-existing code (commit b7c2f61), no new PR
 - [ ] T-BUG1.3  verifies: [dec-0033]   (blocked pending dec-0033 confirmation)
 - [ ] T-BUG1.4  verifies: [dec-0033]
 - [x] T-BUG2.0  verifies: [gh-29]      (lane: agent) — PR #38
