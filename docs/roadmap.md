@@ -56,6 +56,7 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 | T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | in flight |
 | T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight |
 | T-BUG2.0 | diagnose issue #29 (frontmatter vs yaml.v3 layer) | agent | **merged, PR #38** |
+| T-BUG2.1 | thread decode/validate errors into 6 consumers | kazi | in flight (wave 2, dep T-BUG2.0 cleared) |
 | T-BUG3.1 | `dira log --dry-run` | kazi | in flight |
 
 T-BUG1.3 stays `blocked:` pending David confirming `dec-0033` via `dira distill`.
