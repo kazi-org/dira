@@ -167,6 +167,14 @@ func TestAddAllocatesTheLowestUnusedID(t *testing.T) {
 // The subprocess form — 32 actual `dira log` invocations — is
 // TestThirtyTwoConcurrentInvocations in cmd/dira. This one runs under -race,
 // which that one cannot usefully do, and it runs against both backends.
+//
+// This is also T-BUG1.1's stress test: dec-0032 asked whether a genuine
+// live create-vs-create race exists in Add beyond the id-reuse-after-deletion
+// bug it fixes. This test already answers that, and has since it was written
+// (commit b7c2f61, 2026-07-30) — no race found under -race across 32 real
+// goroutines against the local backend, so dec-0032's revisit_if does not
+// fire. A reader who lands on T-BUG1.1 or dec-0032 looking for the stress
+// test they describe should stop here rather than write a second one.
 func TestThirtyTwoConcurrentAddsProduceThirtyTwoDistinctIDs(t *testing.T) {
 	t.Parallel()
 
