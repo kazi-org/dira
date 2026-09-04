@@ -53,11 +53,11 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 | task | what | lane | status |
 |---|---|---|---|
-| T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | in flight — no proposal drafted after 1.5h+, pinged for status 2026-09-03 |
-| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight — same stall as T-BUG1.1 |
+| T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | **already satisfied** — `TestThirtyTwoConcurrentAddsProduceThirtyTwoDistinctIDs` (`internal/ledger/write_test.go`, commit `b7c2f61`, 2026-07-30) already does exactly this; verified independently (5x `-race`, green) and proved dispositive both ways (fault-injected the retry logic, test failed loudly, reverted). dec-0032's `revisit_if` does not fire — no live race. Docs-only closeout PR pending. |
+| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight — was told about the T-BUG2.1 --parallel/kazi#1073 workaround, awaiting reply |
 | T-BUG2.0 | diagnose issue #29 (frontmatter vs yaml.v3 layer) | agent | **merged, PR #38** |
 | T-BUG2.1 | thread decode/validate errors into 6 consumers | kazi | in flight — proposal approved, t0 RED confirmed (all 6 capability predicates), hit kazi infra crash (`kazi-org/kazi#1073`, `--parallel` on a flat/ungrouped goal), retrying serial |
-| T-BUG3.1 | `dira log --dry-run` | kazi | in flight — same stall as T-BUG1.1 |
+| T-BUG3.1 | `dira log --dry-run` | kazi | in flight — was told about the T-BUG2.1 --parallel/kazi#1073 workaround, awaiting reply |
 
 T-BUG1.3 stays `blocked:` pending David confirming `dec-0033` via `dira distill`.
 
