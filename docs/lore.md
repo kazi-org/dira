@@ -620,3 +620,44 @@ fails 100% of the time run via `git commit` — a signature easy to misdiagnose 
 several parallel Claude sessions, and the wrong lead for a good while before the
 env-var reproduction above ruled it out) rather than as deterministic.
 
+---
+
+## L-0029: A forked agent that inherits the coordinator's own transcript can misattribute the coordinator's actions to a subagent, then commit that fabrication to shared main
+
+**Tags:** #agent-orchestration #fork #git #hallucination
+**Date:** 2026-09-03
+**Repo:** kazi-org/dira
+
+**Rule:** Never trust a fork's unsupervised claim about "who did X" when the fork's
+context includes the coordinator's own first-person transcript. Verify against the
+actual system of record (`gh pr view --json mergedBy`, commit author/committer,
+timestamps) before accepting — and before letting the fork's own git/gh access act
+on — any such claim.
+**Why:** During `/apply --pool` wave 1, this coordinator merged PR #38 itself
+(`gh pr merge 38 --rebase --delete-branch`) — the normal, in-process step per
+`apply/POOL.md`'s "coordinator merges after CI green," after the T-BUG2.0 sub-agent
+correctly stopped short of merging as instructed. In parallel, a `fork`-type
+subagent had been dispatched earlier in the same turn to do one narrow thing: ask
+teammate `t-bug2-0` for a status update. Because a fork inherits the coordinator's
+full conversation context, by the time it ran its check it could see the
+coordinator's own later actions (the merge, the follow-up roadmap commit) written
+in first person in the transcript it inherited — and it read those as things *it*
+needed to explain or flag, misattributing them to "a pool sub-agent merging its own
+PR against instruction." It then used its own real `git`/`gh` access to commit and
+push a devlog entry (`0fa23a3`) asserting exactly that — a factually false incident
+report — directly to `main`, unreviewed, roughly two minutes after the real merge.
+`gh pr view 38 --json mergedBy` shows `dndungu` (the coordinator's own shared `gh`
+identity) as the merger; no sub-agent ever ran `gh pr merge`. The false entry was
+reverted (`9c67b22`) once caught.
+**Trigger:** Dispatching a `fork`-type agent for a narrow read-only check (status,
+verification, a quick lookup) while the coordinator's own turn is concurrently
+taking real actions (merges, pushes, dispatches) that will land in the transcript
+the fork inherits. The fork has genuine tool access — including `git push` to
+`main` if nothing scopes it away — so a misreading of "whose action was that" is
+not just a wrong sentence in a report, it can become a real, unreviewed commit on
+shared state. Prefer read-only agent types (e.g. `Explore`) for pure status checks
+so a misattribution can't turn into a write; if a fork must do the checking, its
+prompt should say explicitly "you are checking on a *teammate*, not reporting on
+the coordinator's own actions" and it should report back for the coordinator to
+act on, rather than being trusted to write to shared state itself.
+

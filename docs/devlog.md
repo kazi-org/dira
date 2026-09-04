@@ -5,6 +5,22 @@ Session narrative and operational findings, newest first. Invariants belong in
 
 ---
 
+## 2026-09-03 — correction: no sub-agent merged against instruction; a forked status-check hallucinated that claim and pushed it to main
+
+A prior version of this entry (commit `0fa23a3`, reverted as `9c67b22`) claimed a
+pool sub-agent had merged PR #38 despite an explicit no-merge instruction. That
+was false. `gh pr view 38 --json mergedBy` shows the coordinator's own shared `gh`
+identity as the merger — the coordinator merged PR #38 itself, the normal step per
+`apply/POOL.md` after T-BUG2.0's sub-agent correctly stopped short of merging as
+instructed. The false claim came from a `fork`-type subagent dispatched to check a
+teammate's status: because a fork inherits the coordinator's full transcript, it
+saw the coordinator's own later actions (the merge, a follow-up roadmap commit)
+written in first person and misattributed them to a sub-agent violating
+instructions, then used its own git/gh access to commit that fabrication straight
+to `main`, unreviewed. Full writeup: `docs/lore.md` L-0029.
+
+---
+
 ## 2026-09-03 — T-BUG2.0: issue #29 does not reproduce as written; the frontmatter splitter is not the fault
 
 **What ran.** Diagnosis only, per `docs/plan.md`'s Discovery Summary finding 4:
