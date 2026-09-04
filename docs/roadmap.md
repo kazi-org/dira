@@ -53,11 +53,11 @@ Living document. Updated on every merge, lane claim, new blocker, and decision.
 
 | task | what | lane | status |
 |---|---|---|---|
-| T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | in flight |
-| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight |
+| T-BUG1.1 | concurrency stress test for `ledger.Add` | kazi | in flight — no proposal drafted after 1.5h+, pinged for status 2026-09-03 |
+| T-BUG1.4 | `dira supersede` names the actual precondition | kazi | in flight — same stall as T-BUG1.1 |
 | T-BUG2.0 | diagnose issue #29 (frontmatter vs yaml.v3 layer) | agent | **merged, PR #38** |
-| T-BUG2.1 | thread decode/validate errors into 6 consumers | kazi | in flight (wave 2, dep T-BUG2.0 cleared) |
-| T-BUG3.1 | `dira log --dry-run` | kazi | in flight |
+| T-BUG2.1 | thread decode/validate errors into 6 consumers | kazi | in flight — proposal approved, t0 RED confirmed (all 6 capability predicates), hit kazi infra crash (`kazi-org/kazi#1073`, `--parallel` on a flat/ungrouped goal), retrying serial |
+| T-BUG3.1 | `dira log --dry-run` | kazi | in flight — same stall as T-BUG1.1 |
 
 T-BUG1.3 stays `blocked:` pending David confirming `dec-0033` via `dira distill`.
 
