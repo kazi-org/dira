@@ -1,67 +1,29 @@
-# dira logo
+# Dira logo
 
-The mark is a **compass bezel with a two-tone needle, off-north**. It is drawn in a
-single warm **antique brass** with no gradient.
+The mark is a **D with a northeast-pointing compass cutout**. The broad vertical
+stem and curved bowl establish the initial; the transparent needle records a
+chosen direction. The silhouette stays legible as a favicon and works in one ink.
 
-## The sibling logic
-
-kazi's ring wraps a **check** — the reconcile loop converging on *objectively done*.
-dira's ring wraps a **needle** — the bearing that work was done for. Same ring
-language, different interior, so the two read as one family without dira copying
-kazi's electric gradient.
-
-The palettes diverge on purpose: kazi is electric because convergence is energetic,
-dira is brass because a bearing is a settled thing.
-
-## Two decisions that were arrived at by rendering, not taste
-
-Both were wrong on the first attempt and the renders showed it.
-
-- **The needle is a lozenge, not a line.** A line from the centre reads as a clock
-  hand, and the whole mark becomes a stopwatch. Four variants were rendered at 84px,
-  28px and 16px: a single needle read as a gauge, a full-diameter chord read as a
-  prohibition sign, and an open ring read as a loading spinner. Only the two-tone
-  lozenge reads as a compass at every size.
-- **The needle sits off-north, at 34 degrees.** A needle at twelve o'clock reads as a
-  default. Off-north reads as a bearing someone chose, which is the product.
-
-## Files
+The website pairs it with a bold lowercase sans-serif wordmark, `dira.`, with an
+accent-colored period. Editorial headings retain Pagella, so the identity has a
+clear typographic hierarchy.
 
 | File | Use |
 |---|---|
-| `dira-mark.svg` | Icon, brass on any light surface. Primary mark. |
-| `dira-mark-mono.svg` | Icon in `currentColor`, inherits surrounding text colour. |
+| `dira-mark.svg` | Primary vector; cobalt in light mode, pale cobalt in dark mode. |
+| `dira-mark-mono.svg` | Inline vector inheriting `currentColor`, for monochrome use. |
 
-## `currentColor` only resolves when the SVG is INLINED
+Both marks use an even-odd path with a transparent cutout: no background-colored
+patch, external font, raster image, or mask ID. Keep the 48 × 48 viewBox and its
+built-in clear space. Use at 16 pixels or larger; prefer 32–40 pixels in navigation.
 
-`dira-mark-mono.svg` must be inlined into the document. Loaded through
-`<img src="dira-mark-mono.svg">` it is a separate document, `currentColor` falls back
-to black, and the mark disappears on a dark background. This was verified by making
-the mistake: the `<img>` route renders near-black on `#0f151c`, the inlined route
-renders correctly in brass.
+`dira-mark.svg` is the source asset. The website build copies it to
+`site/public/favicon.svg`, used by the favicon, header, footer, and ledger pages.
+The shared wordmark component is `site/src/components/Brand.astro`.
 
-The south half of the needle is knocked out with a `mask` rather than filled with a
-paper colour, so the mark sits correctly on any background instead of stamping a light
-wedge onto a dark one.
+The monochrome variant inherits color only when inlined. When loaded through an
+`img`, use the primary mark, which defines its own light and dark colors.
 
-## Colours
-
-| Token | Light | Dark |
-|---|---|---|
-| `--bearing` | `#8a5f18` | `#c99a3e` |
-
-These are the design system's own tokens (`docs/design/tokens.css`). The mark takes no
-colour of its own.
-
-## Wordmark
-
-The wordmark is set in the system serif with the second syllable in `--bearing`:
-`di` in ink, `ra` in brass. It is CSS, not an asset, so it inherits the type stack and
-the theme automatically. See `.wordmark` in `docs/design/tokens.css`.
-
-## Still missing
-
-- A badge/app-icon variant (kazi has `kazi-badge.svg`); needed if dira ever ships an
-  app icon or an avatar.
-- A favicon. The mark holds at 16px but has not been tested as an `.ico` against a
-  browser's own downscaling.
+See [the website brand specification](../../site/BRAND.md) for palette roles,
+scale provenance, and measured contrast. This redesign replaces the previous
+brass compass-bezel mark for the public website and distributable logo assets.

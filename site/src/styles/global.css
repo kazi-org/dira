@@ -44,7 +44,7 @@ h1 { font-size: clamp(var(--size-52), 6.2vw, var(--size-88)); line-height: 1.04;
 h1 em { font-style: italic; }
 .hero-body { font-size: var(--size-19); line-height: 1.6; max-width: 40ch; color: var(--ink-mid); margin: var(--size-32) 0 var(--size-36); }
 .actions { display: flex; align-items: center; gap: var(--size-24); flex-wrap: wrap; }
-.btn-primary { display: inline-flex; align-items: center; min-height: var(--size-46); padding: 0 var(--size-18); background: var(--ink); color: var(--ground); border: 0; border-radius: var(--size-5); font: var(--size-15) var(--sans); text-decoration: none; cursor: pointer; }
+.btn-primary { display: inline-flex; align-items: center; min-height: var(--size-46); padding: 0 var(--size-18); background: var(--action-fill); color: var(--action-ink); border: 0; border-radius: var(--size-5); font: var(--size-15) var(--sans); text-decoration: none; cursor: pointer; }
 .btn-primary:hover { opacity: .9; }
 .link-underline { font: var(--size-15) var(--sans); color: var(--bearing); }
 .cmd-row { display: flex; align-items: center; gap: var(--size-12); margin-top: var(--size-32); background: var(--sunk); border: var(--size-1) solid var(--rule); border-radius: var(--size-5); padding: var(--size-10) var(--size-14); max-width: var(--size-480); }
@@ -165,7 +165,7 @@ html { scroll-padding-top: var(--size-24); }
 figure { margin: 0; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; }
-.btn-primary:hover { color: var(--ground); background: var(--ink-mid); opacity: 1; }
+.btn-primary:hover { color: var(--action-ink); background: var(--action-hover); opacity: 1; }
 .nav-links a { min-height: var(--size-44); display: inline-flex; align-items: center; }
 .nav-links a[aria-current="page"] { text-decoration: underline; text-underline-offset: var(--size-6); }
 .specimen-panel, .hero-copy, .hero-specimen, .record-demo, .repo-files, .install-step, .cmd-row, .cmd-block, pre, .guide-content { min-width: 0; }
@@ -234,3 +234,15 @@ th { font: var(--size-13) var(--sans); color: var(--ink-low); }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print { .menu-btn, .copy-btn, .nav-links, #mobile-menu { display: none !important; } .guide-nav { position: static; } }
+
+/* True North identity: one typographic wordmark, one directional silhouette. */
+.wordmark { gap: var(--size-10); font-family: var(--sans); }
+.brand-mark { display: block; flex: none; width: var(--size-40); height: var(--size-40); }
+.brand-name { font-size: var(--size-32); font-weight: 700; letter-spacing: -.06em; line-height: 1; color: var(--ink); }
+.brand-period { color: var(--bearing); }
+.footer-wordmark .brand-mark { width: var(--size-32); height: var(--size-32); }
+.footer-wordmark .brand-name { font-size: var(--size-26); }
+h1 em { color: var(--bearing); }
+.menu-btn, .record-controls button { border-color: var(--control-border); }
+.record-controls button[aria-pressed="true"] { background: var(--action-fill); color: var(--action-ink); border-color: var(--action-fill); }
+.copy-btn:hover { background: var(--brand-soft); }

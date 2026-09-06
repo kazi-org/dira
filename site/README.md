@@ -2,7 +2,8 @@
 
 The site is generated as static HTML by Astro and published to
 https://dira.sire.run through GitHub Pages. The homepage adapts the supplied
-`cg.html` reference: paper colors, Pagella type, and a visible decision record.
+`cg.html` reference: Pagella type and a visible decision record. The current
+[True North identity](BRAND.md) adds cobalt, cool slate, and a D-shaped compass mark.
 Shared theme tokens, header, footer, and progressive enhancements live in `src/`.
 
 ## Build and verify

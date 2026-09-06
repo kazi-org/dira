@@ -1,0 +1,47 @@
+/* Dira / True North. Radix Slate + Indigo scales, with Jade for success
+   and Tomato for conflict. Text roles use step 11/12; see site/BRAND.md.
+   Shared by the static site and its rendered ledger snapshots. */
+:root {
+  color-scheme: light dark;
+  --ground: #f9f9fb;
+  --panel: #fcfcfd;
+  --sunk: #f0f0f3;
+  --rule: #cdced6;
+  --rule-soft: #e0e1e6;
+  --ink: #1c2024;
+  --ink-mid: #60646c;
+  --ink-low: #60646c;
+  --bearing: #3a5bc7;
+  --bearing-hover: #1f2d5c;
+  --positive: #1f755d;
+  --conflict: #bf3216;
+  --action-fill: #3e63dd;
+  --action-hover: #3358d4;
+  --action-ink: #fdfdfe;
+  --control-border: #80838d;
+  --brand-soft: #edf2fe;
+  --bearing-lift: var(--bearing-hover);
+  --converged: var(--positive);
+  --caught: var(--conflict);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+  --ground: #11131f;
+  --panel: #161821;
+  --sunk: #182449;
+  --rule: #43484e;
+  --rule-soft: #2e3135;
+  --ink: #edeef0;
+  --ink-mid: #c5c8cd;
+  --ink-low: #bcc0c5;
+  --bearing: #a9bbff;
+  --bearing-hover: #d6e1ff;
+  --positive: #1fd8a4;
+  --conflict: #fea38d;
+  --action-fill: #9eb1ff;
+  --action-hover: #d6e1ff;
+  --action-ink: #11131f;
+  --control-border: #696e77;
+  --brand-soft: #182449;
+  }
+}

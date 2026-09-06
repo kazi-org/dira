@@ -9,7 +9,7 @@
 // the task): replace fetchSnapshot()'s HTTP GET against a spawned `dira ui`
 // with a call to `dira render <path>` (or equivalent), keep everything from
 // transform() down unchanged. No page changes either way.
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, rmSync, copyFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { buildBinary, BIN_PATH, REPO_ROOT, SITE_ROOT } from "./lib/dira.mjs";
@@ -47,7 +47,10 @@ export function injectSiteShell(html) {
   const shellNav =
     '<nav class="crumb" aria-label="Site"><a href="/">dira.sire.run</a> &middot; ' +
     '<a href="/guide/">guide</a> &middot; <a href="/docs/">commands</a></nav>\n</header>';
-  return html.replace("</header>", shellNav);
+  return html
+    .replace('</head>', '<link rel="stylesheet" href="/brand.css"><link rel="stylesheet" href="/ledger-brand.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>')
+    .replace('<a class="wordmark" href="/why/">di<b>ra</b></a>', '<a class="wordmark" href="/" aria-label="Dira home"><img src="/favicon.svg" width="32" height="32" alt="">dira<span aria-hidden="true">.</span></a>')
+    .replace("</header>", shellNav);
 }
 
 export function transform(html) {
@@ -55,6 +58,7 @@ export function transform(html) {
 }
 
 async function main() {
+  copyFileSync(join(REPO_ROOT, "assets/logo/dira-mark.svg"), join(PUBLIC_DIR, "favicon.svg"));
   buildBinary();
 
   const child = spawn(BIN_PATH, ["ui", "-C", REPO_ROOT, "-addr", "127.0.0.1:0"], {

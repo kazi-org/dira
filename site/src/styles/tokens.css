@@ -1,26 +1,13 @@
-
-/* Dira Bearing theme, adapted from the supplied cg.html. */
+/* Typography and layout scales. Color roles live in public/brand.css. */
+@import "../../public/brand.css";
 :root {
-  color-scheme: light dark;
-  --ground: #f7f4ed; --panel: #fffdf8; --sunk: #ece7db; --rule: #ddd7c8;
-  --ink: #23211d; --ink-mid: #55514a; --ink-low: #645f55;
-  --bearing: #8a5f18; --bearing-hover: #6d4a12;
-  --positive: #1f6d5b; --conflict: #a83828;
   --serif: "TeX Gyre Pagella", Georgia, "Times New Roman", serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground: #14110b; --panel: #1b170f; --sunk: #221d13; --rule: #362e1d;
-    --ink: #f3ede0; --ink-mid: #cabfa8; --ink-low: #a89c81;
-    --bearing: #d6a544; --bearing-hover: #e6bd6c;
-    --positive: #4fae95; --conflict: #e08066;
-  }
-}
 
 :root {
-  --panel-shadow-color: rgba(0,0,0,.06);
+  --panel-shadow-color: rgba(17,19,31,.06);
   --size-9999: 9999px;
   --size-1: 1px;
   --size-2: 2px;
