@@ -1,90 +1,16 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import verbTour from "../generated/verb-tour.json";
-
-const REPO = "https://github.com/kazi-org/dira";
-
-// verbTour is generated at build time by scripts/gen-verb-tour.mjs from the
-// locally built binary's own --help / help <verb> output (W1-T4) — this page
-// never hand-lists a command, so it cannot list one the binary doesn't have,
-// or omit one it does (the build fails first, see that script's header).
 ---
-
-<Layout
-  title="dira — docs"
-  description="Build dira from source and see every command it ships, generated from the built binary."
->
-  <header class="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-    <a href="/" class="dira-serif ui-strong flex items-center gap-1 text-xl font-bold">
-      di<b class="dira-text">ra</b>
-    </a>
-    <nav class="flex items-center gap-6 text-sm" aria-label="Primary">
-      <a href="/why/" class="ui-body ui-link">The ledger</a>
-      <a href="/docs/" class="ui-strong font-semibold">Docs</a>
-      <a href={REPO} class="ui-outline rounded-lg border px-3 py-1.5 font-medium">GitHub</a>
-    </nav>
-  </header>
-
-  <main class="mx-auto max-w-3xl px-6 pb-24">
-    <h1 class="dira-serif ui-strong mt-6 text-4xl font-bold">Install</h1>
-    <p class="ui-body mt-4">
-      <code class="ui-code rounded px-1.5 py-0.5">brew install kazi-org/tap/dira</code> is
-      the fastest path in — no account needed, covers darwin-arm64, darwin-amd64, and
-      linux-amd64. Build from source (Go only) if you'd rather, or if you're on
-      linux-arm64.
-    </p>
-    <pre class="ui-code mt-4 overflow-x-auto rounded-xl border p-4 font-mono text-sm"><code>brew install kazi-org/tap/dira
-dira --version</code></pre>
-    <p class="ui-muted mt-3 text-sm">Or from source:</p>
-    <pre class="ui-code mt-2 overflow-x-auto rounded-xl border p-4 font-mono text-sm"><code>git clone {REPO}
-cd dira
-go build ./cmd/dira
-./dira --help</code></pre>
-    <p class="ui-muted mt-3 text-sm">
-      The toolchain version is the one pinned in <code class="ui-code rounded px-1 py-0.5">go.mod</code>.
-      The command path is stdlib-only, enforced by a test — dira runs inside a hook while a
-      human waits on a prompt.
-    </p>
-
-    <h2 class="dira-serif ui-strong mt-12 text-2xl font-bold">Every command</h2>
-    <p class="ui-body mt-3">
-      One line and one real <code class="ui-code rounded px-1 py-0.5">dira help &lt;verb&gt;</code>
-      block per command below, generated from this build — not a hand-typed list, so it
-      cannot drift from what the binary actually does.
-    </p>
-
-    <div class="mt-8 space-y-8">
-      {
-        verbTour.map((v) => (
-          <section class="ui-card rounded-2xl border p-6" aria-labelledby={`verb-${v.name}`}>
-            <h3 id={`verb-${v.name}`} class="dira-mono ui-strong text-lg font-semibold">
-              dira {v.name}
-            </h3>
-            <p class="ui-body mt-1 text-sm">{v.line}</p>
-            <pre class="ui-code mt-3 overflow-x-auto rounded-xl border p-4 font-mono text-xs leading-relaxed"><code>{v.output}</code></pre>
-          </section>
-        ))
-      }
+<Layout title="Command reference — dira" description="Every dira command, with usage and flags generated from the CLI. Capture, review, recall, check, and supersede decisions.">
+<main id="main" class="container">
+  <section class="page-heading"><p class="section-id">Reference / The CLI</p><h1>A small vocabulary.<br />A lasting memory.</h1><p class="intro">Capture, recall, and check your decisions from the terminal. New to dira? <a href="/guide/">Start with the walkthrough.</a></p></section>
+  <div class="guide-layout">
+    <nav class="guide-nav" aria-label="Commands"><p class="section-id">Jump to a command</p>{verbTour.map(v => <a href={`#${v.name}`}>dira {v.name}</a>)}</nav>
+    <div class="guide-content">
+      <p class="note prose">This reference comes from the current source build. Your installed release may differ. Run <code>dira --help</code> to see your version’s commands.</p>
+      {verbTour.map(v => <article id={v.name} class="command-entry"><h2><a href={`#${v.name}`}>dira {v.name}</a></h2><p>{v.line}</p><details open={['log','check'].includes(v.name)}><summary>Usage and flags</summary><pre class="code"><code>{v.output}</code></pre></details></article>)}
     </div>
-
-    <div class="ui-hairline mt-12 border-t pt-8">
-      <h2 class="dira-serif ui-strong text-2xl font-bold">More</h2>
-      <ul class="ui-body mt-3 list-inside list-disc space-y-1 text-sm">
-        <li><a href="/why/" class="ui-link">The ledger, rendered</a> — dira's own decisions, why-chains and rejected alternatives.</li>
-        <li><a href={`${REPO}/blob/main/docs/design.md`} class="ui-link">docs/design.md</a> — the founding design.</li>
-        <li><a href={`${REPO}/blob/main/schema/entry.schema.json`} class="ui-link">schema/entry.schema.json</a> — the entry schema.</li>
-        <li><a href={`${REPO}#readme`} class="ui-link">README</a> — the full pitch.</li>
-      </ul>
-    </div>
-  </main>
-
-  <footer class="ui-hairline border-t">
-    <div class="ui-muted mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm sm:flex-row">
-      <span>dira &middot; Apache-2.0</span>
-      <nav class="flex items-center gap-5" aria-label="Footer">
-        <a href="/why/" class="ui-link">The ledger</a>
-        <a href={REPO} class="ui-link">GitHub</a>
-      </nav>
-    </div>
-  </footer>
+  </div>
+</main>
 </Layout>

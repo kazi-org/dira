@@ -1,8 +1,6 @@
 <h1 align="center">dira</h1>
 
-<p align="center">
-  <b>Never explain the same decision twice.</b>
-</p>
+<p align="center"><b>Never explain the same decision twice.</b></p>
 
 <p align="center">
   Your coding agent has amnesia. You keep re-explaining decisions you already made —<br>
@@ -10,367 +8,240 @@
 </p>
 
 <p align="center">
-  <a href="docs/design.md">Design</a> &nbsp;&middot;&nbsp;
-  <a href="schema/entry.schema.json">Entry schema</a> &nbsp;&middot;&nbsp;
-  <a href=".dira/entries">Our own ledger</a> &nbsp;&middot;&nbsp;
-  <a href="https://github.com/kazi-org/kazi">kazi</a>
+  <a href="https://dira.sire.run">Website</a> &nbsp;&middot;&nbsp;
+  <a href="#quick-start">Quick start</a> &nbsp;&middot;&nbsp;
+  <a href="#the-core-verbs">Commands</a> &nbsp;&middot;&nbsp;
+  <a href="https://github.com/kazi-org/dira/releases/latest">Releases</a> &nbsp;&middot;&nbsp;
+  <a href=".dira/entries">Example ledger</a>
 </p>
 
-<p align="center">
-  <i>dira</i> — Swahili for <i>compass</i>.
-</p>
+**dira is decision memory for AI coding agents, stored in Git.** It records what
+you chose, why you chose it, which alternatives you rejected, and what would make
+you reconsider. Claude Code hooks bring that context into new sessions and stage
+new decisions for review.
 
----
+Each entry is a Markdown file with YAML frontmatter in `.dira/entries/`, committed
+alongside your code. The CLI runs locally without an account, API key, or model
+client. Semantic capture uses the coding agent already in your session.
 
-> **Status: released (v0.1.1).** 14 verbs are real and tested against this repo's
-> own 43-entry ledger — capture, review, enforcement, cross-project tiers, ADR
-> import, and a read-only web surface all run today. `brew install
-> kazi-org/tap/dira` is the fastest way in — see [Install](#install) below, or
-> build from source. Stars and issues welcome.
+*dira* is Swahili for *compass*.
 
-## What dira is
+## Quick start
 
-**A memory of why, kept in the repo as plain files, written mostly by the coding
-agent rather than by the human.** Every entry is a markdown file with YAML
-frontmatter under `.dira/entries/` — an intent, a decision, a rejected alternative,
-an open question, or a constraint — committed alongside the code it governs.
+Install with Homebrew:
 
-## The problem it solves
-
-You spend hundreds of hours brainstorming with a coding agent. You reach real
-agreement. Then you lose it.
-
-Not for lack of writing it down — there are 83 ADRs in the sibling repo. You lose it
-because **reading is pull-based and iteration outruns reading**. So week 12
-relitigates week 1, and the agent, who remembers nothing across sessions, helps you do
-it.
-
-Existing tools each miss a different half:
-
-- **Trackers** (Linear, Jira, Beads) know *what* and *when*. Not *why*, and never
-  *what you rejected*.
-- **ADRs and spec docs** capture rationale into files nobody reopens. They fix
-  capture. The broken thing is retrieval.
-- **Notes apps** (Obsidian) hold everything and therefore own nothing.
-- **kazi** proves a goal is objectively done — and deliberately refuses to decide what
-  to build.
-
-Unclaimed: a ledger where **the agent does the writing, you never open a file, and the
-system actively refuses to let decisions be quietly contradicted.**
-
-```
-        dira  ─── intents · why · why-not · open questions        (upstream of a goal)
-          │
-          ▼  a declared goal
-        kazi  ─── predicates · convergence · evidence             (downstream of a goal)
-```
-
-## The core verbs
-
-Every line below is a real run against the binary built from this worktree
-(`go build ./cmd/dira`), output trimmed where noted.
-
-| verb | what it does | example |
-|---|---|---|
-| `init` | seeds a new ledger from a short fixed interview; all-or-nothing | `dira init --interview` → `seeded a new workspace ledger at .dira` |
-| `log` | writes a new entry, or adds an edge to an existing one | `dira log --kind decision --title "…" --alternative "…" --why-not "…"` → `dec-0001` |
-| `sniff` | reads the session transcript and **stages** candidate decisions; never accepts one | `dira sniff --stage --quiet` → `dira: staged dec-0002 "Let's go with X instead of Y" — confirm or ignore` |
-| `distill` | the review screen: one keystroke per staged capture (`y`/`n`/`e`/`u`/`q`), with undo | run without a terminal on stdin: `dira distill: 1 capture awaiting a human; stdin is not a terminal, so nothing was read and nothing was changed` |
-| `check` | refuses a plan that contradicts a settled decision, quoting the original reason | `dira check "rewrite dira in Elixir using OTP"` → `✗ conflicts with dec-0001 …` (exit 2) |
-| `why` | prints the chain: what an entry arose from, every alternative it refused, and why | `dira why elixir` → the full spine below |
-| `brief` | the session-start screen: open blockers, current focus, recent decisions — capped at 1,500 tokens | `dira brief` |
-| `supersede` | retires an entry in favour of the one that replaces it, writing both sides | `dira supersede dec-0001 --with dec-0003 --note "…"` → `dec-0001 is superseded by dec-0003; dira check now cites dec-0003 in its place` |
-| `ui` | serves the ledger index and per-entry pages on loopback, no JS required | `dira ui -addr 127.0.0.1:8942` → `serving the ledger read-only; ctrl-c to stop` (`curl` returns `200`) |
-| `install-hooks` | merges dira's Claude Code hook registrations (`SessionStart`/`Stop`/`PreCompact`) into a settings file, merge-never-clobber; defaults to `~/.claude/settings.json` | `dira install-hooks --dir DIR` → `INSTALLED DIR/settings.json` |
-| `install-skill` | writes dira's tier-2 capture skill into `~/.claude` for Claude Code to load; defaults to `~/.claude` | `dira install-skill --root DIR` → `INSTALLED DIR/skills/dira/SKILL.md` |
-| `reindex` | rebuilds the derived SQLite cache from the entry files alone | `dira reindex` → `indexed 43 entries and 87 edges from .dira into .dira/cache` |
-| `import` | measures a directory of ADRs, reports the yield, and asks before writing; see below | `dira import DIR` → `2 documents scanned` / `2 record a rejected option with a reason` |
-| `version` | prints the binary's version | `dira version` → `dev` on a plain build |
-
-Run `dira --help` for the authoritative, current list — that is the source this
-table was built from, not the other way around.
-
-Real `why` output, from this repo's own ledger — abridged, because each rejected
-alternative carries its full grounds:
-
-```
-$ dira why elixir
-int-0002  Zero-ceremony operation — one binary, no server, no  active 2026-07-29
-          daemon
-            cold-start latency is the UX, and that is a runtime property
-└─ dec-0001  Go, not Elixir/OTP, despite kazi's stack        accepted 2026-07-29
-   ├─ ✗ Elixir/OTP, reusing kazi's Burrito + Homebrew tap + release-please
-   │    pipeline
-   │    dira is a short-lived, hook-invoked CLI that runs several times per
-   │    session in the latency path of a human waiting on a prompt. BEAM
-   │    start-up is tens to hundreds of milliseconds before any work happens...
-   │    revisit if  dira grows a genuinely long-lived component
-   ├─ ✗ Rust
-   ├─ ✗ A shell script or Python
-   └─ ✗ A TypeScript CLI on Node/Bun
-```
-
-The spine reads top-down: the intent it serves, then the decision, then every
-alternative that was rejected *and why*. Only rejections are listed — what was
-chosen is the decision itself. `revisit if` is the condition that would reopen
-it, which is the thing a chat log never records.
-
-## How capture works
-
-Capture is the agent's job, not yours. `dira install-hooks` writes three
-registrations into Claude Code's settings — this is the literal command each one
-runs, taken from `hooks/settings.example.json`:
-
-| hook | command | job |
-|---|---|---|
-| `SessionStart` | `dira brief --context --chain` | inject the brief into the agent's context before the first prompt — review is push, not pull |
-| `Stop` | `dira sniff --stage --quiet` | tier-1 capture: a regular expression reads the last turn and **stages** anything that looks like a decision |
-| `PreCompact` | `dira sniff --deep --stage --all` | the insurance policy — fires before Claude Code's lossiest moment so a long session can't evaporate into a compaction summary |
-
-`sniff` is deliberately underpowered: `dec-0003` gives a regular expression no
-business asserting rationale, so everything it finds is written `state: staged`
-with `source.tier: regex` and nothing else — no because, no alternative, no ADR.
-Confirming a capture (`distill`, pressing `y`) does not accept the decision; it
-hands the entry to the semantic tier — a Claude Code skill (`dira install-skill`)
-that has the actual conversation in context and can fill in the *why* a regex
-cannot see.
-
-## How enforcement works
-
-Before work gets planned, run the plan past the ledger:
-
-```
-$ dira check "rewrite dira in Elixir using OTP"
-✗ conflicts with dec-0001 (accepted 2026-07-29)
-    rejected alternative: "Elixir/OTP, reusing kazi's Burrito + Homebrew tap +
-    release-please pipeline"
-    why_not: dira is a short-lived, hook-invoked CLI that runs several times
-    per session in the latency path of a human waiting on a prompt. BEAM
-    start-up is tens to hundreds of milliseconds before any work happens...
-    revisit_if: dira grows a genuinely long-lived component — a watch daemon
-    or a hosted multi-tenant service
-→ supersede dec-0001, or revise the plan
-```
-
-Real output from this repo's own ledger, trimmed; exit code `2`. The matching is
-lexical and runs entirely inside the binary — no model, no network, no agent in
-the loop, which is what makes it usable from a hook. The exit codes are a
-contract dira holds everywhere: `0` no conflict, `2` a verdict against the plan,
-`1` dira's own error (an unreadable ledger, a bad flag) — a caller must never read
-`1` as a verdict. `dira supersede` is the only way past a settled decision: it
-writes both sides — the replacement gains a `supersedes` edge, the retired entry's
-state becomes `superseded` — and `check` starts citing the replacement instead.
-
-## How import works
-
-An existing pile of ADRs is not thrown away — `dira import DIR` measures it before
-writing anything. Real output, run against a scratch ledger in a temp directory
-seeded with two documents from the vendored `bbc/tams` corpus
-(`internal/importadr/testdata/corpora/bbc-tams`), never against this repo's own
-`.dira`:
-
-```
-$ dira import /tmp/dira-import-demo/adrs
-2 documents scanned
-2 record a rejected option with a reason
-23 reasons found
-Import the 2 entries that carry a reason?
-```
-
-That's the report-and-ask mode `dira import DIR` runs by default — nothing is
-written until the prompt is answered yes, either interactively or with `--yes`.
-Confirming imports one staged `decision` entry per document, each `alternatives`
-list built from the document's own rejected options and `source.hook: import`
-recording which file and content hash it came from — real output, trimmed to one
-alternative:
-
-```yaml
-alternatives:
-  - option: "Option 1: Add a Source representation"
-    why_not: >
-      Source data are potentially duplicated between this API and other systems
-      (e.g. external MAM/PAM systems)
-source:
-  hook: import
-  excerpt: "imported from 0002-add-sources-to-api.md (sha256:97bdb1b4…)"
-  tier: regex
-```
-
-When a corpus yields nothing — no document records a reasoned rejection — import
-offers to index it instead: a manifest under `.dira/cache/imports/`, never a
-ledger entry, because a `decision` entry `dira check` can't cite anything against
-is worse than not having it. `dec-0028` records the evidence this rests on: five
-real corpora measured before the importer was built, from 90% of documents
-carrying a reason (`bbc/tams`) down to 0% (`nulib/meadow`) — the importer has to
-behave correctly at both ends of that range, not just the rich end.
-
-## What it answers
-
-**"What's planned, in progress, blocked?"** — `dira brief` prints open blockers
-(unanswered questions gating work), current focus (active intents), and recent
-decisions, hard-capped at 1,500 tokens (`brief.max_tokens` in `.dira/config.toml`)
-so the brief can never become the ADR pile it exists to replace.
-
-**Cross-project awareness is real but still narrow.** `.dira/config.toml` can
-declare parent ledgers under `[parents]` — a personal ledger above a workspace
-ledger above a repo, so the model is fractal:
-
-```
-~/.dira/            you       — private, syncs across machines
-└─ sire/.dira/      venture   — bets
-   └─ kazi/.dira/   repo
-```
-
-`dira brief --chain` names the declared parents so the agent knows more context
-exists elsewhere (`chain: one parent ledger is configured as parent.`, verified
-against a real two-ledger setup in this worktree). Edges can point across
-ledgers with a namespaced ref (`derives_from=parent:dec-0001`), and
-`scripts/privacy-lint.py` enforces that every namespaced edge resolves to a
-declared parent namespace — an undeclared one is always a typo, never treated as
-private. What is **not** wired to any command yet: automatic orphan-work flagging
-and full cross-ledger citation inside `dira why`. The classification logic exists
-and is tested (`internal/drift`), but no verb surfaces it today — that lands with
-`dira map` (epic E4), which is still an outline, not built.
-
-## Design commitments
-
-These are constitutional. Each is a real entry in [`.dira/`](.dira/entries) with its
-rejected alternatives recorded, so overruling one is a one-line supersede rather than
-an argument.
-
-| | |
-|---|---|
-| **One binary, no server, no daemon** | Invoked from hooks in a human's latency path. Works with the network unplugged. |
-| **No model client in the binary** | No API key, no vendor lock-in. Semantic extraction is delegated to the session that's already running. |
-| **Status is derived, never stored** | Hand-entered status is exactly what went stale in Obsidian and Linear. |
-| **Five entry kinds, closed set** | A sixth kind is how a direction tool becomes a second brain. |
-| **The brief never exceeds 1,500 tokens** | Enforced by the binary, not by taste. |
-| **Private context never enters a public ledger** | Inheritance is downward-only and read-time-only. A violation is a security bug. |
-| **Never requires an account or a hosted tier** | Your data never touches our servers — literally, because there are no servers. |
-
-## Where the data lives
-
-One file per entry — YAML frontmatter for the machine, markdown body for the *because*:
-
-```
-.dira/
-├── config.toml          # the only hand-edited file
-├── entries/             # the ledger, committed to your repo
-│   ├── int-0001.md
-│   └── dec-0001.md
-└── cache/                # derived SQLite, gitignored, rebuildable
-```
-
-Per-entry files rather than an append-only log, because capture is automatic and
-unattended: two sessions logging at once create two files, which git merges without a
-conflict. It also means one write per mutation — and therefore one GitHub `PUT`, which
-is what lets a phone be a first-class client with **no dira server anywhere**. GitHub
-is already the sync layer; it was already paid for.
-
-Full rationale: [dec-0002](.dira/entries/dec-0002.md).
-
-## Install
-
-```
+```sh
 brew install kazi-org/tap/dira
 dira --version
 ```
 
-Published to [`kazi-org/homebrew-tap`](https://github.com/kazi-org/homebrew-tap)
-by [`.goreleaser.yaml`](.goreleaser.yaml) on every tagged release, with an
-arch-conditional formula — no account needed. Covers darwin-arm64,
-darwin-amd64, and linux-amd64. linux-arm64 (e.g. the DGX) has no tap formula
-yet; use the archive below instead.
+Or download a binary for macOS or Linux (ARM64 or AMD64) from
+[GitHub Releases](https://github.com/kazi-org/dira/releases/latest). Releases include
+`checksums.txt` for verification. Linux ARM64 users should use the release archive;
+the Homebrew formula covers macOS ARM64/AMD64 and Linux AMD64.
 
-## Install from a Release
+In the repository where you want to keep decisions:
 
-Each tagged release also publishes a darwin-arm64 archive, a darwin-amd64
-archive, a linux-amd64 archive, a linux-arm64 archive, and a `checksums.txt`,
-built by [`.goreleaser.yaml`](.goreleaser.yaml) with `CGO_ENABLED=0` and no
-account needed to fetch them:
-
-```
-VERSION=0.1.1  # the released tag, without the leading v
-curl -LO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/dira_${VERSION}_darwin_arm64.tar.gz"
-curl -LO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/checksums.txt"
-sha256sum --ignore-missing -c checksums.txt
-tar -xzf "dira_${VERSION}_darwin_arm64.tar.gz"
-./dira --version
+```sh
+dira init --interview
 ```
 
-Swap `dira_${VERSION}_darwin_arm64.tar.gz` for `dira_${VERSION}_darwin_amd64.tar.gz` on
-an Intel Mac, `dira_${VERSION}_linux_amd64.tar.gz` on linux-amd64, or
-`dira_${VERSION}_linux_arm64.tar.gz` on linux-arm64 (e.g. the DGX).
+The short interview seeds an intent, a constraint, and an open question. Choose
+`workspace` for a project ledger. Then record a decision:
 
-## Build from source
+```sh
+dira log --kind decision --title "Use SQLite for local storage" \
+  --alternative "PostgreSQL" \
+  --why-not "Local storage must work offline without a database server" \
+  --revisit-if "Multiple users need concurrent remote writes"
 
-Go only — the toolchain version is the one pinned in [`go.mod`](go.mod), and there is
-nothing else to install.
-
+dira why SQLite
+dira check "use PostgreSQL for local storage"
 ```
-git clone https://github.com/kazi-org/dira
+
+`why` shows the decision and its reasoning. `check` reports the conflict, cites
+the rejected alternative, and exits with code `2`. Commit `.dira/` with your code;
+the derived cache is disposable.
+
+### Connect Claude Code
+
+With `dira` on your `PATH`, install the hooks and capture skill:
+
+```sh
+dira install-hooks
+dira install-skill
+```
+
+These commands merge hooks into `~/.claude/settings.json` and install the skill at
+`~/.claude/skills/dira/SKILL.md`. Existing settings and hooks are preserved. Start
+a new Claude Code session in your repository to receive the brief.
+
+```sh
+dira brief       # Read the current focus, blockers, and recent decisions
+dira distill     # Review staged captures in an interactive terminal
+dira ui          # Browse the ledger in a local, read-only web view
+```
+
+The CLI also works directly from your terminal or another agent's workflow. The
+bundled hooks and skill target Claude Code.
+
+## How it works
+
+**Capture → review → recall → check.** dira keeps the reasoning close to the code
+and makes it available when the next decision is being made.
+
+### Capture and review
+
+The installed hooks run at three points:
+
+| Claude Code event | Command | Purpose |
+|---|---|---|
+| `SessionStart` | `dira brief --context --chain` | Supply decision context before work begins. |
+| `Stop` | `dira sniff --stage --quiet` | Stage candidate decisions from the session transcript. |
+| `PreCompact` | `dira sniff --deep --stage --all` | Capture candidates before the transcript is compacted. |
+
+`sniff` uses regular expressions. It stages candidates; it does not invent reasons
+or accept decisions. In `dira distill`, you can confirm, ignore, edit, or undo.
+Confirming a capture marks it for semantic extraction and leaves it staged until
+its reasoning is supplied. The capture skill lets the session agent fill in that
+reasoning from the conversation.
+
+The PreCompact hook preserves candidates, but its output alone does not guarantee
+that the agent completes semantic extraction. Review pending captures with
+`dira distill`. See the [hook configuration](hooks/settings.example.json) for the
+exact commands and delivery constraints.
+
+### Recall and check
+
+`dira brief` summarizes blockers, active intents, and recent decisions in at most
+1,500 tokens. `dira why QUERY` follows an entry's reasoning chain, including rejected
+alternatives and the conditions that would reopen them.
+
+Run a proposed plan through `dira check` before implementing it. For example,
+inside this repository:
+
+```sh
+dira check "rewrite dira in Elixir using OTP"
+```
+
+The ledger cites `dec-0001`, which records the choice of Go and the reasons for
+rejecting Elixir/OTP. Matching is **lexical and offline**: it detects matches to
+recorded rejected alternatives, not every possible semantic contradiction. A
+clean result means no conflict was detected by that matcher.
+
+For `check`, exit `0` means no conflict, `2` means a conflict, and `1` means the
+check failed to run, including invalid arguments. Use these codes in your own
+planning workflow; the installed capture hooks do not automatically gate plans.
+Other commands generally use `2` for usage errors; consult `dira help COMMAND`.
+
+When circumstances change, record the replacement decision and link it explicitly:
+
+```sh
+dira supersede dec-0001 --with dec-0002 --note "Requirements have changed"
+```
+
+Use the IDs from your own ledger. Superseding preserves the history, retires the
+old entry, and makes the replacement the decision `check` consults.
+
+## The core verbs
+
+| Command | Purpose |
+|---|---|
+| `init` | Seed a ledger through a short interview. |
+| `log` | Write an entry or add a relationship to an existing one. |
+| `sniff` | Stage candidate decisions from a session transcript. |
+| `distill` | Review staged captures interactively. |
+| `brief` | Summarize blockers, focus, and recent decisions. |
+| `why` | Show the reasoning behind an entry and its rejected alternatives. |
+| `check` | Check a plan against settled decisions. |
+| `map` | Group intents and decisions, with execution status from kazi when available. |
+| `supersede` | Replace a settled entry while preserving its history. |
+| `ui` | Serve a read-only ledger browser on localhost. |
+| `import` | Measure existing ADRs and offer to import or index them. |
+| `install-hooks` | Merge Claude Code hook registrations into settings. |
+| `install-skill` | Install the Claude Code capture skill. |
+| `reindex` | Rebuild the derived SQLite cache from entry files. |
+| `version` | Print the binary version. |
+
+This table describes the current source tree; an installed release may have fewer
+commands. Run `dira --help` or `dira help COMMAND` for your binary's options.
+
+## Bring existing ADRs
+
+```sh
+dira import docs/adr
+```
+
+Import scans the directory and reports how many documents contain a rejected
+option with a reason. It asks before writing; `--yes` confirms noninteractively.
+Imported decisions are staged for review, with source filenames and content hashes.
+
+If no document contains a reasoned rejection, dira offers to index the documents
+in its cache instead. It does not manufacture rejected alternatives to make an ADR
+look enforceable.
+
+## Your ledger is plain files
+
+```text
+.dira/
+├── config.toml          # Ledger configuration
+├── entries/             # Version-controlled Markdown with YAML frontmatter
+│   ├── int-0001.md
+│   └── dec-0001.md
+└── cache/                # Derived SQLite cache; rebuild with dira reindex
+```
+
+The five entry kinds are **intent, decision, question, constraint, and note**.
+Rejected alternatives belong to a decision, with a reason and an optional
+`revisit_if` condition. Relationships connect entries into a reasoning chain.
+
+You can read, diff, and review the files with ordinary Git tools. The cache is
+rebuildable from those files. Browse [this repository's ledger](.dira/entries) for
+real examples, or consult the [entry schema](schema/entry.schema.json).
+
+Parent ledgers declared in `.dira/config.toml` let you organize personal, workspace,
+and repository context. `dira brief --chain` surfaces parent context; namespaced
+references connect entries across ledgers. See the [design document](docs/design.md)
+for the tier model and privacy rules.
+
+## Relationship to kazi
+
+[kazi](https://github.com/kazi-org/kazi) checks whether a declared goal is complete.
+dira preserves why that goal matters and which choices led to it. Both work
+independently.
+
+`dira map` groups active intents and accepted decisions and reads execution status
+through kazi's public JSON interface. If kazi is unavailable, the ledger groups
+still render and dira explains why execution status is missing. Execution status
+is derived at read time, never stored in the ledger.
+
+## Build and contribute
+
+Use the Go version specified in [go.mod](go.mod):
+
+```sh
+git clone https://github.com/kazi-org/dira.git
 cd dira
 go build ./cmd/dira
 ./dira --help
 ```
 
-If you intend to commit, install the pre-commit hook once:
+A source build reports `dev`; release builds embed their version at link time.
+Before contributing, install the repository's pre-commit gates and run the tests:
 
-```
+```sh
 sh hooks/install.sh
-```
-
-A fresh clone's `.git/hooks` is never tracked by git, so without this step the
-coverage, privacy, lint and test gates simply do not run locally — CI still enforces
-them on push, so the failure is late rather than silent.
-
-`dira --version` prints `dev` from a plain build. Release builds stamp the tag in at
-link time:
-
-```
-go build -ldflags "-X main.version=1.2.3" ./cmd/dira
-```
-
-Run the tests, which include the gate that validates every entry in
-[`.dira/entries/`](.dira/entries) against
-[`schema/entry.schema.json`](schema/entry.schema.json):
-
-```
 go test ./...
 ```
 
-The command path is stdlib-only and a test enforces it, because dira runs inside a
-hook while you wait for a prompt ([int-0002](.dira/entries/int-0002.md),
-[dec-0001](.dira/entries/dec-0001.md)). Exit codes are a contract: `0` success,
-`1` runtime error, `2` usage error.
+The suite includes validation of this repository's ledger against the entry schema.
+See the [design](docs/design.md), [roadmap](docs/roadmap.md), and
+[work plan](docs/plan.md) for architecture and ongoing work. Report bugs or suggest
+improvements through [GitHub Issues](https://github.com/kazi-org/dira/issues).
 
-## Status
-
-**Released.** All 14 verbs above are shipped, tested, and enforced against this
-repo's own ledger — `go test ./...` is green. What that status means concretely:
-
-- `brew install kazi-org/tap/dira` works today, verified by real installs on
-  darwin-arm64, darwin-amd64, and linux-amd64 — see [Install](#install) above.
-  linux-arm64 (e.g. the DGX) ships as a plain archive; see
-  [Install from a Release](#install-from-a-release).
-- `dira --version` reports the tag a release build was stamped with — `0.1.1` as
-  of the latest release (above). A plain `go build` still prints `dev`.
-- Detail beyond this line — what's in progress, what's next, what's blocked —
-  lives in [`docs/roadmap.md`](docs/roadmap.md) and [`docs/plan.md`](docs/plan.md),
-  which this README does not duplicate on purpose: a status table copied into two
-  places is exactly the kind of thing that goes stale in one of them.
-
-## Relationship to kazi
-
-Siblings, neither depending on the other. kazi's README draws the line itself: it will
-never *"decide what to build — that's your judgment."* That sentence is dira's
-charter — dira owns everything upstream of a declared goal.
-
-kazi runs fine with no dira installed. dira degrades to its ledger-side views with no
-kazi installed, and says so rather than guessing (`.dira/config.toml`'s `[kazi]`
-block). Integration is only through kazi's public `--json` contract
-([dec-0008](.dira/entries/dec-0008.md)) — never its internals.
+Capture, review, conflict checks, ADR import, and a read-only ledger browser are available in dira.
+See [releases](https://github.com/kazi-org/dira/releases) for versioned changes.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+[Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.

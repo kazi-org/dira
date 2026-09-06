@@ -49,3 +49,6 @@ docs/design/renders/
 # scripts/coverage.py reads docs/plan.md, so an untracked plan.md would make the
 # coverage gate fail on a fresh clone for the wrong reason.
 !docs/plan.md
+
+# Generated public-ledger sitemap
+site/public/ledger-sitemap.xml

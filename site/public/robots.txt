@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://dira.sire.run/sitemap-index.xml
+Sitemap: https://dira.sire.run/ledger-sitemap.xml

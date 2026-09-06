@@ -1,223 +1,223 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { STRAPLINE, INSTALL_CMD } from "../canonical.mjs";
-
-const REPO = "https://github.com/kazi-org/dira";
-const BREW_CMD = "brew install kazi-org/tap/dira";
-// __DIRA_VERSION__ is `git describe --tags` at build time (astro.config.mjs)
-// — "pre-release" on a tagless checkout, the real tag otherwise. Rendered in
-// the hero so a visitor can see which release the page describes.
-const VERSION = __DIRA_VERSION__;
-
-// Copy sourced from docs/design/landing/index.html (E8-L2's gated landing
-// page — docs/plan/website.md cites docs/growth/drafts/ as the source, but
-// that directory holds only the marketplace/awesome-list/directory-submission
-// drafts (E8-L5/L6), none of which is landing-page prose; docs/design/landing/
-// is the file that literally says "LANDING — the go-to-market page (E8-L2)"
-// in its own header comment, so that is what this page sources from).
-// Verbatim below except the Status section, which is inherently
-// time-sensitive — see the comment above STATUS_LINE.
-const HOOK =
-  "Your coding agent has amnesia. You keep re-explaining decisions you already made — and it keeps suggesting the thing you rejected in July. dira is a git-native ledger of the intents, decisions, rejected alternatives, and open questions behind your codebase, captured by the agent, pushed back before you ask.";
-
-const inversions = [
-  ["You write the record.", "The agent writes it.", "Your whole job is confirm or ignore."],
-  ["You go read the record.", "The record comes to you", "one screen, every session start, capped forever."],
-  ["The record is a document.", "The record is an enforcer", "it blocks contradictions before work is planned."],
-];
-
-const pillars = [
-  [
-    "Zero clerical work",
-    "Hooks capture it; you press confirm. If it needed discipline, you'd have kept using ADRs.",
-  ],
-  [
-    "It argues back",
-    "The only check that stops a plan by citing your own past reasoning, not a linter rule.",
-  ],
-];
-
-const objections = [
-  [
-    "I already have ADRs.",
-    "So does the author — 83 of them, unread. Whether indexing an existing pile produces a useful ledger or just a second pile is an open question the project is still working through, not a shipped feature yet.",
-  ],
-  [
-    "Another tool to maintain?",
-    "It replaces tools rather than adding one, and you don't maintain it — the agent writes it.",
-  ],
-  [
-    "Why not just a bigger CLAUDE.md?",
-    "A context file has no lifecycle, no supersession, no rejected alternatives, and cannot enforce anything. It also grows until it stops being read — which is the original failure.",
-  ],
-  [
-    "Is this lock-in?",
-    "Plain markdown in your own repo. Delete the binary; the record is still readable. Apache 2.0.",
-  ],
-];
 ---
-
 <Layout>
-  <header class="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-    <a href="/" class="dira-serif ui-strong flex items-center gap-1 text-xl font-bold" aria-label="dira home">
-      di<b class="dira-text">ra</b>
-    </a>
-    <nav class="flex items-center gap-6 text-sm" aria-label="Primary">
-      <a href="/why/" class="ui-body ui-link">The ledger</a>
-      <a href="/docs/" class="ui-body ui-link">Docs</a>
-      <a href={REPO} class="ui-outline rounded-lg border px-3 py-1.5 font-medium">GitHub</a>
-    </nav>
-  </header>
-
-  <main>
-    <!-- Hero -->
-    <section class="relative overflow-hidden" aria-labelledby="hero-heading">
-      <div
-        class="dira-gradient pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full opacity-20 blur-[120px]"
-        aria-hidden="true"
-      >
+<main id="main">
+<section class="hero" id="top">
+  <div class="container hero-grid">
+    <div class="hero-copy fade-in">
+      <p class="eyebrow">Open source · Reasoning kept in Git</p>
+      <h1>Never explain<br /> the same<br /> <em>decision</em> twice.</h1>
+      <p class="hero-body">Keep the why behind your code. dira records decisions and rejected alternatives in your repo, brings them into your coding agent's next session, and checks proposed work against what you already decided.</p>
+      <div class="actions">
+        <a class="btn-primary" href="#install">Install dira</a>
+        <a class="link-underline" href="/why/"><u>Explore the real ledger</u></a>
       </div>
-      <div class="mx-auto max-w-3xl px-6 pb-12 pt-16 text-center sm:pt-24">
-        <p class="dira-mono ui-muted text-xs uppercase tracking-[0.14em]">
-          dira <span class="ui-chip rounded px-1.5 py-0.5">{VERSION}</span>
-        </p>
-        <h1
-          id="hero-heading"
-          class="dira-serif ui-strong mt-4 text-balance text-4xl font-normal tracking-tight sm:text-5xl"
-        >
-          {STRAPLINE}
-        </h1>
-        <p class="dira-serif ui-body mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed">
-          {HOOK}
-        </p>
+      <div class="cmd-row">
+        <code>brew install kazi-org/tap/dira</code>
+        <button class="copy-btn" data-copy="brew install kazi-org/tap/dira">Copy</button>
       </div>
-    </section>
-
-    <!-- See it catch a contradiction — the real check demo, verbatim from
-         docs/design/landing/index.html -->
-    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="demo-heading">
-      <h2 id="demo-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
-        See it catch a contradiction
-      </h2>
-      <div class="ui-code dira-mono mt-6 overflow-x-auto rounded-xl border p-5 text-sm">
-        <div><span class="ui-muted">$ </span><span>dira check</span> <span class="ui-body">"add a background daemon to track run state"</span></div>
-      </div>
-      <pre class="ui-code dira-mono mt-2 overflow-x-auto rounded-xl border p-5 text-sm leading-relaxed"><code>{`✗ conflicts with dec-0060 (accepted 3 Jul 2026)
-    rejected alternative: "a daemon"
-    why_not: violates the single-binary intent (int-0002)
-    revisit_if: cold-start latency stops being the binding constraint
-
-→ supersede dec-0060, or revise the plan`}</code></pre>
-      <p class="ui-muted mt-3 text-center text-xs">
-        The full transcript. Nothing cut, nothing staged for this page — this is the same
-        output <code class="ui-code rounded px-1 py-0.5">dira check</code> prints in a terminal.
-      </p>
-      <div class="ui-chip dira-mono mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 rounded-lg border px-4 py-3 text-xs">
-        <span><b class="dira-text">dec-</b> a decision, with the alternatives it ruled out</span>
-        <span><b class="dira-text">int-</b> an intent — a direction the work serves</span>
-      </div>
-    </section>
-
-    <!-- Three inversions -->
-    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="inversions-heading">
-      <h2 id="inversions-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
-        Three inversions
-      </h2>
-      <div class="mt-6 space-y-4">
-        {
-          inversions.map(([old, bold, rest]) => (
-            <div class="ui-hairline grid gap-2 border-b pb-4 last:border-0 sm:grid-cols-[1fr_auto_1fr] sm:items-baseline sm:gap-4">
-              <span class="dira-serif ui-body line-through decoration-1">{old}</span>
-              <span class="ui-muted hidden dira-mono sm:inline">&rarr;</span>
-              <span class="dira-serif ui-strong">
-                <b>{bold}</b> {rest}
-              </span>
-            </div>
-          ))
-        }
-      </div>
-    </section>
-
-    <!-- What that costs you -->
-    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="pillars-heading">
-      <h2 id="pillars-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
-        What that costs you
-      </h2>
-      <div class="mt-6 grid gap-4 sm:grid-cols-2">
-        {
-          pillars.map(([title, body]) => (
-            <div class="ui-card rounded-2xl border p-6">
-              <h3 class="dira-serif ui-strong text-lg font-semibold">{title}</h3>
-              <p class="dira-serif ui-body mt-2 text-sm leading-relaxed">{body}</p>
-            </div>
-          ))
-        }
-      </div>
-    </section>
-
-    <!-- Objections -->
-    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="objections-heading">
-      <h2 id="objections-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
-        Objections
-      </h2>
-      <dl class="mt-6 space-y-6">
-        {
-          objections.map(([q, a]) => (
-            <div>
-              <dt class="ui-strong font-semibold">{q}</dt>
-              <dd class="dira-serif ui-body mt-1 max-w-2xl text-sm leading-relaxed">{a}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </section>
-
-    <!-- Status: kept dynamic rather than copied verbatim from the stale draft
-         ("no binary yet") — the same call docs/design/landing/canonical.mjs's
-         own comment already made once for the same field, rather than ship a
-         canonical string that would itself be false. -->
-    <section class="mx-auto max-w-3xl px-6 py-10" aria-labelledby="status-heading">
-      <h2 id="status-heading" class="ui-strong text-center text-sm font-semibold uppercase tracking-wide">
-        Status
-      </h2>
-      <div class="ui-card mt-6 rounded-2xl border p-6">
-        <p class="ui-body text-sm leading-relaxed">
-          <b class="ui-strong">Released.</b> <code class="ui-code rounded px-1 py-0.5">brew install</code>
-          is the fastest way in — see
-          <a href="/docs/" class="ui-link">the docs page</a> for the full command tour, generated
-          from this build so it cannot go stale.
-        </p>
-        <pre class="ui-code dira-mono mt-3 overflow-x-auto rounded-xl border p-3 text-xs"><code>{BREW_CMD}</code></pre>
-        <p class="ui-muted mt-3 text-xs">
-          Or build from source:
-        </p>
-        <pre class="ui-code dira-mono mt-1 overflow-x-auto rounded-xl border p-3 text-xs"><code>git clone {REPO}
-cd dira
-{INSTALL_CMD}</code></pre>
-      </div>
-      <div class="ui-card mt-4 flex flex-wrap items-center gap-4 rounded-2xl border p-5">
-        <p class="dira-serif ui-body flex-1 text-sm leading-relaxed">
-          <b class="ui-strong">{BREW_CMD}</b> — one line, no account, verified on
-          darwin-arm64, darwin-amd64, and linux-amd64.
-        </p>
-        <a
-          href={REPO}
-          class="dira-mono inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-white"
-          style="background: var(--converged);"
-          >★ Star kazi-org/dira &rarr;</a
-        >
-      </div>
-    </section>
-  </main>
-
-  <footer class="ui-hairline border-t">
-    <div class="ui-muted mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm sm:flex-row">
-      <span>Decision record kept with dira &middot; written by an agent, read by one</span>
-      <nav class="flex items-center gap-5" aria-label="Footer">
-        <a href="/why/" class="ui-link">The ledger</a>
-        <a href="/docs/" class="ui-link">Docs</a>
-        <a href={REPO} class="ui-link">GitHub</a>
-      </nav>
+      <p class="cmd-note">Local CLI. Plain files. No Dira account.</p>
     </div>
-  </footer>
+
+    <div class="hero-specimen fade-in">
+      <div class="specimen">
+        <div class="rail" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span></div>
+        <figure class="specimen-panel" >
+          <figcaption class="specimen-head">A decision, with its reasons</figcaption>
+          <div class="spec-row">
+            <span class="spec-key">Decision</span>
+            <span class="spec-val">“Use Go for dira's CLI.”</span>
+            <span class="spec-meta">dec-0001 · <span class="status">Accepted</span></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Rejected alternative</span>
+            <span class="spec-val">“Elixir / OTP”</span>
+            <span class="spec-meta"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Reason</span>
+            <span class="spec-val">“dira runs in the path of a human waiting for a prompt. Process startup matters.”</span>
+            <span class="spec-meta"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Revisit if</span>
+            <span class="spec-val">“dira grows a genuinely long-lived component.”</span>
+            <span class="spec-meta"></span>
+          </div>
+          <div class="specimen-foot">Adapted from dira's own ledger · <a href="https://github.com/kazi-org/dira/blob/main/.dira/entries/dec-0001.md">view the actual record</a></div>
+        </figure>
+      </div>
+
+      <div class="check-panel">
+        <div class="check-cmd">dira check "rewrite dira in Elixir using OTP"</div>
+        <h3>Conflict found: dec-0001</h3>
+        <p>This proposal matches a rejected alternative. Review the recorded reason, revise the plan, or explicitly supersede the decision.</p>
+        <p class="caption">Illustrative rendering of the documented check. Matching is lexical.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <div class="container">
+    <p class="section-id">01 / Continuity</p>
+    <h2>The reasoning survives the session.</h2>
+    <p class="intro">Capture the decision, bring it back when work resumes, and consult it before repeating an old argument.</p>
+    <div class="steps-grid">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h3>Capture candidates</h3>
+        <p>Claude Code hooks stage possible decisions from the conversation. You review the captures; the session's skill supplies the reasoning.</p>
+        <span class="cmds">sniff · distill</span>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h3>Start with context</h3>
+        <p>A session-start brief brings blockers, active intentions, and recent decisions into context, capped at 1,500 tokens.</p>
+        <span class="cmds">brief</span>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h3>Check before proceeding</h3>
+        <p>Check a proposed plan against recorded decisions. When direction changes, explicitly supersede the old record.</p>
+        <span class="cmds">check · supersede</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="the-record">
+  <div class="container">
+    <p class="section-id">02 / The Record</p>
+    <h2>A choice is only half the story.</h2>
+    <p class="intro">Keep the alternative, the reason it lost, and the condition that would make it worth considering again.</p>
+    <div class="record-grid">
+      <div class="record-copy">
+        <div class="record-controls" role="group" aria-label="Highlight a part of the record">
+          <button data-part="decision" aria-pressed="false">Decision</button>
+          <button data-part="rejected" aria-pressed="true">Why rejected</button>
+          <button data-part="revisit" aria-pressed="false">When to revisit</button>
+        </div>
+        <p>Below is the same example record from dira's ledger. Selecting a part changes emphasis only — the full record stays visible.</p>
+        <p><a class="link-underline" href="https://github.com/kazi-org/dira/blob/main/.dira/entries/dec-0001.md"><u>Read the original decision on GitHub</u></a></p>
+      </div>
+      <div class="record-demo">
+        <div class="record-panel" id="record-panel">
+          <div class="spec-row" data-part="decision">
+            <span class="spec-key">Decision</span>
+            <span class="spec-val">“Use Go for dira's CLI.”</span>
+            <span class="spec-meta">dec-0001 · <span class="status">Accepted</span></span>
+          </div>
+          <div class="spec-row active" data-part="rejected">
+            <span class="spec-key">Rejected alternative</span>
+            <span class="spec-val">“Elixir / OTP” — process startup matters for a short-lived CLI in the prompt’s latency path.</span>
+          </div>
+          <div class="spec-row" data-part="revisit">
+            <span class="spec-key">Revisit if</span>
+            <span class="spec-val">“dira grows a genuinely long-lived component.”</span>
+            <span class="spec-meta"></span>
+          </div>
+          <p class="record-explain" id="record-explain" aria-live="polite">A rejected alternative carries a reason, so a later session can examine the argument that settled it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="your-repository">
+  <div class="container">
+    <p class="section-id">03 / Your Repository</p>
+    <h2>The record lives with the work.</h2>
+    <div class="repo-grid">
+      <div class="repo-files" aria-label="Example ledger files">
+        <div class="file-row"><span>.dira/config.toml</span><span class="quiet">configuration</span></div>
+        <div class="file-row"><span>.dira/entries/int-0001.md</span><span class="quiet">an intent</span></div>
+        <div class="file-row"><span>.dira/entries/dec-0001.md</span><span class="quiet">a decision</span></div>
+        <div class="file-row"><span>.dira/cache/</span><span class="quiet">derived, rebuildable data</span></div>
+      </div>
+      <div class="repo-copy">
+        <p>Each entry is Markdown with YAML frontmatter. Commit it alongside your code. Review it in a diff. The files remain readable even without dira.</p>
+        <div class="edit-row">
+          <h3>Already have ADRs?</h3>
+          <p>Run <code class="mono">dira import DIR</code> to inspect what your documents contain before importing. Reasoned rejections become staged entries after confirmation; documents without them can be indexed instead.</p>
+        </div>
+        <div class="edit-row">
+          <h3>Using <a href="https://github.com/kazi-org/kazi">kazi</a>?</h3>
+          <p>dira keeps the reasoning behind a goal. kazi checks whether the work satisfies its acceptance predicates. Use either independently, or keep direction and execution connected.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="container">
+    <p class="section-id">04 / Installation</p>
+    <h2>Give the next session a starting point.</h2>
+    <div class="install-steps">
+      <div class="install-step">
+        <span class="step-num">1</span>
+        <h3>Install the CLI</h3>
+        <div class="cmd-block">
+<pre>brew install kazi-org/tap/dira
+dira --version</pre>
+          <button class="copy-btn" data-copy="brew install kazi-org/tap/dira
+dira --version">Copy</button>
+        </div>
+        <p>Homebrew support is documented for Apple Silicon Macs, Intel Macs, and Linux amd64. For other published builds, use the <a href="https://github.com/kazi-org/dira/releases">release archives</a>.</p>
+      </div>
+      <div class="install-step">
+        <span class="step-num">2</span>
+        <h3>Initialize your project</h3>
+        <p >From your project directory, answer a short interview. Choose <code class="mono">workspace</code> to seed an intent, a constraint, and an open question:</p>
+        <div class="cmd-block">
+          <pre>dira init --interview</pre>
+          <button class="copy-btn" data-copy="dira init --interview">Copy</button>
+        </div>
+      </div>
+      <div class="install-step">
+        <span class="step-num">3</span>
+        <h3>Connect Claude Code</h3>
+        <div class="cmd-block">
+<pre>dira install-hooks
+dira install-skill</pre>
+          <button class="copy-btn" data-copy="dira install-hooks
+dira install-skill">Copy</button>
+        </div>
+        <p>These commands add dira's hooks and capture skill to your Claude Code configuration. <a href="https://github.com/kazi-org/dira/blob/main/README.md">Start a new session after setup.</a></p>
+      </div>
+    </div>
+    <div class="install-links">
+      <a class="link-underline" href="/docs/"><u>Read the command reference</u></a>
+      <a class="link-underline" href="https://github.com/kazi-org/dira/releases"><u>Download release archives</u></a>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="container">
+    <p class="section-id">05 / Questions</p>
+    <h2>Straight answers.</h2>
+    <div class="faq-list">
+      <details>
+        <summary>Does dira require a hosted service?</summary>
+        <p>No. The CLI and ledger work locally without a Dira account. The optional web viewer runs on your machine.</p>
+      </details>
+      <details>
+        <summary>Does it call an AI model?</summary>
+        <p>The binary has no model client. Its semantic capture skill uses the coding-agent session you already have running.</p>
+      </details>
+      <details>
+        <summary>Will it catch every contradiction?</summary>
+        <p>No. <code class="mono">dira check</code> uses lexical matching against recorded decisions. It provides a concrete check with cited reasoning, not a guarantee of complete semantic detection.</p>
+      </details>
+      <details>
+        <summary>Does confirming a capture accept the decision?</summary>
+        <p>No. Confirmation marks the capture for semantic extraction; it stays staged until its reasoning is supplied. The agent must complete that step. <a href="/guide/#capture">Read the capture workflow.</a></p>
+      </details>
+    </div>
+  </div>
+</section>
+<section id="explore"><div class="container"><p class="section-id">06 / Go further</p><h2>Follow the reasoning.</h2><div class="resource-grid"><article class="resource"><h3><a href="/guide/">Your first decision</a></h3><p>A complete walkthrough: create a ledger, record a choice, check a plan, and change direction.</p></article><article class="resource"><h3><a href="/docs/">The command reference</a></h3><p>Every command and its flags, generated from the actual CLI at build time.</p></article><article class="resource"><h3><a href="/why/">Dira’s own ledger</a></h3><p>Explore the real intents, constraints, and decisions behind the project you’re looking at.</p></article></div></div></section></main>
 </Layout>

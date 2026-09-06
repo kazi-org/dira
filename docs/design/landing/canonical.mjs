@@ -21,25 +21,9 @@ export const HOOK =
 // §5, and already the README's headline.
 export const TAGLINE = 'Never explain the same decision twice.';
 
-// The current status admission. Verbatim in README's status blockquote.
-//
-// NOTE 2026-07-30: this was originally "There is no binary yet." — true when
-// this lane started, false a few weeks later. E0's Go-module bootstrap landed
-// in README concurrently (a `go build` now produces a binary that answers
-// `--help`/`--version`, nothing else, buildable from source). Updated then to
-// that live wording; see docs/decisions-pending/E8-L2-report.md for that note.
-//
-// NOTE 2026-08-14: false again. README was rewritten (7f0e66a/09684cd/723eee3)
-// to describe what dira does today rather than what it did on 2026-07-29 —
-// 14 verbs now ship and are tested, so the "answers --help and --version and
-// nothing else" sentence no longer exists anywhere truthful to quote. Kept the
-// export name (an E8-L2 acc predicate checks for its presence, not its
-// wording) but retargeted it at the 14-verb claim: still the single sentence
-// whose falsehood is the most consequential — the moment a verb ships or
-// breaks without a README update, this stops matching and the gate catches
-// it, same job the old string did for the binary's existence.
+// Shared capability summary. Keep the legacy export name for existing consumers.
 export const NO_BINARY =
-  "14 verbs are real and tested against this repo's own 43-entry ledger — capture, review, enforcement, cross-project tiers, ADR import, and a read-only web surface all run today.";
+  'Capture, review, conflict checks, ADR import, and a read-only ledger browser are available in dira.';
 
 // The install-line admission. Was "there is no brew install yet." — true
 // until v0.1.1 shipped a real Homebrew tap (kazi-org/homebrew-tap) on

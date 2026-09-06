@@ -3,25 +3,18 @@
 // (never a reimplementation of it — see docs/plan/website.md's risk register:
 // "a second renderer grows in the site and drifts from `dira ui`") to static
 // HTML under site/public/why/. Astro copies public/ verbatim into dist/, so
-// this alone produces dist/why/dec-0001/index.html and dist/why/index.html.
+// this produces the ledger index and every reachable public entry page.
 //
 // Swap point for when E6-L3's `dira render` ships (documented inline, per
 // the task): replace fetchSnapshot()'s HTTP GET against a spawned `dira ui`
 // with a call to `dira render <path>` (or equivalent), keep everything from
 // transform() down unchanged. No page changes either way.
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { buildBinary, BIN_PATH, REPO_ROOT, SITE_ROOT } from "./lib/dira.mjs";
 
 const PUBLIC_DIR = join(SITE_ROOT, "public");
-const REPO = "https://github.com/kazi-org/dira";
-
-// The one decision page this lane snapshots (docs/plan/website.md W1-T3).
-// Every OTHER /e/<id> link the fetched pages contain gets rewritten to its
-// source file on GitHub instead of a local page that does not exist — see
-// rewriteLinks() — so the site never ships a link to a page it never built.
-const SNAPSHOT_ID = "dec-0001";
 
 async function waitForServer(url, timeoutMs = 10000) {
   const start = Date.now();
@@ -39,22 +32,11 @@ async function waitForServer(url, timeoutMs = 10000) {
   }
 }
 
-// Rewrites dira ui's own root-relative links so they resolve correctly once
-// this HTML is mounted under /why/ on the site instead of at true root:
-//   href="/"          -> href="/why/"              (dira ui's own home)
-//   href="/e/dec-0001" -> href="/why/dec-0001/"     (the one page we snapshot)
-//   href="/e/<id>"     -> the entry's source on GitHub (every other id — no
-//                          local page exists for it, so linking locally would
-//                          be the broken-link defect W2-T6 gates on)
-//   href="/tokens.css", "/decision.css", "/index.css", "/assets/fonts/..."
-//                      -> left alone; the site serves the identical files at
-//                         the identical root-absolute paths (see fontsAndCss
-//                         below and site/public/assets/fonts/, copied in T1).
+// Every public entry reachable from the rendered index is snapshotted below.
+// Consume the CLI's own renderer so its privacy filtering and reasoning stay intact.
 export function rewriteLinks(html) {
   return html
-    .replace(/href="\/e\/([a-zA-Z0-9-]+)"/g, (m, id) =>
-      id === SNAPSHOT_ID ? `href="/why/${id}/"` : `href="${REPO}/blob/main/.dira/entries/${id}.md" rel="noopener"`,
-    )
+    .replace(/href="\/e\/([a-zA-Z0-9-]+)"/g, 'href="/why/$1/"')
     .replace(/href="\/"/g, 'href="/why/"');
 }
 
@@ -64,7 +46,7 @@ export function rewriteLinks(html) {
 export function injectSiteShell(html) {
   const shellNav =
     '<nav class="crumb" aria-label="Site"><a href="/">dira.sire.run</a> &middot; ' +
-    '<a href="/docs/">docs</a></nav>\n</header>';
+    '<a href="/guide/">guide</a> &middot; <a href="/docs/">commands</a></nav>\n</header>';
   return html.replace("</header>", shellNav);
 }
 
@@ -99,22 +81,36 @@ async function main() {
     base = await urlPromise;
     await waitForServer(base + "/");
 
-    const [indexHtml, decisionHtml, tokensCss, decisionCss, indexCss] = await Promise.all([
-      fetch(base + "/").then((r) => r.text()),
-      fetch(base + "/e/" + SNAPSHOT_ID).then((r) => r.text()),
-      fetch(base + "/tokens.css").then((r) => r.text()),
-      fetch(base + "/decision.css").then((r) => r.text()),
-      fetch(base + "/index.css").then((r) => r.text()),
-    ]);
-
-    mkdirSync(join(PUBLIC_DIR, "why", SNAPSHOT_ID), { recursive: true });
-    writeFileSync(join(PUBLIC_DIR, "why", "index.html"), transform(indexHtml));
-    writeFileSync(join(PUBLIC_DIR, "why", SNAPSHOT_ID, "index.html"), transform(decisionHtml));
-    writeFileSync(join(PUBLIC_DIR, "tokens.css"), tokensCss);
-    writeFileSync(join(PUBLIC_DIR, "decision.css"), decisionCss);
-    writeFileSync(join(PUBLIC_DIR, "index.css"), indexCss);
-
-    console.log(`snapshot-why: wrote why/index.html, why/${SNAPSHOT_ID}/index.html, and 3 stylesheets`);
+    const read = async (path) => {
+      const response = await fetch(base + path);
+      if (!response.ok) throw new Error(`snapshot-why: ${path} returned ${response.status}`);
+      return response.text();
+    };
+    const indexHtml = await read('/');
+    // Remove old generated pages so removed or newly private entries cannot linger.
+    rmSync(join(PUBLIC_DIR, 'why'), { recursive: true, force: true });
+    mkdirSync(join(PUBLIC_DIR, 'why'), { recursive: true });
+    writeFileSync(join(PUBLIC_DIR, 'why', 'index.html'), transform(indexHtml));
+    const pending = new Set([...indexHtml.matchAll(/href="\/e\/([a-zA-Z0-9-]+)"/g)].map(m => m[1]));
+    const visited = new Set();
+    // Traverse rendered entry links only; never enumerate private source files.
+    for (const id of pending) {
+      if (visited.has(id)) continue;
+      const html = await read('/e/' + id);
+      visited.add(id);
+      for (const match of html.matchAll(/href="\/e\/([a-zA-Z0-9-]+)"/g)) pending.add(match[1]);
+      mkdirSync(join(PUBLIC_DIR, 'why', id), { recursive: true });
+      writeFileSync(join(PUBLIC_DIR, 'why', id, 'index.html'), transform(html));
+    }
+    for (const asset of ['tokens.css', 'decision.css', 'index.css']) {
+      writeFileSync(join(PUBLIC_DIR, asset), await read('/' + asset));
+    }
+    // Astro's route discovery does not see public/ snapshots. Publish their sitemap.
+    const paths = ['/why/', ...[...visited].sort().map(id => `/why/${id}/`)];
+    writeFileSync(join(PUBLIC_DIR, 'ledger-sitemap.xml'),
+      '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+      paths.map(path => `<url><loc>https://dira.sire.run${path}</loc></url>`).join('') + '</urlset>');
+    console.log(`snapshot-why: wrote index, ${visited.size} entry pages, stylesheets, and ledger sitemap`);
   } finally {
     child.kill("SIGTERM");
   }
