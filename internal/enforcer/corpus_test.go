@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // A corpusRow is one labelled candidate plan in the adversarial corpus.

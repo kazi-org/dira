@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
 	"github.com/kazi-org/dira/internal/why"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // budget is what E1 gives `dira why` for its own work, spawn excluded.

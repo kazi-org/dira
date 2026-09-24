@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/brief"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The handoff block: what tier 1 hands to tier 2, and the only artifact the two

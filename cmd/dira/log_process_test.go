@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The tests in this file run the real binary as a process, because the two

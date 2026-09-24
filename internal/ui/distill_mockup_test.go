@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/distill"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // TestDistillMockupMatchesTheQueue is E6-L3-T1's mechanical proof that

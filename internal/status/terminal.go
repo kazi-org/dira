@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Terminal returns one TerminalRow per achieved or abandoned intent.

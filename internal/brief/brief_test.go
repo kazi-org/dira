@@ -12,9 +12,9 @@ import (
 	"github.com/kazi-org/dira/internal/brief"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/index/indextest"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/fixture"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // clock is the instant every test here renders at.

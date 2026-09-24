@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // runReindex rebuilds the derived read cache from the entry files alone.

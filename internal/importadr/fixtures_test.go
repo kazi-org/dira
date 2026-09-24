@@ -12,7 +12,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/kazi-org/dira/internal/frontmatter"
+	"github.com/kazi-org/dira/frontmatter"
 )
 
 // E2-L7-T1's acceptance line: the two named corpora and the seven controls are

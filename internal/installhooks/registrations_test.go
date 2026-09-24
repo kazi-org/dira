@@ -259,7 +259,7 @@ func TestRegistrations(t *testing.T) {
 	})
 
 	// dec-0005, asserted in the package that would break it as well as in
-	// internal/ledger. A path in here is a path the E7 backend would have to
+	// ledger. A path in here is a path the E7 backend would have to
 	// remove from above the storage interface.
 	t.Run("nothing that ships names a path", func(t *testing.T) {
 		const (
@@ -303,7 +303,7 @@ func TestRegistrations(t *testing.T) {
 		for pkg, list := range imports {
 			for _, imported := range list {
 				if slices.Contains(banned, imported) {
-					t.Errorf("%s imports %q. Deciding what to install is policy over bytes; opening a file is cmd/dira's (dec-0005), and internal/installhooks is on nobody's allowlist in internal/ledger/boundary_test.go.", pkg, imported)
+					t.Errorf("%s imports %q. Deciding what to install is policy over bytes; opening a file is cmd/dira's (dec-0005), and internal/installhooks is on nobody's allowlist in ledger/boundary_test.go.", pkg, imported)
 				}
 			}
 		}

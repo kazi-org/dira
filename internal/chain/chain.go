@@ -17,11 +17,11 @@
 //
 // # No path arithmetic here
 //
-// Only internal/ledger/local may know what a path is (dec-0005). This package
+// Only ledger/local may know what a path is (dec-0005). This package
 // calls local.ParentDira to join a [parents] declaration onto the ledger that
 // declared it, local.Open to open the result, and local.ReadConfig to read its
 // config.toml; it never imports os or path/filepath itself, and
-// internal/ledger/boundary_test.go's filesystemPackages check runs over every
+// ledger/boundary_test.go's filesystemPackages check runs over every
 // package in the module and would fail this one the moment it did.
 package chain
 
@@ -32,8 +32,8 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/config"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // An Ancestor is one parent ledger discovered while walking a chain of

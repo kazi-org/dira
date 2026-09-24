@@ -4,7 +4,7 @@ package installhooks
 // fixture table.
 //
 // IMPORT NOTE (dec-0005): this file may import os and path/filepath freely —
-// internal/ledger/boundary_test.go reads go list's non-test .Imports, so a
+// ledger/boundary_test.go reads go list's non-test .Imports, so a
 // *_test.go file touching the filesystem does not put installhooks on any
 // allowlist. spans.go itself imports neither.
 

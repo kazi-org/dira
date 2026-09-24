@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/status"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestToBePlanned is E4-L2-T3's acc line.

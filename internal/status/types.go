@@ -10,7 +10,7 @@
 // that lane needs no conversation with this one.
 package status
 
-import "github.com/kazi-org/dira/internal/ledger"
+import "github.com/kazi-org/dira/ledger"
 
 // Bucket is dira's six-value derived-status vocabulary (dec-0004's join
 // table, read top to bottom). It shares no value with ledger.State: a

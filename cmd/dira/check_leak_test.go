@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/enforcer"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // E3-L3-T6 — the lane's leak test, written as negative space.
@@ -644,7 +644,7 @@ func leakMissing(path string) bool {
 // unchanged-digest assertions are measuring the tree rather than returning a
 // constant.
 //
-// The write goes through internal/ledger/local — the same backend `dira` writes
+// The write goes through ledger/local — the same backend `dira` writes
 // entries with — into a *copy* of the directory under measurement, so nothing
 // here touches the tree the assertion is about.
 // rel is the part of the tree the digest under test covers, relative to the

@@ -18,8 +18,8 @@ import (
 	"os"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger/local"
 	"github.com/kazi-org/dira/internal/ui"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 func main() {

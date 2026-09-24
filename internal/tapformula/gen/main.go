@@ -6,7 +6,7 @@
 // surface").
 //
 // This package imports neither "os" nor any of the other packages
-// internal/ledger/boundary_test.go polices (dec-0005) — it reads its
+// ledger/boundary_test.go polices (dec-0005) — it reads its
 // arguments through the "flag" package (which reaches os.Args internally,
 // but that import is flag's, not this package's) and reports failure
 // through "log".Fatal (same reasoning: log.Fatal calls os.Exit, but from

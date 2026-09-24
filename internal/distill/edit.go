@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazi-org/dira/internal/frontmatter"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/frontmatter"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // `e` — edit the because, and nothing else.
@@ -35,7 +35,7 @@ import (
 // entry — a PR touching a decision shows a legible diff — and an edit that
 // quietly reflowed a paragraph nobody touched would spend it: the diff would show
 // forty lines and the reviewer would have to read all of them to find the one
-// that matters. internal/ledger's style memo is what makes the byte-level promise
+// that matters. ledger's style memo is what makes the byte-level promise
 // reachable (it re-emits each scalar as it was found rather than re-folding it
 // from the parsed value), and this package's job is not to defeat it by
 // round-tripping the entry through anything else.
@@ -243,7 +243,7 @@ func spliced(text string) string {
 // What it cannot see, said plainly rather than left to be discovered: it compares
 // two *encodings*, not the file on disk. A file whose layout the codec could not
 // reproduce would pass this and still change on write; that is a codec bug, it is
-// pinned by internal/ledger's TestEditingOneFieldRewritesOnlyThatField, and it is
+// pinned by ledger's TestEditingOneFieldRewritesOnlyThatField, and it is
 // why TestEditBody's own comparison is over real files written by a hand rather
 // than over what this function returns.
 func onlyTheBody(before, after *ledger.Entry) error {

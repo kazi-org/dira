@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // NewStore builds an empty store for one subtest. It is called once per case, so

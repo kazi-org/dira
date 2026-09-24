@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The tests here are about the one invariant in this lane's title: sniff may

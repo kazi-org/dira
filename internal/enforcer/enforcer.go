@@ -44,7 +44,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // A Ledger is the read path this check runs over.

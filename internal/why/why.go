@@ -33,7 +33,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Source is the read surface a chain is built from. *index.Index satisfies it.

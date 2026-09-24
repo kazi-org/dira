@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // sync reconciles the index against the ledger, and is the only thing standing

@@ -44,7 +44,7 @@ import (
 // # What this asserts, and what it deliberately does not
 //
 // The entry that comes out is checked against schema/entry.schema.json, the
-// published contract, and not only against internal/ledger's Go validator. The
+// published contract, and not only against ledger's Go validator. The
 // two are separate implementations of one rule and have disagreed before
 // (`alternatives: []` on a staged decision: the schema permits it, deliberately
 // — see the `if/then/else` at entry.schema.json's staged-decision branch), and a

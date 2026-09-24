@@ -7,7 +7,7 @@
 //
 // E4-L5-T5 draws a structural boundary around this package: it, and
 // internal/status and internal/kazi beneath it, never import
-// internal/ledger/local. Only cmd/dira/map.go — the wrapper that already
+// ledger/local. Only cmd/dira/map.go — the wrapper that already
 // holds write-capable filesystem access by construction — may.
 package cli
 
@@ -19,8 +19,8 @@ import (
 
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/kazi"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/status"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Render is the single entry point cmd/dira/map.go calls: build the tree

@@ -18,9 +18,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/ledgertest"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/ledgertest"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // fakeKaziDir is E4-L1-T7's own fixture directory, referenced rather than

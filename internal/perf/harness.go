@@ -17,8 +17,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger/fixture"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // commandPackage is the binary under measurement, named by import path rather
@@ -505,7 +505,7 @@ func (v budgetVerdict) String() string {
 // have been watched.
 //
 // It mirrors, without inventing a fourth heuristic, the switch
-// internal/index/latency_test.go, internal/ledger/fixture/latency_test.go and
+// internal/index/latency_test.go, ledger/fixture/latency_test.go and
 // internal/why/latency_test.go each already carry for their own absolute
 // budget: the MEDIAN decides the verdict, because min <= median by
 // construction and a ceiling read off the minimum would fire strictly less

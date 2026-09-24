@@ -1,7 +1,7 @@
 // Package schema holds the dira entry contract, entry.schema.json, and the
 // validator that keeps a ledger from drifting away from it.
 //
-// The schema is the contract; the Go types in internal/ledger are one
+// The schema is the contract; the Go types in ledger are one
 // implementation of it. Nothing in the dira command path imports this package,
 // and cmd/dira/build_test.go fails if that changes: importing it links
 // santhosh-tekuri/jsonschema, whose package init costs milliseconds and ~21,700
@@ -11,9 +11,9 @@
 // that is already paying for a full ledger read.
 //
 // That claim was false for a while, which is why it now names the test that
-// keeps it honest: internal/ledger imported this package for SplitFrontmatter
+// keeps it honest: ledger imported this package for SplitFrontmatter
 // alone, and the validator rode along. The split now lives in
-// internal/frontmatter, which depends on nothing; the two names below are kept
+// frontmatter, which depends on nothing; the two names below are kept
 // here, forwarding to it, because they are published API.
 package schema
 
@@ -27,7 +27,7 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"gopkg.in/yaml.v3"
 
-	"github.com/kazi-org/dira/internal/frontmatter"
+	"github.com/kazi-org/dira/frontmatter"
 )
 
 // Schema is entry.schema.json, embedded so a validator never depends on the
@@ -43,7 +43,7 @@ var Schema []byte
 // second is ledger rot, and only the second should fail a ledger-wide gate.
 //
 // It is frontmatter.ErrMissing, not a copy of it: a caller that got its error
-// from internal/frontmatter and one that got it from here have to agree under
+// from frontmatter and one that got it from here have to agree under
 // errors.Is, or moving the split out of this package would have quietly broken
 // every caller that tells a stray file from a broken one.
 var ErrNoFrontmatter = frontmatter.ErrMissing

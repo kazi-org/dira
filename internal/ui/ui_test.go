@@ -17,7 +17,7 @@ import (
 	texttemplate "text/template"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // repoRoot walks up from this test file to the module root. Tests must not

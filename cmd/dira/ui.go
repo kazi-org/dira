@@ -11,8 +11,8 @@ import (
 	"syscall"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger/local"
 	"github.com/kazi-org/dira/internal/ui"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira ui` serves the two read-only surfaces — the ledger index and the

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/fixture"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // Latency is a design constraint here, not a later optimisation (int-0002,

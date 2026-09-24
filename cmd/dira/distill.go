@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/distill"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // `dira distill` is the disposition flow: the entries `dira sniff` staged,

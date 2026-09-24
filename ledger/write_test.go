@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // backends is every ledger.Store the allocator is tested against.

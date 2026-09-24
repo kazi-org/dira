@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The two dispositions, and the two decisions that settled what they write.

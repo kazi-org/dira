@@ -5,7 +5,7 @@ package cli_test
 // than hand-authoring markdown files keeps each test's premise legible next
 // to its assertions, matching the pattern internal/status/join_test.go uses
 // for its own synthetic fixtures. Test files may import
-// internal/ledger/local for exactly this reason — `go list -deps
+// ledger/local for exactly this reason — `go list -deps
 // ./internal/cli` (the boundary E4-L5-T5 checks) reports only the plain
 // package's own imports, never a _test.go file's.
 
@@ -16,9 +16,9 @@ import (
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/index/indextest"
 	"github.com/kazi-org/dira/internal/kazi"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/ledgertest"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/ledgertest"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // entry builds one fixture entry off ledgertest's shared shape (which

@@ -17,7 +17,7 @@ import (
 //
 // So the writing is not done here. This package imports no filesystem package
 // at all: os, io/fs, path and path/filepath are all absent, and
-// TestNoFilesystemImportsAboveTheBackend in internal/ledger keeps them absent.
+// TestNoFilesystemImportsAboveTheBackend in ledger keeps them absent.
 // There is no path this code could build and no file it could open. Everything
 // it touches arrives through the Root interface below, named relative to a
 // directory the caller chose.

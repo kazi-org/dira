@@ -11,7 +11,7 @@
 // rather than guessing at a shape it was never tested against.
 //
 // dec-0004: this package derives, it never stores. Nothing here writes to
-// `.dira/` — see internal/ledger/boundary_test.go's allowlist, which this
+// `.dira/` — see ledger/boundary_test.go's allowlist, which this
 // package is not on, and does not need to be: os/exec is not a filesystem
 // package (cst-0004's "shells out to a local binary and nothing else").
 package kazi

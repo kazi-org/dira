@@ -48,7 +48,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 
 	// modernc.org/sqlite is the pure-Go SQLite, chosen over the cgo
 	// mattn/go-sqlite3 so that goreleaser can cross-compile darwin-arm64 and

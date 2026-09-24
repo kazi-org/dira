@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // fakeCountMatchesDirectory is E4-L5-T1's own completeness check: this

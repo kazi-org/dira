@@ -12,7 +12,7 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 
 	"github.com/kazi-org/dira/internal/config"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // goldenDaemon is the frozen demo asset.

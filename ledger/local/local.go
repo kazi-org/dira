@@ -5,7 +5,7 @@
 // Contents API (E7) as the other, so every path walk, glob, temp file and rename
 // has to be confined to a backend or the github backend cannot be added without
 // changing the code above it. That confinement is checked mechanically by
-// TestNoFilesystemImportsAboveTheBackend in internal/ledger, not by convention.
+// TestNoFilesystemImportsAboveTheBackend in ledger, not by convention.
 package local
 
 import (
@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // diraDirName is the ledger directory's name, the thing Find walks up looking

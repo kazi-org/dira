@@ -9,8 +9,8 @@ import (
 	"unicode"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/why"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Source is the read surface the surfaces are rendered from. *index.Index

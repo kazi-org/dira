@@ -20,7 +20,7 @@ import (
 	"sort"
 
 	"github.com/kazi-org/dira/internal/kazi"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // StatusFunc is kazi.Status's shape, injected rather than called directly so

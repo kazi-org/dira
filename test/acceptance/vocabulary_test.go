@@ -13,8 +13,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/lint"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // fixtureLedgerDirs are E4-L1 through E4-L4's own committed fixture

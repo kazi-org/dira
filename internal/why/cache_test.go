@@ -10,10 +10,10 @@ import (
 
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/index/indextest"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/fixture"
-	"github.com/kazi-org/dira/internal/ledger/local"
 	"github.com/kazi-org/dira/internal/why"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // errNoChains stops the differential harness passing on two empty renders.

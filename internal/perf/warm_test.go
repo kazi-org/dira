@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/fixture"
 )
 
 // TestWarmBriefBudget is the common case: the cache exists, reconciles clean,

@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/render"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Width bounds for the text renderer.

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/frontmatter"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/frontmatter"
+	"github.com/kazi-org/dira/ledger"
 	"github.com/kazi-org/dira/schema"
 )
 
@@ -17,7 +17,7 @@ import (
 // hand-wrapped folded scalars, six different key orderings, quoted timestamps,
 // nested alternatives and prose bodies. A codec that reproduces these has been
 // tested against something.
-const ledgerDir = "../../.dira/entries"
+const ledgerDir = "../.dira/entries"
 
 func ledgerFiles(t *testing.T) []string {
 	t.Helper()
@@ -383,7 +383,7 @@ func quote(s string) string { return "\"" + strings.ReplaceAll(s, "\"", "\\\"") 
 // The codec used to get its "this is not an entry" sentinel from
 // github.com/kazi-org/dira/schema, which meant importing the JSON Schema
 // validator to reach a string split. It now gets it from
-// internal/frontmatter — and a caller anywhere in the tree still asks
+// frontmatter — and a caller anywhere in the tree still asks
 // `errors.Is(err, schema.ErrNoFrontmatter)`, because that is the published
 // name. Had the move produced a second errors.New with the same message rather
 // than an alias, every one of those calls would have started answering false:

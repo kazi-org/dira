@@ -29,7 +29,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Status is where a staged entry sits between capture and a usable record.

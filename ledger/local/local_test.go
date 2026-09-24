@@ -9,9 +9,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/ledgertest"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/ledgertest"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // TestStoreContract runs the shared ledger.Store suite against the filesystem
@@ -265,7 +265,7 @@ func TestGetRejectsAMisnamedFile(t *testing.T) {
 func TestReadsTheRepositoryLedger(t *testing.T) {
 	t.Parallel()
 
-	s, err := local.Open("../../../.dira")
+	s, err := local.Open("../../.dira")
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}

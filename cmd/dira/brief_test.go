@@ -12,9 +12,9 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/brief"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/fixture"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // exerciseBrief runs `dira brief` through the real dispatcher and the real
@@ -868,7 +868,7 @@ func blocksIn(rendered string) map[string]string {
 }
 
 // blocksEdges reads the `blocks` edge targets out of an entry file. Deliberately
-// a second, cruder reader than internal/ledger's: a check that decoded with the
+// a second, cruder reader than ledger's: a check that decoded with the
 // same codec the renderer reads through would agree with it about a field they
 // were both wrong about.
 func blocksEdges(entry string) []string {

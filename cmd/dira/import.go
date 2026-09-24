@@ -15,13 +15,13 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/importadr"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira import <dir>` is E2-L7-T6: the first command in this repository to
 // read a directory the user names rather than one dira owns (dec-0005's
-// boundary — see internal/ledger/boundary_test.go's widened cmd/dira entry).
+// boundary — see ledger/boundary_test.go's widened cmd/dira entry).
 // Everything about what to do with what it reads lives in internal/importadr,
 // which is why this file is short: walk the directory with os.ReadDir, hand
 // the bytes to importadr.ScanDocument, print importadr.Summarize's report,

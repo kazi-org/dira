@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/status"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestTypes is E4-L2-T1's acc line.
@@ -97,7 +97,7 @@ func (e *collisionError) Error() string {
 // checking for — is that internal/status's OWN code never calls
 // exec.Command, which a direct-import check answers exactly, and which
 // mirrors this repository's own precedent for the identical class of
-// problem: internal/ledger/boundary_test.go's TestNoFilesystemImportsAboveTheBackend
+// problem: ledger/boundary_test.go's TestNoFilesystemImportsAboveTheBackend
 // checks direct imports only, for the same reason (a vendored dependency's
 // own filesystem use is not this codebase's concern; only its own code's
 // use is).

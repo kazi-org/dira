@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // deepBudget is the ceiling this test holds a deep run to.

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // dec-0015 makes EntryInfo.Version the entry file's git blob object id, and

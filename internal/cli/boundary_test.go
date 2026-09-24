@@ -7,13 +7,13 @@ package cli_test
 // per docs/plan/tasks/E4-L5.md's own instruction rather than left ambiguous.
 // Taken completely literally this cannot hold: cmd/dira/map.go must
 // construct a concrete ledger.Store to open the real ledger for reading at
-// all, and internal/ledger/local is the ONLY concrete Store implementation
+// all, and ledger/local is the ONLY concrete Store implementation
 // in this repo (dec-0005) — every existing read command (brief, why, check,
 // ui, reindex) imports it in its cmd/dira/*.go wrapper for exactly this
 // reason. The implementable reading, and the one this test enforces:
 // internal/cli, internal/status and internal/kazi — the packages that hold
 // dira map's derivation and rendering logic — never import
-// internal/ledger/local. Only cmd/dira/map.go, the thin wrapper that
+// ledger/local. Only cmd/dira/map.go, the thin wrapper that
 // already holds write-capable filesystem access by construction, is
 // exempted.
 //
@@ -23,7 +23,7 @@ package cli_test
 // modernc.org/sqlite (a genuine, third-party dependency of internal/index)
 // itself imports os/exec, which would otherwise false-positive on a
 // dependency's own filesystem use. No such false positive is possible here:
-// internal/ledger/local is this module's own package, not something any
+// ledger/local is this module's own package, not something any
 // third-party library could transitively depend on, so the transitive
 // closure is exactly what "does not import the ledger writer package"
 // means.
@@ -37,7 +37,7 @@ import (
 )
 
 func TestNoLedgerWriter(t *testing.T) {
-	const writer = "github.com/kazi-org/dira/internal/ledger/local"
+	const writer = "github.com/kazi-org/dira/ledger/local"
 
 	for _, pkg := range []string{
 		"github.com/kazi-org/dira/internal/cli",
@@ -73,7 +73,7 @@ func TestNoLedgerWriter(t *testing.T) {
 		if err == nil {
 			t.Fatal("the both-sides control's own premise broke: cmd/dira must fail this exact check, " +
 				"since docs/plan/tasks/E4-L2.md's own T6 precedent and every read command's cmd/dira/*.go " +
-				"wrapper import internal/ledger/local directly")
+				"wrapper import ledger/local directly")
 		}
 		t.Logf("OBSERVED  assertExcludes(cmd/dira, %s) correctly failed: %v", writer, err)
 	})

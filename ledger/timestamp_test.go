@@ -8,7 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestTimestampsSurviveAsStrings is E1-L1's acceptance line (b).
@@ -126,7 +126,7 @@ Body.
 	})
 
 	t.Run("E0's unquoted-timestamp fixture", func(t *testing.T) {
-		const path = "../../schema/testdata/valid/unquoted-timestamp.md"
+		const path = "../schema/testdata/valid/unquoted-timestamp.md"
 		content, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatalf("reading %s: %v", path, err)

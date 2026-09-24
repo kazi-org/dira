@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // completeAnswers is the fixture answer set every other lane's tests reuse

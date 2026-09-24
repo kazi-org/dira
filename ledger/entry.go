@@ -4,7 +4,7 @@
 //
 // Nothing in this package knows what a path is. dec-0005 commits dira to a
 // storage interface with two implementations — local (the filesystem, this
-// repo's internal/ledger/local) and github (the Contents API, E7) — decided
+// repo's ledger/local) and github (the Contents API, E7) — decided
 // before the first surface ships, because retrofitting one later is the refactor
 // that never happens. The mechanical form of that commitment is that this
 // package imports no os, no io/fs and no path/filepath, enforced by

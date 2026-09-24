@@ -17,7 +17,7 @@ package installhooks
 //
 // IMPORT NOTE (dec-0005): this file may import os, os/exec and path/filepath
 // freely -- non-test files only are read by
-// internal/ledger/boundary_test.go, so nothing here puts installhooks on any
+// ledger/boundary_test.go, so nothing here puts installhooks on any
 // allowlist. spans.go, install.go, uninstall.go and command.go import none of
 // them.
 

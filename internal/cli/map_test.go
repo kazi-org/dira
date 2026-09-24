@@ -6,8 +6,8 @@ import (
 
 	"github.com/kazi-org/dira/internal/cli"
 	"github.com/kazi-org/dira/internal/kazi"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/status"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // --- E4-L4-T2: grouping ------------------------------------------------

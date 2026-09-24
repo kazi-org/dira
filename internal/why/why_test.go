@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
 	"github.com/kazi-org/dira/internal/why"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // sourceOver materialises a ledger of literal entry files and returns the index

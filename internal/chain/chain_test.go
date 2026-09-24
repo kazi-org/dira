@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/config"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // TestWalk is E5-L2-T1's acceptance line. Every subtest copies a committed

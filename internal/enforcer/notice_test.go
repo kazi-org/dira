@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // supersedeLedger is the fixture E3-L4's acceptance line names: the daemon

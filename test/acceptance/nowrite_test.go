@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // nowriteEntries is a small, ordinary fixture ledger — the no-write proof
@@ -119,7 +119,7 @@ func TestNeverStored(t *testing.T) {
 	// dira map does write .dira/cache/index.db, and that is not the
 	// invariant dec-0004/int-0003 protect. The invariant is that no
 	// ENTRY FILE is ever written, so this proof is scoped to
-	// .dira/entries/, the same boundary internal/ledger/boundary_test.go
+	// .dira/entries/, the same boundary ledger/boundary_test.go
 	// draws around writer access.
 	diraDir := filepath.Join(root, ".dira", "entries")
 

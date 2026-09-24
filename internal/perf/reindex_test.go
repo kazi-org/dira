@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/fixture"
 )
 
 // TestReindexBudget is `dira reindex` over the 200-entry fixture with the cache

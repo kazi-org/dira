@@ -37,7 +37,7 @@ type EntryInfo struct {
 
 // A Store is every read and write dira performs against a ledger. It is the
 // whole storage surface, and dec-0005 commits to it before the first surface
-// ships: local (internal/ledger/local) is the only implementation today, and
+// ships: local (ledger/local) is the only implementation today, and
 // github (the Contents API, E7) must be addable with no change above this
 // interface.
 //

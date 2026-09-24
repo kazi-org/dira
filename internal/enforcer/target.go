@@ -3,7 +3,7 @@ package enforcer
 import (
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Basis names what inside an entry a plan collided with. It exists because the
