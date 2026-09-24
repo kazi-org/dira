@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/brief"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // goldenFile is the pinned handoff block. It is a constant so that a change of

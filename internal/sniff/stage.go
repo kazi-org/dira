@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The write path, and the reason "sniff may only ever stage" is a property of

@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/enforcer"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // supersedeFixture is the ledger E3-L4's acceptance line names. It is the

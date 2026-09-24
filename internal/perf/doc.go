@@ -21,7 +21,7 @@
 //
 // `go test ./...` runs packages in parallel, and a timing test that competes
 // with the rest of the suite for four cores and one disk reports the load
-// average rather than the program. internal/ledger/fixture's
+// average rather than the program. ledger/fixture's
 // TestFullLedgerReadIsWithinBudget has already failed once exactly that way —
 // 254ms against a 150ms budget under full-suite load, green when run alone.
 //

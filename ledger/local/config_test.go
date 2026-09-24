@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // ReadConfig is the one path in dira that reads .dira/config.toml, and it lives

@@ -9,8 +9,8 @@ import (
 
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/index/indextest"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/status"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestDecisionBlocked is E4-L2-T4's acc line, the load-bearing row.

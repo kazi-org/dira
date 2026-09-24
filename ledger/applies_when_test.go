@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 	"github.com/kazi-org/dira/schema"
 )
 

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/ledgertest"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/ledgertest"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // exerciseMap runs `dira map` through the real dispatcher and the real

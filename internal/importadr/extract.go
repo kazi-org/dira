@@ -1,7 +1,7 @@
 // Package importadr is the corpus-agnostic half of `dira import`: it takes an
 // ADR document's raw markdown bytes and returns what it found, and it takes a
 // batch of what it found and decides what to write. Nothing in this package
-// names a path — internal/ledger/boundary_test.go's allowlist gains no entry
+// names a path — ledger/boundary_test.go's allowlist gains no entry
 // for it, the same restructuring internal/skill made for the same reason
 // (dec-0005). cmd/dira/import.go is the only thing in this lane that walks a
 // directory.

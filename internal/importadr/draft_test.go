@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestImportPolicy is E2-L7-T5's acceptance line.

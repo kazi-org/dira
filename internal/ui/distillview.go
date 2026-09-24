@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/distill"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // A DistillCard is one card in the deck: a staged entry plus which parts of it

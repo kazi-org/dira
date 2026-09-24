@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // loopNow is the clock every case here stamps with, for the reason disposeNow is

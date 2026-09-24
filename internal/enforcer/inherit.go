@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/config"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // What a child inherits from a parent, and the three rules that bound it.

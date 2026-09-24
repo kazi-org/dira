@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger/ledgertest"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/ledgertest"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // TestListIDsSeesTheSameEntriesAsListWithoutOpeningThem is the two-sided proof

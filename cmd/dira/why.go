@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger/local"
 	"github.com/kazi-org/dira/internal/why"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira why` is the on-demand half of int-0001. The brief pushes at session

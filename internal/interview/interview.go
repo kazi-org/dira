@@ -15,7 +15,7 @@
 // # This package does no I/O
 //
 // Prompting and reading are cmd/dira's job (the one command allowed `os` in
-// the CLI package, per internal/ledger/boundary_test.go's allowlist). Build
+// the CLI package, per ledger/boundary_test.go's allowlist). Build
 // takes the answers already collected and returns drafts or a reason it
 // could not; it never touches stdin, stdout or a file.
 package interview
@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TierPerson and TierWorkspace are the two tiers this command seeds. A
@@ -61,7 +61,7 @@ var entryScript = []struct {
 //
 // It is deterministic and does no I/O: calling it twice with the same
 // answers produces two draft sets with identical titles, bodies, kinds and
-// states. created is stamped later, by the writer (internal/ledger/local's
+// states. created is stamped later, by the writer (ledger/local's
 // InitLedger), not here — this function has no clock to read.
 //
 // An incomplete answer set (fewer lines than Prompts, simulating stdin

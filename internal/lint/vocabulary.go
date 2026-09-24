@@ -16,7 +16,7 @@ package lint
 import (
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Vocabulary is the exact phrase list this lint scans for, recorded here

@@ -11,7 +11,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 func draft(kind ledger.Kind, title string) *ledger.Entry {
@@ -138,9 +138,9 @@ func TestInitLedger(t *testing.T) {
 	})
 
 	t.Run("TestNoFilesystemImportsAboveTheBackend still holds with this file added", func(t *testing.T) {
-		// internal/ledger/local already has the filesystem allowlist;
+		// ledger/local already has the filesystem allowlist;
 		// this subtest exists only to document that this file needed no
-		// new entry there. The real check lives in internal/ledger and
+		// new entry there. The real check lives in ledger and
 		// is run as part of the module's own test suite.
 	})
 }

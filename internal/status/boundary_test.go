@@ -39,7 +39,7 @@ func TestNoSubprocess(t *testing.T) {
 		// What this check actually needs to prove — "this lane never shells
 		// out" — is that internal/status's OWN code never calls
 		// exec.Command, which a direct-import check answers exactly, and
-		// which mirrors internal/ledger/boundary_test.go's own precedent
+		// which mirrors ledger/boundary_test.go's own precedent
 		// for the identical class of rule (that test also checks direct
 		// imports, not go list -deps's transitive closure, for the same
 		// reason: a vendored dependency's own filesystem use is not this

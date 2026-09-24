@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/distill"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira distill` at the command boundary: the exit codes, the one-line answers,

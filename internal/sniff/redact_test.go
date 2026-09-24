@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestCredentialsAreRefusedWholesale is the privacy half of the acceptance.
@@ -119,7 +119,7 @@ func TestCredentialShapes(t *testing.T) {
 		{"password: yes", "password: yes"},
 		{"a token count", "the brief is capped at 1500 tokens forever"},
 		{"an entry id", "dec-0014 settled that lexical matching decides conflicts"},
-		{"a path", "internal/ledger/local/local.go holds every path walk"},
+		{"a path", "ledger/local/local.go holds every path walk"},
 		{"a sha", "the commit is fc48e11 and the tree is clean"},
 	}
 	for _, tc := range keep {

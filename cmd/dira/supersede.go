@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // `dira supersede` is how thinking is retired.

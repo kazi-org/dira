@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/sniff"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // `dira sniff` is capture tier 1 (dec-0003): pattern matching over the session

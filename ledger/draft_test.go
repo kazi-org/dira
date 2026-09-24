@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // draftDocument is an entry as an agent would hand it to `dira log --stdin`:
@@ -211,7 +211,7 @@ func TestADraftKeepsTheAuthorsFormatting(t *testing.T) {
 func TestValidateDraftAndValidateAgreeOnEveryRealEntry(t *testing.T) {
 	t.Parallel()
 
-	paths, err := filepath.Glob(filepath.Join("..", "..", ".dira", "entries", "*.md"))
+	paths, err := filepath.Glob(filepath.Join("..", ".dira", "entries", "*.md"))
 	if err != nil {
 		t.Fatalf("globbing the ledger: %v", err)
 	}

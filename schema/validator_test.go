@@ -7,12 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/frontmatter"
+	"github.com/kazi-org/dira/frontmatter"
 )
 
 // TestValidatorAcceptsTheLedger drives the exported entry point over the same
 // corpus the unexported helpers are tested on. The two must not be able to
-// disagree: Validate is what internal/ledger's fixture is checked with, so a
+// disagree: Validate is what ledger's fixture is checked with, so a
 // Validator that accepts more than the schema would make that check vacuous.
 func TestValidatorAcceptsTheLedger(t *testing.T) {
 	t.Parallel()
@@ -61,7 +61,7 @@ func TestValidatorRejectsInvalidFixtures(t *testing.T) {
 }
 
 // TestSplitFrontmatterReturnsTheBodyVerbatim pins the half of SplitFrontmatter
-// that entry_test.go never exercises. internal/ledger's codec relies on the
+// that entry_test.go never exercises. ledger's codec relies on the
 // body arriving byte for byte, trailing newlines included — the body is the
 // entry's prose "because", not a field, and a codec that trimmed it would lose
 // content on every round-trip.
@@ -109,7 +109,7 @@ func TestSplitFrontmatterReturnsTheBodyVerbatim(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			front, body, err := SplitFrontmatter([]byte(tc.content))
 
-			// The implementation lives in internal/frontmatter, so a
+			// The implementation lives in frontmatter, so a
 			// package on the command path can reach it without
 			// linking this package's JSON Schema compiler.
 			// SplitFrontmatter is the published name for it, and this

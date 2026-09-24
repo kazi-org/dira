@@ -12,7 +12,7 @@ import (
 	chainpkg "github.com/kazi-org/dira/internal/chain"
 	"github.com/kazi-org/dira/internal/config"
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira brief` is inversion 2 — review is push, not pull (int-0001).

@@ -31,7 +31,7 @@ var filesystemPackages = []string{"os", "io/fs", "io/ioutil", "path", "path/file
 // one is a design decision, and it should read like one in the diff.
 var allowed = map[string][]string{
 	// The filesystem backend. This is the point of the exercise.
-	"internal/ledger/local": filesystemPackages,
+	"ledger/local": filesystemPackages,
 
 	// The command itself, for os.Stdout, os.Stderr, os.Args and os.Exit, and
 	// — since E2-L7 — path/filepath. `dira import <dir>` is the first command
@@ -92,8 +92,8 @@ func TestNoFilesystemImportsAboveTheBackend(t *testing.T) {
 	if len(imports) < 3 {
 		t.Fatalf("go list reported %d packages in this module; the check is not measuring anything", len(imports))
 	}
-	if _, ok := imports["internal/ledger"]; !ok {
-		t.Fatal("internal/ledger is not in the listing; the package this rule exists to constrain was not examined")
+	if _, ok := imports["ledger"]; !ok {
+		t.Fatal("ledger is not in the listing; the package this rule exists to constrain was not examined")
 	}
 
 	for pkg, list := range imports {
@@ -108,7 +108,7 @@ func TestNoFilesystemImportsAboveTheBackend(t *testing.T) {
 				"Only a storage backend may name a path (dec-0005): the github backend in E7 has no filesystem, "+
 				"so anything above ledger.Store that reaches for one is a change E7 would have to make above the interface.\n"+
 				"Route the access through ledger.Store, or — if this really is a new backend — add it to the allowlist in %s.",
-				pkg, imported, "internal/ledger/boundary_test.go")
+				pkg, imported, "ledger/boundary_test.go")
 		}
 	}
 }
@@ -122,13 +122,13 @@ func TestTheImportBoundaryHasTeeth(t *testing.T) {
 
 	imports := moduleImports(t)
 
-	backend := imports["internal/ledger/local"]
+	backend := imports["ledger/local"]
 	if backend == nil {
-		t.Fatal("internal/ledger/local is not in the listing; the backend the allowlist exempts does not exist")
+		t.Fatal("ledger/local is not in the listing; the backend the allowlist exempts does not exist")
 	}
 	for _, want := range []string{"os", "path/filepath"} {
 		if !slices.Contains(backend, want) {
-			t.Errorf("internal/ledger/local does not import %q; either the backend stopped touching the filesystem "+
+			t.Errorf("ledger/local does not import %q; either the backend stopped touching the filesystem "+
 				"or the listing is wrong, and in both cases this rule is measuring nothing", want)
 		}
 	}

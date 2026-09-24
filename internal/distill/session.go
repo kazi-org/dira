@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The session: everything that has to be decided *before* the keystroke loop is
@@ -58,7 +58,7 @@ import (
 //
 // Not here. Deciding whether stdin is a terminal means asking the operating
 // system about a file descriptor, and dec-0005's boundary (enforced by
-// internal/ledger/boundary_test.go) does not put this package on the list of
+// ledger/boundary_test.go) does not put this package on the list of
 // those that may import `os`. It does not need to be: whether a human is present
 // is a fact about the surface, and this package takes it as an injected value
 // exactly as it takes the clock and the editor. `cmd/dira` is on that list and

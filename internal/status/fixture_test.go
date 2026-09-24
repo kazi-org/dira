@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestFixtureCorpus is E4-L2-T2's acc line.

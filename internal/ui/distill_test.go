@@ -17,10 +17,10 @@ import (
 	"testing"
 	texttemplate "text/template"
 
-	"github.com/kazi-org/dira/internal/frontmatter"
+	"github.com/kazi-org/dira/frontmatter"
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // distillEntry builds one staged decision, in the shape `dira sniff` actually

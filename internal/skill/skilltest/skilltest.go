@@ -1,6 +1,6 @@
 // Package skilltest locates the skill document this repository ships.
 //
-// It exists as its own package, and is on internal/ledger/boundary_test.go's
+// It exists as its own package, and is on ledger/boundary_test.go's
 // allowlist, for the same reason internal/index/indextest is: dec-0005 says
 // only a storage backend may name a path, and internal/skill is pure policy —
 // it takes a document's TEXT and returns what it found. Reading the file is a

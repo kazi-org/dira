@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 	"github.com/kazi-org/dira/schema"
 )
 
@@ -704,7 +704,7 @@ func (f *fakeEditor) ran(t *testing.T) string {
 // handWrapped is an entry file as a human wrote it: two folded scalars wrapped at
 // a width no greedy algorithm in this codebase would choose, and a body.
 //
-// The wrapping is the point. internal/ledger's style memo re-emits a scalar as it
+// The wrapping is the point. ledger's style memo re-emits a scalar as it
 // was found rather than re-folding it from the parsed value, and this fixture is
 // what makes "the frontmatter is byte-identical" a claim about that rather than a
 // claim about a file dira wrote itself and can trivially write again.

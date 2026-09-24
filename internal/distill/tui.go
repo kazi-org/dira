@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The one-keystroke loop: one card at a time, one byte to dispose of it.

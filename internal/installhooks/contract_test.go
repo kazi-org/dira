@@ -36,7 +36,7 @@ package installhooks
 // reached; the point of that second test is to not be the eighth.
 //
 // IMPORT NOTE (dec-0005). This file imports os and path/filepath. That is
-// allowed and load-bearing: internal/ledger/boundary_test.go reads `go list`'s
+// allowed and load-bearing: ledger/boundary_test.go reads `go list`'s
 // .Imports, which covers non-test files only, so *_test.go in this package may
 // touch the filesystem while the shipped code may not. internal/installhooks
 // is on nobody's allowlist and must not be added to one.

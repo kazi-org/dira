@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 	"github.com/kazi-org/dira/schema"
 )
 
@@ -232,7 +232,7 @@ func TestImportCommand(t *testing.T) {
 		// TestTheImportBoundaryHasTeeth are the mechanical enforcement;
 		// this asserts the entry itself carries exactly what T6 says it
 		// widened, no more.
-		data, err := os.ReadFile(filepath.Join("..", "..", "internal", "ledger", "boundary_test.go"))
+		data, err := os.ReadFile(filepath.Join("..", "..", "ledger", "boundary_test.go"))
 		if err != nil {
 			t.Fatalf("reading boundary_test.go: %v", err)
 		}

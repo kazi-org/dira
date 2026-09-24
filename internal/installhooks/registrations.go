@@ -5,7 +5,7 @@
 // The package names no path and opens no file: it takes bytes and returns
 // bytes, the same split internal/skill makes for the same reason. Confining
 // the write to a directory the operator chose is cmd/dira's job, and
-// internal/ledger/boundary_test.go keeps os, io/fs, path and path/filepath out
+// ledger/boundary_test.go keeps os, io/fs, path and path/filepath out
 // of everything here (dec-0005).
 package installhooks
 

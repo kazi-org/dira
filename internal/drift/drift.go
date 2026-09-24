@@ -24,8 +24,8 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/chain"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // State is what Classify found for one active intent.

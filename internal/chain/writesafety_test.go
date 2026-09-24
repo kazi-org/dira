@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/config"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // TestNoHopCanWrite is E5-L2-T3's acceptance line: the adversarial proof that

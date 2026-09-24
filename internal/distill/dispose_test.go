@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 	"github.com/kazi-org/dira/schema"
 )
 
@@ -75,7 +75,7 @@ func TestDispose(t *testing.T) {
 		// dec-0025: the state stays staged, and staged is a legal state
 		// for a decision. It is asked of Kind.States() rather than
 		// spelled out, because that list is held in agreement with the
-		// schema by internal/ledger's own tests.
+		// schema by ledger's own tests.
 		if !slicesContain(ledger.KindDecision.States(), d.After.State) {
 			t.Errorf("the confirmed entry is %q, which is not one of %v", d.After.State, ledger.KindDecision.States())
 		}

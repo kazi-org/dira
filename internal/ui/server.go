@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/distill"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/why"
+	"github.com/kazi-org/dira/ledger"
 )
 
 //go:embed templates/*.gohtml

@@ -204,6 +204,25 @@ and repository context. `dira brief --chain` surfaces parent context; namespaced
 references connect entries across ledgers. See the [design document](docs/design.md)
 for the tier model and privacy rules.
 
+## Use dira as a Go library
+
+The ledger model, its codec, the frontmatter splitter, and the entry schema
+are importable packages, so a tool that reads or writes `.dira/` does not have
+to copy dira's sources or shell out to the CLI:
+
+```go
+import (
+    "github.com/kazi-org/dira/frontmatter"   // split an entry file into YAML + body
+    "github.com/kazi-org/dira/ledger"        // Entry, Decode, Encode, Validate, Store
+    "github.com/kazi-org/dira/ledger/local"  // the filesystem-backed Store
+    "github.com/kazi-org/dira/schema"        // the JSON Schema and its validator
+)
+```
+
+`ledger/fixture` and `ledger/ledgertest` are test helpers and are public for
+the same reason. Everything under `internal/` remains dira's own and may
+change without notice; the packages above follow the module's semver tags.
+
 ## Relationship to kazi
 
 [kazi](https://github.com/kazi-org/kazi) checks whether a declared goal is complete.

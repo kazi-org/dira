@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // DeriveToBePlanned returns one Row per accepted decision or active intent

@@ -9,8 +9,8 @@ import (
 
 	"github.com/kazi-org/dira/internal/chain"
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/render"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // compose fills the ceiling and returns what fitted.

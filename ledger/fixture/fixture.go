@@ -35,7 +35,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // Size is the entry count E1's acceptance lines are written against.

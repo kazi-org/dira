@@ -9,8 +9,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/ledgertest"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/ledgertest"
 )
 
 // memStore is a ledger.Store held in memory, so the id allocator can be tested

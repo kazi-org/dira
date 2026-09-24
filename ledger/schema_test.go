@@ -7,7 +7,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 	"github.com/kazi-org/dira/schema"
 )
 
@@ -273,8 +273,8 @@ func TestValidateAgreesWithTheSchema(t *testing.T) {
 		minFixture int
 	}{
 		{dir: ledgerDir, wantValid: true, minFixture: 20},
-		{dir: "../../schema/testdata/valid", wantValid: true, minFixture: 3},
-		{dir: "../../schema/testdata/invalid", wantValid: false, minFixture: 15},
+		{dir: "../schema/testdata/valid", wantValid: true, minFixture: 3},
+		{dir: "../schema/testdata/invalid", wantValid: false, minFixture: 15},
 	}
 
 	for _, corpus := range corpora {

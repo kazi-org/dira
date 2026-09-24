@@ -3,8 +3,8 @@ package lint_test
 import (
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
 	"github.com/kazi-org/dira/internal/lint"
+	"github.com/kazi-org/dira/ledger"
 )
 
 func entry(id string, tags []string, edgeNote string) *ledger.Entry {

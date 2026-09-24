@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/kazi-org/dira/internal/kazi"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // --- fixture loading ------------------------------------------------------

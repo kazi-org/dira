@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // TestTheMatcherCannotReachTheNetwork is dec-0003 and cst-0004 as a test rather
@@ -23,7 +23,7 @@ import (
 // a call today.
 //
 // The two `net/*` packages that are allowed are the URL and IP-address parsers
-// the JSON Schema validator drags in through internal/ledger for its `format`
+// the JSON Schema validator drags in through ledger for its `format`
 // keywords. Neither can open a socket. `net` itself, `net/http`, `crypto/tls`
 // and `os/exec` can, and none of them is reachable from here.
 func TestTheMatcherCannotReachTheNetwork(t *testing.T) {
@@ -40,8 +40,8 @@ func TestTheMatcherCannotReachTheNetwork(t *testing.T) {
 	packages := strings.Fields(string(out))
 
 	// Without this the test passes just as happily on an empty listing.
-	if !slices.Contains(packages, "github.com/kazi-org/dira/internal/ledger") {
-		t.Fatalf("go list reported %d packages and not internal/ledger; the check is not measuring anything", len(packages))
+	if !slices.Contains(packages, "github.com/kazi-org/dira/ledger") {
+		t.Fatalf("go list reported %d packages and not ledger; the check is not measuring anything", len(packages))
 	}
 
 	// net/url and net/netip parse strings. Everything else under net can

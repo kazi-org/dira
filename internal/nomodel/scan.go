@@ -41,7 +41,7 @@
 // This file is pure: the denylist, the patterns, the exclusion lists and the
 // predicates over them. Enumerating files and reading them happens in
 // nomodel_test.go, which is this package's only caller. That split is not a
-// testing affectation — internal/ledger/boundary_test.go enforces dec-0005 by
+// testing affectation — ledger/boundary_test.go enforces dec-0005 by
 // refusing `os`, `io/fs`, `path` and `path/filepath` in any non-test package
 // above the storage backend. dec-0005 is about the ledger and this package is
 // not, but the rule is mechanical and it is right to be; complying with it by
@@ -292,7 +292,7 @@ func APIKeyNames(content string) []string {
 // ScanFiles applies the API-key rule to paths, reading each one through read.
 //
 // The I/O is injected rather than performed here, and that is not a testing
-// affectation: internal/ledger/boundary_test.go enforces dec-0005 by refusing
+// affectation: ledger/boundary_test.go enforces dec-0005 by refusing
 // any non-test package above the storage backend the imports `os`, `io/fs`,
 // `path` or `path/filepath`. dec-0005 is about the ledger and this package is
 // not, but the rule is mechanical and it is right to be — so the policy lives

@@ -14,7 +14,7 @@ import (
 // exists for exactly this gap: ValidateDraft is dira's own Go rules, and
 // entry.schema.json is the published contract; this proves a freshly-written
 // entry satisfies both, the write path's counterpart to
-// internal/ledger/schema_test.go's read-path check.
+// ledger/schema_test.go's read-path check.
 func TestInitEntriesValidateAgainstSchema(t *testing.T) {
 	root := t.TempDir()
 	var out, errBuf bytes.Buffer

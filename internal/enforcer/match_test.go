@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // wantRecall is the bar E3-L2's acceptance line sets: at least 90% of the

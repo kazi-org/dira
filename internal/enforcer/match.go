@@ -1,6 +1,6 @@
 package enforcer
 
-import "github.com/kazi-org/dira/internal/ledger"
+import "github.com/kazi-org/dira/ledger"
 
 // The scoring rule, and the two numbers that make it a verdict.
 //

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // `dira log` is dira's write verb. It is not a history view: nothing in dira

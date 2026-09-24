@@ -45,7 +45,7 @@ func goTool(t *testing.T) string {
 // cache makes it 11.79MB. Attributed:
 //
 //	+2.51MB  the ledger codec: yaml.v3, and the JSON Schema validator that
-//	         internal/ledger reaches into for SplitFrontmatter, which drags
+//	         ledger reaches into for SplitFrontmatter, which drags
 //	         santhosh-tekuri/jsonschema and golang.org/x/text along with it
 //	+6.52MB  modernc.org/sqlite and its transpiled libc — the derived read
 //	         cache (dec-0002, dec-0015)
@@ -72,9 +72,9 @@ func goTool(t *testing.T) string {
 // "worth a second look by whoever owns them"; the first has now had it.
 //
 //   - jsonschema and x/text are gone from the command path entirely, not
-//     allowlisted. internal/ledger imported the schema package for
+//     allowlisted. ledger imported the schema package for
 //     SplitFrontmatter and ErrNoFrontmatter, neither of which validates
-//     anything; both now live in internal/frontmatter, which depends on
+//     anything; both now live in frontmatter, which depends on
 //     nothing. Measured on this tree, before against after: `go list -deps
 //     ./cmd/dira` goes from 2 jsonschema packages and 16 x/text packages to
 //     none of either; the binary from 20,909,632 to 19,647,024 bytes (−1.20MiB);

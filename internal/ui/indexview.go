@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // A Row is one entry as the index lists it.

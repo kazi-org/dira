@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/fixture"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // A derived cache that does not beat reading the files has not earned the 6.5MB
@@ -118,7 +118,7 @@ func TestTheCacheBeatsReadingTheFiles(t *testing.T) {
 	// it, so a median outside it is a statement about the scheduler. Reporting
 	// that as a regression is the error this repo keeps making in new costumes:
 	// a check announcing a verdict it lacked the evidence to reach. Same
-	// treatment as internal/ledger/fixture's full-read budget, and the same
+	// treatment as ledger/fixture's full-read budget, and the same
 	// reason dec-0026 dropped the cold single-run ceiling.
 	switch {
 	case warm.min > warmBudget:

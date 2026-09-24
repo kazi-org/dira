@@ -15,7 +15,7 @@ import (
 	// against Entry.Validate, not against the JSON Schema document; the
 	// document is still the contract, and schema_test.go is what holds the
 	// two in agreement.
-	"github.com/kazi-org/dira/internal/frontmatter"
+	"github.com/kazi-org/dira/frontmatter"
 )
 
 // Decode reads one entry file — frontmatter and body — into an Entry.

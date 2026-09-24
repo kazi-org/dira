@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kazi-org/dira/internal/ledger/fixture"
+	"github.com/kazi-org/dira/ledger/fixture"
 )
 
 // TestTheBriefOpensNoSocket is cst-0004 asserted against the process rather than

@@ -12,7 +12,7 @@ import (
 	"github.com/kazi-org/dira/internal/cli"
 	"github.com/kazi-org/dira/internal/index"
 	"github.com/kazi-org/dira/internal/kazi"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira map` is E4's join surface: the ledger's decisions and intents,

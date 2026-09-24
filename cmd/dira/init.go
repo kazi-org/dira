@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/kazi-org/dira/internal/interview"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // `dira init --interview` seeds a fresh personal or workspace ledger by
@@ -23,7 +23,7 @@ import (
 // Everything about the all-or-nothing guarantee (dec-0010: no successful
 // init produces an empty ledger, and no unsuccessful one produces a
 // non-empty one) lives in internal/interview.Build (validation, no I/O) and
-// internal/ledger/local.InitLedger (the write, staged and committed once).
+// ledger/local.InitLedger (the write, staged and committed once).
 // This file is the seam between them and the terminal: it owns the prompt
 // loop and nothing about what makes an answer valid.
 //

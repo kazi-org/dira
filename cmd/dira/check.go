@@ -12,8 +12,8 @@ import (
 	"github.com/kazi-org/dira/internal/config"
 	"github.com/kazi-org/dira/internal/enforcer"
 	"github.com/kazi-org/dira/internal/index"
-	"github.com/kazi-org/dira/internal/ledger"
-	"github.com/kazi-org/dira/internal/ledger/local"
+	"github.com/kazi-org/dira/ledger"
+	"github.com/kazi-org/dira/ledger/local"
 )
 
 // runCheck is the relitigation firewall at the command line.

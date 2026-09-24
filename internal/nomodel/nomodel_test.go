@@ -16,7 +16,7 @@ import (
 // the enumerator
 //
 // It lives in the test file rather than in scan.go because
-// internal/ledger/boundary_test.go enforces dec-0005 over every non-test package
+// ledger/boundary_test.go enforces dec-0005 over every non-test package
 // in this module: nothing above the storage backend may import `os`, `io/fs`,
 // `path` or `path/filepath`. This package has no runtime consumer — its only
 // caller is this file — so the policy stays pure in scan.go and the I/O stays

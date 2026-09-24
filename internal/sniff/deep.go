@@ -3,7 +3,7 @@ package sniff
 import (
 	"context"
 
-	"github.com/kazi-org/dira/internal/ledger"
+	"github.com/kazi-org/dira/ledger"
 )
 
 // The deep run: tier 1 first, always, and the handoff afterwards.
