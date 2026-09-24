@@ -230,7 +230,7 @@ func (w *writer) appliesWhen(a *AppliesWhen) {
 		// unreached in practice. Kept so a future Params value this codec
 		// was not written for fails loudly on the entry it belongs to,
 		// rather than silently dropping the clause.
-		w.buf.WriteString(fmt.Sprintf("  action: %s\n", doubleQuote(a.Action)))
+		fmt.Fprintf(&w.buf, "  action: %s\n", doubleQuote(a.Action))
 		return
 	}
 	for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
