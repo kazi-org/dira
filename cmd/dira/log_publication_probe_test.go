@@ -168,14 +168,15 @@ func observePublication(binary, root, title, body string) (report publicationRep
 	if err != nil {
 		return report, err
 	}
-	defer eventsR.Close()
-	defer eventsW.Close()
+	// Best-effort cleanup also runs after explicit endpoint closes below.
+	defer func() { _ = eventsR.Close() }()
+	defer func() { _ = eventsW.Close() }()
 	acksR, acksW, err := os.Pipe()
 	if err != nil {
 		return report, err
 	}
-	defer acksR.Close()
-	defer acksW.Close()
+	defer func() { _ = acksR.Close() }()
+	defer func() { _ = acksW.Close() }()
 	cmd := exec.CommandContext(ctx, binary, "log", "-C", root, "--kind", "note", "--title", title, "--body", "-")
 	cmd.Stdin = strings.NewReader(body)
 	cmd.ExtraFiles = []*os.File{eventsW, acksR}
