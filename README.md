@@ -85,6 +85,29 @@ dira ui          # Browse the ledger in a local, read-only web view
 The CLI also works directly from your terminal or another agent's workflow. The
 bundled hooks and skill target Claude Code.
 
+## Install from a Release
+
+Release archives and `checksums.txt` are available from
+[GitHub Releases](https://github.com/kazi-org/dira/releases). For example, download
+and verify the macOS ARM64 archive with Bash:
+
+```bash
+set -euo pipefail
+VERSION=0.2.0  # Choose an existing release tag, without the leading v.
+ASSET="dira_${VERSION}_darwin_arm64.tar.gz"
+curl -fLO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/${ASSET}"
+curl -fLO "https://github.com/kazi-org/dira/releases/download/v${VERSION}/checksums.txt"
+grep "  ${ASSET}$" checksums.txt | shasum -a 256 -c -
+tar -xzf "${ASSET}"
+./dira --version
+```
+
+For an Intel Mac, use `dira_${VERSION}_darwin_amd64.tar.gz`; for Linux AMD64,
+use `dira_${VERSION}_linux_amd64.tar.gz`; for Linux ARM64, use
+`dira_${VERSION}_linux_arm64.tar.gz`. On Linux, `sha256sum -c -` can replace
+`shasum -a 256 -c -`. Put the verified `dira` executable in a directory on your
+`PATH` to use it outside the download directory.
+
 ## How it works
 
 **Capture → review → recall → check.** dira keeps the reasoning close to the code
