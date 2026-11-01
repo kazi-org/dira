@@ -482,96 +482,38 @@ func TestKillingDiraLeavesNoPartialEntry(t *testing.T) {
 	}
 }
 
-// TestAConcurrentReaderNeverSeesAHalfWrittenEntry is the atomicity of the
-// single write, observed rather than argued.
-//
-// A reader polls the entries directory while a `dira log` with a multi-megabyte
-// body is running. The entry file has to be either absent or complete every
-// single time it is looked at: the backend writes the content to a temporary
-// file and commits it with a link, and a link either happens or does not.
-//
-// This is the check with teeth for that property. Replacing the temporary file
-// and link with a write straight to the entry path fails here within one run,
-// while the same substitution survives being killed at arbitrary moments,
-// because the window a signal has to land in is microseconds wide and the window
-// a reader has to look in is however long the write takes.
+// TestAConcurrentReaderNeverSeesAHalfWrittenEntry separates deterministic,
+// instrumented write-overlap coverage from the ordinary CLI positive control.
+// Only final-path observations while a real first write chunk is held incomplete
+// count toward the 1000-reader minimum. The disposable direct-write mutant must
+// be rejected by that same harness specifically for partial visibility.
 func TestAConcurrentReaderNeverSeesAHalfWrittenEntry(t *testing.T) {
 	t.Parallel()
-
-	binary := buildDira(t)
-	root := ledgerRoot(t)
-	path := filepath.Join(root, ".dira", "entries", "note-0001.md")
-
-	// Big enough that writing it takes long enough to be caught looking.
 	body := strings.Repeat("The ledger is the record, and a half-written entry is corruption in it.\n", 120000)
-
-	cmd := exec.Command(binary, "log", "-C", root,
-		"--kind", "note",
-		"--title", "An entry read while it is being written",
-		"--body", "-")
-	cmd.Stdin = strings.NewReader(body)
-	var stderr strings.Builder
-	cmd.Stderr = &stderr
-
-	type reading struct {
-		attempts int
-		sizes    []int64
-	}
-	done := make(chan struct{})
-	observations := make(chan reading, 1)
-
-	// Sizes rather than decodability, and stat rather than read. A
-	// half-written entry whose frontmatter happens to be complete still
-	// parses — the body is trailing text, so a truncated entry is a valid
-	// entry with prose missing, and that is exactly the failure being looked
-	// for. Stat also costs microseconds against milliseconds for reading
-	// megabytes, which is the difference between sampling the write
-	// thousands of times and sampling it once.
-	go func() {
-		var got reading
-		for {
-			select {
-			case <-done:
-				observations <- got
+	const title = "An entry read while it is being written"
+	t.Run("ordinary CLI control", func(t *testing.T) {
+		runOrdinaryPublicationControl(t, buildDira(t), ledgerRoot(t), title, body)
+	})
+	for _, mutant := range []bool{false, true} {
+		name := "instrumented atomic writer"
+		if mutant {
+			name = "direct-final-write counterexample"
+		}
+		t.Run(name, func(t *testing.T) {
+			binary := buildPublicationProbe(t, mutant)
+			report, err := observePublication(binary, ledgerRoot(t), title, body)
+			t.Logf("%s: partial-phase stats=%d, visible=%d, staged=%d, total=%d, published stats=%d",
+				name, report.partialStats, report.partialVisible, report.partial, report.total, report.publishedStats)
+			if mutant {
+				var violation *partialPublicationError
+				if !errors.As(err, &violation) || report.partialStats < 1000 || report.partialVisible != report.partialStats {
+					t.Fatalf("counterexample must fail specifically for partial visibility with full overlap coverage: report=%+v err=%v", report, err)
+				}
 				return
-			default:
 			}
-			got.attempts++
-			if info, err := os.Stat(path); err == nil {
-				got.sizes = append(got.sizes, info.Size())
+			if err != nil {
+				t.Fatal(err)
 			}
-		}
-	}()
-
-	if err := cmd.Run(); err != nil {
-		close(done)
-		t.Fatalf("dira log: %v\n%s", err, stderr.String())
+		})
 	}
-	close(done)
-
-	final, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("reading the finished entry: %v", err)
-	}
-	got := <-observations
-	for _, size := range got.sizes {
-		if size != int64(len(final)) {
-			t.Fatalf("a reader saw %s at %d bytes while it was being written; the finished entry is %d bytes, "+
-				"so a half-written entry was visible under its own name", path, size, len(final))
-		}
-	}
-
-	// The vacuity guard is how hard the reader looked, not how often it
-	// happened to find the file. Whether a sighting lands inside the write is
-	// a matter of scheduling and machine load, and asserting one would make
-	// this test fail on a busy runner rather than on a broken write; that the
-	// reader ran thousands of times during a write it could have caught is
-	// the part that must be true for the check above to mean anything.
-	const wantAttempts = 1000
-	if got.attempts < wantAttempts {
-		t.Errorf("the reader only looked %d times during the write, want at least %d; it was starved, "+
-			"so seeing nothing half-written says nothing", got.attempts, wantAttempts)
-	}
-	t.Logf("the reader looked %d times and saw the entry file %d times, always whole (%d bytes)",
-		got.attempts, len(got.sizes), len(final))
 }
