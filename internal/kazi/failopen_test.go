@@ -206,10 +206,11 @@ func TestStubBinaryMatrix(t *testing.T) {
 		isolatedPATH(t, installFake(t, "sleepy.sh"))
 
 		const deadline = 300 * time.Millisecond
+		// Include context construction: its deadline clock starts inside WithTimeout.
+		start := time.Now()
 		ctx, cancel := context.WithTimeout(context.Background(), deadline)
 		defer cancel()
 
-		start := time.Now()
 		_, err := Snapshot(ctx)
 		elapsed := time.Since(start)
 
