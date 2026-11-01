@@ -142,6 +142,7 @@ func TestErrorsDoNotBecomeCompliantResults(t *testing.T) {
 	if result, err := engine.Check(ctx, entriesReader{}, "add daemon"); result != nil || !errors.Is(err, context.Canceled) {
 		t.Fatal("reader cancellation became a verdict")
 	}
+	//nolint:staticcheck // SA1012: deliberately verify the API rejects a nil context.
 	if result, err := engine.Check(nil, entriesReader{}, "add daemon"); result != nil || err == nil {
 		t.Fatal("missing context became a verdict")
 	}
